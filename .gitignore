@@ -1,0 +1,17 @@
+*.suo
+*.vssscc
+*.scc
+*.user
+/*/Bin/*
+/*/obj/*
+/*/*.suo
+/*/*.vssscc
+/*/*.scc
+/*/*.user
+/*/Dotfuscated/*
+/*/PerfLogs/*
+
+/UpgradeLog.*
+/_UpgradeReport_Files/*.*
+/Tup.Cobar.SqlParser/java.src
+/Tup.Cobar.SqlParser.UnitTest/java.src
