@@ -13,5 +13,5 @@
 
 /UpgradeLog.*
 /_UpgradeReport_Files/*.*
-/Tup.Cobar.SqlParser/java.src
-/Tup.Cobar.SqlParser.UnitTest/java.src
+/Tup.Cobar.Parser/java.src
+/Tup.Cobar.Parser.UnitTest/java.src

@@ -1,0 +1,1 @@
+java -jar sharpen-jar-with-dependencies.jar E:\Files\Git\alibaba\cobar\server\src\main\parser\com\alibaba\cobar\parser  @sharpen-all-options -cp log4j-1.2.17.jar
