@@ -14,8 +14,10 @@
 * limitations under the License.
 */
 
+using Sharpen;
 using System;
 using System.Collections.Generic;
+using System.Numerics;
 
 namespace Tup.Cobar.Parser.Util
 {
@@ -23,6 +25,7 @@ namespace Tup.Cobar.Parser.Util
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ExprEvalUtils
     {
+        //TODO  ExprEvalUtils 
         private const int ClassMapDouble = 1;
 
         private const int ClassMapFloat = 2;
@@ -33,8 +36,7 @@ namespace Tup.Cobar.Parser.Util
 
         private const int ClassMapLong = 5;
 
-        private static readonly IDictionary<Type, int> classMap = new Dictionary<Type, int
-            >(5);
+        private static readonly IDictionary<Type, int> classMap = new Dictionary<Type, int>(5);
 
         static ExprEvalUtils()
         {
@@ -113,150 +115,153 @@ namespace Tup.Cobar.Parser.Util
         //	}
         //}
 
-        //private const int NumInt = 1;
+        private const int NumInt = 1;
 
-        //private const int NumLong = 2;
+        private const int NumLong = 2;
 
-        //private const int NumBigInteger = 3;
+        private const int NumBigInteger = 3;
 
-        //private const int NumBigDecimal = 4;
+        private const int NumBigDecimal = 4;
 
-        //public static Number Calculate(UnaryOperandCalculator cal, Number num)
-        //{
-        //	if (num == null)
-        //	{
-        //		return null;
-        //	}
-        //	if (num is int)
-        //	{
-        //		return cal.Calculate((int)num);
-        //	}
-        //	if (num is long)
-        //	{
-        //		return cal.Calculate((long)num);
-        //	}
-        //	if (num is double)
-        //	{
-        //		return cal.Calculate((BigDecimal)num);
-        //	}
-        //	if (num is BigInteger)
-        //	{
-        //		return cal.Calculate((BigInteger)num);
-        //	}
-        //	throw new ArgumentException("unsupported add calculate: " + num.GetType());
-        //}
+        public static Number Calculate(UnaryOperandCalculator cal, Number num)
+        {
+            //if (num == null)
+            //{
+            //    return null;
+            //}
+            //if (num is int)
+            //{
+            //    return cal.Calculate((int)num);
+            //}
+            //if (num is long)
+            //{
+            //    return cal.Calculate((long)num);
+            //}
+            //if (num is double)
+            //{
+            //    return cal.Calculate((double)num);
+            //}
+            //if (num is BigInteger)
+            //{
+            //    return cal.Calculate((BigInteger)num);
+            //}
+            throw new ArgumentException("unsupported add calculate: " + num.GetType());
+        }
 
-        //public static Number Calculate(BinaryOperandCalculator cal, Number n1, Number n2)
-        //{
-        //	if (n1 == null || n2 == null)
-        //	{
-        //		return null;
-        //	}
-        //	if (n1 is int)
-        //	{
-        //		return cal.Calculate((int)n1, (int)n2);
-        //	}
-        //	if (n1 is long)
-        //	{
-        //		return cal.Calculate((long)n1, (long)n2);
-        //	}
-        //	if (n1 is BigDecimal)
-        //	{
-        //		return cal.Calculate((BigDecimal)n1, (BigDecimal)n2);
-        //	}
-        //	if (n1 is BigInteger)
-        //	{
-        //		return cal.Calculate((BigInteger)n1, (BigInteger)n2);
-        //	}
-        //	throw new ArgumentException("unsupported add calculate: " + n1.GetType());
-        //}
+        public static Number Calculate(BinaryOperandCalculator cal, Number n1, Number n2)
+        {
+            if (n1 == null || n2 == null)
+            {
+                return null;
+            }
+            //if (n1 is int)
+            //{
+            //    return cal.Calculate((int)n1, (int)n2);
+            //}
+            //if (n1 is long)
+            //{
+            //    return cal.Calculate((long)n1, (long)n2);
+            //}
+            //if (n1 is BigDecimal)
+            //{
+            //    return cal.Calculate((BigDecimal)n1, (BigDecimal)n2);
+            //}
+            //if (n1 is BigInteger)
+            //{
+            //    return cal.Calculate((BigInteger)n1, (BigInteger)n2);
+            //}
+            throw new ArgumentException("unsupported add calculate: " + n1.GetType());
+        }
 
-        ///// <param name="obj1">class of String or Number</param>
-        //public static Pair<Number, Number> ConvertNum2SameLevel(object obj1, object obj2)
-        //{
-        //	Number n1;
-        //	Number n2;
-        //	if (obj1 is string)
-        //	{
-        //		n1 = String2Number((string)obj1);
-        //	}
-        //	else
-        //	{
-        //		n1 = (Number)obj1;
-        //	}
-        //	if (obj2 is string)
-        //	{
-        //		n2 = String2Number((string)obj2);
-        //	}
-        //	else
-        //	{
-        //		n2 = (Number)obj2;
-        //	}
-        //	if (n1 == null || n2 == null)
-        //	{
-        //		return new Pair<Number, Number>(n1, n2);
-        //	}
-        //	int l1 = GetNumberLevel(n1.GetType());
-        //	int l2 = GetNumberLevel(n2.GetType());
-        //	if (l1 > l2)
-        //	{
-        //		n2 = UpTolevel(n2, l1);
-        //	}
-        //	else
-        //	{
-        //		if (l1 < l2)
-        //		{
-        //			n1 = UpTolevel(n1, l2);
-        //		}
-        //	}
-        //	return new Pair<Number, Number>(n1, n2);
-        //}
+        /// <param name="obj1">class of String or Number</param>
+        public static Pair<Number, Number> ConvertNum2SameLevel(object obj1, object obj2)
+        {
+            Number n1=null;
+            Number n2=null;
+            //if (obj1 is string)
+            //{
+            //    n1 = String2Number((string)obj1);
+            //}
+            //else
+            //{
+            //    n1 = (Number)obj1;
+            //}
+            //if (obj2 is string)
+            //{
+            //    n2 = String2Number((string)obj2);
+            //}
+            //else
+            //{
+            //    n2 = (Number)obj2;
+            //}
+            //if (n1 == null || n2 == null)
+            //{
+            //    return new Pair<Number, Number>(n1, n2);
+            //}
+            //int l1 = GetNumberLevel(n1.GetType());
+            //int l2 = GetNumberLevel(n2.GetType());
+            //if (l1 > l2)
+            //{
+            //    n2 = UpTolevel(n2, l1);
+            //}
+            //else
+            //{
+            //    if (l1 < l2)
+            //    {
+            //        n1 = UpTolevel(n1, l2);
+            //    }
+            //}
+            return new Pair<Number, Number>(n1, n2);
+        }
 
         //private static Number UpTolevel(Number num, int level)
         //{
-        //	switch (level)
-        //	{
-        //		case NumInt:
-        //		{
-        //			if (num is int)
-        //			{
-        //				return num;
-        //			}
-        //			return num;
-        //		}
+        //    switch (level)
+        //    {
+        //        case NumInt:
+        //            {
+        //                if (num is int)
+        //                {
+        //                    return num;
+        //                }
+        //                return num;
+        //            }
 
-        //		case NumLong:
-        //		{
-        //			if (num is long)
-        //			{
-        //				return num;
-        //			}
-        //			return num;
-        //		}
+        //        case NumLong:
+        //            {
+        //                if (num is long)
+        //                {
+        //                    return num;
+        //                }
+        //                return num;
+        //            }
 
-        //		case NumBigInteger:
-        //		{
-        //			if (num is BigInteger)
-        //			{
-        //				return num;
-        //			}
-        //			return new BigInteger(num.ToString());
-        //		}
+        //        //case NumBigInteger:
+        //        //    {
+        //        //        if (num is BigInteger)
+        //        //        {
+        //        //            return num;
+        //        //        }
+        //        //        return BigInteger.Parse(num.ToString());
+        //        //        //return new BigInteger(num.ToString());
+        //        //    }
 
-        //		case NumBigDecimal:
-        //		{
-        //			if (num is BigDecimal)
-        //			{
-        //				return num;
-        //			}
-        //			return new BigDecimal(num.ToString());
-        //		}
+        //        case NumBigDecimal:
+        //            {
+        //                if (num is BigDecimal)
+        //                {
+        //                    return num;
+        //                }
+        //                return num.DoubleValue();
+        //                //return BigDecimal.P
+        //                //return new BigDecimal(num.ToString());
+        //            }
 
-        //		default:
-        //		{
-        //			throw new ArgumentException("unsupported number level: " + level);
-        //		}
-        //	}
+        //        default:
+        //            {
+        //                throw new ArgumentException("unsupported number level: " + level);
+        //            }
+        //    }
         //}
 
         //private static int GetNumberLevel(Type clz)
@@ -280,51 +285,52 @@ namespace Tup.Cobar.Parser.Util
         //	throw new ArgumentException("unsupported number class: " + clz);
         //}
 
-        //public static double String2Number(string str)
-        //{
-        //	if (str == null)
-        //	{
-        //		return 0;
-        //	}
-        //	try
-        //	{
-        //		return System.Convert.ToInt32(str);
-        //	}
-        //	catch (Exception)
-        //	{
-        //	}
-        //	try
-        //	{
-        //		return System.Convert.ToInt64(str);
-        //	}
-        //	catch (Exception)
-        //	{
-        //	}
-        //	try
-        //	{
-        //		MySQLLexer lexer = new MySQLLexer(str);
-        //		switch (lexer.Token())
-        //		{
-        //			case MySQLToken.LiteralNumPureDigit:
-        //			{
-        //				return lexer.IntegerValue();
-        //			}
+        public static Number String2Number(string str)
+        {
+            return null;
+            //if (str == null)
+            //{
+            //    return 0;
+            //}
+            //try
+            //{
+            //    return System.Convert.ToInt32(str);
+            //}
+            //catch (Exception)
+            //{
+            //}
+            //try
+            //{
+            //    return System.Convert.ToInt64(str);
+            //}
+            //catch (Exception)
+            //{
+            //}
+            //try
+            //{
+            //    MySQLLexer lexer = new MySQLLexer(str);
+            //    switch (lexer.Token())
+            //    {
+            //        case MySQLToken.LiteralNumPureDigit:
+            //            {
+            //                return lexer.IntegerValue();
+            //            }
 
-        //			case MySQLToken.LiteralNumMixDigit:
-        //			{
-        //				return lexer.DecimalValue();
-        //			}
+            //        case MySQLToken.LiteralNumMixDigit:
+            //            {
+            //                return lexer.DecimalValue();
+            //            }
 
-        //			default:
-        //			{
-        //				throw new ArgumentException("unrecognized number: " + str);
-        //			}
-        //		}
-        //	}
-        //	catch (SQLSyntaxErrorException e)
-        //	{
-        //		throw new ArgumentException("", e);
-        //	}
-        //}
+            //        default:
+            //            {
+            //                throw new ArgumentException("unrecognized number: " + str);
+            //            }
+            //    }
+            //}
+            //catch (SQLSyntaxErrorException e)
+            //{
+            //    throw new ArgumentException("", e);
+            //}
+        }
     }
 }

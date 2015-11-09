@@ -14,35 +14,30 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
 using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
+namespace Tup.Cobar.Parser.Ast.Expression.String
 {
+    /// <summary><code>higherPreExpr 'NOT'? ('REGEXP'|'RLIKE') higherPreExp</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LiteralBoolean : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+    public class RegexpExpression : BinaryOperatorExpression
     {
-        public static readonly int True = 1;
+        private readonly bool not;
 
-        public static readonly int False = 0;
-
-        private readonly bool value;
-
-        public LiteralBoolean(bool value)
-            : base()
+        public RegexpExpression(bool not, Expression comparee, Expression pattern)
+            : base(comparee, pattern, ExpressionConstants.PrecedenceComparision)
         {
-            this.value = value;
+            this.not = not;
         }
 
-        public virtual bool IsTrue()
+        public virtual bool IsNot()
         {
-            return value;
+            return not;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        public override string GetOperator()
         {
-            return value ? True : False;
+            return not ? "NOT REGEXP" : "REGEXP";
         }
 
         public override void Accept(SQLASTVisitor visitor)

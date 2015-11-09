@@ -14,21 +14,36 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using System;
+using Tup.Cobar.Parser.Ast.Expression.Misc;
+using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
+    /// <summary><code>'EXISTS' '(' subquery ')'</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class ExistsPrimary : PrimaryExpression
     {
-        public override int GetPrecedence()
+        private readonly QueryExpression subquery;
+
+        public ExistsPrimary(QueryExpression subquery)
         {
-            return ExpressionConstants.PrecedencePrimary;
+            if (subquery == null)
+            {
+                throw new ArgumentException("subquery is null for EXISTS expression");
+            }
+            this.subquery = subquery;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        /// <returns>never null</returns>
+        public virtual QueryExpression GetSubquery()
         {
-            return Unevaluatable;
+            return subquery;
+        }
+
+        public override void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

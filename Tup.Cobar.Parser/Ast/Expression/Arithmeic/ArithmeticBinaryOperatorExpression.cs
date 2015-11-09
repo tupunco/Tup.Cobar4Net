@@ -13,30 +13,21 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 using System.Collections.Generic;
-using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar.Parser.Util;
-using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Logical
+namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LogicalXORExpression : BinaryOperatorExpression
+    public abstract class ArithmeticBinaryOperatorExpression 
+        : BinaryOperatorExpression, BinaryOperandCalculator
     {
-        public LogicalXORExpression(Tup.Cobar.Parser.Ast.Expression.Expression left, Tup.Cobar.Parser.Ast.Expression.Expression
-             right)
-            : base(left, right, ExpressionConstants.PrecedenceLogicalXor)
+        protected internal ArithmeticBinaryOperatorExpression(Expression leftOprand, Expression rightOprand, int precedence)
+            : base(leftOprand, rightOprand, precedence, true)
         {
         }
 
-        public override string GetOperator()
-        {
-            return "XOR";
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             object left = leftOprand.Evaluation(parameters);
             object right = rightOprand.Evaluation(parameters);
@@ -48,14 +39,16 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
             {
                 return Unevaluatable;
             }
-            bool b1 = ExprEvalUtils.Obj2bool(left);
-            bool b2 = ExprEvalUtils.Obj2bool(right);
-            return b1 != b2 ? LiteralBoolean.True : LiteralBoolean.False;
+            var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
+            return ExprEvalUtils.Calculate(this, pair.GetKey(), pair.GetValue());
         }
 
-        public override void Accept(SQLASTVisitor visitor)
-        {
-            visitor.Visit(this);
-        }
+        public abstract int Calculate(int arg1, int arg2);
+
+        public abstract long Calculate(long arg1, long arg2);
+
+        //public abstract Number Calculate(BigInteger arg1, BigInteger arg2);
+
+        public abstract double Calculate(double arg1, double arg2);
     }
 }

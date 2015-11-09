@@ -30,7 +30,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
         /// <returns>this</returns>
         Expression SetCacheEvalRst(bool cacheEvalRst);
 
-        object Evaluation(IDictionary<Expression, Expression> parameters);
+        object Evaluation(IDictionary<object, Expression> parameters);
     }
 
     public static class ExpressionConstants

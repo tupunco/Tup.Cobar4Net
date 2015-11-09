@@ -14,21 +14,20 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-
-namespace Tup.Cobar.Parser.Ast.Expression.Primary
+namespace Tup.Cobar.Parser.Ast.Expression.Type
 {
+    /// <summary><code>'BINARY' higherExpr</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class CastBinaryExpression : UnaryOperatorExpression
     {
-        public override int GetPrecedence()
+        public CastBinaryExpression(Expression operand)
+            : base(operand, ExpressionConstants.PrecedenceBinary)
         {
-            return ExpressionConstants.PrecedencePrimary;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        public override string GetOperator()
         {
-            return Unevaluatable;
+            return "BINARY";
         }
     }
 }

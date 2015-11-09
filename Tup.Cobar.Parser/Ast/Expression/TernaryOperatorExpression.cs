@@ -52,7 +52,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             return third;
         }
 
-        protected override object EvaluationInternal(IDictionary<Expression, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
             )
         {
             return Unevaluatable;

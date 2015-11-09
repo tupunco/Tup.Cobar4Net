@@ -19,6 +19,7 @@ namespace Tup.Cobar.Parser.Util
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public interface BinaryOperandCalculator
     {
+        //TODO BinaryOperandCalculator
         int Calculate(int integer1, int integer2);
 
         long Calculate(long long1, long long2);

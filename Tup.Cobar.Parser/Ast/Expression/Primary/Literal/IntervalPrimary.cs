@@ -49,15 +49,13 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
             YearMonth
         }
 
-        private static readonly IDictionary<string, IntervalPrimary.Unit> unitMap = InitUnitMap
-            ();
+        private static readonly IDictionary<string, IntervalPrimary.Unit> unitMap = InitUnitMap();
 
         private static IDictionary<string, IntervalPrimary.Unit> InitUnitMap()
         {
             //TODO---IntervalPrimary InitUnitMap
             IntervalPrimary.Unit[] units = null;// typeof(IntervalPrimary.Unit).GetEnumConstants();
-            IDictionary<string, IntervalPrimary.Unit> map = new Dictionary<string, IntervalPrimary.Unit
-                >(units.Length);
+            IDictionary<string, IntervalPrimary.Unit> map = new Dictionary<string, IntervalPrimary.Unit>(units.Length);
             foreach (IntervalPrimary.Unit unit in units)
             {
                 map[unit.ToString()] = unit;
@@ -75,8 +73,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 
         private readonly Tup.Cobar.Parser.Ast.Expression.Expression quantity;
 
-        public IntervalPrimary(Tup.Cobar.Parser.Ast.Expression.Expression quantity, IntervalPrimary.Unit
-             unit)
+        public IntervalPrimary(Tup.Cobar.Parser.Ast.Expression.Expression quantity, IntervalPrimary.Unit unit)
             : base()
         {
             if (quantity == null)

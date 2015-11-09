@@ -1,0 +1,1 @@
+java -jar sharpen-jar-with-dependencies.jar E:\Files\Git\alibaba\cobar\server\src\ @sharpen-all-options-test -cp log4j-1.2.17.jar -cp junit-4.8.2.jar

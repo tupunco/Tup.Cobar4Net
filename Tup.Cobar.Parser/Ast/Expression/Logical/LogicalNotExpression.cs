@@ -34,7 +34,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
             return "NOT";
         }
 
-        protected override object EvaluationInternal(IDictionary<Expression, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
             )
         {
             object operand = GetOperand().Evaluation(parameters);

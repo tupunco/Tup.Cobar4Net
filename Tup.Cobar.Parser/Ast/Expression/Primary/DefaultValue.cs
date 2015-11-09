@@ -14,21 +14,17 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
+    /// <summary>used as right oprand for assignment of INSERT and REPLACE</summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class DefaultValue : PrimaryExpression
     {
-        public override int GetPrecedence()
+        public override void Accept(SQLASTVisitor visitor)
         {
-            return ExpressionConstants.PrecedencePrimary;
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-        {
-            return Unevaluatable;
+            visitor.Visit(this);
         }
     }
 }

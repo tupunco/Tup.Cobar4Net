@@ -31,14 +31,13 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract int GetPrecedence();
 
-        public virtual Expression SetCacheEvalRst(bool cacheEvalRst
-            )
+        public virtual Expression SetCacheEvalRst(bool cacheEvalRst            )
         {
             this.cacheEvalRst = cacheEvalRst;
             return this;
         }
 
-        public virtual object Evaluation(IDictionary<Expression, Expression> parameters)
+        public virtual object Evaluation(IDictionary<object, Expression> parameters)
         {
             if (cacheEvalRst)
             {
@@ -53,7 +52,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             return EvaluationInternal(parameters);
         }
 
-        protected abstract object EvaluationInternal(IDictionary<Expression, Expression> parameters);
+        protected abstract object EvaluationInternal(IDictionary<object, Expression> parameters);
 
         public abstract void Accept(SQLASTVisitor arg1);
 
@@ -76,7 +75,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
                 throw new NotImplementedException();
             }
 
-            protected override object EvaluationInternal(IDictionary<Expression, Expression> parameters)
+            protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
             {
                 throw new NotImplementedException();
             }

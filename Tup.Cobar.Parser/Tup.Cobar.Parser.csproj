@@ -40,6 +40,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticAddExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticBinaryOperatorExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticDivideExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticIntegerDivideExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticModExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticMultiplyExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\ArithmeticSubtractExpression.cs" />
+    <Compile Include="Ast\Expression\Arithmeic\MinusExpression.cs" />
     <Compile Include="Ast\Expression\Bit\BitAndExpression.cs" />
     <Compile Include="Ast\Expression\Bit\BitInvertExpression.cs" />
     <Compile Include="Ast\Expression\Bit\BitOrExpression.cs" />
@@ -56,6 +64,9 @@
     <Compile Include="Ast\Expression\Misc\SubqueryAllExpression.cs" />
     <Compile Include="Ast\Expression\Misc\SubqueryAnyExpression.cs" />
     <Compile Include="Ast\Expression\Misc\UserExpression.cs" />
+    <Compile Include="Ast\Expression\Primary\CaseWhenOperatorExpression.cs" />
+    <Compile Include="Ast\Expression\Primary\DefaultValue.cs" />
+    <Compile Include="Ast\Expression\Primary\ExistsPrimary.cs" />
     <Compile Include="Ast\Expression\Primary\Function\Arithmetic\Abs.cs" />
     <Compile Include="Ast\Expression\Primary\Function\Arithmetic\Acos.cs" />
     <Compile Include="Ast\Expression\Primary\Function\Arithmetic\Asin.cs" />
@@ -246,9 +257,34 @@
     <Compile Include="Ast\Expression\Primary\Function\String\Upper.cs" />
     <Compile Include="Ast\Expression\Primary\Function\Xml\Extractvalue.cs" />
     <Compile Include="Ast\Expression\Primary\Function\Xml\Updatexml.cs" />
+    <Compile Include="Ast\Expression\Primary\Identifier.cs" />
     <Compile Include="Ast\Expression\Primary\Literal\IntervalPrimary.cs" />
+    <Compile Include="Ast\Expression\Primary\Literal\LiteralBitField.cs" />
+    <Compile Include="Ast\Expression\Primary\Literal\LiteralHexadecimal.cs" />
+    <Compile Include="Ast\Expression\Primary\Literal\LiteralNull.cs" />
+    <Compile Include="Ast\Expression\Primary\Literal\LiteralNumber.cs" />
+    <Compile Include="Ast\Expression\Primary\Literal\LiteralString.cs" />
+    <Compile Include="Ast\Expression\Primary\MatchExpression.cs" />
+    <Compile Include="Ast\Expression\Primary\ParamMarker.cs" />
+    <Compile Include="Ast\Expression\Primary\PlaceHolder.cs" />
+    <Compile Include="Ast\Expression\Primary\RowExpression.cs" />
+    <Compile Include="Ast\Expression\Primary\SysVarPrimary.cs" />
+    <Compile Include="Ast\Expression\Primary\UsrDefVarPrimary.cs" />
+    <Compile Include="Ast\Expression\Primary\VariableExpression.cs" />
+    <Compile Include="Ast\Expression\Primary\Wildcard.cs" />
+    <Compile Include="Ast\Expression\String\LikeExpression.cs" />
+    <Compile Include="Ast\Expression\String\RegexpExpression.cs" />
+    <Compile Include="Ast\Expression\String\SoundsLikeExpression.cs" />
+    <Compile Include="Ast\Expression\Type\CastBinaryExpression.cs" />
+    <Compile Include="Ast\Expression\Type\CollateExpression.cs" />
+    <Compile Include="Ast\Fragment\GroupBy.cs" />
+    <Compile Include="Ast\Fragment\Limit.cs" />
+    <Compile Include="Ast\Fragment\OrderBy.cs" />
+    <Compile Include="Ast\Fragment\SortOrder.cs" />
+    <Compile Include="Ast\Fragment\VariableScope.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Recognizer\Mysql\Lexer\MySQLLexer.cs" />
+    <Compile Include="Sharpen\Number.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
     <Compile Include="Sharpen\Sharpen.cs" />
     <Compile Include="System\Numerics\BigDecimal.cs" />
@@ -258,14 +294,11 @@
     <Compile Include="Util\ExprEvalUtils.cs" />
     <Compile Include="Util\Pair.cs" />
     <Compile Include="Util\PairUtil.cs" />
+    <Compile Include="Util\ParseString.cs" />
     <Compile Include="Util\StringHelper.cs" />
     <Compile Include="Util\SystemUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Ast\Expression\Arithmeic\" />
-    <Folder Include="Ast\Expression\String\" />
-    <Folder Include="Ast\Expression\Type\" />
-    <Folder Include="Ast\Fragment\" />
     <Folder Include="Recognizer\Syntax\" />
   </ItemGroup>
   <ItemGroup>

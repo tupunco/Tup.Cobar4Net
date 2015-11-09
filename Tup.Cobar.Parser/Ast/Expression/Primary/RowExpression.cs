@@ -14,45 +14,41 @@
 * limitations under the License.
 */
 
+using System.Collections;
 using System.Collections.Generic;
-using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
-using Tup.Cobar.Parser.Util;
+
 using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Logical
+namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LogicalOrExpression : PolyadicOperatorExpression
+    public class RowExpression : PrimaryExpression
     {
-        public LogicalOrExpression()
-            : base(ExpressionConstants.PrecedenceLogicalOr)
-        {
-        }
+        private readonly IList<Expression> rowExprList;
 
-        public override string GetOperator()
+        public RowExpression(IList<Expression> rowExprList)
         {
-            return "OR";
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-        {
-            foreach (Tup.Cobar.Parser.Ast.Expression.Expression operand in operands)
+            if (rowExprList == null || rowExprList.IsEmpty())
             {
-                object val = operand.Evaluation(parameters);
-                if (val == null)
+                this.rowExprList = new List<Expression>(0);
+            }
+            else
+            {
+                if (rowExprList is ArrayList)
                 {
-                    return null;
+                    this.rowExprList = rowExprList;
                 }
-                if (val == Unevaluatable)
+                else
                 {
-                    return Unevaluatable;
-                }
-                if (ExprEvalUtils.Obj2bool(val))
-                {
-                    return LiteralBoolean.True;
+                    this.rowExprList = new List<Expression>(rowExprList);
                 }
             }
-            return LiteralBoolean.False;
+        }
+
+        /// <returns>never null</returns>
+        public virtual IList<Expression> GetRowExprList()
+        {
+            return rowExprList;
         }
 
         public override void Accept(SQLASTVisitor visitor)

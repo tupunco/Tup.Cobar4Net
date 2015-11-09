@@ -13,22 +13,23 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 using System.Collections.Generic;
+using Sharpen;
+using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Primary
+namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
-    {
-        public override int GetPrecedence()
-        {
-            return ExpressionConstants.PrecedencePrimary;
-        }
+	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+	public class LiteralNull : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+	{
+		protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+		{
+			return null;
+		}
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-        {
-            return Unevaluatable;
-        }
-    }
+		public override void Accept(SQLASTVisitor visitor)
+		{
+			visitor.Visit(this);
+		}
+	}
 }

@@ -140,8 +140,12 @@
 using Tup.Cobar.Parser.Ast.Expression;
 using Tup.Cobar.Parser.Ast.Expression.Logical;
 using Tup.Cobar.Parser.Ast.Expression.Misc;
+using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
+using Tup.Cobar.Parser.Ast.Expression.String;
+using Tup.Cobar.Parser.Ast.Expression.Type;
+using Tup.Cobar.Parser.Ast.Fragment;
 
 /**
 * (created at 2011-5-30)
@@ -161,9 +165,9 @@ namespace Tup.Cobar.Parser.Visitor
 
         void Visit(InExpressionList node);
 
-        //void Visit(LikeExpression node);
+        void Visit(LikeExpression node);
 
-        //void Visit(CollateExpression node);
+        void Visit(CollateExpression node);
 
         void Visit(UserExpression node);
 
@@ -217,37 +221,37 @@ namespace Tup.Cobar.Parser.Visitor
         //// -------------------------------------------------------
         void Visit(IntervalPrimary node);
 
-        //void Visit(LiteralBitField node);
+        void Visit(LiteralBitField node);
 
         void Visit(LiteralBoolean node);
 
-        //void Visit(LiteralHexadecimal node);
+        void Visit(LiteralHexadecimal node);
 
-        //void Visit(LiteralNull node);
+        void Visit(LiteralNull node);
 
-        //void Visit(LiteralNumber node);
+        void Visit(LiteralNumber node);
 
-        //void Visit(LiteralString node);
+        void Visit(LiteralString node);
 
-        //void Visit(CaseWhenOperatorExpression node);
+        void Visit(CaseWhenOperatorExpression node);
 
-        //void Visit(DefaultValue node);
+        void Visit(DefaultValue node);
 
-        //void Visit(ExistsPrimary node);
+        void Visit(ExistsPrimary node);
 
-        //void Visit(PlaceHolder node);
+        void Visit(PlaceHolder node);
 
-        //void Visit(Identifier node);
+        void Visit(Identifier node);
 
-        //void Visit(MatchExpression node);
+        void Visit(MatchExpression node);
 
-        //void Visit(ParamMarker node);
+        void Visit(ParamMarker node);
 
-        //void Visit(RowExpression node);
+        void Visit(RowExpression node);
 
-        //void Visit(SysVarPrimary node);
+        void Visit(SysVarPrimary node);
 
-        //void Visit(UsrDefVarPrimary node);
+        void Visit(UsrDefVarPrimary node);
 
         //// -------------------------------------------------------
         //void Visit(IndexHint node);
@@ -268,11 +272,11 @@ namespace Tup.Cobar.Parser.Visitor
 
         //void Visit(Dual dual);
 
-        //void Visit(GroupBy node);
+        void Visit(GroupBy node);
 
-        //void Visit(Limit node);
+        void Visit(Limit node);
 
-        //void Visit(OrderBy node);
+        void Visit(OrderBy node);
 
         //void Visit(ColumnDefinition node);
 

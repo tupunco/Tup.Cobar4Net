@@ -14,45 +14,48 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
-using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
-using Tup.Cobar.Parser.Util;
 using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Logical
+namespace Tup.Cobar.Parser.Ast.Expression.Type
 {
+    /// <summary><code>higherExpr 'COLLATE' collateName</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LogicalOrExpression : PolyadicOperatorExpression
+    public class CollateExpression : AbstractExpression
     {
-        public LogicalOrExpression()
-            : base(ExpressionConstants.PrecedenceLogicalOr)
+        private readonly string collateName;
+
+        private readonly Expression @string;
+
+        public CollateExpression(Expression @string, string collateName)
         {
+            if (collateName == null)
+            {
+                throw new ArgumentException("collateName is null");
+            }
+            this.@string = @string;
+            this.collateName = collateName;
         }
 
-        public override string GetOperator()
+        public virtual string GetCollateName()
         {
-            return "OR";
+            return collateName;
+        }
+
+        public virtual Expression GetString()
+        {
+            return @string;
+        }
+
+        public override int GetPrecedence()
+        {
+            return ExpressionConstants.PrecedenceCollate;
         }
 
         protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
-            foreach (Tup.Cobar.Parser.Ast.Expression.Expression operand in operands)
-            {
-                object val = operand.Evaluation(parameters);
-                if (val == null)
-                {
-                    return null;
-                }
-                if (val == Unevaluatable)
-                {
-                    return Unevaluatable;
-                }
-                if (ExprEvalUtils.Obj2bool(val))
-                {
-                    return LiteralBoolean.True;
-                }
-            }
-            return LiteralBoolean.False;
+            return @string.Evaluation(parameters);
         }
 
         public override void Accept(SQLASTVisitor visitor)

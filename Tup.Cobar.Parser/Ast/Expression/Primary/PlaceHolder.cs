@@ -15,20 +15,41 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class PlaceHolder : PrimaryExpression
     {
-        public override int GetPrecedence()
+        private readonly string name;
+
+        private readonly string nameUp;
+
+        public PlaceHolder(string name, string nameUp)
         {
-            return ExpressionConstants.PrecedencePrimary;
+            this.name = name;
+            this.nameUp = nameUp;
+        }
+
+        public virtual string GetName()
+        {
+            return name;
+        }
+
+        public virtual string GetNameUp()
+        {
+            return nameUp;
         }
 
         protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
-            return Unevaluatable;
+            return parameters[nameUp];
+        }
+
+        public override void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

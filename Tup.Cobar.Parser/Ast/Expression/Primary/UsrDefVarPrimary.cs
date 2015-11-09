@@ -14,21 +14,30 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class UsrDefVarPrimary : VariableExpression
     {
-        public override int GetPrecedence()
+        /// <summary>include starting '@', e.g.</summary>
+        /// <remarks>include starting '@', e.g. "@'mary''s'"</remarks>
+        private readonly string varText;
+
+        public UsrDefVarPrimary(string varText)
         {
-            return ExpressionConstants.PrecedencePrimary;
+            this.varText = varText;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        public virtual string GetVarText()
         {
-            return Unevaluatable;
+            return varText;
+        }
+
+        public override void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

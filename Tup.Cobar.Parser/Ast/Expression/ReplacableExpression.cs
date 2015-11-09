@@ -29,7 +29,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract Expression SetCacheEvalRst(bool cacheEvalRst);
 
-        public abstract object Evaluation(IDictionary<Expression, Expression> parameters);
+        public abstract object Evaluation(IDictionary<object, Expression> parameters);
 
         public abstract void Accept(SQLASTVisitor arg1);
 

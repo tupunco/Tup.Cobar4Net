@@ -14,21 +14,27 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Primary
+namespace Tup.Cobar.Parser.Ast.Expression.String
 {
+    /// <summary><code>higherPreExpr 'SOUNDS' 'LIKE' higherPreExpr</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public class SoundsLikeExpression : BinaryOperatorExpression
     {
-        public override int GetPrecedence()
+        public SoundsLikeExpression(Expression leftOprand, Expression rightOprand)
+            : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceComparision)
         {
-            return ExpressionConstants.PrecedencePrimary;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        public override string GetOperator()
         {
-            return Unevaluatable;
+            return "SOUNDS LIKE";
+        }
+
+        public override void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
         }
     }
 }

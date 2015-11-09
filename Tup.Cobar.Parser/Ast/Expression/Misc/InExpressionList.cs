@@ -54,7 +54,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
             return ExpressionConstants.PrecedencePrimary;
         }
 
-        protected override object EvaluationInternal(IDictionary<Expression, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
             )
         {
             return Unevaluatable;

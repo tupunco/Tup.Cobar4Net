@@ -14,21 +14,12 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
-
-namespace Tup.Cobar.Parser.Ast.Expression.Primary
+namespace Tup.Cobar.Parser.Ast.Fragment
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class PrimaryExpression : AbstractExpression
+    public enum VariableScope
     {
-        public override int GetPrecedence()
-        {
-            return ExpressionConstants.PrecedencePrimary;
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-        {
-            return Unevaluatable;
-        }
+        Session,
+        Global
     }
 }

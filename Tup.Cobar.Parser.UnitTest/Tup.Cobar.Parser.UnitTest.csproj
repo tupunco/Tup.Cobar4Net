@@ -60,7 +60,7 @@
     <Compile Include="Recognizer\MySql\Lexer\MySQLLexerTest.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tup.Cobar.SqlParser\Tup.Cobar.Parser.csproj">
+    <ProjectReference Include="..\Tup.Cobar.Parser\Tup.Cobar.Parser.csproj">
       <Project>{cc86ce3d-98b0-4125-a540-eb3c182fd741}</Project>
       <Name>Tup.Cobar.Parser</Name>
     </ProjectReference>

@@ -34,7 +34,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
             return "AND";
         }
 
-        protected override object EvaluationInternal(IDictionary<Expression, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
             )
         {
             foreach (Tup.Cobar.Parser.Ast.Expression.Expression operand in operands)

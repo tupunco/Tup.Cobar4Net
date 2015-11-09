@@ -14,35 +14,42 @@
 * limitations under the License.
 */
 
-using System.Collections.Generic;
+using Tup.Cobar.Parser.Ast.Fragment;
 using Tup.Cobar.Parser.Visitor;
 
-namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
+namespace Tup.Cobar.Parser.Ast.Expression.Primary
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LiteralBoolean : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+    public class SysVarPrimary : VariableExpression
     {
-        public static readonly int True = 1;
+        private readonly VariableScope scope;
 
-        public static readonly int False = 0;
+        /// <summary>excluding starting "@@", '`' might be included</summary>
+        private readonly string varText;
 
-        private readonly bool value;
+        private readonly string varTextUp;
 
-        public LiteralBoolean(bool value)
-            : base()
+        public SysVarPrimary(VariableScope scope, string varText, string varTextUp)
         {
-            this.value = value;
+            this.scope = scope;
+            this.varText = varText;
+            this.varTextUp = varTextUp;
         }
 
-        public virtual bool IsTrue()
+        /// <returns>never null</returns>
+        public virtual VariableScope GetScope()
         {
-            return value;
+            return scope;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        public virtual string GetVarTextUp()
         {
-            return value ? True : False;
+            return varTextUp;
+        }
+
+        public virtual string GetVarText()
+        {
+            return varText;
         }
 
         public override void Accept(SQLASTVisitor visitor)
