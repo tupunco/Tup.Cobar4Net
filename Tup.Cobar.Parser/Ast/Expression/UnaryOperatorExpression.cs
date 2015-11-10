@@ -17,18 +17,18 @@
 using System;
 using System.Collections.Generic;
 using Tup.Cobar.Parser.Visitor;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Expression
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class UnaryOperatorExpression : AbstractExpression
     {
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression operand;
+        private readonly Expr operand;
 
         protected internal readonly int precedence;
 
-        public UnaryOperatorExpression(Tup.Cobar.Parser.Ast.Expression.Expression operand
-            , int precedence)
+        public UnaryOperatorExpression(Expr operand, int precedence)
         {
             if (operand == null)
             {
@@ -38,7 +38,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             this.precedence = precedence;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetOperand()
+        public virtual Expr GetOperand()
         {
             return operand;
         }
@@ -50,8 +50,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract string GetOperator();
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             return Unevaluatable;
         }

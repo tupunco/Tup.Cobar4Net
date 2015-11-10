@@ -13,33 +13,26 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * (created at 2011-2-18)
- */
 
 namespace Tup.Cobar.Parser.Ast.Stmt
 {
-    /**
-     * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
-     */
-
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public interface SQLStatement : ASTNode
     {
     }
 
     public enum StmtType
     {
-        DML_SELECT,
-        DML_DELETE,
-        DML_INSERT,
-        DML_REPLACE,
-        DML_UPDATE,
-        DML_CALL,
-        DAL_SET,
-        DAL_SHOW,
-        MTL_START,
-        /** COMMIT or ROLLBACK */
-        MTL_TERMINATE,
-        MTL_ISOLATION
+        DmlSelect,
+        DmlDelete,
+        DmlInsert,
+        DmlReplace,
+        DmlUpdate,
+        DmlCall,
+        DalSet,
+        DalShow,
+        MtlStart,
+        MtlTerminate,
+        MtlIsolation
     }
 }

@@ -33,6 +33,9 @@ namespace Tup.Cobar.Parser.Ast.Expression
         object Evaluation(IDictionary<object, Expression> parameters);
     }
 
+    /// <summary>
+    /// Expression Constants
+    /// </summary>
     public static class ExpressionConstants
     {
         public readonly static int PrecedenceQuery = 0;

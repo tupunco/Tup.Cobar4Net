@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Expression
 {
@@ -25,9 +26,9 @@ namespace Tup.Cobar.Parser.Ast.Expression
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class BinaryOperatorExpression : AbstractExpression
     {
-        protected internal readonly Tup.Cobar.Parser.Ast.Expression.Expression leftOprand;
+        protected internal readonly Expr leftOprand;
 
-        protected internal readonly Tup.Cobar.Parser.Ast.Expression.Expression rightOprand;
+        protected internal readonly Expr rightOprand;
 
         protected internal readonly int precedence;
 
@@ -37,9 +38,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
         /// <see cref="leftCombine"/>
         /// is true
         /// </summary>
-        protected internal BinaryOperatorExpression(Tup.Cobar.Parser.Ast.Expression.Expression
-             leftOprand, Tup.Cobar.Parser.Ast.Expression.Expression rightOprand, int precedence
-            )
+        protected internal BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
@@ -47,9 +46,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             this.leftCombine = true;
         }
 
-        protected internal BinaryOperatorExpression(Tup.Cobar.Parser.Ast.Expression.Expression
-             leftOprand, Tup.Cobar.Parser.Ast.Expression.Expression rightOprand, int precedence
-            , bool leftCombine)
+        protected internal BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence, bool leftCombine)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
@@ -57,12 +54,12 @@ namespace Tup.Cobar.Parser.Ast.Expression
             this.leftCombine = leftCombine;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetLeftOprand()
+        public virtual Expr GetLeftOprand()
         {
             return leftOprand;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetRightOprand()
+        public virtual Expr GetRightOprand()
         {
             return rightOprand;
         }
@@ -79,8 +76,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract string GetOperator();
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             return Unevaluatable;
         }

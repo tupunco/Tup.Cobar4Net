@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Expression
 {
@@ -22,38 +23,35 @@ namespace Tup.Cobar.Parser.Ast.Expression
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class TernaryOperatorExpression : AbstractExpression
     {
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression first;
+        private readonly Expr first;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression second;
+        private readonly Expr second;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression third;
+        private readonly Expr third;
 
-        public TernaryOperatorExpression(Tup.Cobar.Parser.Ast.Expression.Expression first
-            , Tup.Cobar.Parser.Ast.Expression.Expression second, Tup.Cobar.Parser.Ast.Expression.Expression
-             third)
+        public TernaryOperatorExpression(Expr first, Expr second, Expr third)
         {
             this.first = first;
             this.second = second;
             this.third = third;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetFirst()
+        public virtual Expr GetFirst()
         {
             return first;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetSecond()
+        public virtual Expr GetSecond()
         {
             return second;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetThird()
+        public virtual Expr GetThird()
         {
             return third;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             return Unevaluatable;
         }

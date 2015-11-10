@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Expression
 {
@@ -27,7 +28,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class PolyadicOperatorExpression : AbstractExpression
     {
-        protected internal IList<Tup.Cobar.Parser.Ast.Expression.Expression> operands;
+        protected internal IList<Expr> operands;
 
         protected internal readonly int precedence;
 
@@ -44,12 +45,11 @@ namespace Tup.Cobar.Parser.Ast.Expression
         public PolyadicOperatorExpression(int precedence, int initArity)
         {
             this.precedence = precedence;
-            this.operands = new List<Tup.Cobar.Parser.Ast.Expression.Expression>(initArity);
+            this.operands = new List<Expr>(initArity);
         }
 
         /// <returns>this</returns>
-        public virtual Tup.Cobar.Parser.Ast.Expression.PolyadicOperatorExpression AppendOperand
-            (Tup.Cobar.Parser.Ast.Expression.Expression operand)
+        public virtual PolyadicOperatorExpression AppendOperand(Expr operand)
         {
             if (operand == null)
             {
@@ -57,8 +57,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             }
             if (GetType().IsAssignableFrom(operand.GetType()))
             {
-                Tup.Cobar.Parser.Ast.Expression.PolyadicOperatorExpression sub = (Tup.Cobar.Parser.Ast.Expression.PolyadicOperatorExpression
-                    )operand;
+                PolyadicOperatorExpression sub = (PolyadicOperatorExpression)operand;
                 operands.AddRange(sub.operands);
             }
             else
@@ -69,7 +68,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
         }
 
         /// <param name="index">start from 0</param>
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetOperand(int index)
+        public virtual Expr GetOperand(int index)
         {
             if (index >= operands.Count)
             {
@@ -91,8 +90,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract string GetOperator();
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             return Unevaluatable;
         }

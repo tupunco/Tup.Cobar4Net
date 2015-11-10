@@ -21,24 +21,18 @@ using Tup.Cobar.Parser.Visitor;
 namespace Tup.Cobar.Parser.Ast.Expression
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class ReplacableExpression : Expression
+    public interface ReplacableExpression : Expression
     {
-        public static readonly LiteralBoolean BoolFalse = new LiteralBoolean(false);
+        void SetReplaceExpr(Expression replaceExpr);
 
-        public abstract int GetPrecedence();
-
-        public abstract Expression SetCacheEvalRst(bool cacheEvalRst);
-
-        public abstract object Evaluation(IDictionary<object, Expression> parameters);
-
-        public abstract void Accept(SQLASTVisitor arg1);
-
-        public abstract void SetReplaceExpr(Expression replaceExpr);
-
-        public abstract void ClearReplaceExpr();
+        void ClearReplaceExpr();
     }
 
+    /// <summary>
+    /// ReplacableExpression  Constants
+    /// </summary>
     public static class ReplacableExpressionConstants
     {
+        public static readonly LiteralBoolean BoolFalse = new LiteralBoolean(false);
     }
 }

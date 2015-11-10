@@ -34,7 +34,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary
             }
             else
             {
-                if (rowExprList is ArrayList)
+                if (rowExprList is List<Expression>)
                 {
                     this.rowExprList = rowExprList;
                 }
