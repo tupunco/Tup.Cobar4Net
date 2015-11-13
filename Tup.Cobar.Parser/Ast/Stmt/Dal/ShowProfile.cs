@@ -27,6 +27,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dal
         /// <summary>enum name must equals to real sql while ' ' is replaced with '_'</summary>
         public enum Type
         {
+            None = 0,
             All,
             BlockIo,
             ContextSwitches,

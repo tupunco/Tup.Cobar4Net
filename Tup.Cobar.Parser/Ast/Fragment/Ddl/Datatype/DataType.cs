@@ -15,10 +15,9 @@
 */
 using System;
 using System.Collections.Generic;
-using Sharpen;
-using Tup.Cobar.Parser.Ast;
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Visitor;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Datatype
 {
@@ -69,26 +68,25 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Datatype
         /// <summary>for text only</summary>
         private readonly bool binary;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression length;
+        private readonly Expr length;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression decimals;
+        private readonly Expr decimals;
 
         private readonly Identifier charSet;
 
         private readonly Identifier collation;
 
-        private readonly IList<Tup.Cobar.Parser.Ast.Expression.Expression> collectionVals;
+        private readonly IList<Expr> collectionVals;
 
         public DataType(DataType.DataTypeName typeName,
             bool unsigned,
             bool zerofill,
             bool binary,
-            Tup.Cobar.Parser.Ast.Expression.Expression length,
-            Tup.Cobar.Parser.Ast.Expression.Expression
-             decimals,
+            Expr length,
+            Expr decimals,
             Identifier charSet,
             Identifier collation,
-            IList<Tup.Cobar.Parser.Ast.Expression.Expression> collectionVals)
+            IList<Expr> collectionVals)
         {
             // BIT[(length)]
             // | TINYINT[(length)] [UNSIGNED] [ZEROFILL]
@@ -161,12 +159,12 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Datatype
             return binary;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetLength()
+        public virtual Expr GetLength()
         {
             return length;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetDecimals()
+        public virtual Expr GetDecimals()
         {
             return decimals;
         }
@@ -181,7 +179,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Datatype
             return collation;
         }
 
-        public virtual IList<Tup.Cobar.Parser.Ast.Expression.Expression> GetCollectionVals()
+        public virtual IList<Expr> GetCollectionVals()
         {
             return collectionVals;
         }

@@ -31,6 +31,8 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
     {
         public enum SelectOption
         {
+            None = 0,
+
             Ignored,
             Replace
         }

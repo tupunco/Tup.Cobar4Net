@@ -17,6 +17,7 @@ using Sharpen;
 using Tup.Cobar.Parser.Ast;
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Visitor;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
 {
@@ -26,12 +27,12 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
         private readonly Identifier columnName;
 
         /// <summary>null is possible</summary>
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression length;
+        private readonly Expr length;
 
         private readonly bool asc;
 
         public IndexColumnName(Identifier columnName,
-            Tup.Cobar.Parser.Ast.Expression.Expression length, 
+            Expr length, 
             bool asc)
         {
             this.columnName = columnName;
@@ -49,7 +50,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
             return columnName;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetLength()
+        public virtual Expr GetLength()
         {
             return length;
         }

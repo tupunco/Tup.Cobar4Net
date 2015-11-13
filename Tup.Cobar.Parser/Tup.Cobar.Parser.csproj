@@ -31,9 +31,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Deveel.Math, Version=1.5.64.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dmath.1.5.64\lib\net20\Deveel.Math.pdb\Deveel.Math.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Numerics" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
@@ -375,10 +378,23 @@
     <Compile Include="Ast\Stmt\Mts\MTSSetTransactionStatement.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Recognizer\Mysql\Lexer\MySQLLexer.cs" />
+    <Compile Include="Recognizer\Mysql\MySQLFunctionManager.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDALParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDDLParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLCallParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLDeleteParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLInsertParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLInsertReplaceParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLReplaceParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLSelectParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLDMLUpdateParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLExprParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLMTSParser.cs" />
+    <Compile Include="Recognizer\Mysql\Syntax\MySQLParser.cs" />
     <Compile Include="Sharpen\Number.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
     <Compile Include="Sharpen\Sharpen.cs" />
-    <Compile Include="System\Numerics\BigDecimal.cs" />
     <Compile Include="System\SQLSyntaxErrorException.cs" />
     <Compile Include="Util\BinaryOperandCalculator.cs" />
     <Compile Include="Util\CollectionHelper.cs" />
@@ -390,7 +406,7 @@
     <Compile Include="Util\SystemUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Recognizer\Syntax\" />
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ast\ASTNode.cs" />
@@ -438,6 +454,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ast\Expression\Primary\Function\FunctionExpression.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="System\Numerics\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

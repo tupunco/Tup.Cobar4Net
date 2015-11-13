@@ -305,7 +305,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql
     {
         // /** &#64; */
         // OP_AT,
-        public static string KeyWordToString(MySQLToken token)
+        public static string KeyWordToString(this MySQLToken token)
         {
             switch (token)
             {

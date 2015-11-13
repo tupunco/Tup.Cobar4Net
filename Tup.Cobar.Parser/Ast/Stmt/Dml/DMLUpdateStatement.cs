@@ -15,8 +15,8 @@
 */
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
+
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Ast.Fragment;
 using Tup.Cobar.Parser.Ast.Fragment.Tableref;
@@ -64,7 +64,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
             }
             else
             {
-                if (!(values is ArrayList))
+                if (!(values is List<Pair<Identifier, Expr>>))
                 {
                     this.values = new List<Pair<Identifier, Expr>>(values);
                 }

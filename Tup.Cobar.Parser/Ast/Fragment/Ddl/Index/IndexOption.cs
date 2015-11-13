@@ -21,18 +21,19 @@ using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
 {
+    public enum IndexType
+    {
+        None = 0,
+        Btree,
+        Hash
+    }
+
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class IndexOption : ASTNode
     {
-        public enum IndexType
-        {
-            Btree,
-            Hash
-        }
-
         private readonly Tup.Cobar.Parser.Ast.Expression.Expression keyBlockSize;
 
-        private readonly IndexOption.IndexType indexType;
+        private readonly IndexType indexType;
 
         private readonly Identifier parserName;
 
@@ -41,12 +42,12 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
         public IndexOption(Tup.Cobar.Parser.Ast.Expression.Expression keyBlockSize)
         {
             this.keyBlockSize = keyBlockSize;
-            this.indexType =  IndexType.Btree;
+            this.indexType = IndexType.Btree;
             this.parserName = null;
             this.comment = null;
         }
 
-        public IndexOption(IndexOption.IndexType indexType)
+        public IndexOption(IndexType indexType)
         {
             this.keyBlockSize = null;
             this.indexType = indexType;
@@ -75,7 +76,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
             return keyBlockSize;
         }
 
-        public virtual IndexOption.IndexType GetIndexType()
+        public virtual IndexType GetIndexType()
         {
             return indexType;
         }

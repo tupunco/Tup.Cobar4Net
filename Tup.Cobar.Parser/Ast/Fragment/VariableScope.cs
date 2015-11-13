@@ -19,6 +19,8 @@ namespace Tup.Cobar.Parser.Ast.Fragment
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public enum VariableScope
     {
+        None = 0,
+
         Session,
         Global
     }

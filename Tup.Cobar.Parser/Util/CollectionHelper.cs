@@ -137,56 +137,6 @@ namespace Tup.Cobar.Parser
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
-        public static string GetValue<TValue>(this IDictionary<string, TValue> obj, string key)
-        {
-            return GetValue<TValue>(obj, key, string.Empty);
-        }
-
-        /// <summary>
-        /// GetValue From Dictionary
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static string GetValue<TValue>(this IDictionary<string, TValue> obj,
-                                                string key,
-                                                string defaultValue)
-        {
-            return GetValue<TValue, string>(obj, key, defaultValue, tObj => tObj.ToString());
-        }
-
-        /// <summary>
-        /// GetValue From Dictionary
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
-        public static TResult GetValue<TValue, TResult>(this IDictionary<string, TValue> obj,
-                                                string key,
-                                                TResult defaultValue,
-                                                Func<TValue, TResult> parseAction)
-        {
-            if (obj == null)
-                return defaultValue;
-
-            ThrowHelper.ThrowIfNull("key", key);
-            ThrowHelper.ThrowIfNull(parseAction, "parseAction");
-
-            TValue tObj = default(TValue);
-            if (obj.TryGetValue(key, out tObj) && tObj != null)
-            {
-                if (tObj is TResult)
-                    return (TResult)((object)tObj);
-                else
-                    return parseAction(tObj);
-            }
-
-            return defaultValue;
-        }
-
-        /// <summary>
-        /// GetValue From Dictionary
-        /// </summary>
-        /// <param name="key"></param>
-        /// <returns></returns>
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> obj, TKey key)
         {
             return GetValue<TKey, TValue>(obj, key, default(TValue));

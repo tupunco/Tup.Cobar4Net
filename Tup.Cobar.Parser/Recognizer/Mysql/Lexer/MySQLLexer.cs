@@ -14,6 +14,8 @@
 * limitations under the License.
 */
 
+using Deveel.Math;
+using Sharpen;
 using System;
 using System.Text;
 using System.Threading;
@@ -168,8 +170,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                 System.Array.Copy(sql, 0, this.sql, 0, sql.Length);
             }
             this.eofIndex = this.sql.Length - 1;
-            this.sql[this.eofIndex] = (char)Tup.Cobar.Parser.Recognizer.Mysql.Lexer.MySQLLexer
-                .Eoi;
+            this.sql[this.eofIndex] = (char)MySQLLexer.Eoi;
             ScanChar();
             NextToken();
         }
@@ -199,7 +200,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// <param name="token">must be a keyword</param>
         public void AddCacheToke(MySQLToken token)
         {
-            if (tokenCache != null)
+            if (tokenCache != MySQLToken.None)
             {
                 tokenCache2 = token;
             }
@@ -211,11 +212,11 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
 
         public MySQLToken Token()
         {
-            if (tokenCache2 != null)
+            if (tokenCache2 != MySQLToken.None)
             {
                 return tokenCache2;
             }
-            if (tokenCache != null)
+            if (tokenCache != MySQLToken.None)
             {
                 return tokenCache;
             }
@@ -1180,7 +1181,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                             {
                                                 UpdateStringValue(sql, offsetCache, sizeCache);
                                                 MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                                token = tok == null ? MySQLToken.Identifier : tok;
+                                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
                                             }
                                             return;
                                         }
@@ -1217,7 +1218,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                         --sizeCache;
                                         UpdateStringValue(sql, offsetCache, sizeCache);
                                         MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                        token = tok == null ? MySQLToken.Identifier : tok;
+                                        token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
                                     }
                                     else
                                     {
@@ -1312,7 +1313,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                             {
                                 UpdateStringValue(sql, offsetCache, sizeCache);
                                 MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                token = tok == null ? MySQLToken.Identifier : tok;
+                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
                             }
                             else
                             {
@@ -1338,7 +1339,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                 --sizeCache;
                                 UpdateStringValue(sql, offsetCache, sizeCache);
                                 MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                token = tok == null ? MySQLToken.Identifier : tok;
+                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
                             }
                             else
                             {
@@ -1376,7 +1377,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
             }
             UpdateStringValue(sql, offsetCache, sizeCache);
             MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-            token = tok == null ? MySQLToken.Identifier : tok;
+            token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
         }
 
         /// <summary>id is NOT included in <code>`</code>.</summary>
@@ -1583,12 +1584,11 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// must be
         /// <see cref="Tup.Cobar.Parser.Recognizer.Mysql.MySQLToken.LiteralNumPureDigit"/>
         /// </summary>
-        public virtual long IntegerValue()
+        public virtual Number IntegerValue()
         {
             // 2147483647
             // 9223372036854775807
-            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache
-                ] == '2' && sql[offsetCache + 1] == '0'))
+            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache] == '2' && sql[offsetCache + 1] == '0'))
             {
                 int rst = 0;
                 int end = offsetCache + sizeCache;
@@ -1614,8 +1614,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                 }
                 else
                 {
-                    return long.Parse(new string(sql, offsetCache, sizeCache));
-                    //return new BigInteger(new string(sql, offsetCache, sizeCache), 10);
+                    return BigInteger.Parse(new string(sql, offsetCache, sizeCache));
                 }
             }
         }

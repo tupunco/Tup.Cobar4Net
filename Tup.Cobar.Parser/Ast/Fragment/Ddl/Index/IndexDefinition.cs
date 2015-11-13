@@ -24,19 +24,13 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class IndexDefinition : ASTNode
     {
-        public enum IndexType
-        {
-            Btree,
-            Hash
-        }
-
-        private readonly IndexDefinition.IndexType indexType;
+        private readonly IndexType indexType;
 
         private readonly IList<IndexColumnName> columns;
 
         private readonly IList<IndexOption> options;
 
-        public IndexDefinition(IndexDefinition.IndexType indexType,
+        public IndexDefinition(IndexType indexType,
             IList<IndexColumnName> columns, 
             IList<IndexOption> options)
         {
@@ -50,7 +44,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
             this.options = (IList<IndexOption>)(options == null || options.IsEmpty() ? new List<IndexOption>(0): options);
         }
 
-        public virtual IndexDefinition.IndexType GetIndexType()
+        public virtual IndexType GetIndexType()
         {
             return indexType;
         }

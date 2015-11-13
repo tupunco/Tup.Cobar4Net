@@ -14,107 +14,114 @@
 * limitations under the License.
 */
 using System;
-using Sharpen;
-using Tup.Cobar.Parser.Ast;
 using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar.Parser.Ast.Fragment.Ddl.Datatype;
 using Tup.Cobar.Parser.Visitor;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Ast.Fragment.Ddl
 {
-	/// <summary>NOT FULL AST</summary>
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class ColumnDefinition : ASTNode
-	{
-		public enum SpecialIndex
-		{
-			Primary,
-			Unique
-		}
+    /// <summary>NOT FULL AST</summary>
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class ColumnDefinition : ASTNode
+    {
+        public enum SpecialIndex
+        {
+            None = 0,
 
-		public enum ColumnFormat
-		{
-			Fixed,
-			Dynamic,
-			Default
-		}
+            Primary,
+            Unique
+        }
 
-		private readonly DataType dataType;
+        public enum ColumnFormat
+        {
+            None = 0,
 
-		private readonly bool notNull;
+            Fixed,
+            Dynamic,
+            Default
+        }
 
-		private readonly Tup.Cobar.Parser.Ast.Expression.Expression defaultVal;
+        private readonly DataType dataType;
 
-		private readonly bool autoIncrement;
+        private readonly bool notNull;
 
-		private readonly ColumnDefinition.SpecialIndex specialIndex;
+        private readonly Expr defaultVal;
 
-		private readonly LiteralString comment;
+        private readonly bool autoIncrement;
 
-		private readonly ColumnDefinition.ColumnFormat columnFormat;
+        private readonly ColumnDefinition.SpecialIndex specialIndex;
 
-		/// <param name="dataType"/>
-		/// <param name="notNull"/>
-		/// <param name="defaultVal">might be null</param>
-		/// <param name="autoIncrement"/>
-		/// <param name="specialIndex">might be null</param>
-		/// <param name="comment">might be null</param>
-		/// <param name="columnFormat">might be null</param>
-		public ColumnDefinition(DataType dataType, bool notNull, Tup.Cobar.Parser.Ast.Expression.Expression
-			 defaultVal, bool autoIncrement, ColumnDefinition.SpecialIndex specialIndex, LiteralString
-			 comment, ColumnDefinition.ColumnFormat columnFormat)
-		{
-			if (dataType == null)
-			{
-				throw new ArgumentException("data type is null");
-			}
-			this.dataType = dataType;
-			this.notNull = notNull;
-			this.defaultVal = defaultVal;
-			this.autoIncrement = autoIncrement;
-			this.specialIndex = specialIndex;
-			this.comment = comment;
-			this.columnFormat = columnFormat;
-		}
+        private readonly LiteralString comment;
 
-		public virtual DataType GetDataType()
-		{
-			return dataType;
-		}
+        private readonly ColumnDefinition.ColumnFormat columnFormat;
 
-		public virtual bool IsNotNull()
-		{
-			return notNull;
-		}
+        /// <param name="dataType"/>
+        /// <param name="notNull"/>
+        /// <param name="defaultVal">might be null</param>
+        /// <param name="autoIncrement"/>
+        /// <param name="specialIndex">might be null</param>
+        /// <param name="comment">might be null</param>
+        /// <param name="columnFormat">might be null</param>
+        public ColumnDefinition(DataType dataType,
+            bool notNull,
+            Expr defaultVal,
+            bool autoIncrement,
+            ColumnDefinition.SpecialIndex specialIndex,
+            LiteralString comment,
+            ColumnDefinition.ColumnFormat columnFormat)
+        {
+            if (dataType == null)
+            {
+                throw new ArgumentException("data type is null");
+            }
+            this.dataType = dataType;
+            this.notNull = notNull;
+            this.defaultVal = defaultVal;
+            this.autoIncrement = autoIncrement;
+            this.specialIndex = specialIndex;
+            this.comment = comment;
+            this.columnFormat = columnFormat;
+        }
 
-		public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetDefaultVal()
-		{
-			return defaultVal;
-		}
+        public virtual DataType GetDataType()
+        {
+            return dataType;
+        }
 
-		public virtual bool IsAutoIncrement()
-		{
-			return autoIncrement;
-		}
+        public virtual bool IsNotNull()
+        {
+            return notNull;
+        }
 
-		public virtual ColumnDefinition.SpecialIndex GetSpecialIndex()
-		{
-			return specialIndex;
-		}
+        public virtual Expr GetDefaultVal()
+        {
+            return defaultVal;
+        }
 
-		public virtual LiteralString GetComment()
-		{
-			return comment;
-		}
+        public virtual bool IsAutoIncrement()
+        {
+            return autoIncrement;
+        }
 
-		public virtual ColumnDefinition.ColumnFormat GetColumnFormat()
-		{
-			return columnFormat;
-		}
+        public virtual ColumnDefinition.SpecialIndex GetSpecialIndex()
+        {
+            return specialIndex;
+        }
 
-		public virtual void Accept(SQLASTVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
-	}
+        public virtual LiteralString GetComment()
+        {
+            return comment;
+        }
+
+        public virtual ColumnDefinition.ColumnFormat GetColumnFormat()
+        {
+            return columnFormat;
+        }
+
+        public virtual void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
+    }
 }

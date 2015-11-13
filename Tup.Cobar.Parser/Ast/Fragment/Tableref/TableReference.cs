@@ -51,8 +51,4 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Tableref
 
         public abstract void Accept(SQLASTVisitor arg1);
     }
-
-    public static class TableReferenceConstants
-    {
-    }
 }

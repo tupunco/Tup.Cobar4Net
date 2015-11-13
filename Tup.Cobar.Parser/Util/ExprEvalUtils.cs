@@ -17,7 +17,6 @@
 using Sharpen;
 using System;
 using System.Collections.Generic;
-using System.Numerics;
 
 namespace Tup.Cobar.Parser.Util
 {
