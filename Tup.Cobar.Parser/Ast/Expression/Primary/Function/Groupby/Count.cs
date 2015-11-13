@@ -32,13 +32,13 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
         /// </summary>
         private readonly bool distinct;
 
-        public Count(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Count(IList<Expression> arguments)
             : base("COUNT", arguments)
         {
             this.distinct = true;
         }
 
-        public Count(Tup.Cobar.Parser.Ast.Expression.Expression arg)
+        public Count(Expression arg)
             : base("COUNT", WrapList(arg))
         {
             this.distinct = false;
@@ -49,8 +49,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
             return distinct;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby.Count(arguments
                 );

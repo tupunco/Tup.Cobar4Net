@@ -25,8 +25,8 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticMultiplyExpression : ArithmeticBinaryOperatorExpression
     {
-        public ArithmeticMultiplyExpression(Tup.Cobar.Parser.Ast.Expression.Expression leftOprand,
-                                            Tup.Cobar.Parser.Ast.Expression.Expression rightOprand)
+        public ArithmeticMultiplyExpression(Expression leftOprand,
+                                            Expression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticFactorOp)
         {
         }

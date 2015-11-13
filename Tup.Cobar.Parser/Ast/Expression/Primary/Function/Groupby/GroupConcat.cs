@@ -25,16 +25,15 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
     {
         private readonly bool distinct;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression orderBy;
+        private readonly Expression orderBy;
 
         private readonly bool isDesc;
 
-        private readonly IList<Tup.Cobar.Parser.Ast.Expression.Expression> appendedColumnNames;
+        private readonly IList<Expression> appendedColumnNames;
 
         private readonly string separator;
 
-        public GroupConcat(bool distinct, IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > exprList, Tup.Cobar.Parser.Ast.Expression.Expression orderBy, bool isDesc, IList
+        public GroupConcat(bool distinct, IList<Expression> exprList, Expression orderBy, bool isDesc, IList
             <Tup.Cobar.Parser.Ast.Expression.Expression> appendedColumnNames, string separator
             )
             : base("GROUP_CONCAT", exprList)
@@ -66,7 +65,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
             return distinct;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetOrderBy()
+        public virtual Expression GetOrderBy()
         {
             return orderBy;
         }
@@ -76,7 +75,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
             return isDesc;
         }
 
-        public virtual IList<Tup.Cobar.Parser.Ast.Expression.Expression> GetAppendedColumnNames
+        public virtual IList<Expression> GetAppendedColumnNames
             ()
         {
             return appendedColumnNames;
@@ -87,8 +86,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
             return separator;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }

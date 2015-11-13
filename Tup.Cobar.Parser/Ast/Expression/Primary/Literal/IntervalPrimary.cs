@@ -71,9 +71,9 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 
         private readonly IntervalPrimary.Unit unit;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression quantity;
+        private readonly Expression quantity;
 
-        public IntervalPrimary(Tup.Cobar.Parser.Ast.Expression.Expression quantity, IntervalPrimary.Unit unit)
+        public IntervalPrimary(Expression quantity, IntervalPrimary.Unit unit)
             : base()
         {
             if (quantity == null)
@@ -95,7 +95,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
         }
 
         /// <returns>never null</returns>
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetQuantity()
+        public virtual Expression GetQuantity()
         {
             return quantity;
         }

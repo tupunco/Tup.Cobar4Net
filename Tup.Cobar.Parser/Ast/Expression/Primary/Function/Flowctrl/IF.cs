@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Flowctrl
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class IF : FunctionExpression
     {
-        public IF(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public IF(IList<Expression> arguments)
             : base("IF", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new IF(arguments);
         }

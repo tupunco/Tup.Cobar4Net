@@ -24,8 +24,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LogicalXORExpression : BinaryOperatorExpression
     {
-        public LogicalXORExpression(Tup.Cobar.Parser.Ast.Expression.Expression left, Tup.Cobar.Parser.Ast.Expression.Expression
-             right)
+        public LogicalXORExpression(Expression left, Expression right)
             : base(left, right, ExpressionConstants.PrecedenceLogicalXor)
         {
         }

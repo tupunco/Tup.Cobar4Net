@@ -26,8 +26,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
     {
         private IntervalPrimary.Unit unit;
 
-        public Extract(IntervalPrimary.Unit unit, Tup.Cobar.Parser.Ast.Expression.Expression
-             date)
+        public Extract(IntervalPrimary.Unit unit, Expression date)
             : base("EXTRACT", WrapList(date))
         {
             this.unit = unit;
@@ -38,13 +37,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
             return unit;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetDate()
+        public virtual Expression GetDate()
         {
             return arguments[0];
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of extract has special arguments");
         }

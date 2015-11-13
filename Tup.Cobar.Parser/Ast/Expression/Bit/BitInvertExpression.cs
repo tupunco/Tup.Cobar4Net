@@ -20,7 +20,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Bit
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class BitInvertExpression : UnaryOperatorExpression
     {
-        public BitInvertExpression(Tup.Cobar.Parser.Ast.Expression.Expression operand)
+        public BitInvertExpression(Expression operand)
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {
         }

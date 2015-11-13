@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Maketime : FunctionExpression
     {
-        public Maketime(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Maketime(IList<Expression> arguments)
             : base("MAKETIME", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime.Maketime(arguments
                 );

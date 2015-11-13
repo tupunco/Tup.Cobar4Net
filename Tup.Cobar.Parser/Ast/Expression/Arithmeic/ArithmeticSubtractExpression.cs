@@ -25,8 +25,8 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
     public class ArithmeticSubtractExpression : ArithmeticBinaryOperatorExpression
     {
         //TODO ArithmeticSubtractExpression
-        public ArithmeticSubtractExpression(Tup.Cobar.Parser.Ast.Expression.Expression leftOprand,
-                                            Tup.Cobar.Parser.Ast.Expression.Expression rightOprand)
+        public ArithmeticSubtractExpression(Expression leftOprand,
+                                            Expression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticTermOp)
         {
         }

@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Comparison
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Interval : FunctionExpression
     {
-        public Interval(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Interval(IList<Expression> arguments)
             : base("INTERVAL", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Comparison.Interval(arguments
                 );

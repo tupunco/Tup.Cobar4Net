@@ -25,15 +25,14 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
     {
         private readonly string charset;
 
-        public Char(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments, string charset
+        public Char(IList<Expression> arguments, string charset
             )
             : base("CHAR", arguments)
         {
             this.charset = charset;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }

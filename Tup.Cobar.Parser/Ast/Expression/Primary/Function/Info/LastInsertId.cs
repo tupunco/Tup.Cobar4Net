@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LastInsertId : FunctionExpression
     {
-        public LastInsertId(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public LastInsertId(IList<Expression> arguments)
             : base("LAST_INSERT_ID", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info.LastInsertId(arguments
                 );

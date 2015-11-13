@@ -22,9 +22,9 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class InExpressionList : AbstractExpression
     {
-        private IList<Tup.Cobar.Parser.Ast.Expression.Expression> list;
+        private IList<Expression> list;
 
-        public InExpressionList(IList<Tup.Cobar.Parser.Ast.Expression.Expression> list)
+        public InExpressionList(IList<Expression> list)
         {
             if (list == null || list.Count == 0)
             {
@@ -44,7 +44,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
         }
 
         /// <returns>never null</returns>
-        public virtual IList<Tup.Cobar.Parser.Ast.Expression.Expression> GetList()
+        public virtual IList<Expression> GetList()
         {
             return list;
         }
@@ -60,10 +60,9 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
             return Unevaluatable;
         }
 
-        private IList<Tup.Cobar.Parser.Ast.Expression.Expression> replaceList;
+        private IList<Expression> replaceList;
 
-        public virtual void SetReplaceExpr(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > replaceList)
+        public virtual void SetReplaceExpr(IList<Expression> replaceList)
         {
             this.replaceList = replaceList;
         }
@@ -81,7 +80,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
             }
             else
             {
-                IList<Tup.Cobar.Parser.Ast.Expression.Expression> temp = list;
+                IList<Expression> temp = list;
                 list = replaceList;
                 visitor.Visit(this);
                 list = temp;

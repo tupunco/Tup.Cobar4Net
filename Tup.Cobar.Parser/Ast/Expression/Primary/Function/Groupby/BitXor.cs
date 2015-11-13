@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class BitXor : FunctionExpression
     {
-        public BitXor(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public BitXor(IList<Expression> arguments)
             : base("BIT_XOR", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby.BitXor(arguments
                 );

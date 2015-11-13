@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class IsUsedLock : FunctionExpression
     {
-        public IsUsedLock(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public IsUsedLock(IList<Expression> arguments)
             : base("IS_USED_LOCK", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc.IsUsedLock(arguments
                 );

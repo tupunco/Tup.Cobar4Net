@@ -25,13 +25,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Cast
     {
         private readonly string typeName;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression typeInfo1;
+        private readonly Expression typeInfo1;
 
-        private readonly Tup.Cobar.Parser.Ast.Expression.Expression typeInfo2;
+        private readonly Expression typeInfo2;
 
         /// <param name="expr">never null</param>
-        public Cast(Tup.Cobar.Parser.Ast.Expression.Expression expr, string typeName, Tup.Cobar.Parser.Ast.Expression.Expression
-             typeInfo1, Tup.Cobar.Parser.Ast.Expression.Expression typeInfo2)
+        public Cast(Expression expr, string typeName, Expression typeInfo1, Expression typeInfo2)
             : base("CAST", WrapList(expr))
         {
             if (null == typeName)
@@ -44,7 +43,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Cast
         }
 
         /// <returns>never null</returns>
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetExpr()
+        public virtual Expression GetExpr()
         {
             return GetArguments()[0];
         }
@@ -55,18 +54,17 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Cast
             return typeName;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetTypeInfo1()
+        public virtual Expression GetTypeInfo1()
         {
             return typeInfo1;
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetTypeInfo2()
+        public virtual Expression GetTypeInfo2()
         {
             return typeInfo2;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }

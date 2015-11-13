@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class StddevSamp : FunctionExpression
     {
-        public StddevSamp(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public StddevSamp(IList<Expression> arguments)
             : base("STDDEV_SAMP", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby.StddevSamp(arguments
                 );

@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Rand : FunctionExpression
     {
-        public Rand(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Rand(IList<Expression> arguments)
             : base("RAND", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic.Rand(arguments
                 );

@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class StrToDate : FunctionExpression
     {
-        public StrToDate(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public StrToDate(IList<Expression> arguments)
             : base("STR_TO_DATE", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime.StrToDate(arguments
                 );

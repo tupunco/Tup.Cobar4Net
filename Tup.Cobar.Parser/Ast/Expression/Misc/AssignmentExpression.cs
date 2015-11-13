@@ -21,8 +21,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Misc
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class AssignmentExpression : BinaryOperatorExpression
     {
-        public AssignmentExpression(Tup.Cobar.Parser.Ast.Expression.Expression left, Tup.Cobar.Parser.Ast.Expression.Expression
-             right)
+        public AssignmentExpression(Expression left, Expression right)
             : base(left, right, ExpressionConstants.PrecedenceAssignment
                 , false)
         {

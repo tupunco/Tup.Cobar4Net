@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ToSeconds : FunctionExpression
     {
-        public ToSeconds(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public ToSeconds(IList<Expression> arguments)
             : base("TO_SECONDS", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime.ToSeconds(arguments
                 );

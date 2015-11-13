@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class VarPop : FunctionExpression
     {
-        public VarPop(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public VarPop(IList<Expression> arguments)
             : base("VAR_POP", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby.VarPop(arguments
                 );

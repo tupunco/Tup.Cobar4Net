@@ -21,14 +21,13 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class UncompressedLength : FunctionExpression
     {
-        public UncompressedLength(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments
+        public UncompressedLength(IList<Expression> arguments
             )
             : base("UNCOMPRESSED_LENGTH", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption.UncompressedLength
                 (arguments);

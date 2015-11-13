@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class RowCount : FunctionExpression
     {
-        public RowCount(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public RowCount(IList<Expression> arguments)
             : base("ROW_COUNT", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info.RowCount(arguments
                 );

@@ -37,7 +37,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
         protected override object EvaluationInternal(IDictionary<object, Expression> parameters
             )
         {
-            foreach (Tup.Cobar.Parser.Ast.Expression.Expression operand in operands)
+            foreach (Expression operand in operands)
             {
                 object val = operand.Evaluation(parameters);
                 if (val == null)

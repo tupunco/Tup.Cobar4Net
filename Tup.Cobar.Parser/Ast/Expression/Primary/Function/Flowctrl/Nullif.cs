@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Flowctrl
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Nullif : FunctionExpression
     {
-        public Nullif(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Nullif(IList<Expression> arguments)
             : base("NULLIF", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Flowctrl.Nullif(arguments
                 );

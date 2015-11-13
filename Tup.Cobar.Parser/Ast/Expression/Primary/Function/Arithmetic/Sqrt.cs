@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Sqrt : FunctionExpression
     {
-        public Sqrt(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Sqrt(IList<Expression> arguments)
             : base("SQRT", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic.Sqrt(arguments
                 );

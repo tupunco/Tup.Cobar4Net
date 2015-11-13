@@ -25,8 +25,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Bit
         private readonly bool negative;
 
         /// <param name="negative">true if right shift</param>
-        public BitShiftExpression(bool negative, Tup.Cobar.Parser.Ast.Expression.Expression
-             leftOprand, Tup.Cobar.Parser.Ast.Expression.Expression rightOprand)
+        public BitShiftExpression(bool negative, Expression leftOprand, Expression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceBitShift)
         {
             this.negative = negative;

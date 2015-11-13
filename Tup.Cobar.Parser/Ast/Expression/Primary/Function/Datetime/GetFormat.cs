@@ -32,8 +32,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
 
         private GetFormat.FormatType formatType;
 
-        public GetFormat(GetFormat.FormatType type, Tup.Cobar.Parser.Ast.Expression.Expression
-             format)
+        public GetFormat(GetFormat.FormatType type, Expression format)
             : base("GET_FORMAT", WrapList(format))
         {
             this.formatType = type;
@@ -49,8 +48,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
             return arguments[0];
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of GetFormat has special arguments");
         }

@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class GetLock : FunctionExpression
     {
-        public GetLock(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public GetLock(IList<Expression> arguments)
             : base("GET_LOCK", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc.GetLock(arguments
                 );

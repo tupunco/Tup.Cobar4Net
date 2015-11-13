@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Uncompress : FunctionExpression
     {
-        public Uncompress(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Uncompress(IList<Expression> arguments)
             : base("UNCOMPRESS", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption.Uncompress
                 (arguments);

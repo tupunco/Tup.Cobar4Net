@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Log2 : FunctionExpression
     {
-        public Log2(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Log2(IList<Expression> arguments)
             : base("LOG2", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic.Log2(arguments
                 );

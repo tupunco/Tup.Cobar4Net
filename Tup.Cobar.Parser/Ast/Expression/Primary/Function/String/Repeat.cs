@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Repeat : FunctionExpression
     {
-        public Repeat(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Repeat(IList<Expression> arguments)
             : base("REPEAT", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.String.Repeat(arguments
                 );

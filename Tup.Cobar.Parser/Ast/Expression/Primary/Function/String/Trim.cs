@@ -33,16 +33,14 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
 
         private readonly Trim.Direction direction;
 
-        private static IList<Tup.Cobar.Parser.Ast.Expression.Expression> WrapList(Tup.Cobar.Parser.Ast.Expression.Expression
-             str, Tup.Cobar.Parser.Ast.Expression.Expression remstr)
+        private static IList<Expression> WrapList(Expression str, Expression remstr)
         {
             if (str == null)
             {
                 throw new ArgumentException("str is null");
             }
-            IList<Tup.Cobar.Parser.Ast.Expression.Expression> list = remstr != null ? new List
-                <Tup.Cobar.Parser.Ast.Expression.Expression>(2) : new List<Tup.Cobar.Parser.Ast.Expression.Expression
-                >(1);
+            IList<Expression> list = remstr != null ? new List
+                <Tup.Cobar.Parser.Ast.Expression.Expression>(2) : new List<Expression >(1);
             list.Add(str);
             if (remstr != null)
             {
@@ -51,22 +49,21 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
             return list;
         }
 
-        public Trim(Trim.Direction direction, Tup.Cobar.Parser.Ast.Expression.Expression
-            remstr, Tup.Cobar.Parser.Ast.Expression.Expression str)
+        public Trim(Trim.Direction direction, Expression remstr, Expression str)
             : base("TRIM", WrapList(str, remstr))
         {
             this.direction = direction;
         }
 
         /// <returns>never null</returns>
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetString()
+        public virtual Expression GetString()
         {
             return GetArguments()[0];
         }
 
-        public virtual Tup.Cobar.Parser.Ast.Expression.Expression GetRemainString()
+        public virtual Expression GetRemainString()
         {
-            IList<Tup.Cobar.Parser.Ast.Expression.Expression> args = GetArguments();
+            IList<Expression> args = GetArguments();
             if (args.Count < 2)
             {
                 return null;
@@ -79,8 +76,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
             return direction;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of trim has special arguments");
         }

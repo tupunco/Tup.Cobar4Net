@@ -22,8 +22,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Bit
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class BitOrExpression : BinaryOperatorExpression
     {
-        public BitOrExpression(Tup.Cobar.Parser.Ast.Expression.Expression leftOprand, Tup.Cobar.Parser.Ast.Expression.Expression
-             rightOprand)
+        public BitOrExpression(Expression leftOprand, Expression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceBitOr)
         {
         }

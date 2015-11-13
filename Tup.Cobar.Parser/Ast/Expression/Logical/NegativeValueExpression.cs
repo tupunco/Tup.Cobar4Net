@@ -24,7 +24,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class NegativeValueExpression : UnaryOperatorExpression
     {
-        public NegativeValueExpression(Tup.Cobar.Parser.Ast.Expression.Expression operand
+        public NegativeValueExpression(Expression operand
             )
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {

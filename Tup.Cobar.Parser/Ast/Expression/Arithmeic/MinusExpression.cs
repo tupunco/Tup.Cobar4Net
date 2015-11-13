@@ -25,7 +25,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class MinusExpression : UnaryOperatorExpression, UnaryOperandCalculator
     {
-        public MinusExpression(Tup.Cobar.Parser.Ast.Expression.Expression operand)
+        public MinusExpression(Expression operand)
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {
         }

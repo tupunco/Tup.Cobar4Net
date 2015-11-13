@@ -22,25 +22,23 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class FunctionExpression : PrimaryExpression
     {
-        protected internal static IList<Tup.Cobar.Parser.Ast.Expression.Expression> WrapList
-            (Tup.Cobar.Parser.Ast.Expression.Expression expr)
+        protected internal static IList<Expression> WrapList
+            (Expression expr)
         {
-            IList<Tup.Cobar.Parser.Ast.Expression.Expression> list = new List<Tup.Cobar.Parser.Ast.Expression.Expression
-                >(1);
+            IList<Expression> list = new List<Expression >(1);
             list.Add(expr);
             return list;
         }
 
         /// <summary><code>this</code> function object being called is a prototype</summary>
         public abstract Tup.Cobar.Parser.Ast.Expression.Primary.Function.FunctionExpression
-             ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments);
+             ConstructFunction(IList<Expression> arguments);
 
         protected readonly string functionName;
 
         protected readonly IList<Expression> arguments;
 
-        public FunctionExpression(string functionName, IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public FunctionExpression(string functionName, IList<Expression> arguments)
             : base()
         {
             this.functionName = functionName;
@@ -66,7 +64,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function
         }
 
         /// <returns>never null</returns>
-        public virtual IList<Tup.Cobar.Parser.Ast.Expression.Expression> GetArguments()
+        public virtual IList<Expression> GetArguments()
         {
             return arguments;
         }
@@ -76,7 +74,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function
             return functionName;
         }
 
-        public override Tup.Cobar.Parser.Ast.Expression.Expression SetCacheEvalRst(bool cacheEvalRst
+        public override Expression SetCacheEvalRst(bool cacheEvalRst
             )
         {
             return base.SetCacheEvalRst(cacheEvalRst);

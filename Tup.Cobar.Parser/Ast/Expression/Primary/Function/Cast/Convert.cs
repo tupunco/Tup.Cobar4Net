@@ -32,7 +32,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Cast
         /// </summary>
         private readonly string transcodeName;
 
-        public Convert(Tup.Cobar.Parser.Ast.Expression.Expression arg, string transcodeName
+        public Convert(Expression arg, string transcodeName
             )
             : base("CONVERT", WrapList(arg))
         {
@@ -48,8 +48,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Cast
             return transcodeName;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }

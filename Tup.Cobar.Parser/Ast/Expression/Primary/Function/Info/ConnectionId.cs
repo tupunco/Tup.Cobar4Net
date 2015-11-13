@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ConnectionId : FunctionExpression
     {
-        public ConnectionId(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public ConnectionId(IList<Expression> arguments)
             : base("CONNECTION_ID", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Info.ConnectionId(arguments
                 );

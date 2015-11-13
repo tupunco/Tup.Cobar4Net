@@ -25,7 +25,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
     {
         private readonly bool distinct;
 
-        public Min(Tup.Cobar.Parser.Ast.Expression.Expression expr, bool distinct)
+        public Min(Expression expr, bool distinct)
             : base("MIN", WrapList(expr))
         {
             this.distinct = distinct;
@@ -36,8 +36,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Groupby
             return distinct;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }

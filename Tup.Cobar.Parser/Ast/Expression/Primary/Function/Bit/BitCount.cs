@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Bit
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class BitCount : FunctionExpression
     {
-        public BitCount(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public BitCount(IList<Expression> arguments)
             : base("BIT_COUNT", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Bit.BitCount(arguments
                 );

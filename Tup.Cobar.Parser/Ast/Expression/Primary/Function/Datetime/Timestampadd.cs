@@ -26,8 +26,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
     {
         private IntervalPrimary.Unit unit;
 
-        public Timestampadd(IntervalPrimary.Unit unit, IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public Timestampadd(IntervalPrimary.Unit unit, IList<Expression> arguments)
             : base("TIMESTAMPADD", arguments)
         {
             this.unit = unit;
@@ -38,8 +37,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Datetime
             return unit;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             throw new NotSupportedException("function of Timestampadd has special arguments");
         }

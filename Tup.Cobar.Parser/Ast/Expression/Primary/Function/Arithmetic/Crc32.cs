@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Crc32 : FunctionExpression
     {
-        public Crc32(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Crc32(IList<Expression> arguments)
             : base("CRC32", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Arithmetic.Crc32(arguments
                 );

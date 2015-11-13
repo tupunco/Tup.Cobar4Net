@@ -24,7 +24,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LogicalNotExpression : UnaryOperatorExpression
     {
-        public LogicalNotExpression(Tup.Cobar.Parser.Ast.Expression.Expression operand)
+        public LogicalNotExpression(Expression operand)
             : base(operand, ExpressionConstants.PrecedenceLogicalNot)
         {
         }

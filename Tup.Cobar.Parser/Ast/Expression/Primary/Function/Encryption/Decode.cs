@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class Decode : FunctionExpression
     {
-        public Decode(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public Decode(IList<Expression> arguments)
             : base("DECODE", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Encryption.Decode(arguments
                 );

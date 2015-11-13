@@ -21,13 +21,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class InetAton : FunctionExpression
     {
-        public InetAton(IList<Tup.Cobar.Parser.Ast.Expression.Expression> arguments)
+        public InetAton(IList<Expression> arguments)
             : base("INET_ATON", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Tup.Cobar.Parser.Ast.Expression.Expression
-            > arguments)
+        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
         {
             return new Tup.Cobar.Parser.Ast.Expression.Primary.Function.Misc.InetAton(arguments
                 );
