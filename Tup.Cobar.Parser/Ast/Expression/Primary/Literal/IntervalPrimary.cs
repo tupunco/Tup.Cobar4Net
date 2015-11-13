@@ -13,15 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
-using Sharpen;
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class IntervalPrimary : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+    public class IntervalPrimary : Literal
     {
         public enum Unit
         {

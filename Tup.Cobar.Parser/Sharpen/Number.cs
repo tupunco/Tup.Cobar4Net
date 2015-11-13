@@ -15,10 +15,22 @@ namespace Sharpen
         BigInteger = 7,
         BigDecimal = 8,
     }
-    public class Number
+    /// <summary>
+    /// Number
+    /// </summary>
+    public sealed class Number
     {
         private readonly object m_value;
         private readonly NumberTypeCode m_typeCode;
+
+        /// <summary>
+        /// TypeCode
+        /// </summary>
+        public NumberTypeCode TypeCode
+        {
+            get { return m_typeCode; }
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -93,32 +105,32 @@ namespace Sharpen
         public static implicit operator Number(BigDecimal value) { return new Number(value); }
 
 
-        public virtual double DoubleValue()
+        public double DoubleValue()
         {
             return (double)m_value;
         }
 
-        public virtual float FloatValue()
+        public float FloatValue()
         {
             return (float)m_value;
         }
 
-        public virtual sbyte ByteValue()
+        public sbyte ByteValue()
         {
             return (sbyte)m_value;
         }
 
-        public virtual int IntValue()
+        public int IntValue()
         {
             return (int)m_value;
         }
 
-        public virtual long LongValue()
+        public long LongValue()
         {
             return (long)m_value;
         }
 
-        public virtual short ShortValue()
+        public short ShortValue()
         {
             return (short)m_value;
         }

@@ -20,11 +20,11 @@ using Tup.Cobar.Parser.Visitor;
 namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LiteralBoolean : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+    public class LiteralBoolean : Literal
     {
-        public static readonly int True = 1;
+        public static readonly object True = 1;
 
-        public static readonly int False = 0;
+        public static readonly object False = 0;
 
         private readonly bool value;
 
@@ -39,8 +39,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
             return value;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
             return value ? True : False;
         }

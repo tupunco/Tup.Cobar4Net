@@ -13,25 +13,26 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+using Sharpen;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Sharpen;
 using Tup.Cobar.Parser.Util;
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class LiteralHexadecimal : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
+    public class LiteralHexadecimal : Literal
     {
-        private byte[] bytes;
+        private byte[] bytes = null;
 
         private readonly string introducer;
 
         private readonly string charset;
 
-        private readonly char[] @string;
+        private readonly char[] @string = null;
 
         private readonly int offset;
 
@@ -76,17 +77,9 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 
         protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
-            throw new NotImplementedException();
-            //TODO LiteralHexadecimal EvaluationInternal
-            //try
-            //{
-            //    this.bytes = ParseString.HexString2Bytes(@string, offset, size);
-            //    return Sharpen.Runtime.GetStringForBytes(bytes, introducer == null ? charset : Sharpen.Runtime.Substring(introducer, 1));
-            //}
-            //catch (UnsupportedEncodingException e)
-            //{
-            //    throw new RuntimeException(string.Empty, e);
-            //}
+            this.bytes = ParseString.HexString2Bytes(@string, offset, size);
+            return Runtime.GetStringForBytes(bytes, introducer == null ? charset :
+                                                Runtime.Substring(introducer, 1));
         }
 
         public override void Accept(SQLASTVisitor visitor)

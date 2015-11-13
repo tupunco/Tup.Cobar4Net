@@ -14,18 +14,20 @@
 * limitations under the License.
 */
 
+using Deveel.Math;
+using Sharpen;
+
 namespace Tup.Cobar.Parser.Util
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public interface BinaryOperandCalculator
     {
-        //TODO BinaryOperandCalculator
-        int Calculate(int integer1, int integer2);
+        Number Calculate(int integer1, int integer2);
 
-        long Calculate(long long1, long long2);
+        Number Calculate(long long1, long long2);
 
-        //Number Calculate(BigInteger bigint1, BigInteger bigint2);
+        Number Calculate(BigInteger bigint1, BigInteger bigint2);
 
-        double Calculate(double bigDecimal1, double bigDecimal2);
+        Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
     }
 }

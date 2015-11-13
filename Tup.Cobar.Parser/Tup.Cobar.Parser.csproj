@@ -392,6 +392,7 @@
     <Compile Include="Recognizer\Mysql\Syntax\MySQLExprParser.cs" />
     <Compile Include="Recognizer\Mysql\Syntax\MySQLMTSParser.cs" />
     <Compile Include="Recognizer\Mysql\Syntax\MySQLParser.cs" />
+    <Compile Include="Recognizer\SQLParserDelegate.cs" />
     <Compile Include="Sharpen\Number.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
     <Compile Include="Sharpen\Sharpen.cs" />
@@ -412,6 +413,8 @@
     <Compile Include="Ast\ASTNode.cs" />
     <Compile Include="Util\ThrowHelper.cs" />
     <Compile Include="Util\UnaryOperandCalculator.cs" />
+    <Compile Include="Visitor\EmptySQLASTVisitor.cs" />
+    <Compile Include="Visitor\MySQLOutputASTVisitor.cs" />
     <Compile Include="Visitor\SQLASTVisitor.cs" />
   </ItemGroup>
   <ItemGroup>

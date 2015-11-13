@@ -14,17 +14,20 @@
 * limitations under the License.
 */
 
+using Deveel.Math;
+using Sharpen;
+
 namespace Tup.Cobar.Parser.Util
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public interface UnaryOperandCalculator
     {
-        int Calculate(int num);
+        Number Calculate(int num);
 
-        long Calculate(long num);
+        Number Calculate(long num);
 
-        //Number Calculate(BigInteger num);
+        Number Calculate(BigInteger num);
 
-        double Calculate(double num);
+        Number Calculate(BigDecimal num);
     }
 }

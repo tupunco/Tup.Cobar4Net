@@ -19,6 +19,7 @@ using Sharpen;
 using System;
 using System.Text;
 using System.Threading;
+
 using Tup.Cobar.Parser.Util;
 
 namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
@@ -590,7 +591,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                     return token;
                                 }
                         }
-                        goto case '<';
+                        //goto case '<';
                     }
 
                 case '<':
@@ -631,7 +632,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                     return token;
                                 }
                         }
-                        goto case '`';
+                        //goto case '`';
                     }
 
                 case '`':
@@ -761,7 +762,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                         break;
                                     }
                             }
-                        loop1_continue:;
+                            //loop1_continue:;
                         }
                     loop1_break:;
                         break;
@@ -783,7 +784,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                         goto loop1_break;
                                     }
                             }
-                        loop1_continue:;
+                            //loop1_continue:;
                         }
                     loop1_break:;
                         break;
@@ -902,7 +903,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                 continue;
                             }
                     }
-                loop_continue:;
+                    // loop_continue:;
                 }
             loop_break:;
             }
@@ -942,7 +943,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                                 continue;
                             }
                     }
-                loop_continue:;
+                    //loop_continue:;
                 }
             loop_break:;
             }
@@ -1572,9 +1573,16 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
             StringBuilder sb = new StringBuilder();
             sb.Append(GetType().Name).Append('@').Append(GetHashCode()).Append('{');
             string sqlLeft = new string(sql, curIndex, sql.Length - curIndex);
-            sb.Append("curIndex=").Append(curIndex).Append(", ch=").Append(ch).Append(", token="
-                ).Append(token).Append(", sqlLeft=").Append(sqlLeft).Append(", sql=").Append(sql
-                );
+            sb.Append("curIndex=")
+                .Append(curIndex)
+                .Append(", ch=")
+                .Append(ch)
+                .Append(", token=")
+                .Append(token)
+                .Append(", sqlLeft=")
+                .Append(sqlLeft)
+                .Append(", sql=")
+                .Append(sql);
             sb.Append('}');
             return sb.ToString();
         }
@@ -1588,7 +1596,8 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         {
             // 2147483647
             // 9223372036854775807
-            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache] == '2' && sql[offsetCache + 1] == '0'))
+            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache
+                ] == '2' && sql[offsetCache + 1] == '0'))
             {
                 int rst = 0;
                 int end = offsetCache + sizeCache;
@@ -1614,16 +1623,15 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
                 }
                 else
                 {
-                    return BigInteger.Parse(new string(sql, offsetCache, sizeCache));
+                    return BigInteger.Parse(new string(sql, offsetCache, sizeCache), 10);
                 }
             }
         }
 
-        public virtual double DecimalValue()
+        public virtual BigDecimal DecimalValue()
         {
             // QS_TODO [performance enhance]: prevent BigDecimal's parser
-            return double.Parse(new string(sql, offsetCache, sizeCache));
-            //return new BigDecimal(sql, offsetCache, sizeCache);
+            return BigDecimal.Parse(new string(sql, offsetCache, sizeCache));
         }
 
         /// <summary>

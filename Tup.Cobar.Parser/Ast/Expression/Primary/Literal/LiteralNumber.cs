@@ -13,42 +13,43 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+using Sharpen;
 using System;
 using System.Collections.Generic;
-using Sharpen;
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
 {
-	/// <summary>literal date is also possible</summary>
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class LiteralNumber : Tup.Cobar.Parser.Ast.Expression.Primary.Literal.Literal
-	{
-		private readonly Number number;
+    /// <summary>literal date is also possible</summary>
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class LiteralNumber : Literal
+    {
+        private readonly Number number;
 
-		public LiteralNumber(Number number)
-			: base()
-		{
-			if (number == null)
-			{
-				throw new ArgumentException("number is null!");
-			}
-			this.number = number;
-		}
+        public LiteralNumber(Number number)
+            : base()
+        {
+            if (number == null)
+            {
+                throw new ArgumentException("number is null!");
+            }
+            this.number = number;
+        }
 
-		protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-		{
-			return number;
-		}
+        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        {
+            return number;
+        }
 
-		public override void Accept(SQLASTVisitor visitor)
-		{
-			visitor.Visit(this);
-		}
+        public override void Accept(SQLASTVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
 
-		public virtual Number GetNumber()
-		{
-			return number;
-		}
-	}
+        public virtual Number GetNumber()
+        {
+            return number;
+        }
+    }
 }

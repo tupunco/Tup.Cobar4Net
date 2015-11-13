@@ -13,13 +13,16 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
+using Deveel.Math;
+using Sharpen;
 using System.Collections.Generic;
 using Tup.Cobar.Parser.Util;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class ArithmeticBinaryOperatorExpression 
+    public abstract class ArithmeticBinaryOperatorExpression
         : BinaryOperatorExpression, BinaryOperandCalculator
     {
         protected internal ArithmeticBinaryOperatorExpression(Expression leftOprand, Expression rightOprand, int precedence)
@@ -43,12 +46,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
             return ExprEvalUtils.Calculate(this, pair.GetKey(), pair.GetValue());
         }
 
-        public abstract int Calculate(int arg1, int arg2);
+        public abstract Number Calculate(int arg1, int arg2);
 
-        public abstract long Calculate(long arg1, long arg2);
+        public abstract Number Calculate(long arg1, long arg2);
 
-        //public abstract Number Calculate(BigInteger arg1, BigInteger arg2);
+        public abstract Number Calculate(BigInteger arg1, BigInteger arg2);
 
-        public abstract double Calculate(double arg1, double arg2);
+        public abstract Number Calculate(BigDecimal arg1, BigDecimal arg2);
     }
 }
