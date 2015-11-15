@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -30,7 +29,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
     {
         public const string DefaultCharset = "utf-8";
 
-        protected internal readonly MySQLLexer lexer;
+        protected readonly MySQLLexer lexer;
 
         public MySQLParser(MySQLLexer lexer)
             : this(lexer, true)
@@ -61,7 +60,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
             specialIdentifiers["LOCAL"] = SpecialIdentifier.Local;
         }
 
-        protected internal readonly bool cacheEvalRst;
+        protected readonly bool cacheEvalRst;
 
         /// <returns>
         /// type of
@@ -187,7 +186,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order limit</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual Limit Limit()
+        public virtual Limit Limit()
         {
             if (lexer.Token() != MySQLToken.KwLimit)
             {
@@ -339,7 +338,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         /// if none is matched.
         /// </returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual int EqualsIdentifier(params string[] expectTextUppercases)
+        protected virtual int EqualsIdentifier(params string[] expectTextUppercases)
         {
             if (lexer.Token() == MySQLToken.Identifier)
             {
@@ -381,7 +380,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
 
         /// <returns>index of expected token, start from 0</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException">if no token is matched</exception>
-        protected virtual int Match(params MySQLToken[] expectToken)
+        public virtual int Match(params MySQLToken[] expectToken)
         {
             if (expectToken == null || expectToken.Length <= 0)
             {

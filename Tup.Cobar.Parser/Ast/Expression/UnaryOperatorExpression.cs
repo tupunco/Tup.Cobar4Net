@@ -26,7 +26,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
     {
         private readonly Expr operand;
 
-        protected internal readonly int precedence;
+        protected readonly int precedence;
 
         public UnaryOperatorExpression(Expr operand, int precedence)
         {

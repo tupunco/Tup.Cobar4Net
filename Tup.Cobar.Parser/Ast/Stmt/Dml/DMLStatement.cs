@@ -25,7 +25,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class DMLStatement : SQLStatement
     {
-        protected internal static IList<TItem> EnsureListType<TItem>(IList<TItem> list)
+        protected static IList<TItem> EnsureListType<TItem>(IList<TItem> list)
         {
             if (list == null || list.Count <= 0)
             {
@@ -38,7 +38,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
             return new List<TItem>(list);
         }
 
-        protected internal static IList<IList<Expr>> CheckAndConvertValuesList(IList<IList<Expr>> valuesList)
+        protected static IList<IList<Expr>> CheckAndConvertValuesList(IList<IList<Expr>> valuesList)
         {
             if (valuesList == null || valuesList.IsEmpty())
             {
@@ -101,10 +101,10 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
         public override string ToString()
         {
             StringBuilder sb = new StringBuilder();
-            //TODO DMLStatement Accept(new MySQLOutputASTVisitor(sb));
+            Accept(new MySQLOutputASTVisitor(sb));
             return sb.ToString();
         }
 
-        public abstract void Accept(SQLASTVisitor arg1);
+        public abstract void Accept(SQLASTVisitor visitor);
     }
 }

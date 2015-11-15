@@ -15,7 +15,6 @@
 */
 
 using Deveel.Math;
-using Sharpen;
 using System;
 using System.Text;
 using System.Threading;
@@ -45,21 +44,46 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// </remarks>
         private const byte Eoi = unchecked((int)(0x1A));
 
-        protected internal readonly char[] sql;
+        protected readonly char[] sql;
+        /// <summary>
+        /// Sql
+        /// </summary>
+        public char[] Sql
+        {
+            get { return sql; }
+        }
 
         /// <summary>
         /// always be
         /// <see cref="sql"/>
         /// .length - 1
         /// </summary>
-        protected internal readonly int eofIndex;
+        protected readonly int eofIndex;
+        /// <summary>
+        /// always be
+        /// <see cref="sql"/>
+        /// .length - 1
+        /// </summary>
+        public int EofIndex
+        {
+            get { return eofIndex; }
+        }
 
         /// <summary>
         /// current index of
         /// <see cref="sql"/>
         ///
         /// </summary>
-        protected internal int curIndex = -1;
+        protected int curIndex = -1;
+        /// <summary>
+        /// current index of
+        /// <see cref="sql"/>
+        ///
+        /// </summary>
+        public int CurIndex
+        {
+            get { return curIndex; }
+        }
 
         /// <summary>
         /// always be
@@ -68,7 +92,18 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// <see cref="curIndex"/>
         /// ]
         /// </summary>
-        protected internal char ch;
+        protected char ch;
+        /// <summary>
+        /// always be
+        /// <see cref="sql"/>
+        /// [
+        /// <see cref="curIndex"/>
+        /// ]
+        /// </summary>
+        public char Ch
+        {
+            get { return ch; }
+        }
 
         private MySQLToken token;
 
@@ -81,9 +116,9 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         private int paramIndex = 0;
 
         /// <summary>A character buffer for literals.</summary>
-        protected internal static readonly ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
+        protected static readonly ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
 
-        protected internal char[] sbuf;
+        protected char[] sbuf;
 
         private string stringValue;
 
@@ -105,7 +140,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// <see cref="sbuf"/>
         /// be changed
         /// </summary>
-        protected internal virtual void UpdateStringValue(char[] src, int srcOffset, int
+        protected virtual void UpdateStringValue(char[] src, int srcOffset, int
             len)
         {
             // QS_TODO [performance enhance]: use String constant for special
@@ -250,7 +285,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
             return paramIndex;
         }
 
-        protected internal char ScanChar()
+        protected char ScanChar()
         {
             return ch = sql[++curIndex];
         }
@@ -259,17 +294,17 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// if 1, then equals to
         /// <see cref="ScanChar()"/>
         /// </param>
-        protected internal char ScanChar(int skip)
+        protected char ScanChar(int skip)
         {
             return ch = sql[curIndex += skip];
         }
 
-        protected internal bool HasChars(int howMany)
+        protected bool HasChars(int howMany)
         {
             return curIndex + howMany <= eofIndex;
         }
 
-        protected internal bool Eof()
+        public bool Eof()
         {
             return curIndex >= eofIndex;
         }
@@ -666,7 +701,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual MySQLToken NextToken()
+        public MySQLToken NextToken()
         {
             if (tokenCache2 != MySQLToken.None)
             {
@@ -694,17 +729,17 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
             return t;
         }
 
-        protected internal bool inCStyleComment;
+        protected bool inCStyleComment;
 
-        protected internal bool inCStyleCommentIgnore;
+        protected bool inCStyleCommentIgnore;
 
-        protected internal int offsetCache;
+        protected int offsetCache;
 
-        protected internal int sizeCache;
+        protected int sizeCache;
 
         /// <summary>first <code>@</code> is included</summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanUserVariable()
+        protected virtual void ScanUserVariable()
         {
             if (ch != '@')
             {
@@ -805,7 +840,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
 
         /// <summary>first <code>@@</code> is included</summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanSystemVariable()
+        protected virtual void ScanSystemVariable()
         {
             if (ch != '@' || sql[curIndex + 1] != '@')
             {
@@ -840,7 +875,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanString()
+        protected virtual void ScanString()
         {
             bool dq = false;
             if (ch == '\'')
@@ -953,7 +988,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <summary>Append a character to sbuf.</summary>
-        protected internal void PutChar(char ch, int index)
+        protected void PutChar(char ch, int index)
         {
             if (index >= sbuf.Length)
             {
@@ -969,7 +1004,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// true: first <code>x'</code> has been skipped
         /// </param>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanHexaDecimal(bool quoteMode)
+        protected virtual void ScanHexaDecimal(bool quoteMode)
         {
             offsetCache = curIndex;
             for (; CharTypes.IsHex(ch); ScanChar())
@@ -1003,7 +1038,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// true: first <code>b'</code> has been skipped
         /// </param>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanBitField(bool quoteMode)
+        protected virtual void ScanBitField(bool quoteMode)
         {
             offsetCache = curIndex;
             for (; ch == '0' || ch == '1'; ScanChar())
@@ -1039,7 +1074,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// if invalid char is presented after <code>.</code>
         /// </summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanNumber()
+        protected virtual void ScanNumber()
         {
             offsetCache = curIndex;
             sizeCache = 1;
@@ -1383,7 +1418,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
 
         /// <summary>id is NOT included in <code>`</code>.</summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanIdentifier()
+        protected virtual void ScanIdentifier()
         {
             if (ch == '$')
             {
@@ -1404,7 +1439,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
 
         /// <summary>not SQL syntax</summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanPlaceHolder()
+        protected virtual void ScanPlaceHolder()
         {
             offsetCache = curIndex + 1;
             sizeCache = 0;
@@ -1423,7 +1458,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// <summary>id is included in <code>`</code>.</summary>
         /// <remarks>id is included in <code>`</code>. first <code>`</code> is included</remarks>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual void ScanIdentifierWithAccent()
+        protected virtual void ScanIdentifierWithAccent()
         {
             offsetCache = curIndex;
             for (; ScanChar() != Tup.Cobar.Parser.Recognizer.Mysql.Lexer.MySQLLexer.Eoi;)
@@ -1438,7 +1473,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <summary>skip whitespace and comment</summary>
-        protected internal virtual void SkipSeparator()
+        protected virtual void SkipSeparator()
         {
             for (; !Eof();)
             {
@@ -1562,7 +1597,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
 
         /// <summary>always throw SQLSyntaxErrorException</summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual SQLSyntaxErrorException Err(string msg)
+        protected virtual SQLSyntaxErrorException Err(string msg)
         {
             string errMsg = msg + ". " + ToString();
             throw new SQLSyntaxErrorException(errMsg);

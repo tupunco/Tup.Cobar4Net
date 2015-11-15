@@ -65,13 +65,13 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary
         }
 
         /// <summary>null if no parent</summary>
-        protected internal Identifier parent;
+        protected Identifier parent = null;
 
         /// <summary>e.g.</summary>
         /// <remarks>e.g. "id1", "`id1`"</remarks>
-        protected internal readonly string idText;
+        protected readonly string idText;
 
-        protected internal readonly string idTextUpUnescape;
+        protected readonly string idTextUpUnescape;
 
         public Identifier(Identifier parent, string idText)
             : this(parent, idText, idText.ToUpper())
@@ -181,6 +181,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary
             return sb.Append(idText).ToString();
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0025", Justification = "<¹ÒÆð>")]
         public override int GetHashCode()
         {
             int constant = 37;

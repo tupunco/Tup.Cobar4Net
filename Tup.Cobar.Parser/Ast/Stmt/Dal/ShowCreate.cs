@@ -44,7 +44,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dal
             this.id = id;
         }
 
-        public virtual ShowCreate.Type GetType()
+        public virtual ShowCreate.Type GetCreateType()
         {
             return type;
         }

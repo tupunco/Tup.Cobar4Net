@@ -28,9 +28,9 @@ namespace Tup.Cobar.Parser.Ast.Expression
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class PolyadicOperatorExpression : AbstractExpression
     {
-        protected internal IList<Expr> operands;
+        protected IList<Expr> operands;
 
-        protected internal readonly int precedence;
+        protected readonly int precedence;
 
         public PolyadicOperatorExpression(int precedence)
             : this(precedence, true)
@@ -57,7 +57,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             }
             if (GetType().IsAssignableFrom(operand.GetType()))
             {
-                PolyadicOperatorExpression sub = (PolyadicOperatorExpression)operand;
+                var sub = (PolyadicOperatorExpression)operand;
                 operands.AddRange(sub.operands);
             }
             else

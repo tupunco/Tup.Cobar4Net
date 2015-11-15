@@ -17,6 +17,7 @@
 namespace Tup.Cobar.Parser.Ast.Expression.Misc
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface QueryExpression : Expression {
+    public interface QueryExpression : Expression
+    {
     }
 }

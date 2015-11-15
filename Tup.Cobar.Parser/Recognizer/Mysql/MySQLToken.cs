@@ -23,6 +23,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql
     public enum MySQLToken
     {
         None = 0,
+
         Eof,
         PlaceHolder,
         Identifier,

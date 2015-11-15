@@ -393,13 +393,15 @@
     <Compile Include="Recognizer\Mysql\Syntax\MySQLMTSParser.cs" />
     <Compile Include="Recognizer\Mysql\Syntax\MySQLParser.cs" />
     <Compile Include="Recognizer\SQLParserDelegate.cs" />
-    <Compile Include="Sharpen\Number.cs" />
+    <Compile Include="Sharpen\Extensions.cs" />
+    <Compile Include="System\Number.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
     <Compile Include="Sharpen\Sharpen.cs" />
     <Compile Include="System\SQLSyntaxErrorException.cs" />
     <Compile Include="Util\BinaryOperandCalculator.cs" />
     <Compile Include="Util\CollectionHelper.cs" />
     <Compile Include="Util\ExprEvalUtils.cs" />
+    <Compile Include="Util\ListUtil.cs" />
     <Compile Include="Util\Pair.cs" />
     <Compile Include="Util\PairUtil.cs" />
     <Compile Include="Util\ParseString.cs" />
@@ -458,9 +460,7 @@
   <ItemGroup>
     <Compile Include="Ast\Expression\Primary\Function\FunctionExpression.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="System\Numerics\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

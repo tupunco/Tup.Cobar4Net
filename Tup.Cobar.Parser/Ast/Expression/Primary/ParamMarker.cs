@@ -58,7 +58,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary
 
         protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
         {
-            return parameters[paramIndex];
+            return parameters.GetValue(paramIndex);
         }
 
         public override void Accept(SQLASTVisitor visitor)

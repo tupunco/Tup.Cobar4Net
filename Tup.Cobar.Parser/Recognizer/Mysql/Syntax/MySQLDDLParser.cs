@@ -34,7 +34,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class MySQLDDLParser : MySQLParser
     {
-        protected internal MySQLExprParser exprParser;
+        protected MySQLExprParser exprParser;
 
         public MySQLDDLParser(MySQLLexer lexer, MySQLExprParser exprParser)
             : base(lexer)
@@ -87,7 +87,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         }
 
         private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers
-             = new Dictionary<string, SpecialIdentifier>();
+            = new Dictionary<string, SpecialIdentifier>();
 
         static MySQLDDLParser()
         {

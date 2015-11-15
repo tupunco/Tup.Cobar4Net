@@ -15,3 +15,7 @@
 /_UpgradeReport_Files/*.*
 /Tup.Cobar.Parser/java.src
 /Tup.Cobar.Parser.UnitTest/java.src
+/Tup.Cobar.Parser.NUnitTest/ManagerParserTestPerf.cs
+/Tup.Cobar.Parser.NUnitTest/ManagerParserTest.cs
+/Tup.Cobar.Parser.NUnitTest/ServerParserTest.cs
+/Tup.Cobar.Parser.NUnitTest/ServerParserTestPerf.cs

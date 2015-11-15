@@ -15,7 +15,7 @@
 */
 
 using Deveel.Math;
-using Sharpen;
+using System;
 using System.Collections.Generic;
 using Tup.Cobar.Parser.Util;
 
@@ -25,7 +25,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
     public abstract class ArithmeticBinaryOperatorExpression
         : BinaryOperatorExpression, BinaryOperandCalculator
     {
-        protected internal ArithmeticBinaryOperatorExpression(Expression leftOprand, Expression rightOprand, int precedence)
+        protected ArithmeticBinaryOperatorExpression(Expression leftOprand, Expression rightOprand, int precedence)
             : base(leftOprand, rightOprand, precedence, true)
         {
         }
@@ -46,12 +46,12 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
             return ExprEvalUtils.Calculate(this, pair.GetKey(), pair.GetValue());
         }
 
-        public abstract Number Calculate(int arg1, int arg2);
+        public abstract Number Calculate(int integer1, int integer2);
 
-        public abstract Number Calculate(long arg1, long arg2);
+        public abstract Number Calculate(long long1, long long2);
 
-        public abstract Number Calculate(BigInteger arg1, BigInteger arg2);
+        public abstract Number Calculate(BigInteger bigint1, BigInteger bigint2);
 
-        public abstract Number Calculate(BigDecimal arg1, BigDecimal arg2);
+        public abstract Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
     }
 }

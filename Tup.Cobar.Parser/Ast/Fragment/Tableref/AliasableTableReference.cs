@@ -23,9 +23,9 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Tableref
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class AliasableTableReference : TableReference
     {
-        protected internal readonly string alias;
+        protected readonly string alias;
 
-        protected internal string aliasUpEscape;
+        protected string aliasUpEscape;
 
         public AliasableTableReference(string alias)
         {
@@ -88,7 +88,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Tableref
             return alias;
         }
 
-        public override abstract void Accept(SQLASTVisitor arg1);
+        public override abstract void Accept(SQLASTVisitor visitor);
 
         public override abstract int GetPrecedence();
 

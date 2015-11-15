@@ -26,19 +26,19 @@ namespace Tup.Cobar.Parser.Ast.Expression
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class BinaryOperatorExpression : AbstractExpression
     {
-        protected internal readonly Expr leftOprand;
+        protected readonly Expr leftOprand;
 
-        protected internal readonly Expr rightOprand;
+        protected readonly Expr rightOprand;
 
-        protected internal readonly int precedence;
+        protected readonly int precedence;
 
-        protected internal readonly bool leftCombine;
+        protected readonly bool leftCombine;
 
         /// <summary>
         /// <see cref="leftCombine"/>
         /// is true
         /// </summary>
-        protected internal BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence)
+        protected BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
@@ -46,7 +46,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
             this.leftCombine = true;
         }
 
-        protected internal BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence, bool leftCombine)
+        protected BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence, bool leftCombine)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;

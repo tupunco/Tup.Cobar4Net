@@ -14,7 +14,7 @@
 * limitations under the License.
 */
 
-using Sharpen;
+using System;
 using System.Collections.Generic;
 using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar.Parser.Util;
@@ -55,7 +55,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Comparison
             }
             if (left is Number || right is Number)
             {
-                Pair<Number, Number> pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
+                var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
                 left = pair.GetKey();
                 right = pair.GetValue();
             }

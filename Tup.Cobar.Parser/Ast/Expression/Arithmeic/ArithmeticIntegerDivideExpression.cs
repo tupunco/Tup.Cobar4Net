@@ -15,7 +15,6 @@
 */
 
 using Deveel.Math;
-using Sharpen;
 using System;
 using Tup.Cobar.Parser.Visitor;
 

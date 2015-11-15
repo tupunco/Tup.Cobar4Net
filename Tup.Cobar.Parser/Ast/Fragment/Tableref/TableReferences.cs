@@ -24,7 +24,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Tableref
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class TableReferences : TableReference
     {
-        protected internal static IList<TableReference> EnsureListType(IList<TableReference> list)
+        protected static IList<TableReference> EnsureListType(IList<TableReference> list)
         {
             if (list is List<TableReference>)
             {

@@ -49,14 +49,14 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
             YearMonth
         }
 
-        private static readonly IDictionary<string, IntervalPrimary.Unit> unitMap = InitUnitMap();
+        private static readonly IDictionary<string, Unit> unitMap = InitUnitMap();
 
-        private static IDictionary<string, IntervalPrimary.Unit> InitUnitMap()
+        private static IDictionary<string, Unit> InitUnitMap()
         {
             //TODO---IntervalPrimary InitUnitMap
-            IntervalPrimary.Unit[] units = null;// typeof(IntervalPrimary.Unit).GetEnumConstants();
-            IDictionary<string, IntervalPrimary.Unit> map = new Dictionary<string, IntervalPrimary.Unit>(units.Length);
-            foreach (IntervalPrimary.Unit unit in units)
+            Unit[] units = null;// typeof(Unit).GetEnumConstants();
+            IDictionary<string, Unit> map = new Dictionary<string, Unit>(units.Length);
+            foreach (Unit unit in units)
             {
                 map[unit.ToString()] = unit;
             }
@@ -64,17 +64,16 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
         }
 
         /// <param name="unitString">must be upper case, null is forbidden</param>
-        public static IntervalPrimary.Unit GetIntervalUnit(string unitString)
+        public static Unit GetIntervalUnit(string unitString)
         {
-            return unitMap[unitString];
+            return unitMap.GetValue(unitString);
         }
 
-        private readonly IntervalPrimary.Unit unit;
+        private readonly Unit unit;
 
         private readonly Expression quantity;
 
-        public IntervalPrimary(Expression quantity, IntervalPrimary.Unit unit)
-            : base()
+        public IntervalPrimary(Expression quantity, Unit unit)
         {
             if (quantity == null)
             {
@@ -89,7 +88,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Literal
         }
 
         /// <returns>never null</returns>
-        public virtual IntervalPrimary.Unit GetUnit()
+        public virtual Unit GetUnit()
         {
             return unit;
         }

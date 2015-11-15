@@ -13,18 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- * (created at 2011-1-23)
- */
 
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast
 {
-    /**
-     * @author <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
-     */
-
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public interface ASTNode
     {
         void Accept(SQLASTVisitor visitor);

@@ -31,7 +31,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
         {
         }
 
-        public class AddColumn : DDLAlterTableStatement.AlterSpecification
+        public class AddColumn : AlterSpecification
         {
             private readonly Identifier columnName;
 
@@ -93,7 +93,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddColumns : DDLAlterTableStatement.AlterSpecification
+        public class AddColumns : AlterSpecification
         {
             private readonly IList<Pair<Identifier, ColumnDefinition>> columns;
 
@@ -121,7 +121,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddIndex : DDLAlterTableStatement.AlterSpecification
+        public class AddIndex : AlterSpecification
         {
             private readonly Identifier indexName;
 
@@ -154,7 +154,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddPrimaryKey : DDLAlterTableStatement.AlterSpecification
+        public class AddPrimaryKey : AlterSpecification
         {
             private readonly IndexDefinition indexDef;
 
@@ -176,7 +176,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddUniqueKey : DDLAlterTableStatement.AlterSpecification
+        public class AddUniqueKey : AlterSpecification
         {
             private readonly Identifier indexName;
 
@@ -207,7 +207,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddFullTextIndex : DDLAlterTableStatement.AlterSpecification
+        public class AddFullTextIndex : AlterSpecification
         {
             private readonly Identifier indexName;
 
@@ -238,7 +238,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AddSpatialIndex : DDLAlterTableStatement.AlterSpecification
+        public class AddSpatialIndex : AlterSpecification
         {
             private readonly Identifier indexName;
 
@@ -269,7 +269,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class AlterColumnDefaultVal : DDLAlterTableStatement.AlterSpecification
+        public class AlterColumnDefaultVal : AlterSpecification
         {
             private readonly Identifier columnName;
 
@@ -318,7 +318,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class ChangeColumn : DDLAlterTableStatement.AlterSpecification
+        public class ChangeColumn : AlterSpecification
         {
             private readonly Identifier oldName;
 
@@ -387,7 +387,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class ModifyColumn : DDLAlterTableStatement.AlterSpecification
+        public class ModifyColumn : AlterSpecification
         {
             private readonly Identifier colName;
 
@@ -444,7 +444,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class DropColumn : DDLAlterTableStatement.AlterSpecification
+        public class DropColumn : AlterSpecification
         {
             private readonly Identifier colName;
 
@@ -465,7 +465,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class DropPrimaryKey : DDLAlterTableStatement.AlterSpecification
+        public class DropPrimaryKey : AlterSpecification
         {
             // | DROP PRIMARY KEY
             public virtual void Accept(SQLASTVisitor visitor)
@@ -474,7 +474,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             }
         }
 
-        public class DropIndex : DDLAlterTableStatement.AlterSpecification
+        public class DropIndex : AlterSpecification
         {
             private readonly Identifier indexName;
 
@@ -501,7 +501,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
 
         private TableOptions tableOptions;
 
-        private readonly IList<DDLAlterTableStatement.AlterSpecification> alters;
+        private readonly IList<AlterSpecification> alters;
 
         private bool disableKeys;
 
@@ -516,6 +516,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
         /// <summary>charsetName -&gt; collate</summary>
         private Pair<Identifier, Identifier> convertCharset;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0021:Warns about calls to virtual member functions occuring in the constructor", Justification = "<¹ÒÆð>")]
         public DDLAlterTableStatement(bool ignore, Identifier table)
         {
             // | DISABLE KEYS
@@ -542,10 +543,10 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             // ADD, ALTER, DROP, and CHANGE can be multiple
             this.ignore = ignore;
             this.table = table;
-            this.alters = new List<DDLAlterTableStatement.AlterSpecification>(1);
+            this.alters = new List<AlterSpecification>(1);
         }
 
-        public virtual DDLAlterTableStatement AddAlterSpecification(DDLAlterTableStatement.AlterSpecification alter)
+        public virtual DDLAlterTableStatement AddAlterSpecification(AlterSpecification alter)
         {
             alters.Add(alter);
             return this;
@@ -611,7 +612,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Ddl
             this.convertCharset = convertCharset;
         }
 
-        public virtual IList<DDLAlterTableStatement.AlterSpecification> GetAlters()
+        public virtual IList<AlterSpecification> GetAlters()
         {
             return alters;
         }

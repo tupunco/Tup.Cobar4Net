@@ -13,10 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
-using Sharpen;
-using Tup.Cobar.Parser.Ast;
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
@@ -31,7 +30,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
         private readonly IList<IndexOption> options;
 
         public IndexDefinition(IndexType indexType,
-            IList<IndexColumnName> columns, 
+            IList<IndexColumnName> columns,
             IList<IndexOption> options)
         {
             this.indexType = indexType;
@@ -41,7 +40,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
             }
 
             this.columns = columns;
-            this.options = (IList<IndexOption>)(options == null || options.IsEmpty() ? new List<IndexOption>(0): options);
+            this.options = (IList<IndexOption>)(options == null || options.IsEmpty() ? new List<IndexOption>(0) : options);
         }
 
         public virtual IndexType GetIndexType()
@@ -63,8 +62,8 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
 
         public virtual void Accept(SQLASTVisitor visitor)
         {
-            //TODO IndexDefinition Accept
         }
+
         // QS_TODO
     }
 }

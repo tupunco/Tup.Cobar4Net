@@ -24,13 +24,13 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class DMLInsertReplaceStatement : DMLStatement
     {
-        protected internal readonly Identifier table;
+        protected readonly Identifier table;
 
-        protected internal readonly IList<Identifier> columnNameList;
+        protected readonly IList<Identifier> columnNameList;
 
-        protected internal IList<RowExpression> rowList;
+        protected IList<RowExpression> rowList;
 
-        protected internal readonly QueryExpression select;
+        protected readonly QueryExpression select;
 
         public DMLInsertReplaceStatement(Identifier table,
             IList<Identifier> columnNameList, IList<RowExpression> rowList)

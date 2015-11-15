@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -1572,7 +1573,7 @@ namespace Tup.Cobar.Parser.Visitor
 
         public void Visit(ShowCreate node)
         {
-            appendable.Append("SHOW CREATE ").Append(node.GetType().ToString()).Append(' ');
+            appendable.Append("SHOW CREATE ").Append(node.GetCreateType().ToString()).Append(' ');
             node.GetId().Accept(this);
         }
 
@@ -1585,7 +1586,7 @@ namespace Tup.Cobar.Parser.Visitor
         public void Visit(ShowEngine node)
         {
             appendable.Append("SHOW ENGINE ");
-            switch (node.GetType())
+            switch (node.GetEngineType())
             {
                 case ShowEngine.Type.InnodbMutex:
                     {
@@ -1607,7 +1608,7 @@ namespace Tup.Cobar.Parser.Visitor
 
                 default:
                     {
-                        throw new ArgumentException("unrecognized type for SHOW ENGINE: " + node.GetType(
+                        throw new ArgumentException("unrecognized type for SHOW ENGINE: " + node.GetEngineType(
                             ));
                     }
             }
@@ -1675,7 +1676,7 @@ namespace Tup.Cobar.Parser.Visitor
         public void Visit(ShowIndex node)
         {
             appendable.Append("SHOW ");
-            switch (node.GetType())
+            switch (node.GetIndexType())
             {
                 case ShowIndex.Type.Index:
                     {
@@ -1697,7 +1698,7 @@ namespace Tup.Cobar.Parser.Visitor
 
                 default:
                     {
-                        throw new ArgumentException("unrecognized type for SHOW INDEX: " + node.GetType()
+                        throw new ArgumentException("unrecognized type for SHOW INDEX: " + node.GetIndexType()
                             );
                     }
             }

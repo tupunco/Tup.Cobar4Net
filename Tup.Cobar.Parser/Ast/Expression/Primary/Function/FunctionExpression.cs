@@ -22,10 +22,10 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class FunctionExpression : PrimaryExpression
     {
-        protected internal static IList<Expression> WrapList
+        protected static IList<Expression> WrapList
             (Expression expr)
         {
-            IList<Expression> list = new List<Expression >(1);
+            var list = new List<Expression>(1);
             list.Add(expr);
             return list;
         }
@@ -39,7 +39,6 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function
         protected readonly IList<Expression> arguments;
 
         public FunctionExpression(string functionName, IList<Expression> arguments)
-            : base()
         {
             this.functionName = functionName;
             if (arguments == null || arguments.IsEmpty())

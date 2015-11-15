@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-using System.Collections;
 using System.Collections.Generic;
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Util;

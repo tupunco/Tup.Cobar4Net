@@ -15,7 +15,7 @@
 */
 
 using Deveel.Math;
-using Sharpen;
+using System;
 using Tup.Cobar.Parser.Visitor;
 
 namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
@@ -24,7 +24,6 @@ namespace Tup.Cobar.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticSubtractExpression : ArithmeticBinaryOperatorExpression
     {
-        //TODO ArithmeticSubtractExpression
         public ArithmeticSubtractExpression(Expression leftOprand,
                                             Expression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticTermOp)

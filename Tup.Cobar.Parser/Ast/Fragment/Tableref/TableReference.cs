@@ -49,6 +49,6 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Tableref
         /// </returns>
         public abstract int GetPrecedence();
 
-        public abstract void Accept(SQLASTVisitor arg1);
+        public abstract void Accept(SQLASTVisitor visitor);
     }
 }

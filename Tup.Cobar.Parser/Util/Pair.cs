@@ -51,6 +51,7 @@ namespace Tup.Cobar.Parser.Util
 
         private const int HashConst = 37;
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0017:Possible compare of value type with 'null'", Justification = "<¹ÒÆð>")]
         public override int GetHashCode()
         {
             int hash = 17;
@@ -79,11 +80,11 @@ namespace Tup.Cobar.Parser.Util
             {
                 return true;
             }
-            if (!(obj is Tup.Cobar.Parser.Util.Pair<K, V>))
+            if (!(obj is Pair<K, V>))
             {
                 return false;
             }
-            var that = (Tup.Cobar.Parser.Util.Pair<K, V>)obj;
+            var that = (Pair<K, V>)obj;
             return IsEquals(this.key, that.key) && IsEquals(this.value, that.value);
         }
 

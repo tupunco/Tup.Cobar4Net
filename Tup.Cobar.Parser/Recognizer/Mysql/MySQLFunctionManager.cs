@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 
@@ -308,8 +309,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql
             }
             lock (this)
             {
-
-                IDictionary<string, FunctionExpression> toPut = new Dictionary<string, FunctionExpression>();
+                var toPut = new Dictionary<string, FunctionExpression>();
                 // check extFuncPrototypeMap
                 foreach (var en in extFuncPrototypeMap)
                 {

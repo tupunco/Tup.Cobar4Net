@@ -21,6 +21,6 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dal
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class DALShowStatement : SQLStatement
     {
-        public abstract void Accept(SQLASTVisitor arg1);
+        public abstract void Accept(SQLASTVisitor visitor);
     }
 }

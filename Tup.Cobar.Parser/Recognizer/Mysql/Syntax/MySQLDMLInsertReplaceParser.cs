@@ -30,7 +30,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         }
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected internal virtual IList<RowExpression> RowList()
+        protected virtual IList<RowExpression> RowList()
         {
             IList<RowExpression> valuesList;
             IList<Expr> tempRowValue = RowValue();

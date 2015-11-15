@@ -13,8 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using Sharpen;
-using Tup.Cobar.Parser.Ast;
+
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Visitor;
 using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
@@ -32,7 +31,7 @@ namespace Tup.Cobar.Parser.Ast.Fragment.Ddl.Index
         private readonly bool asc;
 
         public IndexColumnName(Identifier columnName,
-            Expr length, 
+            Expr length,
             bool asc)
         {
             this.columnName = columnName;

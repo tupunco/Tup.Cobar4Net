@@ -40,7 +40,7 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary.Function.String
                 throw new ArgumentException("str is null");
             }
             IList<Expression> list = remstr != null ? new List
-                <Tup.Cobar.Parser.Ast.Expression.Expression>(2) : new List<Expression >(1);
+                <Tup.Cobar.Parser.Ast.Expression.Expression>(2) : new List<Expression>(1);
             list.Add(str);
             if (remstr != null)
             {

@@ -45,7 +45,6 @@ namespace Tup.Cobar.Parser.Visitor
     {
         void Visit(BetweenAndExpression node);
 
-
         void Visit(InExpressionList node);
 
         void Visit(LikeExpression node);
@@ -65,6 +64,7 @@ namespace Tup.Cobar.Parser.Visitor
         void Visit(LogicalOrExpression node);
 
         void Visit(ComparisionIsExpression node);
+
         void Visit(ComparisionEqualsExpression node);
 
         void Visit(ComparisionNullSafeEqualsExpression node);
@@ -169,7 +169,6 @@ namespace Tup.Cobar.Parser.Visitor
         void Visit(IndexColumnName node);
 
         void Visit(TableOptions node);
-
 
         void Visit(DataType node);
 

@@ -13,8 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using Sharpen;
-using Tup.Cobar.Parser.Ast;
+
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar.Parser.Visitor;

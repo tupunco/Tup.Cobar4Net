@@ -23,6 +23,7 @@ using Tup.Cobar.Parser.Ast.Fragment;
 using Tup.Cobar.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar.Parser.Ast.Stmt.Dml;
 using Tup.Cobar.Parser.Recognizer.Mysql.Lexer;
+using Expr = Tup.Cobar.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
 {
@@ -40,7 +41,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual Tup.Cobar.Parser.Ast.Fragment.GroupBy GroupBy()
+        public virtual GroupBy GroupBy()
         {
             if (lexer.Token() != MySQLToken.KwGroup)
             {
@@ -48,9 +49,9 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
             }
             lexer.NextToken();
             Match(MySQLToken.KwBy);
-            Tup.Cobar.Parser.Ast.Expression.Expression expr = exprParser.Expression();
+            Expr expr = exprParser.Expression();
             SortOrder order = SortOrder.Asc;
-            Tup.Cobar.Parser.Ast.Fragment.GroupBy groupBy;
+            GroupBy groupBy;
             switch (lexer.Token())
             {
                 case MySQLToken.KwDesc:
@@ -76,7 +77,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
                     {
                         lexer.NextToken();
                         MatchIdentifier("ROLLUP");
-                        return new Tup.Cobar.Parser.Ast.Fragment.GroupBy(expr, order, true);
+                        return new GroupBy(expr, order, true);
                     }
 
                 case MySQLToken.PuncComma:
@@ -86,10 +87,10 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
 
                 default:
                     {
-                        return new Tup.Cobar.Parser.Ast.Fragment.GroupBy(expr, order, false);
+                        return new GroupBy(expr, order, false);
                     }
             }
-            for (groupBy = new Tup.Cobar.Parser.Ast.Fragment.GroupBy().AddOrderByItem(expr, order
+            for (groupBy = new GroupBy().AddOrderByItem(expr, order
                 ); lexer.Token() == MySQLToken.PuncComma;)
             {
                 lexer.NextToken();
@@ -128,7 +129,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual Tup.Cobar.Parser.Ast.Fragment.OrderBy OrderBy()
+        public virtual OrderBy OrderBy()
         {
             if (lexer.Token() != MySQLToken.KwOrder)
             {
@@ -136,9 +137,9 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
             }
             lexer.NextToken();
             Match(MySQLToken.KwBy);
-            Tup.Cobar.Parser.Ast.Expression.Expression expr = exprParser.Expression();
+            Expr expr = exprParser.Expression();
             SortOrder order = SortOrder.Asc;
-            Tup.Cobar.Parser.Ast.Fragment.OrderBy orderBy;
+            OrderBy orderBy;
             switch (lexer.Token())
             {
                 case MySQLToken.KwDesc:
@@ -151,21 +152,21 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
                     {
                         if (lexer.NextToken() != MySQLToken.PuncComma)
                         {
-                            return new Tup.Cobar.Parser.Ast.Fragment.OrderBy(expr, order);
+                            return new OrderBy(expr, order);
                         }
                         goto case MySQLToken.PuncComma;
                     }
 
                 case MySQLToken.PuncComma:
                     {
-                        orderBy = new Tup.Cobar.Parser.Ast.Fragment.OrderBy();
+                        orderBy = new OrderBy();
                         orderBy.AddOrderByItem(expr, order);
                         break;
                     }
 
                 default:
                     {
-                        return new Tup.Cobar.Parser.Ast.Fragment.OrderBy(expr, order);
+                        return new OrderBy(expr, order);
                     }
             }
             for (; lexer.Token() == MySQLToken.PuncComma;)
@@ -259,7 +260,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
 
         /// <returns>never null</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual TableReferences TableRefs()
+        public virtual TableReferences TableRefs()
         {
             TableReference @ref = TableReference();
             return BuildTableReferences(@ref);
@@ -300,7 +301,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
         {
             for (;;)
             {
-                Tup.Cobar.Parser.Ast.Expression.Expression on;
+                Expr on;
                 IList<string> @using;
                 TableReference temp;
                 bool isOut = false;
@@ -406,9 +407,9 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
                                 default:
                                     {
                                         object condition = temp.RemoveLastConditionElement();
-                                        if (condition is Tup.Cobar.Parser.Ast.Expression.Expression)
+                                        if (condition is Expr)
                                         {
-                                            @ref = new OuterJoin(isLeft, @ref, temp, (Tup.Cobar.Parser.Ast.Expression.Expression
+                                            @ref = new OuterJoin(isLeft, @ref, temp, (Expr
                                                 )condition);
                                         }
                                         else

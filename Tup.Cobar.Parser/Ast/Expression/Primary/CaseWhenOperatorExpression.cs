@@ -39,7 +39,6 @@ namespace Tup.Cobar.Parser.Ast.Expression.Primary
         public CaseWhenOperatorExpression(Expression comparee,
             IList<Pair<Expression, Expression>> whenList,
             Expression elseResult)
-            : base()
         {
             this.comparee = comparee;
             if (whenList is List<Pair<Expression, Expression>>)

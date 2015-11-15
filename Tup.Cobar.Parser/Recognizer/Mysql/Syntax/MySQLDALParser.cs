@@ -34,7 +34,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Syntax
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class MySQLDALParser : MySQLParser
     {
-        protected internal MySQLExprParser exprParser;
+        protected MySQLExprParser exprParser;
 
         public MySQLDALParser(MySQLLexer lexer, MySQLExprParser exprParser)
             : base(lexer)

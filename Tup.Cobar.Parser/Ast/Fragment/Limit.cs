@@ -14,7 +14,6 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
 using Tup.Cobar.Parser.Ast.Expression.Primary;
 using Tup.Cobar.Parser.Visitor;

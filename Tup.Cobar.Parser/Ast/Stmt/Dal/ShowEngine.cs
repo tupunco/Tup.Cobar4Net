@@ -35,7 +35,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dal
             this.type = type;
         }
 
-        public virtual ShowEngine.Type GetType()
+        public virtual ShowEngine.Type GetEngineType()
         {
             return type;
         }

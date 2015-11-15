@@ -38,6 +38,6 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dml
             return AbstractExpression.Unevaluatable;
         }
 
-        //public abstract override void Accept(SQLASTVisitor arg1);
+        //public abstract override void Accept(SQLASTVisitor visitor);
     }
 }

@@ -13,8 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using Deveel.Math;
-using Sharpen;
 using System;
 using System.Collections.Generic;
 
@@ -63,7 +63,8 @@ namespace Tup.Cobar.Parser.Util
             {
                 return (bool)obj;
             }
-            Number num;
+
+            Number num = null;
             if (obj is string)
             {
                 num = ExprEvalUtils.String2Number((string)obj);
@@ -129,10 +130,13 @@ namespace Tup.Cobar.Parser.Util
             {
                 case NumberTypeCode.Int32:
                     return cal.Calculate((int)num);
+
                 case NumberTypeCode.Int64:
                     return cal.Calculate((long)num);
+
                 case NumberTypeCode.BigInteger:
                     return cal.Calculate((BigInteger)num);
+
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
@@ -152,10 +156,13 @@ namespace Tup.Cobar.Parser.Util
             {
                 case NumberTypeCode.Int32:
                     return cal.Calculate((int)n1, (int)n2);
+
                 case NumberTypeCode.Int64:
                     return cal.Calculate((long)n1, (long)n2);
+
                 case NumberTypeCode.BigInteger:
                     return cal.Calculate((BigInteger)n1, (BigInteger)n2);
+
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
@@ -276,6 +283,7 @@ namespace Tup.Cobar.Parser.Util
             throw new ArgumentException("unsupported number class: " + clz);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<¹ÒÆð>")]
         public static Number String2Number(string str)
         {
             if (str == null)
@@ -283,7 +291,7 @@ namespace Tup.Cobar.Parser.Util
                 return 0;
             }
 
-            //TODO ---String2Number
+            //TODO --ExprEvalUtils-String2Number
             try
             {
                 return System.Convert.ToInt32(str);

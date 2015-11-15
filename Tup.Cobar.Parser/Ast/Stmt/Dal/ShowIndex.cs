@@ -46,7 +46,7 @@ namespace Tup.Cobar.Parser.Ast.Stmt.Dal
             this.type = type;
         }
 
-        public virtual ShowIndex.Type GetType()
+        public virtual ShowIndex.Type GetIndexType()
         {
             return type;
         }

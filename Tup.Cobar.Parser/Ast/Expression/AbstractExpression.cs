@@ -31,7 +31,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         public abstract int GetPrecedence();
 
-        public virtual Expression SetCacheEvalRst(bool cacheEvalRst            )
+        public virtual Expression SetCacheEvalRst(bool cacheEvalRst)
         {
             this.cacheEvalRst = cacheEvalRst;
             return this;
@@ -54,7 +54,7 @@ namespace Tup.Cobar.Parser.Ast.Expression
 
         protected abstract object EvaluationInternal(IDictionary<object, Expression> parameters);
 
-        public abstract void Accept(SQLASTVisitor arg1);
+        public abstract void Accept(SQLASTVisitor visitor);
 
         public readonly static object Unevaluatable = new UnevaluatableExpression();
 

@@ -41,7 +41,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
             for (int i = 0; i < names.Length; i++)
             {
                 name = names[i];
-                if (name.StartsWith(kw))
+                if (name.StartsWith(kw, StringComparison.OrdinalIgnoreCase))
                 {
                     keywords.Add(tReg.Replace(name.Substring(kwLen), "$1_$2").ToUpper(), values[i]);
                 }
@@ -62,7 +62,7 @@ namespace Tup.Cobar.Parser.Recognizer.Mysql.Lexer
         /// </returns>
         public virtual MySQLToken GetKeyword(string keyUpperCase)
         {
-            return keywords[keyUpperCase];
+            return keywords.GetValue(keyUpperCase);
         }
     }
 }
