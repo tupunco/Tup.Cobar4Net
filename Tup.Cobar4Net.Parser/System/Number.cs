@@ -2,6 +2,9 @@
 
 namespace System
 {
+    /// <summary>
+    /// Number TypeCode
+    /// </summary>
     public enum NumberTypeCode
     {
         Empty = 0,
@@ -109,37 +112,37 @@ namespace System
 
         public static explicit operator double (Number value)
         {
-            return Convert.ToDouble(value);
+            return Convert.ToDouble(value.m_value);
         }
 
         public static explicit operator float (Number value)
         {
-            return Convert.ToSingle(value);
+            return Convert.ToSingle(value.m_value);
         }
 
         public static explicit operator long (Number value)
         {
-            return Convert.ToInt64(value);
+            return Convert.ToInt64(value.m_value);
         }
 
         public static explicit operator int (Number value)
         {
-            return Convert.ToInt32(value);
+            return Convert.ToInt32(value.m_value);
         }
 
         public static explicit operator decimal (Number value)
         {
-            return Convert.ToDecimal(value);
+            return Convert.ToDecimal(value.m_value);
         }
 
         public static explicit operator BigInteger(Number value)
         {
-            return Convert.ToInt64(value);
+            return Convert.ToInt64(value.m_value);
         }
 
         public static explicit operator BigDecimal(Number value)
         {
-            return Convert.ToInt32(value);
+            return Convert.ToInt32(value.m_value);
         }
 
         public static implicit operator Number(double value)

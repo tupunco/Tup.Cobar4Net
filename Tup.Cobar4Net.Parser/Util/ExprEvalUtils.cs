@@ -296,15 +296,17 @@ namespace Tup.Cobar4Net.Parser.Util
             {
                 return System.Convert.ToInt32(str);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine("String2Number-ToInt32-{0}-{1}", str, ex);
             }
             try
             {
                 return System.Convert.ToInt64(str);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine("String2Number-ToInt64-{0}-{1}", str, ex);
             }
             try
             {

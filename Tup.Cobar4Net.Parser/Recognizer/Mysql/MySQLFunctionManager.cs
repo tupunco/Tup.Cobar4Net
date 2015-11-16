@@ -39,6 +39,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         public enum FunctionParsingStrategy
         {
             None = 0,
+
             Default,
             Ordinary,
             Cast,

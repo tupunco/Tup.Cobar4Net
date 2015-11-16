@@ -650,7 +650,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Extract node)
         {
             appendable.Append("EXTRACT(")
-                .Append(node.GetUnit().ToString())
+                .Append(node.GetUnit().GetEnumName())
                 .Append(" FROM ");
             PrintList(node.GetArguments());
             appendable.Append(')');
@@ -659,7 +659,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Timestampdiff node)
         {
             appendable.Append("TIMESTAMPDIFF(")
-                .Append(node.GetUnit().ToString())
+                .Append(node.GetUnit().GetEnumName())
                 .Append(", ");
             PrintList(node.GetArguments());
             appendable.Append(')');
@@ -668,7 +668,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Timestampadd node)
         {
             appendable.Append("TIMESTAMPADD(")
-                .Append(node.GetUnit().ToString())
+                .Append(node.GetUnit().GetEnumName())
                 .Append(", ");
             PrintList(node.GetArguments());
             appendable.Append(')');
@@ -693,7 +693,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
                             .Append('}');
                 return;
             }
-            object toStringer = placeHolderToString[node];
+            object toStringer = placeHolderToString.GetValue(node);
             if (toStringer == null)
             {
                 appendable.Append("${")
@@ -721,7 +721,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 appendable.Append(')');
             }
             IntervalPrimary.Unit unit = node.GetUnit();
-            appendable.Append(' ').Append(unit.ToString());
+            appendable.Append(' ').Append(unit.GetEnumName());
         }
 
         public void Visit(LiteralBitField node)
@@ -1573,7 +1573,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowCreate node)
         {
-            appendable.Append("SHOW CREATE ").Append(node.GetCreateType().ToString()).Append(' ');
+            appendable.Append("SHOW CREATE ").Append(node.GetCreateType().GetEnumName()).Append(' ');
             node.GetId().Accept(this);
         }
 
@@ -1771,7 +1771,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 {
                     appendable.Append(", ");
                 }
-                appendable.Append(type.ToString().Replace('_', ' '));
+                appendable.Append(type.GetEnumName().Replace('_', ' '));
             }
             Expr query = node.GetForQuery();
             if (query != null)
@@ -1804,7 +1804,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowStatus node)
         {
-            appendable.Append("SHOW ").Append(node.GetScope().ToString().Replace('_', ' ')).Append
+            appendable.Append("SHOW ").Append(node.GetScope().GetEnumName().Replace('_', ' ')).Append
                 (" STATUS");
             PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
         }
@@ -1852,7 +1852,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowVariables node)
         {
-            appendable.Append("SHOW ").Append(node.GetScope().ToString().Replace('_', ' ')).Append
+            appendable.Append("SHOW ").Append(node.GetScope().GetEnumName().Replace('_', ' ')).Append
                 (" VARIABLES");
             PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
         }

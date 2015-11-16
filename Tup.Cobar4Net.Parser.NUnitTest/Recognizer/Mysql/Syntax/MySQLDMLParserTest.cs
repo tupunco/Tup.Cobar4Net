@@ -339,8 +339,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             IndexHint indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(3, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 AS T1 USE INDEX (i1, i2, i3)", output);
             sql = "tb1 as t1 use index (i1,i2,i3),tb2 as t2 use index (i1,i2,i3)";
             lexer = new MySQLLexer(sql);
@@ -354,14 +354,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(3, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
             hintlist = ((TableRefFactor)(trs.GetTableReferenceList())[1]).GetHintList();
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(3, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 AS T1 USE INDEX (i1, i2, i3), tb2 AS T2 USE INDEX (i1, i2, i3)"
                 , output);
             sql = "tb1 as t1";
@@ -419,9 +419,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 USE KEY FOR JOIN (i1, i2)", output);
             sql = "tb1 use index for group by(i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -435,9 +435,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 USE INDEX FOR GROUP BY (i1, i2)", output);
             sql = "tb1 use key for order by (i1,i2) use key for group by () " + "ignore index for group by (i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -455,19 +455,19 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(3, hintlist.Count);
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().GetEnumName());
             indexhint = hintlist[1];
             NUnit.Framework.Assert.AreEqual(0, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             indexhint = hintlist[2];
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 USE KEY FOR ORDER BY (i1, i2) " + "USE KEY FOR GROUP BY () IGNORE INDEX FOR GROUP BY (i1, i2)"
                 , output);
             sql = "tb1 use index for order by (i1,i2) force index for group by (i1)";
@@ -488,14 +488,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().GetEnumName());
             indexhint = hintlist[1];
             NUnit.Framework.Assert.AreEqual(1, indexhint.GetIndexList().Count);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 USE INDEX FOR ORDER BY (i1, i2) FORCE INDEX FOR GROUP BY (i1)"
                 , output);
             sql = "tb1 ignore key for join (i1,i2)";
@@ -516,9 +516,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 IGNORE KEY FOR JOIN (i1, i2)", output);
             sql = "tb1 ignore index for group by (i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -538,9 +538,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 IGNORE INDEX FOR GROUP BY (i1, i2)", output);
             sql = "(offer  a  straight_join wp_image b use key for join(t1,t2) on a.member_id=b.member_id inner join product_visit c )";
             lexer = new MySQLLexer(sql);
@@ -566,9 +566,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             indexhint = hintlist[0];
             NUnit.Framework.Assert.AreEqual(1, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
-            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("IGNORE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ORDER_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 IGNORE INDEX FOR ORDER BY (i1)", output);
             sql = "tb1 force key for group by (i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -588,9 +588,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("KEY", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 FORCE KEY FOR GROUP BY (i1, i2)", output);
             sql = "tb1 force index for group by (i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -610,9 +610,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("GROUP_BY", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 FORCE INDEX FOR GROUP BY (i1, i2)", output);
             sql = "tb1 force index for join (i1,i2)";
             lexer = new MySQLLexer(sql);
@@ -632,9 +632,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb1 FORCE INDEX FOR JOIN (i1, i2)", output);
             sql = "(tb1 force index for join (i1,i2) )left outer join tb2 as t2 " + "use index (i1,i2,i3) on t1.id1=t2.id1";
             lexer = new MySQLLexer(sql);
@@ -659,9 +659,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().GetEnumName());
             TableRefFactor rtf = (TableRefFactor)((OuterJoin)list[0]).GetRightTableRef();
             NUnit.Framework.Assert.AreEqual("T2", rtf.GetAlias());
             NUnit.Framework.Assert.AreEqual("tb2", rtf.GetTable().GetIdText());
@@ -671,9 +671,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(3, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual(typeof(ComparisionEqualsExpression), ((OuterJoin)
                 list[0]).GetOnCond().GetType());
             NUnit.Framework.Assert.AreEqual("(tb1 FORCE INDEX FOR JOIN (i1, i2)) " + "LEFT JOIN tb2 AS T2 USE INDEX (i1, i2, i3) ON t1.id1 = t2.id1"
@@ -709,9 +709,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(2, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("FORCE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("JOIN", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual(typeof(TableRefFactor), ltr2.GetTableReferenceList
                 ()[1].GetType());
             NUnit.Framework.Assert.AreEqual("tb3", ((TableRefFactor)(ltr2.GetTableReferenceList
@@ -735,9 +735,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             NUnit.Framework.Assert.AreEqual(3, indexhint.GetIndexList().Count);
             NUnit.Framework.Assert.AreEqual("i1", indexhint.GetIndexList()[0]);
             NUnit.Framework.Assert.AreEqual("i2", indexhint.GetIndexList()[1]);
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().GetEnumName());
             using_list = ((OuterJoin)(trs.GetTableReferenceList())[0]).GetUsing();
             NUnit.Framework.Assert.AreEqual(1, using_list.Count);
             NUnit.Framework.Assert.AreEqual("(tb1 FORCE INDEX FOR JOIN (i1, i2), tb3, tb4, tb5) "
@@ -794,9 +794,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             hintlist = rtf.GetHintList();
             NUnit.Framework.Assert.AreEqual(1, hintlist.Count);
             indexhint = hintlist[0];
-            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().ToString());
-            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetType().ToString());
-            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().ToString());
+            NUnit.Framework.Assert.AreEqual("USE", indexhint.GetAction().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("INDEX", indexhint.GetIndexType().GetEnumName());
+            NUnit.Framework.Assert.AreEqual("ALL", indexhint.GetScope().GetEnumName());
             NUnit.Framework.Assert.AreEqual("tb2", rtf.GetTable().GetIdText());
             NUnit.Framework.Assert.AreEqual("(SELECT '  @  from' FROM `from`) AS T1 " + "INNER JOIN tb2 AS T2 USE INDEX ()"
                 , output);

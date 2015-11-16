@@ -45,6 +45,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         private enum SpecialIdentifier
         {
             None = 0,
+
             Global,
             Local,
             Session

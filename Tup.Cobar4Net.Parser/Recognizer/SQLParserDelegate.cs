@@ -32,6 +32,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer
         private enum SpecialIdentifier
         {
             None = 0,
+
             Rollback,
             Savepoint,
             Truncate

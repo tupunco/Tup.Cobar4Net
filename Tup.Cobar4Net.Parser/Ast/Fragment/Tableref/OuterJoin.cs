@@ -16,6 +16,7 @@
 
 using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Visitor;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
@@ -50,13 +51,15 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 
         private readonly TableReference rightTableRef;
 
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond;
+        private readonly Expr onCond;
 
         private readonly IList<string> @using;
 
-        private OuterJoin(bool isLeftJoin, TableReference leftTableRef, TableReference rightTableRef
-            , Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond, IList<string> @using)
-            : base()
+        private OuterJoin(bool isLeftJoin,
+            TableReference leftTableRef,
+            TableReference rightTableRef,
+            Expr onCond,
+            IList<string> @using)
         {
             this.isLeftJoin = isLeftJoin;
             this.leftTableRef = leftTableRef;
@@ -68,7 +71,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public OuterJoin(bool isLeftJoin,
             TableReference leftTableRef,
             TableReference rightTableRef,
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond)
+            Expr onCond)
             : this(isLeftJoin, leftTableRef, rightTableRef, onCond, null)
         {
         }
@@ -96,7 +99,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return rightTableRef;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetOnCond()
+        public virtual Expr GetOnCond()
         {
             return onCond;
         }

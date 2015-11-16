@@ -15,6 +15,7 @@
 */
 
 using Tup.Cobar4Net.Parser.Visitor;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
@@ -25,12 +26,11 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 
         private readonly TableReference rightTableRef;
 
-        private Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond;
+        private Expr onCond;
 
         public StraightJoin(TableReference leftTableRef,
             TableReference rightTableRef,
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond)
-            : base()
+            Expr onCond)
         {
             this.leftTableRef = leftTableRef;
             this.rightTableRef = rightTableRef;
@@ -53,7 +53,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return rightTableRef;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetOnCond()
+        public virtual Expr GetOnCond()
         {
             return onCond;
         }

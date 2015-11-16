@@ -225,7 +225,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
             char[] chars = new char[sql.Length + 1];
             //Sharpen.Runtime.GetCharsForString(sql, 0, sql.Length, chars, 0);
-            SystemUtils.arraycopy(sql.ToCharArray(), 0, chars, 0, sql.Length);
+            Array.Copy(sql.ToCharArray(), 0, chars, 0, sql.Length);
 
             chars[chars.Length - 1] = ' ';
             return chars;

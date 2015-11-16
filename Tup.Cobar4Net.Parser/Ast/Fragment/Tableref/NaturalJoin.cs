@@ -38,7 +38,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public NaturalJoin(bool isOuter, bool isLeft,
             TableReference leftTableRef,
             TableReference rightTableRef)
-            : base()
         {
             this.isOuter = isOuter;
             this.isLeft = isLeft;

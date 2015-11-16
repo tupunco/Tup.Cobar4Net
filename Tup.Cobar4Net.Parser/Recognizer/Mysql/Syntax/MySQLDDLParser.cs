@@ -86,8 +86,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Policy
         }
 
-        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers
-            = new Dictionary<string, SpecialIdentifier>();
+        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers = new Dictionary<string, SpecialIdentifier>();
 
         static MySQLDDLParser()
         {

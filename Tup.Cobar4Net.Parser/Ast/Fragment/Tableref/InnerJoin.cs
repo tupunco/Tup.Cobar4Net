@@ -16,6 +16,7 @@
 
 using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Visitor;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
@@ -43,14 +44,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 
         private readonly TableReference rightTableRef;
 
-        private Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond;
+        private Expr onCond;
 
         private IList<string> @using;
 
         private InnerJoin(TableReference leftTableRef,
             TableReference rightTableRef,
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond, IList<string> @using)
-            : base()
+            Expr onCond, IList<string> @using)
         {
             this.leftTableRef = leftTableRef;
             this.rightTableRef = rightTableRef;
@@ -65,7 +65,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 
         public InnerJoin(TableReference leftTableRef,
             TableReference rightTableRef,
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression onCond)
+            Expr onCond)
             : this(leftTableRef, rightTableRef, onCond, null)
         {
         }
@@ -87,7 +87,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return rightTableRef;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetOnCond()
+        public virtual Expr GetOnCond()
         {
             return onCond;
         }

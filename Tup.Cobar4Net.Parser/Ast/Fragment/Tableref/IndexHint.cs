@@ -27,6 +27,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public enum IndexAction
         {
             None = 0,
+
             Use,
             Ignore,
             Force
@@ -35,6 +36,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public enum IndexType
         {
             None = 0,
+
             Index,
             Key
         }
@@ -42,25 +44,25 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public enum IndexScope
         {
             None = 0,
+
             All,
             Join,
             GroupBy,
             OrderBy
         }
 
-        private readonly IndexHint.IndexAction action;
+        private readonly IndexAction action;
 
-        private readonly IndexHint.IndexType type;
+        private readonly IndexType type;
 
-        private readonly IndexHint.IndexScope scope;
+        private readonly IndexScope scope;
 
         private readonly IList<string> indexList;
 
-        public IndexHint(IndexHint.IndexAction action,
-            IndexHint.IndexType type,
-            IndexHint.IndexScope scope,
+        public IndexHint(IndexAction action,
+            IndexType type,
+            IndexScope scope,
             IList<string> indexList)
-            : base()
         {
             if (action == IndexAction.None)
             {
@@ -94,17 +96,17 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             }
         }
 
-        public virtual IndexHint.IndexAction GetAction()
+        public virtual IndexAction GetAction()
         {
             return action;
         }
 
-        public virtual IndexHint.IndexType GetIndexType()
+        public virtual IndexType GetIndexType()
         {
             return type;
         }
 
-        public virtual IndexHint.IndexScope GetScope()
+        public virtual IndexScope GetScope()
         {
             return scope;
         }

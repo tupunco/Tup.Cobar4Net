@@ -26,6 +26,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
     {
         private enum SpecialIdentifier
         {
+            None = 0,
+
             Chain,
             No,
             Release,
@@ -85,7 +87,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             // matchIdentifier("ROLLBACK"); // for performance issue, change to
             // follow:
             lexer.NextToken();
-            SpecialIdentifier siTemp = specialIdentifiers[lexer.StringValueUppercase()];
+            SpecialIdentifier siTemp = specialIdentifiers.GetValue(lexer.StringValueUppercase());
             if (siTemp == SpecialIdentifier.Work)
             {
                 lexer.NextToken();

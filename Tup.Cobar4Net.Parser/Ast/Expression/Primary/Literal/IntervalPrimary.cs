@@ -53,14 +53,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 
         private static IDictionary<string, Unit> InitUnitMap()
         {
-            //TODO---IntervalPrimary InitUnitMap
-            Unit[] units = null;// typeof(Unit).GetEnumConstants();
-            IDictionary<string, Unit> map = new Dictionary<string, Unit>(units.Length);
-            foreach (Unit unit in units)
-            {
-                map[unit.ToString()] = unit;
-            }
-            return map;
+            return SystemUtils.GetEnumNameMapping<Unit>();
         }
 
         /// <param name="unitString">must be upper case, null is forbidden</param>

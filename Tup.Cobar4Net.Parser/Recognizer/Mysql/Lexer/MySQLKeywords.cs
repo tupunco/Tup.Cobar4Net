@@ -14,43 +14,26 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     internal class MySQLKeywords
     {
-        public static readonly Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer.MySQLKeywords DefaultKeywords
-             = new Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer.MySQLKeywords();
+        public static readonly MySQLKeywords DefaultKeywords = new MySQLKeywords();
 
-        private readonly IDictionary<string, MySQLToken> keywords = new Dictionary<string
-            , MySQLToken>(230);
+        private readonly IDictionary<string, MySQLToken> keywords = InitTokenMap();
 
-        private MySQLKeywords()
+        private static IDictionary<string, MySQLToken> InitTokenMap()
         {
-            var values = (MySQLToken[])Enum.GetValues(typeof(MySQLToken));
-            var names = Enum.GetNames(typeof(MySQLToken));
-            var name = string.Empty;
-            var kw = "Kw";
-            var kwLen = kw.Length;
+            var cKeywords= SystemUtils.GetEnumNameMapping<MySQLToken>("Kw");
+            cKeywords.Add("NULL", MySQLToken.LiteralNull);
+            cKeywords.Add("FALSE", MySQLToken.LiteralBoolFalse);
+            cKeywords.Add("TRUE", MySQLToken.LiteralBoolTrue);
 
-            var tReg = new Regex(@"([a-z])([A-Z])");
-            for (int i = 0; i < names.Length; i++)
-            {
-                name = names[i];
-                if (name.StartsWith(kw, StringComparison.OrdinalIgnoreCase))
-                {
-                    keywords.Add(tReg.Replace(name.Substring(kwLen), "$1_$2").ToUpper(), values[i]);
-                }
-            }
-            keywords.Add("NULL", MySQLToken.LiteralNull);
-            keywords.Add("FALSE", MySQLToken.LiteralBoolFalse);
-            keywords.Add("TRUE", MySQLToken.LiteralBoolTrue);
+            return cKeywords;
         }
-
         /// <param name="keyUpperCase">must be uppercase</param>
         /// <returns>
         /// <code>KeyWord</code> or
