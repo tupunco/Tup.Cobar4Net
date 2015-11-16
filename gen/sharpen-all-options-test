@@ -2,8 +2,9 @@
 -nativeTypeSystem
 -organizeUsings
 -junitConversion
+-flatDirectoryStructure
 
--namespaceMapping com.alibaba.cobar Tup.Cobar
+-namespaceMapping com.alibaba.cobar Tup.Cobar4Net
 
 -fullyQualify CommitBuilder
 -fullyQualify CheckoutConflictException
@@ -60,6 +61,7 @@
 -methodMapping java.lang.Character.toLowerCase System.Char.ToLower
 -methodMapping java.lang.Character.toUpperCase System.Char.ToUpper
 -methodMapping java.util.HashMap<,>.containsKey ContainsKey
+-methodMapping java.util.HashMap<,>.get GetValue
 -methodMapping java.lang.System.gc System.GC.Collect
 -methodMapping java.lang.System.runFinalization System.GC.WaitForPendingFinalizers
 -methodMapping java.lang.System.getenv(String) System.Environment.GetEnvironmentVariable
@@ -75,7 +77,7 @@
 -methodMapping java.lang.Appendable.append(java.lang.CharSequence,int,int) AppendRange
 -methodMapping java.util.Date.Date(long) Sharpen.Extensions.CreateDate
 -methodMapping java.lang.Long.signum Sharpen.Extensions.Signum
--methodMapping java.util.Collection.add AddItem
+-methodMapping java.util.Collection.add Add
 -methodMapping java.util.ArrayList.removeElement Remove
 -methodMapping java.net.InetAddress.getByName Sharpen.Extensions.GetAddressByName
 -methodMapping java.net.ServerSocket.ServerSocket Sharpen.Extensions.CreateServerSocket
@@ -109,7 +111,7 @@
 -typeMapping java.lang.Process Sharpen.SystemProcess
 -typeMapping java.net.InetAddress System.Net.IPAddress
 -typeMapping java.util.TimeZone System.TimeZoneInfo
--typeMapping java.util.ArrayList<> Sharpen.AList
+-typeMapping java.util.ArrayList<> System.Collections.Generic.List
 -typeMapping java.util.zip.Inflater ICSharpCode.SharpZipLib.Zip.Compression.Inflater
 -typeMapping java.util.zip.Deflater ICSharpCode.SharpZipLib.Zip.Compression.Deflater
 -typeMapping java.util.zip.ZipException ICSharpCode.SharpZipLib.SharpZipBaseException

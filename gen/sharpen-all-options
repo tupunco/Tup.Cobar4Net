@@ -4,7 +4,7 @@
 -junitConversion
 -flatDirectoryStructure
 
--namespaceMapping com.alibaba.cobar Tup.Cobar
+-namespaceMapping com.alibaba.cobar Tup.Cobar4Net
 
 -fullyQualify CommitBuilder
 -fullyQualify CheckoutConflictException
