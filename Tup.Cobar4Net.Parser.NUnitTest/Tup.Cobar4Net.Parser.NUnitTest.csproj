@@ -41,12 +41,6 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Tup.Cobar4Net.Parser\Sharpen\Extensions.cs">
-      <Link>Sharpen\Extensions.cs</Link>
-    </Compile>
-    <Compile Include="..\Tup.Cobar4Net.Parser\Sharpen\Runtime.cs">
-      <Link>Sharpen\Runtime.cs</Link>
-    </Compile>
     <Compile Include="Ast\Expression\LiteralHexadecimalTest.cs" />
     <Compile Include="Ast\Stmt\StubDMLSelectStatementCreater.cs" />
     <Compile Include="Performance.cs" />

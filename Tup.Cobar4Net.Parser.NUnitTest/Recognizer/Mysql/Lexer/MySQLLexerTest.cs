@@ -1180,15 +1180,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             NUnit.Framework.Assert.AreEqual(MySQLToken.Eof, sut.Token());
             sut = new MySQLLexer("12345678901234567890123 1234567890 1234567890123456789");
             NUnit.Framework.Assert.AreEqual(MySQLToken.LiteralNumPureDigit, sut.Token());
-            NUnit.Framework.Assert.AreEqual("12345678901234567890123", sut.IntegerValue().ToString
-                ());
+            NUnit.Framework.Assert.AreEqual("12345678901234567890123", sut.IntegerValue().ToString());
             sut.NextToken();
             NUnit.Framework.Assert.AreEqual(MySQLToken.LiteralNumPureDigit, sut.Token());
             NUnit.Framework.Assert.AreEqual("1234567890", sut.IntegerValue().ToString());
             sut.NextToken();
             NUnit.Framework.Assert.AreEqual(MySQLToken.LiteralNumPureDigit, sut.Token());
-            NUnit.Framework.Assert.AreEqual("1234567890123456789", sut.IntegerValue().ToString
-                ());
+            NUnit.Framework.Assert.AreEqual("1234567890123456789", sut.IntegerValue().ToString());
             sut.NextToken();
             NUnit.Framework.Assert.AreEqual(MySQLToken.Eof, sut.Token());
             sut = new MySQLLexer(".");
@@ -1202,8 +1200,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         public virtual void TestSkipSeparator()
         {
             MySQLLexer sut = new MySQLLexer("  /**//***/ \t\n\r\n -- \n#\n/*/*-- \n*/");
-            NUnit.Framework.Assert.AreEqual(sut.EofIndex, sut.CurIndex);
-            NUnit.Framework.Assert.AreEqual(sut.Sql[sut.EofIndex], sut.Ch);
+            NUnit.Framework.Assert.AreEqual(sut.eofIndex, sut.curIndex);
+            NUnit.Framework.Assert.AreEqual(sut.sql[sut.eofIndex], sut.ch);
         }
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>

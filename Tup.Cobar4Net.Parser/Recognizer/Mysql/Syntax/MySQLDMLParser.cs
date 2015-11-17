@@ -41,7 +41,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual GroupBy GroupBy()
+        protected internal virtual GroupBy GroupBy()
         {
             if (lexer.Token() != MySQLToken.KwGroup)
             {
@@ -129,7 +129,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual OrderBy OrderBy()
+        protected internal virtual OrderBy OrderBy()
         {
             if (lexer.Token() != MySQLToken.KwOrder)
             {
@@ -260,7 +260,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <returns>never null</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual TableReferences TableRefs()
+        protected internal virtual TableReferences TableRefs()
         {
             TableReference @ref = TableReference();
             return BuildTableReferences(@ref);

@@ -44,47 +44,19 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         /// </remarks>
         private const byte Eoi = unchecked((int)(0x1A));
 
-        protected readonly char[] sql;
-        /// <summary>
-        /// Sql
-        /// </summary>
-        public char[] Sql
-        {
-            get { return sql; }
-        }
-
+        protected internal readonly char[] sql;
         /// <summary>
         /// always be
         /// <see cref="sql"/>
         /// .length - 1
         /// </summary>
-        protected readonly int eofIndex;
-        /// <summary>
-        /// always be
-        /// <see cref="sql"/>
-        /// .length - 1
-        /// </summary>
-        public int EofIndex
-        {
-            get { return eofIndex; }
-        }
-
+        protected internal readonly int eofIndex;
         /// <summary>
         /// current index of
         /// <see cref="sql"/>
         ///
         /// </summary>
-        protected int curIndex = -1;
-        /// <summary>
-        /// current index of
-        /// <see cref="sql"/>
-        ///
-        /// </summary>
-        public int CurIndex
-        {
-            get { return curIndex; }
-        }
-
+        protected internal int curIndex = -1;
         /// <summary>
         /// always be
         /// <see cref="sql"/>
@@ -92,18 +64,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         /// <see cref="curIndex"/>
         /// ]
         /// </summary>
-        protected char ch;
-        /// <summary>
-        /// always be
-        /// <see cref="sql"/>
-        /// [
-        /// <see cref="curIndex"/>
-        /// ]
-        /// </summary>
-        public char Ch
-        {
-            get { return ch; }
-        }
+        protected internal char ch;
 
         private MySQLToken token;
 
@@ -116,9 +77,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         private int paramIndex = 0;
 
         /// <summary>A character buffer for literals.</summary>
-        protected static readonly ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
+        protected internal static readonly ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
 
-        protected char[] sbuf;
+        protected internal char[] sbuf;
 
         private string stringValue;
 
@@ -304,7 +265,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             return curIndex + howMany <= eofIndex;
         }
 
-        public bool Eof()
+        protected internal bool Eof()
         {
             return curIndex >= eofIndex;
         }

@@ -70,7 +70,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         /// </returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException">if identifier dose not matched
         /// 	</exception>
-        public virtual Identifier Identifier()
+        protected internal virtual Identifier Identifier()
         {
             if (lexer.Token() == MySQLToken.None)
             {
@@ -381,7 +381,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <returns>index of expected token, start from 0</returns>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException">if no token is matched</exception>
-        public virtual int Match(params MySQLToken[] expectToken)
+        protected internal virtual int Match(params MySQLToken[] expectToken)
         {
             if (expectToken == null || expectToken.Length <= 0)
             {

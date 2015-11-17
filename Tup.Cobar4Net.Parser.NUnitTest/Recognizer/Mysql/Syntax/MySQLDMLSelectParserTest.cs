@@ -100,85 +100,74 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         {
             string sql = "SELect t1.id , t2.* from t1, test.t2 where test.t1.id=1 and t1.id=test.t2.id";
             MySQLLexer lexer = new MySQLLexer(sql);
-            MySQLDMLSelectParser parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser
-                (lexer));
+            MySQLDMLSelectParser parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             DMLSelectStatement select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             string output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT t1.id, t2.* FROM t1, test.t2 WHERE test.t1.id = 1 AND t1.id = test.t2.id"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT t1.id, t2.* FROM t1, test.t2 WHERE test.t1.id = 1 AND t1.id = test.t2.id", output);
             sql = "select * from  offer  a  straight_join wp_image b use key for join(t1,t2) on a.member_id=b.member_id inner join product_visit c where a.member_id=c.member_id and c.member_id='abc' ";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT * FROM offer AS A STRAIGHT_JOIN wp_image AS B USE KEY FOR JOIN (t1, t2) ON a.member_id = b.member_id INNER JOIN product_visit AS C WHERE a.member_id = c.member_id AND c.member_id = 'abc'"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT * FROM offer AS A STRAIGHT_JOIN wp_image AS B USE KEY FOR JOIN (t1, t2) ON a.member_id = b.member_id INNER JOIN product_visit AS C WHERE a.member_id = c.member_id AND c.member_id = 'abc'", output);
             sql = "SELect all tb1.id,tb2.id from tb1,tb2 where tb1.id2=tb2.id2";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2", output);
             sql = "SELect distinct high_priority tb1.id,tb2.id from tb1,tb2 where tb1.id2=tb2.id2";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT HIGH_PRIORITY tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT HIGH_PRIORITY tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2", output);
             sql = "SELect distinctrow high_priority sql_small_result tb1.id,tb2.id " + "from tb1,tb2 where tb1.id2=tb2.id2";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT DISTINCTROW HIGH_PRIORITY SQL_SMALL_RESULT tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT DISTINCTROW HIGH_PRIORITY SQL_SMALL_RESULT tb1.id, tb2.id FROM tb1, tb2 WHERE tb1.id2 = tb2.id2", output);
             sql = "SELect  sql_cache id1,id2 from tb1,tb2 where tb1.id1=tb2.id1 ";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT SQL_CACHE id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id1"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT SQL_CACHE id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id1", output);
             sql = "SELect  sql_cache id1,max(id2) from tb1 group by id1 having id1>10 order by id3 desc";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT SQL_CACHE id1, MAX(id2) FROM tb1 GROUP BY id1 HAVING id1 > 10 ORDER BY id3 DESC"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT SQL_CACHE id1, MAX(id2) FROM tb1 GROUP BY id1 HAVING id1 > 10 ORDER BY id3 DESC", output);
             sql = "SELect  SQL_BUFFER_RESULT tb1.id1,id2 from tb1";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT SQL_BUFFER_RESULT tb1.id1, id2 FROM tb1",
-                output);
+            NUnit.Framework.Assert.AreEqual("SELECT SQL_BUFFER_RESULT tb1.id1, id2 FROM tb1", output);
             sql = "SELect  SQL_no_cache tb1.id1,id2 from tb1";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT SQL_NO_CACHE tb1.id1, id2 FROM tb1", output
-                );
+            NUnit.Framework.Assert.AreEqual("SELECT SQL_NO_CACHE tb1.id1, id2 FROM tb1", output);
             sql = "SELect  SQL_CALC_FOUND_ROWS tb1.id1,id2 from tb1";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT SQL_CALC_FOUND_ROWS tb1.id1, id2 FROM tb1"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT SQL_CALC_FOUND_ROWS tb1.id1, id2 FROM tb1", output);
             sql = "SELect 1+1 ";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
@@ -208,31 +197,27 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id2 FOR UPDATE"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id2 FOR UPDATE", output);
             sql = "SELect distinct id1,id2 from tb1,tb2 where tb1.id1=tb2.id2 lock in share mode";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id2 LOCK IN SHARE MODE"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT DISTINCT id1, id2 FROM tb1, tb2 WHERE tb1.id1 = tb2.id2 LOCK IN SHARE MODE", output);
         }
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
         [NUnit.Framework.Test]
         public virtual void TestSelectChinese()
         {
-            string sql = "SELect t1.id , t2.* from t1, test.t2 where test.t1.id='中''‘文'' and t1.id=test.t2.id";
+            string sql = "SELect t1.id , t2.* from t1, test.t2 where test.t1.id='中''‘文' and t1.id=test.t2.id";
             MySQLLexer lexer = new MySQLLexer(sql);
-            MySQLDMLSelectParser parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser
-                (lexer));
+            MySQLDMLSelectParser parser = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer));
             DMLSelectStatement select = parser.Select();
             NUnit.Framework.Assert.IsNotNull(select);
             string output = Output2MySQL(select, sql);
-            NUnit.Framework.Assert.AreEqual("SELECT t1.id, t2.* FROM t1, test.t2 WHERE test.t1.id = '中\\'‘文'' AND t1.id = test.t2.id"
-                , output);
+            NUnit.Framework.Assert.AreEqual("SELECT t1.id, t2.* FROM t1, test.t2 WHERE test.t1.id = '中\\'‘文' AND t1.id = test.t2.id", output);
         }
     }
 }
