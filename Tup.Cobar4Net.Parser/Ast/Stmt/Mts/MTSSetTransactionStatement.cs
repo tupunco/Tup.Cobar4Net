@@ -37,7 +37,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Mts
         private readonly IsolationLevel level;
 
         public MTSSetTransactionStatement(VariableScope scope, IsolationLevel level)
-            : base()
         {
             if (level == IsolationLevel.None)
             {

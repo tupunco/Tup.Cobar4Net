@@ -58,24 +58,21 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 
         public sealed class SelectOption
         {
-            public DMLSelectStatement.SelectDuplicationStrategy resultDup = DMLSelectStatement.SelectDuplicationStrategy
-                .All;
+            public SelectDuplicationStrategy resultDup = SelectDuplicationStrategy.All;
 
             public bool highPriority = false;
 
             public bool straightJoin = false;
 
-            public DMLSelectStatement.SmallOrBigResult resultSize = DMLSelectStatement.SmallOrBigResult
-                .Undef;
+            public SmallOrBigResult resultSize = SmallOrBigResult.Undef;
 
             public bool sqlBufferResult = false;
 
-            public DMLSelectStatement.QueryCacheStrategy queryCache = DMLSelectStatement.QueryCacheStrategy
-                .Undef;
+            public QueryCacheStrategy queryCache = QueryCacheStrategy.Undef;
 
             public bool sqlCalcFoundRows = false;
 
-            public DMLSelectStatement.LockMode lockMode = DMLSelectStatement.LockMode.Undef;
+            public LockMode lockMode = LockMode.Undef;
 
             public override string ToString()
             {
@@ -94,7 +91,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
             }
         }
 
-        private readonly DMLSelectStatement.SelectOption option;
+        private readonly SelectOption option;
 
         /// <summary>string: id | `id` | 'id'</summary>
         private readonly IList<Pair<Expr, string>> selectExprList;
@@ -112,10 +109,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         private readonly Limit limit;
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLSelectStatement(DMLSelectStatement.SelectOption option, IList<Pair<Expr
-            , string>> selectExprList, TableReferences tables, Expr
-             where, GroupBy group, Expr having, OrderBy
-             order, Limit limit)
+        public DMLSelectStatement(SelectOption option,
+                                    IList<Pair<Expr, string>> selectExprList,
+                                    TableReferences tables,
+                                    Expr where,
+                                    GroupBy group,
+                                    Expr having,
+                                    OrderBy order,
+                                    Limit limit)
         {
             if (option == null)
             {

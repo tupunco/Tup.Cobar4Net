@@ -43,7 +43,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
         /// <param name="offset">e.g. 9</param>
         /// <param name="size">e.g. 4</param>
         public LiteralHexadecimal(string introducer, char[] @string, int offset, int size, string charset)
-            : base()
         {
             if (@string == null || offset + size > @string.Length)
             {
@@ -75,7 +74,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             sb.Append(@string, offset, size);
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             this.bytes = ParseString.HexString2Bytes(@string, offset, size);
             return Runtime.GetStringForBytes(bytes, introducer == null ? charset :

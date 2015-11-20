@@ -16,6 +16,7 @@
 
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Visitor;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
@@ -26,7 +27,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 
         private readonly string pattern;
 
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
+        private readonly Expr where;
 
         public ShowEvents(Identifier schema, string pattern)
         {
@@ -35,8 +36,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
             this.where = null;
         }
 
-        public ShowEvents(Identifier schema, Tup.Cobar4Net.Parser.Ast.Expression.Expression where
-            )
+        public ShowEvents(Identifier schema, Expr where)
         {
             this.schema = schema;
             this.pattern = null;
@@ -65,7 +65,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
             return pattern;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
+        public virtual Expr GetWhere()
         {
             return where;
         }

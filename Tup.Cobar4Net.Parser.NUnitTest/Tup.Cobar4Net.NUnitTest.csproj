@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{067456C0-086C-46A8-B37F-1405717B7BFC}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Tup.Cobar4Net.NUnitTest</RootNamespace>
+    <AssemblyName>Tup.Cobar4Net.NUnitTest</AssemblyName>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Deveel.Math">
+      <HintPath>..\packages\dmath.1.5.64\lib\net20\Deveel.Math.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.framework, Version=2.6.4.14350, Culture=neutral, PublicKeyToken=96d09a1eb7f44a77, processorArchitecture=MSIL">
+      <HintPath>..\packages\NUnit.2.6.4\lib\nunit.framework.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Parser\Ast\Expression\LiteralHexadecimalTest.cs" />
+    <Compile Include="Parser\Ast\Stmt\StubDMLSelectStatementCreater.cs" />
+    <Compile Include="Parser\Performance.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Lexer\MySQLLexerTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\AbstractSyntaxTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDALParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDDLParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLCallParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLDeleteParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLInsertParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLReplaceParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLSelectParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLUpdateParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLExprParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLMTSParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\SoloParser.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\SoloParserTest.cs" />
+    <Compile Include="Parser\Recognizer\SQLParserDelegateTest.cs" />
+    <Compile Include="Parser\Recognizer\SQLParserPerformanceMain.cs" />
+    <Compile Include="Parser\Util\PairUtilTest.cs" />
+    <Compile Include="Route\AbstractAliasConvert.cs" />
+    <Compile Include="Route\CobarHintTest.cs" />
+    <Compile Include="Route\Function\PartitionByStringTest.cs" />
+    <Compile Include="Route\Perf\NoShardingSpace.cs" />
+    <Compile Include="Route\Perf\ServerRoutePerformance.cs" />
+    <Compile Include="Route\Perf\ShardingDefaultSpace.cs" />
+    <Compile Include="Route\Perf\ShardingMultiTableSpace.cs" />
+    <Compile Include="Route\Perf\ShardingTableSpaceMain.cs" />
+    <Compile Include="Route\RouteResultsetNodeTest.cs" />
+    <Compile Include="Route\ServerRouteTest.cs" />
+    <Compile Include="Route\Util\PartitionForSingle.cs" />
+    <Compile Include="Route\Util\PartitionUtilTest.cs" />
+    <Compile Include="Route\Util\PermutationUtilTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Tup.Cobar4Net.Config\Tup.Cobar4Net.Config.csproj">
+      <Project>{7d1f5512-b442-46f8-9727-586ab36bb8e6}</Project>
+      <Name>Tup.Cobar4Net.Config</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tup.Cobar4Net.Parser\Tup.Cobar4Net.Parser.csproj">
+      <Project>{cc86ce3d-98b0-4125-a540-eb3c182fd741}</Project>
+      <Name>Tup.Cobar4Net.Parser</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tup.Cobar4Net.Route\Tup.Cobar4Net.Route.csproj">
+      <Project>{817295d2-b89d-452b-8818-a8bbf189da01}</Project>
+      <Name>Tup.Cobar4Net.Route</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tup.Cobar4Net\Tup.Cobar4Net.csproj">
+      <Project>{d80fd94a-5e8d-489b-8052-7aba84ab0e40}</Project>
+      <Name>Tup.Cobar4Net</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

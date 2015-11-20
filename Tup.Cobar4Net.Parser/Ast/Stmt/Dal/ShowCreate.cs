@@ -23,7 +23,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     public class ShowCreate : DALShowStatement
     {
         /// <summary>enum name must equals to real sql string</summary>
-        public enum Type
+        public enum CreateType
         {
             Database,
             Event,
@@ -34,17 +34,17 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
             View
         }
 
-        private readonly ShowCreate.Type type;
+        private readonly CreateType type;
 
         private readonly Identifier id;
 
-        public ShowCreate(ShowCreate.Type type, Identifier id)
+        public ShowCreate(CreateType type, Identifier id)
         {
             this.type = type;
             this.id = id;
         }
 
-        public virtual ShowCreate.Type GetCreateType()
+        public virtual CreateType GetCreateType()
         {
             return type;
         }

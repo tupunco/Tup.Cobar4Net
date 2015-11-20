@@ -22,8 +22,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class FunctionExpression : PrimaryExpression
     {
-        protected static IList<Expression> WrapList
-            (Expression expr)
+        protected static IList<Expression> WrapList(Expression expr)
         {
             var list = new List<Expression>(1);
             list.Add(expr);
@@ -31,8 +30,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function
         }
 
         /// <summary><code>this</code> function object being called is a prototype</summary>
-        public abstract Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.FunctionExpression
-             ConstructFunction(IList<Expression> arguments);
+        public abstract FunctionExpression ConstructFunction(IList<Expression> arguments);
 
         protected readonly string functionName;
 
@@ -53,7 +51,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function
                 }
                 else
                 {
-                    this.arguments = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>(arguments);
+                    this.arguments = new List<Expression>(arguments);
                 }
             }
         }
@@ -73,8 +71,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function
             return functionName;
         }
 
-        public override Expression SetCacheEvalRst(bool cacheEvalRst
-            )
+        public override Expression SetCacheEvalRst(bool cacheEvalRst)
         {
             return base.SetCacheEvalRst(cacheEvalRst);
         }

@@ -33,9 +33,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
             return this;
         }
 
-        public virtual object Evaluation(IDictionary<object, Expression.Expression> parameters)
+        public virtual object Evaluation(IDictionary<object, object> parameters)
         {
-            return AbstractExpression.Unevaluatable;
+            return ExpressionConstants.Unevaluatable;
         }
 
         //public abstract override void Accept(SQLASTVisitor visitor);

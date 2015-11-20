@@ -29,7 +29,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
         private readonly bool value;
 
         public LiteralBoolean(bool value)
-            : base()
         {
             this.value = value;
         }
@@ -39,7 +38,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             return value;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return value ? True : False;
         }

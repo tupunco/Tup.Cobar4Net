@@ -214,30 +214,30 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
                 case MySQLToken.KwCreate:
                     {
-                        ShowCreate.Type showCreateType;
+                        ShowCreate.CreateType showCreateType;
                         switch (lexer.NextToken())
                         {
                             case MySQLToken.KwDatabase:
                                 {
-                                    showCreateType = ShowCreate.Type.Database;
+                                    showCreateType = ShowCreate.CreateType.Database;
                                     break;
                                 }
 
                             case MySQLToken.KwProcedure:
                                 {
-                                    showCreateType = ShowCreate.Type.Procedure;
+                                    showCreateType = ShowCreate.CreateType.Procedure;
                                     break;
                                 }
 
                             case MySQLToken.KwTable:
                                 {
-                                    showCreateType = ShowCreate.Type.Table;
+                                    showCreateType = ShowCreate.CreateType.Table;
                                     break;
                                 }
 
                             case MySQLToken.KwTrigger:
                                 {
-                                    showCreateType = ShowCreate.Type.Trigger;
+                                    showCreateType = ShowCreate.CreateType.Trigger;
                                     break;
                                 }
 
@@ -250,19 +250,19 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                         {
                                             case SpecialIdentifier.Event:
                                                 {
-                                                    showCreateType = ShowCreate.Type.Event;
+                                                    showCreateType = ShowCreate.CreateType.Event;
                                                     goto switch1_break;
                                                 }
 
                                             case SpecialIdentifier.Function:
                                                 {
-                                                    showCreateType = ShowCreate.Type.Function;
+                                                    showCreateType = ShowCreate.CreateType.Function;
                                                     goto switch1_break;
                                                 }
 
                                             case SpecialIdentifier.View:
                                                 {
-                                                    showCreateType = ShowCreate.Type.View;
+                                                    showCreateType = ShowCreate.CreateType.View;
                                                     goto switch1_break;
                                                 }
                                         }
@@ -494,13 +494,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                                                         case SpecialIdentifier.Status:
                                                                             {
                                                                                 lexer.NextToken();
-                                                                                return new ShowEngine(ShowEngine.Type.InnodbStatus);
+                                                                                return new ShowEngine(ShowEngine.EngineType.InnodbStatus);
                                                                             }
 
                                                                         case SpecialIdentifier.Mutex:
                                                                             {
                                                                                 lexer.NextToken();
-                                                                                return new ShowEngine(ShowEngine.Type.InnodbMutex);
+                                                                                return new ShowEngine(ShowEngine.EngineType.InnodbMutex);
                                                                             }
                                                                     }
                                                                 }
@@ -511,7 +511,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                                             {
                                                                 lexer.NextToken();
                                                                 MatchIdentifier("STATUS");
-                                                                return new ShowEngine(ShowEngine.Type.PerformanceSchemaStatus);
+                                                                return new ShowEngine(ShowEngine.EngineType.PerformanceSchemaStatus);
                                                             }
                                                     }
                                                 }

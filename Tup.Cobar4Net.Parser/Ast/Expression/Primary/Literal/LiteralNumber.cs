@@ -27,7 +27,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
         private readonly Number number;
 
         public LiteralNumber(Number number)
-            : base()
         {
             if (number == null)
             {
@@ -36,7 +35,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             this.number = number;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return number;
         }

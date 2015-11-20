@@ -29,7 +29,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
         /// <param name="introducer">e.g. "_latin1"</param>
         /// <param name="bitFieldText">e.g. "01010"</param>
         public LiteralBitField(string introducer, string bitFieldText)
-            : base()
         {
             if (bitFieldText == null)
             {

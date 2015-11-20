@@ -22,7 +22,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LiteralNull : Literal
     {
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return null;
         }

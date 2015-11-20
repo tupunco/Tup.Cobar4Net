@@ -26,7 +26,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 
         /// <param name="userAtHost"/>
         public UserExpression(string userAtHost)
-            : base()
         {
             this.userAtHost = userAtHost;
         }

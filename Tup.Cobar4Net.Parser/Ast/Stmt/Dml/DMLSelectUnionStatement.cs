@@ -46,7 +46,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         private Limit limit;
 
         public DMLSelectUnionStatement(DMLSelectStatement select)
-            : base()
         {
             this.selectStmtList = new List<DMLSelectStatement>();
             this.selectStmtList.Add(select);

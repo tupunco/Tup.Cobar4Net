@@ -34,7 +34,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             return "NOT";
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, object> parameters
             )
         {
             object operand = GetOperand().Evaluation(parameters);
@@ -42,9 +42,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             {
                 return null;
             }
-            if (operand == Unevaluatable)
+            if (operand == ExpressionConstants.Unevaluatable)
             {
-                return Unevaluatable;
+                return ExpressionConstants.Unevaluatable;
             }
             bool @bool = ExprEvalUtils.Obj2bool(operand);
             return @bool ? LiteralBoolean.False : LiteralBoolean.True;

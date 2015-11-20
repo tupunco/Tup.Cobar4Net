@@ -23,5 +23,14 @@
             : base(message, innerException)
         {
         }
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="message"></param>
+        /// <param name="innerException"></param>
+        public SQLSyntaxErrorException(Exception innerException)
+            : base("Exception", innerException)
+        {
+        }
     }
 }

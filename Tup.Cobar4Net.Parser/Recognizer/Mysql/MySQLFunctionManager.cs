@@ -69,7 +69,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         private readonly Dictionary<string, FunctionParsingStrategy> parsingStrateg = new Dictionary<string, FunctionParsingStrategy>();
 
         /// <summary>non-reserved word named ordinary syntax function</summary>
-        private IDictionary<string, FunctionExpression> functionPrototype = new Dictionary<string, FunctionExpression>();
+        private readonly IDictionary<string, FunctionExpression> functionPrototype = new Dictionary<string, FunctionExpression>();
 
         public MySQLFunctionManager(bool allowFuncDefChange)
         {

@@ -21,21 +21,21 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ShowEngine : DALShowStatement
     {
-        public enum Type
+        public enum EngineType
         {
             InnodbStatus,
             InnodbMutex,
             PerformanceSchemaStatus
         }
 
-        private readonly ShowEngine.Type type;
+        private readonly EngineType type;
 
-        public ShowEngine(ShowEngine.Type type)
+        public ShowEngine(EngineType type)
         {
             this.type = type;
         }
 
-        public virtual ShowEngine.Type GetEngineType()
+        public virtual EngineType GetEngineType()
         {
             return type;
         }

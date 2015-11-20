@@ -53,7 +53,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Type
             return ExpressionConstants.PrecedenceCollate;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return @string.Evaluation(parameters);
         }

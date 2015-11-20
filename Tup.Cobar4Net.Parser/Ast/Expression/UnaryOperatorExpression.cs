@@ -50,9 +50,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
 
         public abstract string GetOperator();
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            return Unevaluatable;
+            return ExpressionConstants.Unevaluatable;
         }
 
         public override void Accept(SQLASTVisitor visitor)

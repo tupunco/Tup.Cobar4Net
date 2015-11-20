@@ -82,9 +82,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
             return ExpressionConstants.PrecedenceComparision;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            return Unevaluatable;
+            return ExpressionConstants.Unevaluatable;
         }
 
         private Expr replaceExpr;

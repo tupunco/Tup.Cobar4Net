@@ -37,7 +37,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
             return this;
         }
 
-        public virtual object Evaluation(IDictionary<object, Expression> parameters)
+        public virtual object Evaluation(IDictionary<object, object> parameters)
         {
             if (cacheEvalRst)
             {
@@ -52,35 +52,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
             return EvaluationInternal(parameters);
         }
 
-        protected abstract object EvaluationInternal(IDictionary<object, Expression> parameters);
+        protected abstract object EvaluationInternal(IDictionary<object, object> parameters);
 
         public abstract void Accept(SQLASTVisitor visitor);
-
-        public readonly static object Unevaluatable = new UnevaluatableExpression();
-
-        #region Unevaluatable
-
-        /// <summary>
-        /// Unevaluatable Expression
-        /// </summary>
-        private class UnevaluatableExpression : AbstractExpression
-        {
-            public override void Accept(SQLASTVisitor visitor)
-            {
-                throw new NotImplementedException();
-            }
-
-            public override int GetPrecedence()
-            {
-                throw new NotImplementedException();
-            }
-
-            protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-        #endregion Unevaluatable
     }
 }

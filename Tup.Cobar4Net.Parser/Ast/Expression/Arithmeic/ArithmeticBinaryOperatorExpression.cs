@@ -30,7 +30,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             object left = leftOprand.Evaluation(parameters);
             object right = rightOprand.Evaluation(parameters);
@@ -38,9 +38,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return null;
             }
-            if (left == Unevaluatable || right == Unevaluatable)
+            if (left == ExpressionConstants.Unevaluatable || right == ExpressionConstants.Unevaluatable)
             {
-                return Unevaluatable;
+                return ExpressionConstants.Unevaluatable;
             }
             var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
             return ExprEvalUtils.Calculate(this, pair.GetKey(), pair.GetValue());

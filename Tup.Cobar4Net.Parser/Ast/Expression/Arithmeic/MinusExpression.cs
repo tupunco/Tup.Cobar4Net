@@ -35,16 +35,16 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             return "-";
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             object operand = GetOperand().Evaluation(parameters);
             if (operand == null)
             {
                 return null;
             }
-            if (operand == Unevaluatable)
+            if (operand == ExpressionConstants.Unevaluatable)
             {
-                return Unevaluatable;
+                return ExpressionConstants.Unevaluatable;
             }
 
             Number num = null;

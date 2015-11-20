@@ -1588,19 +1588,19 @@ namespace Tup.Cobar4Net.Parser.Visitor
             appendable.Append("SHOW ENGINE ");
             switch (node.GetEngineType())
             {
-                case ShowEngine.Type.InnodbMutex:
+                case ShowEngine.EngineType.InnodbMutex:
                     {
                         appendable.Append("INNODB MUTEX");
                         break;
                     }
 
-                case ShowEngine.Type.InnodbStatus:
+                case ShowEngine.EngineType.InnodbStatus:
                     {
                         appendable.Append("INNODB STATUS");
                         break;
                     }
 
-                case ShowEngine.Type.PerformanceSchemaStatus:
+                case ShowEngine.EngineType.PerformanceSchemaStatus:
                     {
                         appendable.Append("PERFORMANCE SCHEMA STATUS");
                         break;

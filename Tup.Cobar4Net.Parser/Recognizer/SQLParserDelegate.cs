@@ -86,7 +86,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer
             {
                 SQLStatement stmt = null;
                 bool isEOF = true;
-                MySQLExprParser exprParser = new MySQLExprParser(lexer, charset);
+                var exprParser = new MySQLExprParser(lexer, charset);
                 switch (lexer.Token())
                 {
                     case MySQLToken.KwDesc:

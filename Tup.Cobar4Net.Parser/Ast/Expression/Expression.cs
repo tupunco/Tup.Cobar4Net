@@ -14,7 +14,9 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
@@ -30,7 +32,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
         /// <returns>this</returns>
         Expression SetCacheEvalRst(bool cacheEvalRst);
 
-        object Evaluation(IDictionary<object, Expression> parameters);
+        object Evaluation(IDictionary<object, object> parameters);
     }
 
     /// <summary>
@@ -75,5 +77,32 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
         public readonly static int PrecedenceCollate = 17;
 
         public readonly static int PrecedencePrimary = 19;
+
+        public readonly static object Unevaluatable = new UnevaluatableExpression();
+
+        #region ExpressionConstants.Unevaluatable
+
+        /// <summary>
+        /// ExpressionConstants.Unevaluatable Expression
+        /// </summary>
+        private class UnevaluatableExpression : AbstractExpression
+        {
+            public override void Accept(SQLASTVisitor visitor)
+            {
+                throw new NotSupportedException();
+            }
+
+            public override int GetPrecedence()
+            {
+                throw new NotSupportedException();
+            }
+
+            protected override object EvaluationInternal(IDictionary<object, object> parameters)
+            {
+                throw new NotSupportedException();
+            }
+        }
+
+        #endregion ExpressionConstants.Unevaluatable
     }
 }

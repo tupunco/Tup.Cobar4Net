@@ -36,7 +36,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
         /// string token of "'don\\'t'", argument of string is "don\\'t"
         /// </param>
         public LiteralString(string introducer, string @string, bool nchars)
-            : base()
         {
             this.introducer = introducer;
             if (@string == null)
@@ -151,7 +150,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             return sb.ToString();
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             if (@string == null)
             {

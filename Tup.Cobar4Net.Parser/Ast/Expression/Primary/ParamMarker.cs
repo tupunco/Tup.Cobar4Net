@@ -56,7 +56,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return false;
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return parameters.GetValue(paramIndex);
         }

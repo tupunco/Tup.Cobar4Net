@@ -34,7 +34,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             return "XOR";
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters
+        protected override object EvaluationInternal(IDictionary<object, object> parameters
             )
         {
             object left = leftOprand.Evaluation(parameters);
@@ -43,9 +43,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             {
                 return null;
             }
-            if (left == Unevaluatable || right == Unevaluatable)
+            if (left == ExpressionConstants.Unevaluatable || right == ExpressionConstants.Unevaluatable)
             {
-                return Unevaluatable;
+                return ExpressionConstants.Unevaluatable;
             }
             bool b1 = ExprEvalUtils.Obj2bool(left);
             bool b2 = ExprEvalUtils.Obj2bool(right);

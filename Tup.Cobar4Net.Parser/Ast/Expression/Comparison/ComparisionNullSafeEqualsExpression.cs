@@ -37,13 +37,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
             return "<=>";
         }
 
-        protected override object EvaluationInternal(IDictionary<object, Expression> parameters)
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             object left = leftOprand.Evaluation(parameters);
             object right = rightOprand.Evaluation(parameters);
-            if (left == Unevaluatable || right == Unevaluatable)
+            if (left == ExpressionConstants.Unevaluatable || right == ExpressionConstants.Unevaluatable)
             {
-                return Unevaluatable;
+                return ExpressionConstants.Unevaluatable;
             }
             if (left == null)
             {
