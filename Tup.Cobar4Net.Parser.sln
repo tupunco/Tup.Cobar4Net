@@ -5,7 +5,7 @@ VisualStudioVersion = 14.0.23107.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net.Parser", "Tup.Cobar4Net.Parser\Tup.Cobar4Net.Parser.csproj", "{CC86CE3D-98B0-4125-A540-EB3C182FD741}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net.NUnitTest", "Tup.Cobar4Net.Parser.NUnitTest\Tup.Cobar4Net.NUnitTest.csproj", "{067456C0-086C-46A8-B37F-1405717B7BFC}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net.NUnitTest", "Tup.Cobar4Net.NUnitTest\Tup.Cobar4Net.NUnitTest.csproj", "{067456C0-086C-46A8-B37F-1405717B7BFC}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net.Config", "Tup.Cobar4Net.Config\Tup.Cobar4Net.Config.csproj", "{7D1F5512-B442-46F8-9727-586AB36BB8E6}"
 EndProject
