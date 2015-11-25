@@ -18,86 +18,86 @@ using System;
 
 namespace Tup.Cobar4Net.Route.Util
 {
-	/// <summary>数据分区工具单独版本，请使用singleton的模式调用。</summary>
-	/// <author>xianmao.hexm 2009-3-16 上午11:56:45</author>
-	public sealed class PartitionForSingle
-	{
-		private const int PartitionLength = 1024;
+    /// <summary>数据分区工具单独版本，请使用singleton的模式调用。</summary>
+    /// <author>xianmao.hexm 2009-3-16 上午11:56:45</author>
+    public sealed class PartitionForSingle
+    {
+        private const int PartitionLength = 1024;
 
-		private const int DefaultHashLength = 8;
+        private const int DefaultHashLength = 8;
 
-		private const long AndValue = PartitionLength - 1;
+        private const long AndValue = PartitionLength - 1;
 
-		private readonly int[] segment = new int[PartitionLength];
+        private readonly int[] segment = new int[PartitionLength];
 
-		/// <param name="count">表示定义的分区数</param>
-		/// <param name="length">
-		/// 表示对应每个分区的取值长度
-		/// <p>
-		/// 注意：其中count,length两个数组的长度必须是一致的。
-		/// </p>
-		/// </param>
-		public PartitionForSingle(int[] count, int[] length)
-		{
-			// 分区长度:数据段分布定义，其中取模的数一定要是2^n， 因为这里使用x % 2^n == x & (2^n - 1)等式，来优化性能。
-			// %转换为&操作的换算数值
-			// 分区线段
-			if (count == null || length == null || (count.Length != length.Length))
-			{
-				throw new Exception("error,check your scope & scopeLength definition.");
-			}
-			int segmentLength = 0;
-			for (int i = 0; i < count.Length; i++)
-			{
-				segmentLength += count[i];
-			}
-			int[] scopeSegment = new int[segmentLength + 1];
-			int index = 0;
-			for (int i_1 = 0; i_1 < count.Length; i_1++)
-			{
-				for (int j = 0; j < count[i_1]; j++)
-				{
-					scopeSegment[++index] = scopeSegment[index - 1] + length[i_1];
-				}
-			}
-			if (scopeSegment[scopeSegment.Length - 1] != PartitionLength)
-			{
-				throw new Exception("error,check your partitionScope definition.");
-			}
-			// 数据映射操作
-			for (int i_2 = 1; i_2 < scopeSegment.Length; i_2++)
-			{
-				for (int j = scopeSegment[i_2 - 1]; j < scopeSegment[i_2]; j++)
-				{
-					segment[j] = (i_2 - 1);
-				}
-			}
-		}
+        /// <param name="count">表示定义的分区数</param>
+        /// <param name="length">
+        /// 表示对应每个分区的取值长度
+        /// <p>
+        /// 注意：其中count,length两个数组的长度必须是一致的。
+        /// </p>
+        /// </param>
+        public PartitionForSingle(int[] count, int[] length)
+        {
+            // 分区长度:数据段分布定义，其中取模的数一定要是2^n， 因为这里使用x % 2^n == x & (2^n - 1)等式，来优化性能。
+            // %转换为&操作的换算数值
+            // 分区线段
+            if (count == null || length == null || (count.Length != length.Length))
+            {
+                throw new Exception("error,check your scope & scopeLength definition.");
+            }
+            int segmentLength = 0;
+            for (int i = 0; i < count.Length; i++)
+            {
+                segmentLength += count[i];
+            }
+            int[] scopeSegment = new int[segmentLength + 1];
+            int index = 0;
+            for (int i_1 = 0; i_1 < count.Length; i_1++)
+            {
+                for (int j = 0; j < count[i_1]; j++)
+                {
+                    scopeSegment[++index] = scopeSegment[index - 1] + length[i_1];
+                }
+            }
+            if (scopeSegment[scopeSegment.Length - 1] != PartitionLength)
+            {
+                throw new Exception("error,check your partitionScope definition.");
+            }
+            // 数据映射操作
+            for (int i_2 = 1; i_2 < scopeSegment.Length; i_2++)
+            {
+                for (int j = scopeSegment[i_2 - 1]; j < scopeSegment[i_2]; j++)
+                {
+                    segment[j] = (i_2 - 1);
+                }
+            }
+        }
 
-		public int Partition(long h)
-		{
-			return segment[(int)(h & AndValue)];
-		}
+        public int Partition(long h)
+        {
+            return segment[(int)(h & AndValue)];
+        }
 
-		public int Partition(string key)
-		{
-			return segment[(int)(Hash(key) & AndValue)];
-		}
+        public int Partition(string key)
+        {
+            return segment[(int)(Hash(key) & AndValue)];
+        }
 
-		private static long Hash(string s)
-		{
-			long h = 0;
-			int len = s.Length;
-			for (int i = 0; (i < DefaultHashLength && i < len); i++)
-			{
-				h = (h << 5) - h + s[i];
-			}
-			return h;
-		}
+        private static long Hash(string s)
+        {
+            long h = 0;
+            int len = s.Length;
+            for (int i = 0; (i < DefaultHashLength && i < len); i++)
+            {
+                h = (h << 5) - h + s[i];
+            }
+            return h;
+        }
 
-		// for test
-		public static void Main(string[] args)
-		{
+        // for test
+        public static void Main(string[] args)
+        {
             //TODO PartitionForSingle Main
             // 拆分为16份，每份长度均为：64。
             // Scope scope = new Scope(new int[] { 16 }, new int[] { 64 });
@@ -106,17 +106,16 @@ namespace Tup.Cobar4Net.Route.Util
             // // 拆分为128份，每份长度均为：8。
             // Scope scope = new Scope(new int[] { 128 }, new int[] { 8 });
             Tup.Cobar4Net.Route.Util.PartitionForSingle p = new Tup.Cobar4Net.Route.Util.PartitionForSingle
-				(new int[] { 8, 15 }, new int[] { 8, 64 });
-			string memberId = "xianmao.hexm";
-			int value = 0;
-			long st = Runtime.CurrentTimeMillis();
-			for (int i = 0; i < 10000000; i++)
-			{
-				value = p.Partition(memberId);
-			}
-			long et = Runtime.CurrentTimeMillis();
-			System.Console.Out.WriteLine("value:" + value + ",take time:" + (et - st) + " ms."
-				);
-		}
-	}
+                (new int[] { 8, 15 }, new int[] { 8, 64 });
+            string memberId = "xianmao.hexm";
+            int value = 0;
+            long st = Runtime.CurrentTimeMillis();
+            for (int i = 0; i < 10000000; i++)
+            {
+                value = p.Partition(memberId);
+            }
+            long et = Runtime.CurrentTimeMillis();
+            System.Console.Out.WriteLine("value:" + value + ",take time:" + (et - st) + " ms.");
+        }
+    }
 }

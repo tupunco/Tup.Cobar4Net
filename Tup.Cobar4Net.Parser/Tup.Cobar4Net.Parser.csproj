@@ -31,8 +31,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Deveel.Math, Version=1.5.64.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\dmath.1.5.64\lib\net20\Deveel.Math.pdb\Deveel.Math.dll</HintPath>
+    <Reference Include="Deveel.Math, Version=1.5.66.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dmath.1.5.66\lib\net20\Deveel.Math.pdb\Deveel.Math.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -393,8 +393,6 @@
     <Compile Include="Recognizer\Mysql\Syntax\MySQLMTSParser.cs" />
     <Compile Include="Recognizer\Mysql\Syntax\MySQLParser.cs" />
     <Compile Include="Recognizer\SQLParserDelegate.cs" />
-    <Compile Include="System\Number.cs" />
-    <Compile Include="System\SQLSyntaxErrorException.cs" />
     <Compile Include="Util\ArrayUtil.cs" />
     <Compile Include="Util\BinaryOperandCalculator.cs" />
     <Compile Include="Util\ExprEvalUtils.cs" />
@@ -403,9 +401,6 @@
     <Compile Include="Util\PairUtil.cs" />
     <Compile Include="Util\ParseString.cs" />
     <Compile Include="Util\SystemUtils.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Ast\ASTNode.cs" />
@@ -460,6 +455,9 @@
       <Project>{d80fd94a-5e8d-489b-8052-7aba84ab0e40}</Project>
       <Name>Tup.Cobar4Net</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

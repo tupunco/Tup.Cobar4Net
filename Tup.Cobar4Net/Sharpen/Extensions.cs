@@ -6,10 +6,14 @@ namespace Sharpen
     {
         private static readonly long EPOCH_TICKS = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc).Ticks;
 
-        //public static T ValueOf<T>(T val)
-        //{
-        //    return val;
-        //}
+        public static T ValueOf<T>(T val)
+        {
+            return val;
+        }
+        public static int ValueOf(string val)
+        {
+            return int.Parse(val.ToString());
+        }
 
         public static long ToMillisecondsSinceEpoch(this DateTime dateTime)
         {

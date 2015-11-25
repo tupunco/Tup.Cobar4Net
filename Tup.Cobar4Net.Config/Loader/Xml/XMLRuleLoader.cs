@@ -13,210 +13,173 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
-using System.IO;
-using Org.W3c.Dom;
-using Sharpen;
-using Sharpen.Reflect;
+using System.Xml;
+
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Config.Util;
 using Tup.Cobar4Net.Util;
 
 namespace Tup.Cobar4Net.Config.Loader.Xml
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class XMLRuleLoader
-	{
-		private const string DefaultDtd = "/rule.dtd";
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class XMLRuleLoader
+    {
+        private const string DefaultDtd = "/rule.dtd";
 
-		private const string DefaultXml = "/rule.xml";
+        private const string DefaultXml = "/rule.xml";
 
-		private readonly IDictionary<string, TableRuleConfig> tableRules;
+        private readonly IDictionary<string, TableRuleConfig> tableRules;
 
-		private readonly ICollection<RuleConfig> rules;
+        private readonly ICollection<RuleConfig> rules;
 
-		private readonly IDictionary<string, RuleAlgorithm> functions;
+        private readonly IDictionary<string, RuleAlgorithm> functions;
 
-		public XMLRuleLoader(string ruleFile)
-		{
-			this.rules = new HashSet<RuleConfig>();
-			this.tableRules = new Dictionary<string, TableRuleConfig>();
-			this.functions = new Dictionary<string, RuleAlgorithm>();
-			Load(DefaultDtd, ruleFile == null ? DefaultXml : ruleFile);
-		}
+        public XMLRuleLoader(string ruleFile)
+        {
+            this.rules = new HashSet<RuleConfig>();
+            this.tableRules = new Dictionary<string, TableRuleConfig>();
+            this.functions = new Dictionary<string, RuleAlgorithm>();
+            Load(DefaultDtd, ruleFile == null ? DefaultXml : ruleFile);
+        }
 
-		public XMLRuleLoader()
-			: this(null)
-		{
-		}
+        public XMLRuleLoader()
+            : this(null)
+        {
+        }
 
-		public virtual IDictionary<string, TableRuleConfig> GetTableRules()
-		{
-			return (IDictionary<string, TableRuleConfig>)(tableRules.IsEmpty() ? Sharpen.Collections
-				.EmptyMap() : tableRules);
-		}
+        public virtual IDictionary<string, TableRuleConfig> GetTableRules()
+        {
+            return tableRules.IsEmpty() ? new Dictionary<string, TableRuleConfig>(0) : tableRules.AsReadOnly();
+        }
 
-		public virtual ICollection<RuleConfig> ListRuleConfig()
-		{
-			return (ICollection<RuleConfig>)((rules == null || rules.IsEmpty()) ? Sharpen.Collections
-				.EmptySet() : rules);
-		}
+        public virtual ICollection<RuleConfig> ListRuleConfig()
+        {
+            return rules.IsEmpty() ? new HashSet<RuleConfig>() : rules.AsReadOnly();
+        }
 
-		public virtual IDictionary<string, RuleAlgorithm> GetFunctions()
-		{
-			return (IDictionary<string, RuleAlgorithm>)(functions.IsEmpty() ? Sharpen.Collections
-				.EmptyMap() : functions);
-		}
+        public virtual IDictionary<string, RuleAlgorithm> GetFunctions()
+        {
+            return functions.IsEmpty() ? new Dictionary<string, RuleAlgorithm>(0) : functions.AsReadOnly();
+        }
 
-		private void Load(string dtdFile, string xmlFile)
-		{
-			InputStream dtd = null;
-			InputStream xml = null;
-			try
-			{
-				dtd = typeof(Tup.Cobar4Net.Config.Loader.Xml.XMLRuleLoader).GetResourceAsStream(dtdFile
-					);
-				xml = typeof(Tup.Cobar4Net.Config.Loader.Xml.XMLRuleLoader).GetResourceAsStream(xmlFile
-					);
-				Element root = ConfigUtil.GetDocument(dtd, xml).GetDocumentElement();
-				LoadFunctions(root);
-				LoadTableRules(root);
-			}
-			catch (ConfigException e)
-			{
-				throw;
-			}
-			catch (Exception e)
-			{
-				throw new ConfigException(e);
-			}
-			finally
-			{
-				if (dtd != null)
-				{
-					try
-					{
-						dtd.Close();
-					}
-					catch (IOException)
-					{
-					}
-				}
-				if (xml != null)
-				{
-					try
-					{
-						xml.Close();
-					}
-					catch (IOException)
-					{
-					}
-				}
-			}
-		}
+        private void Load(string dtdFile, string xmlFile)
+        {
+            try
+            {
+                var xmlDoc = new XmlDocument();
+                xmlDoc.Load(xmlFile);
 
-		/// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-		private void LoadTableRules(Element root)
-		{
-			NodeList list = root.GetElementsByTagName("tableRule");
-			for (int i = 0; i < n; ++i)
-			{
-				Node node = list.Item(i);
-				if (node is Element)
-				{
-					Element e = (Element)node;
-					string name = e.GetAttribute("name");
-					if (tableRules.Contains(name))
-					{
-						throw new ConfigException("table rule " + name + " duplicated!");
-					}
-					NodeList ruleNodes = e.GetElementsByTagName("rule");
-					int length = ruleNodes.GetLength();
-					IList<RuleConfig> ruleList = new List<RuleConfig>(length);
-					for (int j = 0; j < length; ++j)
-					{
-						RuleConfig rule = LoadRule((Element)ruleNodes.Item(j));
-						ruleList.Add(rule);
-						rules.Add(rule);
-					}
-					tableRules[name] = new TableRuleConfig(name, ruleList);
-				}
-			}
-		}
+                var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
+                nsmgr.AddNamespace("cobar", "http://cobar.alibaba.com/");
+                var root = xmlDoc.SelectNodes("cobar:rule", nsmgr).Item(0) as XmlElement;
 
-		/// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-		private RuleConfig LoadRule(Element element)
-		{
-			Element columnsEle = ConfigUtil.LoadElement(element, "columns");
-			string[] columns = SplitUtil.Split(columnsEle.GetTextContent(), ',', true);
-			for (int i = 0; i < columns.Length; ++i)
-			{
-				columns[i] = columns[i].ToUpper();
-			}
-			Element algorithmEle = ConfigUtil.LoadElement(element, "algorithm");
-			string algorithm = algorithmEle.GetTextContent();
-			return new RuleConfig(columns, algorithm);
-		}
+                LoadFunctions(root);
+                LoadTableRules(root);
+            }
+            catch (Exception e)
+            {
+                throw new ConfigException(e);
+            }
+        }
 
-		/// <exception cref="System.TypeLoadException"/>
-		/// <exception cref="Sharpen.InstantiationException"/>
-		/// <exception cref="System.MemberAccessException"/>
-		/// <exception cref="System.Reflection.TargetInvocationException"/>
-		private void LoadFunctions(Element root)
-		{
-			NodeList list = root.GetElementsByTagName("function");
-			for (int i = 0; i < n; ++i)
-			{
-				Node node = list.Item(i);
-				if (node is Element)
-				{
-					Element e = (Element)node;
-					string name = e.GetAttribute("name");
-					if (functions.Contains(name))
-					{
-						throw new ConfigException("rule function " + name + " duplicated!");
-					}
-					string clazz = e.GetAttribute("class");
-					RuleAlgorithm function = CreateFunction(name, clazz);
-					ParameterMapping.Mapping(function, ConfigUtil.LoadElements(e));
-					functions[name] = function;
-				}
-			}
-		}
+        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        private void LoadTableRules(XmlElement root)
+        {
+            var list = root.GetElementsByTagName("tableRule");
+            XmlNode node = null;
+            XmlElement e = null;
+            for (int i = 0, n = list.Count; i < n; i++)
+            {
+                node = list.Item(i);
+                if (node.NodeType == XmlNodeType.Element)
+                {
+                    e = (XmlElement)node;
+                    string name = e.GetAttribute("name");
+                    if (tableRules.ContainsKey(name))
+                    {
+                        throw new ConfigException("table rule " + name + " duplicated!");
+                    }
 
-		/// <exception cref="System.TypeLoadException"/>
-		/// <exception cref="Sharpen.InstantiationException"/>
-		/// <exception cref="System.MemberAccessException"/>
-		/// <exception cref="System.Reflection.TargetInvocationException"/>
-		private RuleAlgorithm CreateFunction(string name, string clazz)
-		{
-			Type clz = Sharpen.Runtime.GetType(clazz);
-			if (!typeof(RuleAlgorithm).IsAssignableFrom(clz))
-			{
-				throw new ArgumentException("rule function must implements " + typeof(RuleAlgorithm
-					).FullName + ", name=" + name);
-			}
-			Constructor<object> constructor = null;
-			foreach (Constructor<object> cons in clz.GetConstructors())
-			{
-				Type[] paraClzs = cons.GetParameterTypes();
-				if (paraClzs != null && paraClzs.Length == 1)
-				{
-					Type paraClzs1 = paraClzs[0];
-					if (typeof(string).IsAssignableFrom(paraClzs1))
-					{
-						constructor = cons;
-						break;
-					}
-				}
-			}
-			if (constructor == null)
-			{
-				throw new ConfigException("function " + name + " with class of " + clazz + " must have a constructor with one parameter: String funcName"
-					);
-			}
-			return (RuleAlgorithm)constructor.NewInstance(name);
-		}
-	}
+                    var ruleNodes = e.GetElementsByTagName("rule");
+                    var length = ruleNodes.Count;
+                    var ruleList = new List<RuleConfig>(length);
+                    for (int j = 0; j < length; ++j)
+                    {
+                        var rule = LoadRule((XmlElement)ruleNodes.Item(j));
+                        ruleList.Add(rule);
+                        rules.Add(rule);
+                    }
+                    tableRules[name] = new TableRuleConfig(name, ruleList);
+                }
+            }
+        }
+
+        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        private RuleConfig LoadRule(XmlElement element)
+        {
+            var columnsEle = ConfigUtil.LoadElement(element, "columns");
+            var columns = SplitUtil.Split(columnsEle.InnerText, ',', true);
+            for (int i = 0; i < columns.Length; ++i)
+            {
+                columns[i] = columns[i].ToUpper();
+            }
+            var algorithmEle = ConfigUtil.LoadElement(element, "algorithm");
+            var algorithm = algorithmEle.InnerText;
+            return new RuleConfig(columns, algorithm);
+        }
+
+        /// <exception cref="System.TypeLoadException"/>
+        /// <exception cref="Sharpen.InstantiationException"/>
+        /// <exception cref="System.MemberAccessException"/>
+        /// <exception cref="System.Reflection.TargetInvocationException"/>
+        private void LoadFunctions(XmlElement root)
+        {
+            var list = root.GetElementsByTagName("function");
+            XmlNode node = null;
+            XmlElement e = null;
+            for (int i = 0, n = list.Count; i < n; i++)
+            {
+                node = list.Item(i);
+                if (node.NodeType == XmlNodeType.Element)
+                {
+                    e = (XmlElement)node;
+                    string name = e.GetAttribute("name");
+                    if (functions.ContainsKey(name))
+                    {
+                        throw new ConfigException("rule function " + name + " duplicated!");
+                    }
+                    var clazz = e.GetAttribute("class");
+                    var function = CreateFunction(name, clazz);
+
+                    ParameterMapping.Mapping(function, ConfigUtil.LoadElements(e));
+
+                    functions[name] = function;
+                }
+            }
+        }
+
+        /// <exception cref="ConfigException"/>
+        /// <exception cref="System.TypeLoadException"/>
+        /// <exception cref="System.MemberAccessException"/>
+        /// <exception cref="System.Reflection.TargetInvocationException"/>
+        private RuleAlgorithm CreateFunction(string name, string clazz)
+        {
+            var clz = Type.GetType(clazz);
+            if (!typeof(RuleAlgorithm).IsAssignableFrom(clz))
+            {
+                throw new ArgumentException("rule function must implements "
+                                                + typeof(RuleAlgorithm).FullName + ", name=" + name);
+            }
+
+            var constructor = clz.GetConstructor(new Type[] { typeof(string) });
+            if (constructor == null)
+            {
+                throw new ConfigException("function " + name + " with class of " + clazz + " must have a constructor with one parameter: String funcName");
+            }
+            return (RuleAlgorithm)constructor.Invoke(new object[] { name });
+        }
+    }
 }

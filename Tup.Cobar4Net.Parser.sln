@@ -13,6 +13,16 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net.Route", "Tup.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tup.Cobar4Net", "Tup.Cobar4Net\Tup.Cobar4Net.csproj", "{D80FD94A-5E8D-489B-8052-7ABA84AB0E40}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{E6105074-4361-4AC3-9C88-6A88DB58A73C}"
+	ProjectSection(SolutionItems) = preProject
+		Resources.Config\rule.dtd = Resources.Config\rule.dtd
+		Resources.Config\rule.xml = Resources.Config\rule.xml
+		Resources.Config\schema.dtd = Resources.Config\schema.dtd
+		Resources.Config\schema.xml = Resources.Config\schema.xml
+		Resources.Config\server.dtd = Resources.Config\server.dtd
+		Resources.Config\server.xml = Resources.Config\server.xml
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU

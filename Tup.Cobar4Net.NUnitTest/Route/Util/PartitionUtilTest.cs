@@ -45,5 +45,11 @@ namespace Tup.Cobar4Net.Route.Util
             NUnit.Framework.Assert.AreEqual(0, partNo1);
             NUnit.Framework.Assert.AreEqual(2, partNo2);
         }
+        [NUnit.Framework.Test]
+        public virtual void TestPartitionForSingle()
+        {
+            PartitionForSingle.Main(null);
+            NUnit.Framework.Assert.IsTrue(true);
+        }
     }
 }

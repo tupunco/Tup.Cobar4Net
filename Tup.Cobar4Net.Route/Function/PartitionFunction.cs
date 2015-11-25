@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar4Net.Route.Util;
 using Tup.Cobar4Net.Util;
@@ -36,11 +37,21 @@ namespace Tup.Cobar4Net.Route.Function
 
         protected internal PartitionUtil partitionUtil;
 
+        public string PartitionCount
+        {
+            get { return string.Join(",", count); }
+            set { SetPartitionCount(value); }
+        }
         public virtual void SetPartitionCount(string partitionCount)
         {
             this.count = ToIntArray(partitionCount);
         }
 
+        public string PartitionLength
+        {
+            get { return string.Join(",", length); }
+            set { SetPartitionLength(value); }
+        }
         public virtual void SetPartitionLength(string partitionLength)
         {
             this.length = ToIntArray(partitionLength);

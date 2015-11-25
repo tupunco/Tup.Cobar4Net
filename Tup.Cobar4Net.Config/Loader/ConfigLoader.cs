@@ -13,35 +13,37 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public interface ConfigLoader
-	{
-		IDictionary<string, RuleAlgorithm> GetRuleFunction();
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public interface ConfigLoader
+    {
+        IDictionary<string, RuleAlgorithm> GetRuleFunction();
 
-		ICollection<RuleConfig> ListRuleConfig();
+        ICollection<RuleConfig> ListRuleConfig();
 
-		SchemaConfig GetSchemaConfig(string schema);
+        SchemaConfig GetSchemaConfig(string schema);
 
-		IDictionary<string, SchemaConfig> GetSchemaConfigs();
+        IDictionary<string, SchemaConfig> GetSchemaConfigs();
 
-		IDictionary<string, DataNodeConfig> GetDataNodes();
+        IDictionary<string, DataNodeConfig> GetDataNodes();
 
-		IDictionary<string, DataSourceConfig> GetDataSources();
+        IDictionary<string, DataSourceConfig> GetDataSources();
 
-		SystemConfig GetSystemConfig();
+        SystemConfig GetSystemConfig();
 
-		UserConfig GetUserConfig(string user);
+        UserConfig GetUserConfig(string user);
 
-		IDictionary<string, UserConfig> GetUserConfigs();
+        IDictionary<string, UserConfig> GetUserConfigs();
 
-		QuarantineConfig GetQuarantineConfig();
+        QuarantineConfig GetQuarantineConfig();
 
-		ClusterConfig GetClusterConfig();
-	}
+        ClusterConfig GetClusterConfig();
+    }
 }

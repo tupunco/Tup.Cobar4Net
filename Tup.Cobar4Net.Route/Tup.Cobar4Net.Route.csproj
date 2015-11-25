@@ -43,7 +43,9 @@
     <Compile Include="Config\RouteRuleInitializer.cs" />
     <Compile Include="Config\TableConfig.cs" />
     <Compile Include="Config\TableRuleConfig.cs" />
+    <Compile Include="Function\Dimension2PartitionFunction.cs" />
     <Compile Include="Function\ExpressionAdapter.cs" />
+    <Compile Include="Function\PartitionByFileMap.cs" />
     <Compile Include="Function\PartitionByLong.cs" />
     <Compile Include="Function\PartitionByString.cs" />
     <Compile Include="Function\PartitionFunction.cs" />

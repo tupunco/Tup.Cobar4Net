@@ -15,6 +15,7 @@
 */
 
 using System.Text;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Config
 {
@@ -23,15 +24,15 @@ namespace Tup.Cobar4Net.Route.Config
     {
         private readonly string name;
 
-        private readonly TableRuleConfig.RuleConfig[] rules;
+        private readonly RuleConfig[] rules;
 
-        public TableRuleConfig(string name, TableRuleConfig.RuleConfig[] rules)
+        public TableRuleConfig(string name, RuleConfig[] rules)
         {
             this.name = name;
             this.rules = rules;
             if (rules != null)
             {
-                foreach (TableRuleConfig.RuleConfig r in rules)
+                foreach (RuleConfig r in rules)
                 {
                     r.tableRuleName = name;
                 }
@@ -43,7 +44,7 @@ namespace Tup.Cobar4Net.Route.Config
             return name;
         }
 
-        public TableRuleConfig.RuleConfig[] GetRules()
+        public RuleConfig[] GetRules()
         {
             return rules;
         }
@@ -55,9 +56,9 @@ namespace Tup.Cobar4Net.Route.Config
             /// <summary>upper-case</summary>
             private readonly string[] columns;
 
-            private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression algorithm;
+            private readonly Expr algorithm;
 
-            public RuleConfig(string[] columns, Tup.Cobar4Net.Parser.Ast.Expression.Expression
+            public RuleConfig(string[] columns, Expr
                  algorithm)
             {
                 this.columns = columns == null ? new string[0] : columns;
@@ -69,7 +70,7 @@ namespace Tup.Cobar4Net.Route.Config
                 return columns;
             }
 
-            public Tup.Cobar4Net.Parser.Ast.Expression.Expression GetAlgorithm()
+            public Expr GetAlgorithm()
             {
                 return algorithm;
             }

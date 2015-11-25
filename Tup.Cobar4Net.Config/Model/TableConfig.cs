@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 using Tup.Cobar4Net.Config.Model.Rule;
@@ -33,6 +34,31 @@ namespace Tup.Cobar4Net.Config.Model
 
         private readonly bool ruleRequired;
 
+        public bool RuleRequired
+        {
+            get { return ruleRequired; }
+        }
+
+        public ICollection<string> ColumnIndex
+        {
+            get { return columnIndex; }
+        }
+
+        public TableRuleConfig Rule
+        {
+            get { return rule; }
+        }
+
+        public string[] DataNodes
+        {
+            get { return dataNodes; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+        }
+
         public TableConfig(string name, string dataNode, TableRuleConfig rule, bool ruleRequired)
         {
             if (name == null)
@@ -52,7 +78,7 @@ namespace Tup.Cobar4Net.Config.Model
 
         public virtual bool ExistsColumn(string columnNameUp)
         {
-            return columnIndex.Contains(columnNameUp);
+            return ColumnIndex.Contains(columnNameUp);
         }
 
         /// <returns>upper-case</returns>
@@ -103,6 +129,18 @@ namespace Tup.Cobar4Net.Config.Model
                 }
             }
             return columnIndex;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[TableConfig Name={0}, DataNodes={1}, Rule={2}, ColumnIndex={3}, RuleRequired={4}]",
+                                        name, string.Join(",", dataNodes ?? new string[0]),
+                                        rule, string.Format(",", columnIndex ?? new string[0]),
+                                        ruleRequired);
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace Tup.Cobar4Net
 {
@@ -7,6 +8,46 @@ namespace Tup.Cobar4Net
     /// </summary>
     public static class CollectionHelper
     {
+        #region AsReadOnly
+
+        /// <summary>
+        /// IDictionary As ReadOnly
+        /// </summary>
+        /// <typeparam name="TKey"></typeparam>
+        /// <typeparam name="TValue"></typeparam>
+        /// <param name="dic"></param>
+        /// <returns></returns>
+        public static IDictionary<TKey, TValue> AsReadOnly<TKey, TValue>(this IDictionary<TKey, TValue> dic)
+        {
+            ThrowHelper.ThrowIfNull(dic, "dic");
+
+            if (dic is IReadOnlyDictionary<TKey, TValue>)
+                return dic;
+
+            return new ReadOnlyDictionary<TKey, TValue>(dic);
+        }
+
+        /// <summary>
+        /// ICollection As ReadOnly
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="input"></param>
+        /// <returns></returns>
+        public static ICollection<T> AsReadOnly<T>(this ICollection<T> input)
+        {
+            ThrowHelper.ThrowIfNull(input, "input");
+
+            if (input is ReadOnlyCollection<T> || input is IReadOnlyCollection<T>)
+                return input;
+
+            if (input is IList<T>)
+                return new ReadOnlyCollection<T>(input as IList<T>);
+            else
+                return new ReadOnlyCollection<T>(new List<T>(input));
+        }
+
+        #endregion
+
         #region IsEmpty
 
         /// <summary>
@@ -29,7 +70,7 @@ namespace Tup.Cobar4Net
             return input == null || input.Count <= 0;
         }
 
-        #endregion IsEmpty
+        #endregion
 
         #region AddRange
 
@@ -127,7 +168,7 @@ namespace Tup.Cobar4Net
             }
         }
 
-        #endregion AddRange
+        #endregion
 
         #region Dictionary GetValue
 
@@ -159,6 +200,6 @@ namespace Tup.Cobar4Net
             return defaultValue;
         }
 
-        #endregion Dictionary GetValue
+        #endregion
     }
 }

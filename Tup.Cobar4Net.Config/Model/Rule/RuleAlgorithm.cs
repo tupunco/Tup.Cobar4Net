@@ -13,18 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model.Rule
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public interface RuleAlgorithm
-	{
-		RuleAlgorithm ConstructMe(params object[] objects);
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public interface RuleAlgorithm
+    {
+        RuleAlgorithm ConstructMe(params object[] objects);
 
-		void Initialize();
+        void Initialize();
 
         /// <returns>never null</returns>
         int[] Calculate(IDictionary<object, object> parameters);
-	}
+    }
 }

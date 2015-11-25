@@ -13,109 +13,111 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
-using Sharpen;
-using Tup.Cobar4Net.Config.Loader;
+
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader.Xml
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class XMLConfigLoader : ConfigLoader
-	{
-		/// <summary>unmodifiable</summary>
-		private readonly ICollection<RuleConfig> rules;
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class XMLConfigLoader : ConfigLoader
+    {
+        /// <summary>unmodifiable</summary>
+        private readonly ICollection<RuleConfig> rules;
 
-		/// <summary>unmodifiable</summary>
-		private readonly IDictionary<string, RuleAlgorithm> functions;
+        /// <summary>unmodifiable</summary>
+        private readonly IDictionary<string, RuleAlgorithm> functions;
 
-		/// <summary>unmodifiable</summary>
-		private readonly IDictionary<string, DataSourceConfig> dataSources;
+        /// <summary>unmodifiable</summary>
+        private readonly IDictionary<string, DataSourceConfig> dataSources;
 
-		/// <summary>unmodifiable</summary>
-		private readonly IDictionary<string, DataNodeConfig> dataNodes;
+        /// <summary>unmodifiable</summary>
+        private readonly IDictionary<string, DataNodeConfig> dataNodes;
 
-		/// <summary>unmodifiable</summary>
-		private readonly IDictionary<string, SchemaConfig> schemas;
+        /// <summary>unmodifiable</summary>
+        private readonly IDictionary<string, SchemaConfig> schemas;
 
-		private readonly SystemConfig system;
+        private readonly SystemConfig system = null;
 
-		/// <summary>unmodifiable</summary>
-		private readonly IDictionary<string, UserConfig> users;
+        /// <summary>unmodifiable</summary>
+        private readonly IDictionary<string, UserConfig> users = null;
 
-		private readonly QuarantineConfig quarantine;
+        private readonly QuarantineConfig quarantine = null;
 
-		private readonly ClusterConfig cluster;
+        private readonly ClusterConfig cluster = null;
 
-		public XMLConfigLoader(SchemaLoader schemaLoader)
-		{
-			this.functions = Sharpen.Collections.UnmodifiableMap(schemaLoader.GetFunctions());
-			this.dataSources = schemaLoader.GetDataSources();
-			this.dataNodes = schemaLoader.GetDataNodes();
-			this.schemas = schemaLoader.GetSchemas();
-			this.rules = schemaLoader.ListRuleConfig();
-			schemaLoader = null;
-			XMLServerLoader serverLoader = new XMLServerLoader();
-			this.system = serverLoader.GetSystem();
-			this.users = serverLoader.GetUsers();
-			this.quarantine = serverLoader.GetQuarantine();
-			this.cluster = serverLoader.GetCluster();
-		}
+        public XMLConfigLoader(SchemaLoader schemaLoader)
+        {
+            this.functions = new Dictionary<string, RuleAlgorithm>(schemaLoader.GetFunctions()).AsReadOnly();
+            this.dataSources = schemaLoader.GetDataSources();
+            this.dataNodes = schemaLoader.GetDataNodes();
+            this.schemas = schemaLoader.GetSchemas();
+            this.rules = schemaLoader.ListRuleConfig();
+            schemaLoader = null;
 
-		public virtual ClusterConfig GetClusterConfig()
-		{
-			return cluster;
-		}
+            var serverLoader = new XMLServerLoader();
+            this.system = serverLoader.GetSystem();
+            this.users = serverLoader.GetUsers();
+            this.quarantine = serverLoader.GetQuarantine();
+            this.cluster = serverLoader.GetCluster();
+            serverLoader = null;
+        }
 
-		public virtual QuarantineConfig GetQuarantineConfig()
-		{
-			return quarantine;
-		}
+        public virtual ClusterConfig GetClusterConfig()
+        {
+            return cluster;
+        }
 
-		public virtual UserConfig GetUserConfig(string user)
-		{
-			return users[user];
-		}
+        public virtual QuarantineConfig GetQuarantineConfig()
+        {
+            return quarantine;
+        }
 
-		public virtual IDictionary<string, UserConfig> GetUserConfigs()
-		{
-			return users;
-		}
+        public virtual UserConfig GetUserConfig(string user)
+        {
+            return users.GetValue(user);
+        }
 
-		public virtual SystemConfig GetSystemConfig()
-		{
-			return system;
-		}
+        public virtual IDictionary<string, UserConfig> GetUserConfigs()
+        {
+            return users;
+        }
 
-		public virtual IDictionary<string, RuleAlgorithm> GetRuleFunction()
-		{
-			return functions;
-		}
+        public virtual SystemConfig GetSystemConfig()
+        {
+            return system;
+        }
 
-		public virtual ICollection<RuleConfig> ListRuleConfig()
-		{
-			return rules;
-		}
+        public virtual IDictionary<string, RuleAlgorithm> GetRuleFunction()
+        {
+            return functions;
+        }
 
-		public virtual IDictionary<string, SchemaConfig> GetSchemaConfigs()
-		{
-			return schemas;
-		}
+        public virtual ICollection<RuleConfig> ListRuleConfig()
+        {
+            return rules;
+        }
 
-		public virtual IDictionary<string, DataNodeConfig> GetDataNodes()
-		{
-			return dataNodes;
-		}
+        public virtual IDictionary<string, SchemaConfig> GetSchemaConfigs()
+        {
+            return schemas;
+        }
 
-		public virtual IDictionary<string, DataSourceConfig> GetDataSources()
-		{
-			return dataSources;
-		}
+        public virtual IDictionary<string, DataNodeConfig> GetDataNodes()
+        {
+            return dataNodes;
+        }
 
-		public virtual SchemaConfig GetSchemaConfig(string schema)
-		{
-			return schemas[schema];
-		}
-	}
+        public virtual IDictionary<string, DataSourceConfig> GetDataSources()
+        {
+            return dataSources;
+        }
+
+        public virtual SchemaConfig GetSchemaConfig(string schema)
+        {
+            return schemas.GetValue(schema);
+        }
+    }
 }

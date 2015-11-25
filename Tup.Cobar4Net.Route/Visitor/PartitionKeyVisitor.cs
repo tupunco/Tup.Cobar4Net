@@ -138,6 +138,8 @@ namespace Tup.Cobar4Net.Route.Visitor
         /// <summary>{table -&gt; {column -&gt; {value -&gt; [(expr,parentExpr)]}}}</summary>
         private IDictionary<string, IDictionary<string, ColumnValueType>> columnValueIndex = null;
 
+        private static readonly string Null_Alias_Key = "_NULL_ALIAS_";
+
         private IDictionary<string, string> tableAlias = new Dictionary<string, string>();
 
         private static readonly string[] EmptyStringArray = new string[0];
@@ -538,7 +540,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             schemaTrimmed = schemaTrimmed || trim == Identifier.ParentTrimed;
             customedSchema = customedSchema || trim == Identifier.ParentIgnored;
             string tableName = table.GetIdTextUpUnescape();
-            tableAlias[null] = tableName;
+            tableAlias[Null_Alias_Key] = tableName;
             tableAlias[tableName] = tableName;
             AddTable(tableName);
         }
@@ -727,7 +729,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (verdictColumn && !node.IsNot() && fst is Identifier)
             {
                 Identifier col = (Identifier)fst;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2));
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     object e1 = snd.Evaluation(evaluationParameter);
@@ -772,7 +774,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (verdictColumn && (operand is Identifier))
             {
                 Identifier col = (Identifier)operand;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2));
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     switch (node.GetMode())
@@ -863,7 +865,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (value != ExpressionConstants.Unevaluatable
                 && (nullsafe || value != null))
             {
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2));
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     AddColumnValue(table, col.GetIdTextUpUnescape(), value, node, null);
@@ -880,7 +882,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             {
                 var col = (Identifier)left;
                 string colName = col.GetIdTextUpUnescape();
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2));
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
                 if (IsRuledColumn(table, colName))
                 {
                     var valList = EnsureColumnValueList(EnsureColumnValueByTable(table), colName);
@@ -1033,8 +1035,6 @@ namespace Tup.Cobar4Net.Route.Visitor
             QueryExpression query = node.GetSubquery();
             VisitChild(2, verdictColumn, verdictGroupFunc, query);
         }
-
-        private static readonly string Null_Alias_Key = "_NULL_ALIAS_";
 
         public void Visit(TableRefFactor node)
         {

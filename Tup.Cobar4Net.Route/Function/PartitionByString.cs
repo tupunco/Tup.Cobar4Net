@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
@@ -43,14 +44,30 @@ namespace Tup.Cobar4Net.Route.Function
         /// <summary>0 means str.length(), -1 means str.length()-1</summary>
         private int hashSliceEnd = 8;
 
+        private int m_DualHashLength = 0;
+        public int HashLength
+        {
+            get { return m_DualHashLength; }
+            set { SetHashLength(value); }
+        }        
         public void SetHashLength(int hashLength)
         {
+            m_DualHashLength = hashLength;
+
             SetHashSlice(hashLength.ToString());
         }
 
+        private string m_DualHashSlice = string.Empty;
+        public string HashSlice
+        {
+            get { return m_DualHashSlice; }
+            set { SetHashSlice(value); }
+        }
         public void SetHashSlice(string hashSlice)
         {
-            Pair<int, int> p = PairUtil.SequenceSlicing(hashSlice);
+            m_DualHashSlice = hashSlice;
+
+            var p = PairUtil.SequenceSlicing(hashSlice);
             hashSliceStart = p.GetKey();
             hashSliceEnd = p.GetValue();
         }
@@ -83,6 +100,7 @@ namespace Tup.Cobar4Net.Route.Function
                 throw new ArgumentException("function " + GetFunctionName() + " must have 1 argument but is "
                      + arguments);
             }
+
             object[] args = new object[arguments.Count];
             int i = -1;
             foreach (Expr arg in arguments)
@@ -94,7 +112,7 @@ namespace Tup.Cobar4Net.Route.Function
 
         public RuleAlgorithm ConstructMe(params object[] objects)
         {
-            IList<Expr> args = new List<Expr>(objects.Length);
+            var args = new List<Expr>(objects.Length);
             foreach (object obj in objects)
             {
                 args.Add((Expr)obj);

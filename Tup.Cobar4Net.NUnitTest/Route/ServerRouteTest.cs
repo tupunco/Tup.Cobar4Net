@@ -27,6 +27,8 @@ using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer;
 using Tup.Cobar4Net.Route.Config;
 using Tup.Cobar4Net.Route.Util;
+using Tup.Cobar4Net.Config.Loader.Xml;
+using System.IO;
 
 namespace Tup.Cobar4Net.Route
 {
@@ -37,25 +39,25 @@ namespace Tup.Cobar4Net.Route
         //TODO ServerRouteTest schemaMap
         protected internal IDictionary<string, SchemaConfig> schemaMap = null;
 
-        //public ServerRouteTest()
-        //{
-        //    string schemaFile = "/route/schema.xml";
-        //    string ruleFile = "/route/rule.xml";
-        //    SchemaLoader schemaLoader = new XMLSchemaLoader(schemaFile, ruleFile);
-        //    try
-        //    {
-        //        RouteRuleInitializer.InitRouteRule(schemaLoader);
-        //    }
-        //    catch (SQLSyntaxErrorException e)
-        //    {
-        //        throw new ConfigException(e);
-        //    }
-        //    catch (RuntimeException ee)
-        //    {
-        //        throw;
-        //    }
-        //    schemaMap = schemaLoader.GetSchemas();
-        //}
+        public ServerRouteTest()
+        {
+            string schemaFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources/route/schema.xml");
+            string ruleFile = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Resources/route/rule.xml");
+             var schemaLoader = new XMLSchemaLoader(schemaFile, ruleFile);
+            try
+            {
+                RouteRuleInitializer.InitRouteRule(schemaLoader);
+            }
+            catch (SQLSyntaxErrorException e)
+            {
+                throw new ConfigException(e);
+            }
+            catch (Exception ee)
+            {
+                throw ee;
+            }
+            schemaMap = schemaLoader.GetSchemas();
+        }
 
         ///// <exception cref="System.Exception"/>
         //protected override void SetUp()
@@ -1803,8 +1805,9 @@ namespace Tup.Cobar4Net.Route
                 ServerRouter.Route(schema, sql, null, null);
                 NUnit.Framework.Assert.IsFalse(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
             }
             try
             {
@@ -1813,8 +1816,9 @@ namespace Tup.Cobar4Net.Route
                 ServerRouter.Route(schema, sql, null, null);
                 NUnit.Framework.Assert.IsFalse(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
             }
             try
             {
@@ -1823,8 +1827,9 @@ namespace Tup.Cobar4Net.Route
                 ServerRouter.Route(schema, sql, null, null);
                 NUnit.Framework.Assert.IsFalse(true);
             }
-            catch (Exception)
+            catch (Exception ex)
             {
+                Console.WriteLine(ex);
             }
         }
 

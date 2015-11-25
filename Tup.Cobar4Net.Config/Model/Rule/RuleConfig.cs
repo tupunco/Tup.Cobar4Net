@@ -13,63 +13,90 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model.Rule
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class RuleConfig
-	{
-		private readonly IList<string> columns;
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class RuleConfig
+    {
+        private readonly IList<string> columns;
 
-		private readonly string algorithm;
+        private readonly string algorithm;
 
-		private RuleAlgorithm ruleAlgorithm;
+        private RuleAlgorithm ruleAlgorithm;
 
-		public RuleConfig(string[] columns, string algorithm)
-		{
-			if (algorithm == null)
-			{
-				throw new ArgumentException("algorithm is null");
-			}
-			this.algorithm = algorithm;
-			if (columns == null || columns.Length <= 0)
-			{
-				throw new ArgumentException("no rule column is found");
-			}
-			IList<string> list = new List<string>(columns.Length);
-			foreach (string column in columns)
-			{
-				if (column == null)
-				{
-					throw new ArgumentException("column value is null: " + columns);
-				}
-				list.Add(column.ToUpper());
-			}
+        public IList<string> Columns
+        {
+            get { return columns; }
+        }
+
+        public string Algorithm
+        {
+            get { return algorithm; }
+        }
+
+        public RuleAlgorithm RuleAlgorithm
+        {
+            get { return ruleAlgorithm; }
+            set { ruleAlgorithm = value; }
+        }
+
+        public RuleConfig(string[] columns, string algorithm)
+        {
+            if (algorithm == null)
+            {
+                throw new ArgumentException("algorithm is null");
+            }
+            this.algorithm = algorithm;
+            if (columns == null || columns.Length <= 0)
+            {
+                throw new ArgumentException("no rule column is found");
+            }
+            IList<string> list = new List<string>(columns.Length);
+            foreach (string column in columns)
+            {
+                if (column == null)
+                {
+                    throw new ArgumentException("column value is null: " + columns);
+                }
+                list.Add(column.ToUpper());
+            }
             this.columns = new List<string>(list).AsReadOnly();
         }
 
         public virtual RuleAlgorithm GetRuleAlgorithm()
-		{
-			return ruleAlgorithm;
-		}
+        {
+            return ruleAlgorithm;
+        }
 
-		public virtual void SetRuleAlgorithm(RuleAlgorithm ruleAlgorithm)
-		{
-			this.ruleAlgorithm = ruleAlgorithm;
-		}
+        public virtual void SetRuleAlgorithm(RuleAlgorithm ruleAlgorithm)
+        {
+            this.ruleAlgorithm = ruleAlgorithm;
+        }
 
-		/// <returns>unmodifiable, upper-case</returns>
-		public virtual IList<string> GetColumns()
-		{
-			return columns;
-		}
+        /// <returns>unmodifiable, upper-case</returns>
+        public virtual IList<string> GetColumns()
+        {
+            return columns;
+        }
 
-		/// <returns>never null</returns>
-		public virtual string GetAlgorithm()
-		{
-			return algorithm;
-		}
-	}
+        /// <returns>never null</returns>
+        public virtual string GetAlgorithm()
+        {
+            return algorithm;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[RuleConfig columns:[{0}], algorithm:{1}, ruleAlgorithm:{2}]",
+                                    string.Join(",", columns ?? new string[0]), algorithm, ruleAlgorithm);
+        }
+    }
 }

@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 using System.Collections.Generic;
 
@@ -48,6 +49,16 @@ namespace Tup.Cobar4Net.Config.Model.Rule
         public virtual IList<RuleConfig> GetRules()
         {
             return rules;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[TableRuleConfig name:{0}, rules:{1}]",
+                                    name, string.Join(",", rules ?? new RuleConfig[0]));
         }
     }
 }

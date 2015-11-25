@@ -13,47 +13,71 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-	/// <author>xianmao.hexm 2011-1-11 ÏÂÎç02:26:09</author>
-	public class UserConfig
-	{
-		private string name;
+    /// <author>xianmao.hexm 2011-1-11 ÏÂÎç02:26:09</author>
+    public class UserConfig
+    {
+        private string name;
+        private string password;
+        private ICollection<string> schemas;
 
-		private string password;
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
 
-		private ICollection<string> schemas;
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
 
-		public virtual string GetName()
-		{
-			return name;
-		}
+        public ICollection<string> Schemas
+        {
+            get { return schemas; }
+            set { schemas = value; }
+        }
 
-		public virtual void SetName(string name)
-		{
-			this.name = name;
-		}
+        public virtual string GetName()
+        {
+            return name;
+        }
 
-		public virtual string GetPassword()
-		{
-			return password;
-		}
+        public virtual void SetName(string name)
+        {
+            this.name = name;
+        }
 
-		public virtual void SetPassword(string password)
-		{
-			this.password = password;
-		}
+        public virtual string GetPassword()
+        {
+            return password;
+        }
 
-		public virtual ICollection<string> GetSchemas()
-		{
-			return schemas;
-		}
+        public virtual void SetPassword(string password)
+        {
+            this.password = password;
+        }
 
-		public virtual void SetSchemas(ICollection<string> schemas)
-		{
-			this.schemas = schemas;
-		}
-	}
+        public virtual ICollection<string> GetSchemas()
+        {
+            return schemas;
+        }
+
+        public virtual void SetSchemas(ICollection<string> schemas)
+        {
+            this.schemas = schemas;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[UserConfig Name={0}, Password={1}, Schemas={2}]",
+                name, password,
+                string.Join(",", schemas ?? new string[0]));
+        }
+    }
 }

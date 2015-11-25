@@ -13,75 +13,105 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System.Text;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-	/// <author>haiqing.zhuhq 2012-3-21</author>
-	/// <author>xianmao.hexm</author>
-	public sealed class CobarNodeConfig
-	{
-		private string name;
+    /// <author>haiqing.zhuhq 2012-3-21</author>
+    /// <author>xianmao.hexm</author>
+    public sealed class CobarNodeConfig
+    {
+        private string name;
+        private string host;
+        private int port;
+        private int weight;
 
-		private string host;
+        public int Weight
+        {
+            get { return weight; }
+            set { weight = value; }
+        }
 
-		private int port;
+        public int Port
+        {
+            get { return port; }
+            set { port = value; }
+        }
 
-		private int weight;
+        public string Host
+        {
+            get { return host; }
+            set { host = value; }
+        }
 
-		public CobarNodeConfig(string name, string host, int port, int weight)
-		{
-			this.name = name;
-			this.host = host;
-			this.port = port;
-			this.weight = weight;
-		}
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
 
-		public string GetName()
-		{
-			return name;
-		}
+        public CobarNodeConfig(string name, string host, int port, int weight)
+        {
+            this.name = name;
+            this.host = host;
+            this.port = port;
+            this.weight = weight;
+        }
 
-		public void SetName(string name)
-		{
-			this.name = name;
-		}
+        public string GetName()
+        {
+            return name;
+        }
 
-		public string GetHost()
-		{
-			return host;
-		}
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
 
-		public void SetHost(string host)
-		{
-			this.host = host;
-		}
+        public string GetHost()
+        {
+            return host;
+        }
 
-		public int GetPort()
-		{
-			return port;
-		}
+        public void SetHost(string host)
+        {
+            this.host = host;
+        }
 
-		public void SetPort(int port)
-		{
-			this.port = port;
-		}
+        public int GetPort()
+        {
+            return port;
+        }
 
-		public int GetWeight()
-		{
-			return weight;
-		}
+        public void SetPort(int port)
+        {
+            this.port = port;
+        }
 
-		public void SetWeight(int weight)
-		{
-			this.weight = weight;
-		}
+        public int GetWeight()
+        {
+            return weight;
+        }
 
-		public override string ToString()
-		{
-			return new StringBuilder().Append("[name=").Append(name).Append(",host=").Append(
-				host).Append(",port=").Append(port).Append(",weight=").Append(weight).Append(']'
-				).ToString();
-		}
-	}
+        public void SetWeight(int weight)
+        {
+            this.weight = weight;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[CobarNodeConfig Name={0}, Host={1}, Port={2}, Weight={3}]",
+                                        name, host, port, weight);
+        }
+
+        //public override string ToString()
+        //{
+        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
+        //        Host).Append(",port=").Append(Port).Append(",weight=").Append(Weight).Append(']'
+        //        ).ToString();
+        //}
+    }
 }

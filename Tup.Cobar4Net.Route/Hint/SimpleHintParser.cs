@@ -45,7 +45,7 @@ namespace Tup.Cobar4Net.Route.Hint
                     default:
                         throw new NotSupportedException(string.Format("hintName:{0},value:{1}", hintName, value));
                 }
-                //TODO---SimpleHintParser
+                //INFO---SimpleHintParser
                 //ParameterMapping.Mapping(hint, properties);
             }
             catch (Exception t)

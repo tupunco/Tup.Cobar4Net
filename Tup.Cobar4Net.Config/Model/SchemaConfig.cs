@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
 using System.Linq;
 
@@ -36,6 +37,46 @@ namespace Tup.Cobar4Net.Config.Model
         private readonly bool keepSqlSchema;
 
         private readonly ICollection<string> allDataNodes;
+
+        public ICollection<string> AllDataNodes
+        {
+            get { return allDataNodes; }
+        }
+
+        public bool KeepSqlSchema
+        {
+            get { return keepSqlSchema; }
+        }
+
+        public string[] MetaDataNodes
+        {
+            get { return metaDataNodes; }
+        }
+
+        public bool NoSharding
+        {
+            get { return noSharding; }
+        }
+
+        public IDictionary<string, TableConfig> Tables
+        {
+            get { return tables; }
+        }
+
+        public string Group
+        {
+            get { return group; }
+        }
+
+        public string DataNode
+        {
+            get { return dataNode; }
+        }
+
+        public string Name
+        {
+            get { return name; }
+        }
 
         public SchemaConfig(string name,
             string dataNode,
@@ -130,7 +171,7 @@ namespace Tup.Cobar4Net.Config.Model
             }
             if (!noSharding)
             {
-                foreach (TableConfig tc in tables.Values)
+                foreach (var tc in tables.Values)
                 {
                     set.AddRange(tc.GetDataNodes());
                 }
@@ -141,6 +182,21 @@ namespace Tup.Cobar4Net.Config.Model
         private static bool IsEmpty(string str)
         {
             return ((str == null) || (str.Length == 0));
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[SchemaConfig Name={0}, DataNode={1}, Group={2}, Tables={3}, NoSharding={4}, MetaDataNodes={5}, KeepSqlSchema={6}, AllDataNodes={7}]",
+                                    name, dataNode, group,
+                                    string.Join(",", tables ?? new Dictionary<string, TableConfig>(0)),
+                                    noSharding,
+                                    string.Join(",", metaDataNodes ?? new string[0]),
+                                    keepSqlSchema,
+                                    string.Join(",", allDataNodes ?? new string[0]));
         }
     }
 }

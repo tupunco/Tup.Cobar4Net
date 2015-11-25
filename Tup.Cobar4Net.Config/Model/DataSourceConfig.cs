@@ -13,129 +13,188 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System.Text;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-	/// <summary>描述一个数据源的配置</summary>
-	/// <author>xianmao.hexm 2011-1-11 下午02:14:38</author>
-	public sealed class DataSourceConfig
-	{
-		private const int DefaultSqlRecordCount = 10;
+    /// <summary>描述一个数据源的配置</summary>
+    /// <author>xianmao.hexm 2011-1-11 下午02:14:38</author>
+    public sealed class DataSourceConfig
+    {
+        private const int DefaultSqlRecordCount = 10;
 
-		private string name;
+        private string name;
 
-		private string type;
+        private string type;
 
-		private string host;
+        private string host;
 
-		private int port;
+        private int port;
 
-		private string user;
+        private string user;
 
-		private string password;
+        private string password;
 
-		private string database;
+        private string database;
 
-		private string sqlMode;
+        private string sqlMode;
 
-		private int sqlRecordCount = DefaultSqlRecordCount;
+        private int sqlRecordCount = DefaultSqlRecordCount;
 
-		public string GetName()
-		{
-			return name;
-		}
+        public int SqlRecordCount
+        {
+            get { return sqlRecordCount; }
+            set { sqlRecordCount = value; }
+        }
 
-		public void SetName(string name)
-		{
-			this.name = name;
-		}
+        public string SqlMode
+        {
+            get { return sqlMode; }
+            set { sqlMode = value; }
+        }
 
-		public string GetSourceType()
-		{
-			return type;
-		}
+        public string Database
+        {
+            get { return database; }
+            set { database = value; }
+        }
 
-		public void SetType(string type)
-		{
-			this.type = type;
-		}
+        public string Password
+        {
+            get { return password; }
+            set { password = value; }
+        }
 
-		public string GetHost()
-		{
-			return host;
-		}
+        public string User
+        {
+            get { return user; }
+            set { user = value; }
+        }
 
-		public void SetHost(string host)
-		{
-			this.host = host;
-		}
+        public int Port
+        {
+            get { return port; }
+            set { port = value; }
+        }
 
-		public int GetPort()
-		{
-			return port;
-		}
+        public string Host
+        {
+            get { return host; }
+            set { host = value; }
+        }
 
-		public void SetPort(int port)
-		{
-			this.port = port;
-		}
+        public string Type
+        {
+            get { return type; }
+            set { type = value; }
+        }
 
-		public string GetUser()
-		{
-			return user;
-		}
+        public string Name
+        {
+            get { return name; }
+            set { name = value; }
+        }
 
-		public void SetUser(string user)
-		{
-			this.user = user;
-		}
+        public string GetName()
+        {
+            return name;
+        }
 
-		public string GetPassword()
-		{
-			return password;
-		}
+        public void SetName(string name)
+        {
+            this.name = name;
+        }
 
-		public void SetPassword(string password)
-		{
-			this.password = password;
-		}
+        public string GetSourceType()
+        {
+            return type;
+        }
 
-		public string GetDatabase()
-		{
-			return database;
-		}
+        public void SetType(string type)
+        {
+            this.type = type;
+        }
 
-		public void SetDatabase(string database)
-		{
-			this.database = database;
-		}
+        public string GetHost()
+        {
+            return host;
+        }
 
-		public string GetSqlMode()
-		{
-			return sqlMode;
-		}
+        public void SetHost(string host)
+        {
+            this.host = host;
+        }
 
-		public void SetSqlMode(string sqlMode)
-		{
-			this.sqlMode = sqlMode;
-		}
+        public int GetPort()
+        {
+            return port;
+        }
 
-		public int GetSqlRecordCount()
-		{
-			return sqlRecordCount;
-		}
+        public void SetPort(int port)
+        {
+            this.port = port;
+        }
 
-		public void SetSqlRecordCount(int sqlRecordCount)
-		{
-			this.sqlRecordCount = sqlRecordCount;
-		}
+        public string GetUser()
+        {
+            return user;
+        }
 
-		public override string ToString()
-		{
-			return new StringBuilder().Append("[name=").Append(name).Append(",host=").Append(
-				host).Append(",port=").Append(port).Append(",database=").Append(database).Append
-				(']').ToString();
-		}
-	}
+        public void SetUser(string user)
+        {
+            this.user = user;
+        }
+
+        public string GetPassword()
+        {
+            return password;
+        }
+
+        public void SetPassword(string password)
+        {
+            this.Password = password;
+        }
+
+        public string GetDatabase()
+        {
+            return database;
+        }
+
+        public void SetDatabase(string database)
+        {
+            this.database = database;
+        }
+
+        public string GetSqlMode()
+        {
+            return sqlMode;
+        }
+
+        public void SetSqlMode(string sqlMode)
+        {
+            this.sqlMode = sqlMode;
+        }
+
+        public int GetSqlRecordCount()
+        {
+            return sqlRecordCount;
+        }
+
+        public void SetSqlRecordCount(int sqlRecordCount)
+        {
+            this.sqlRecordCount = sqlRecordCount;
+        }
+
+        public override string ToString()
+        {
+            return string.Format("[DataSourceConfig Name={0}, Type={1}, Host={2}, Port={3}, User={4}, Password={5}, Database={6}, SqlMode={7}, SqlRecordCount={8}]",
+                                    name, type, host, port, user, password, database, sqlMode, sqlRecordCount);
+        }
+
+        //public override string ToString()
+        //{
+        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
+        //        Host).Append(",port=").Append(Port).Append(",database=").Append(Database).Append
+        //        (']').ToString();
+        //}
+    }
 }

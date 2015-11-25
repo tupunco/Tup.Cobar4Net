@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;

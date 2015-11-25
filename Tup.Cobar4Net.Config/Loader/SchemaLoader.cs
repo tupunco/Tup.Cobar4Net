@@ -13,25 +13,27 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public interface SchemaLoader
-	{
-		IDictionary<string, TableRuleConfig> GetTableRules();
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public interface SchemaLoader
+    {
+        IDictionary<string, TableRuleConfig> GetTableRules();
 
-		IDictionary<string, RuleAlgorithm> GetFunctions();
+        IDictionary<string, RuleAlgorithm> GetFunctions();
 
-		IDictionary<string, DataSourceConfig> GetDataSources();
+        IDictionary<string, DataSourceConfig> GetDataSources();
 
-		IDictionary<string, DataNodeConfig> GetDataNodes();
+        IDictionary<string, DataNodeConfig> GetDataNodes();
 
-		IDictionary<string, SchemaConfig> GetSchemas();
+        IDictionary<string, SchemaConfig> GetSchemas();
 
-		ICollection<RuleConfig> ListRuleConfig();
-	}
+        ICollection<RuleConfig> ListRuleConfig();
+    }
 }

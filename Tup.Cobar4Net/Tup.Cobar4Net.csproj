@@ -31,6 +31,10 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Deveel.Math, Version=1.5.66.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\dmath.1.5.66\lib\net20\Deveel.Math.pdb\Deveel.Math.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -45,13 +49,21 @@
     <Compile Include="Sharpen\Extensions.cs" />
     <Compile Include="Sharpen\Runtime.cs" />
     <Compile Include="Sharpen\Sharpen.cs" />
+    <Compile Include="System\Collections\ObjectModel\ReadOnlyDictionary.cs" />
+    <Compile Include="System\Number.cs" />
+    <Compile Include="System\SQLSyntaxErrorException.cs" />
     <Compile Include="Util\CollectionHelper.cs" />
     <Compile Include="Util\CollectionUtil.cs" />
     <Compile Include="Util\FormatUtil.cs" />
+    <Compile Include="Util\ObjectUtil.cs" />
     <Compile Include="Util\SplitUtil.cs" />
     <Compile Include="Util\StringHelper.cs" />
     <Compile Include="Util\StringUtil.cs" />
     <Compile Include="Util\ThrowHelper.cs" />
+    <Compile Include="Util\XmlSerializeHelper.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

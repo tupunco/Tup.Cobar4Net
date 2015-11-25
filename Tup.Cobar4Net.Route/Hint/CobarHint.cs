@@ -128,6 +128,18 @@ namespace Tup.Cobar4Net.Route.Hint
             this.table = table.ToUpper();
         }
 
+        public string Table
+        {
+            get { return table; }
+            set { table = value.ToUpper(); }
+        }
+
+        public int Replica
+        {
+            get { return replica; }
+            set { replica = value; }
+        }
+
         public int GetReplica()
         {
             return replica;

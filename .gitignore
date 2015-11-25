@@ -13,9 +13,9 @@
 
 /UpgradeLog.*
 /_UpgradeReport_Files/*.*
-/Tup.Cobar4Net.Parser/java.src
-/Tup.Cobar4Net.Parser.UnitTest/java.src
-/Tup.Cobar4Net.Parser.NUnitTest/ManagerParserTestPerf.cs
-/Tup.Cobar4Net.Parser.NUnitTest/ManagerParserTest.cs
-/Tup.Cobar4Net.Parser.NUnitTest/ServerParserTest.cs
-/Tup.Cobar4Net.Parser.NUnitTest/ServerParserTestPerf.cs
+
+/Tup.Cobar4Net.NUnitTest/ManagerParserTestPerf.cs
+/Tup.Cobar4Net.NUnitTest/ManagerParserTest.cs
+/Tup.Cobar4Net.NUnitTest/ServerParserTest.cs
+/Tup.Cobar4Net.NUnitTest/ServerParserTestPerf.cs
+/Tup.Cobar4Net.Parser/java.src/*

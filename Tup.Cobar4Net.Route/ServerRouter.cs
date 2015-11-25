@@ -57,10 +57,10 @@ namespace Tup.Cobar4Net.Route
         {
             var rrs = new RouteResultset(stmt);
             // 检查是否含有cobar hint
-            int prefixIndex = ServerRouter.HintRouter.IndexOfPrefix(stmt);
+            int prefixIndex = HintRouter.IndexOfPrefix(stmt);
             if (prefixIndex >= 0)
             {
-                ServerRouter.HintRouter.RouteFromHint(info, schema, rrs, prefixIndex, stmt);
+                HintRouter.RouteFromHint(info, schema, rrs, prefixIndex, stmt);
                 return rrs;
             }
 
@@ -90,7 +90,7 @@ namespace Tup.Cobar4Net.Route
             var ast_1 = SQLParserDelegate.Parse(stmt, charset == null
                                                                 ? MySQLParser.DefaultCharset
                                                                 : charset);
-            var visitor_1 = new PartitionKeyVisitor(schema.GetTables());
+             var visitor_1 = new PartitionKeyVisitor(schema.GetTables());
             visitor_1.SetTrimSchema(schema.IsKeepSqlSchema() ? schema.GetName() : null);
             ast_1.Accept(visitor_1);
             // 如果sql包含用户自定义的schema，则路由到default节点
@@ -109,7 +109,7 @@ namespace Tup.Cobar4Net.Route
             // 元数据语句路由
             if (visitor_1.IsTableMetaRead())
             {
-                ServerRouter.MetaRouter.RouteForTableMeta(rrs, schema, ast_1, visitor_1, stmt);
+                MetaRouter.RouteForTableMeta(rrs, schema, ast_1, visitor_1, stmt);
                 if (visitor_1.IsNeedRewriteField())
                 {
                     rrs.SetFlag(RouteResultset.RewriteField);

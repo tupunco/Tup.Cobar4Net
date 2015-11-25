@@ -14,253 +14,165 @@
 * limitations under the License.
 */
 using System;
-using System.Collections;
+using System.Linq;
 using System.Collections.Generic;
-using System.Reflection;
-using Java.Beans;
-using Sharpen;
-using Tup.Cobar4Net.Util;
 using System.ComponentModel;
+using System.Reflection;
 
 namespace Tup.Cobar4Net.Config.Util
 {
-	public class ParameterMapping
-	{
-		private static readonly IDictionary<Type, PropertyDescriptor[]> descriptors = new 
-			Dictionary<Type, PropertyDescriptor[]>();
+    /// <summary>
+    /// Parameter Mapping
+    /// </summary>
+    public class ParameterMapping
+    {
+        private static readonly IDictionary<Type, PropertyInfo[]> descriptors = new Dictionary<Type, PropertyInfo[]>();
 
-		/// <exception cref="System.MemberAccessException"/>
-		/// <exception cref="System.Reflection.TargetInvocationException"/>
-		public static void Mapping(object @object, IDictionary<string, object> parameter)
-		{
-			PropertyDescriptor[] pds = GetDescriptors(@object.GetType());
-			for (int i = 0; i < pds.Length; i++)
-			{
-				PropertyDescriptor pd = pds[i];
-				object obj = parameter[pd.GetName()];
-				object value = obj;
-				Type cls = pd.GetPropertyType();
-				if (obj is string)
-				{
-					string @string = (string)obj;
-					if (!StringUtil.IsEmpty(@string))
-					{
-						@string = ConfigUtil.Filter(@string);
-					}
-					if (IsPrimitiveType(cls))
-					{
-						value = Convert(cls, @string);
-					}
-				}
-				else
-				{
-					if (obj is BeanConfig)
-					{
-						value = CreateBean((BeanConfig)obj);
-					}
-					else
-					{
-						if (obj is BeanConfig[])
-						{
-							IList<object> list = new List<object>();
-							foreach (BeanConfig beanconfig in (BeanConfig[])obj)
-							{
-								list.Add(CreateBean(beanconfig));
-							}
-							value = Sharpen.Collections.ToArray(list);
-						}
-					}
-				}
-				if (cls != null)
-				{
-					if (value != null)
-					{
-						MethodInfo method = pd.GetWriteMethod();
-						if (method != null)
-						{
-							method.Invoke(@object, new object[] { value });
-						}
-					}
-				}
-			}
-		}
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="@object"></param>
+        /// <param name="parameter">ÐèÒª StringComparer.OrdinalIgnoreCase</param>
+        /// <exception cref="System.MemberAccessException"/>
+        /// <exception cref="System.Reflection.TargetInvocationException"/>
+        public static void Mapping(object @object, IDictionary<string, object> parameter)
+        {
+            ThrowHelper.ThrowIfNull(@object, "object");
+            ThrowHelper.ThrowIfNull(parameter, "parameter");
 
-		/// <exception cref="System.MemberAccessException"/>
-		/// <exception cref="System.Reflection.TargetInvocationException"/>
-		public static object CreateBean(BeanConfig config)
-		{
-			object bean = config.Create(true);
-			if (bean is IDictionary)
-			{
-				IDictionary<string, object> map = (IDictionary<string, object>)bean;
-				foreach (KeyValuePair<string, object> entry in config.GetParams())
-				{
-					string key = entry.Key;
-					object value = entry.Value;
-					if (value is BeanConfig)
-					{
-						BeanConfig mapBeanConfig = (BeanConfig)entry.Value;
-						value = mapBeanConfig.Create(true);
-						Mapping(value, mapBeanConfig.GetParams());
-					}
-					map[key] = value;
-				}
-			}
-			else
-			{
-				if (bean is IList)
-				{
-				}
-				else
-				{
-					Mapping(bean, config.GetParams());
-				}
-			}
-			return bean;
-		}
+            var type = @object.GetType();
+            var pds = GetDescriptors(type);
+            PropertyInfo pd = null;
+            Type cls = null;
+            object obj = null;
+            object value = null;
+            for (int i = 0; i < pds.Length; i++)
+            {
+                pd = pds[i];
 
-		private static PropertyDescriptor[] GetDescriptors(Type clazz)
-		{
-			PropertyDescriptor[] pds;
-			IList<PropertyDescriptor> list;
-			PropertyDescriptor[] pds2 = descriptors[clazz];
-			if (null == pds2)
-			{
-				try
-				{
-					BeanInfo beanInfo = Introspector.GetBeanInfo(clazz);
-					pds = beanInfo.GetPropertyDescriptors();
-					list = new List<PropertyDescriptor>();
-					for (int i = 0; i < pds.Length; i++)
-					{
-						if (null != pds[i].GetPropertyType())
-						{
-							list.Add(pds[i]);
-						}
-					}
-					pds2 = new PropertyDescriptor[list.Count];
-					Sharpen.Collections.ToArray(list, pds2);
-				}
-				catch (IntrospectionException ie)
-				{
-					Sharpen.Runtime.PrintStackTrace(ie);
-					pds2 = new PropertyDescriptor[0];
-				}
-			}
-			descriptors[clazz] = pds2;
-			return (pds2);
-		}
+                obj = parameter.GetValue(pd.Name);
+                value = obj;
+                cls = pd.PropertyType;
+                if (obj is string)
+                {
+                    string @string = (string)obj;
+                    if (!@string.IsEmpty())
+                    {
+                        @string = ConfigUtil.Filter(@string);
+                    }
+                    if (IsPrimitiveType(cls))
+                    {
+                        value = Convert(cls, @string);
+                    }
+                }
+                else
+                {
+                    if (obj is BeanConfig)
+                    {
+                        value = CreateBean((BeanConfig)obj);
+                    }
+                    else if (obj is IList<BeanConfig>)
+                    {
+                        var list = new List<object>();
+                        foreach (var beanconfig in (IList<BeanConfig>)obj)
+                        {
+                            list.Add(CreateBean(beanconfig));
+                        }
+                        value = list.ToArray();
+                    }
+                }
+                if (cls != null && value != null)
+                {
+                    pd.SetValue(@object, value, null);
+                }
+            }
+        }
 
-		private static object Convert(Type cls, string @string)
-		{
-			MethodInfo method = null;
-			object value = null;
-			if (cls.Equals(typeof(string)))
-			{
-				value = @string;
-			}
-			else
-			{
-				if (cls.Equals(typeof(bool)))
-				{
-					value = Sharpen.Extensions.ValueOf(@string);
-				}
-				else
-				{
-					if (cls.Equals(typeof(byte)))
-					{
-						value = byte.ValueOf(@string);
-					}
-					else
-					{
-						if (cls.Equals(typeof(short)))
-						{
-							value = short.ValueOf(@string);
-						}
-						else
-						{
-							if (cls.Equals(typeof(int)))
-							{
-								value = Sharpen.Extensions.ValueOf(@string);
-							}
-							else
-							{
-								if (cls.Equals(typeof(long)))
-								{
-									value = Sharpen.Extensions.ValueOf(@string);
-								}
-								else
-								{
-									if (cls.Equals(typeof(double)))
-									{
-										value = double.ValueOf(@string);
-									}
-									else
-									{
-										if (cls.Equals(typeof(float)))
-										{
-											value = float.ValueOf(@string);
-										}
-										else
-										{
-											if ((cls.Equals(typeof(bool))) || (cls.Equals(typeof(byte))) || (cls.Equals(typeof(
-												short))) || (cls.Equals(typeof(int))) || (cls.Equals(typeof(long))) || (cls.Equals
-												(typeof(float))) || (cls.Equals(typeof(double))))
-											{
-												try
-												{
-													method = cls.GetMethod("valueOf", new Type[] { typeof(string) });
-													value = method.Invoke(null, new object[] { @string });
-												}
-												catch
-												{
-													value = null;
-												}
-											}
-											else
-											{
-												if (cls.Equals(typeof(Type)))
-												{
-													try
-													{
-														value = Sharpen.Runtime.GetType(@string);
-													}
-													catch (TypeLoadException e)
-													{
-														throw new ConfigException(e);
-													}
-												}
-												else
-												{
-													value = null;
-												}
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-			return (value);
-		}
+        /// <exception cref="System.MemberAccessException"/>
+        /// <exception cref="System.Reflection.TargetInvocationException"/>
+        public static object CreateBean(BeanConfig config)
+        {
+            object bean = config.Create(true);
+            if (bean is IDictionary<string, object>)
+            {
+                var map = (IDictionary<string, object>)bean;
+                foreach (var entry in config.GetParams())
+                {
+                    string key = entry.Key;
+                    object value = entry.Value;
+                    if (value is BeanConfig)
+                    {
+                        var mapBeanConfig = (BeanConfig)entry.Value;
+                        value = mapBeanConfig.Create(true);
+                        Mapping(value, mapBeanConfig.GetParams());
+                    }
+                    map[key] = value;
+                }
+            }
+            else if (bean is IList<object>)
+            {
+                //
+            }
+            else
+            {
+                Mapping(bean, config.GetParams());
+            }
+            return bean;
+        }
 
-		private static bool IsPrimitiveType(Type cls)
-		{
-			if (cls.Equals(typeof(string)) || cls.Equals(typeof(bool)) || cls.Equals(typeof(byte
-				)) || cls.Equals(typeof(short)) || cls.Equals(typeof(int)) || cls.Equals(typeof(
-				long)) || cls.Equals(typeof(double)) || cls.Equals(typeof(float)) || cls.Equals(
-				typeof(bool)) || cls.Equals(typeof(byte)) || cls.Equals(typeof(short)) || cls.Equals
-				(typeof(int)) || cls.Equals(typeof(long)) || cls.Equals(typeof(float)) || cls.Equals
-				(typeof(double)) || cls.Equals(typeof(Type)))
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
-		}
-	}
+        private static PropertyInfo[] GetDescriptors(Type clazz)
+        {
+            var pds2 = descriptors.GetValue(clazz);
+            if (null == pds2)
+            {
+
+                pds2 = clazz.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.SetProperty);
+                descriptors[clazz] = pds2;
+            }
+
+            return pds2;
+        }
+        private static object Convert(Type cls, string @string)
+        {
+            // System.Convert.ChangeType(initialValue, targetType, culture);
+            object value = null;
+            if (cls == typeof(string))
+            {
+                value = @string;
+            }
+            else if (cls == typeof(Type))
+            {
+                value = Type.GetType(@string);
+            }
+            else
+            {
+                value = System.Convert.ChangeType(@string, cls);
+            }
+            return value;
+        }
+        private static bool IsConvertible(Type t)
+        {
+#if !PORTABLE
+            return typeof(IConvertible).IsAssignableFrom(t);
+#else
+            return (
+                t == typeof(bool) || t == typeof(byte) || t == typeof(char) || t == typeof(DateTime) || t == typeof(decimal) || t == typeof(double) || t == typeof(short) || t == typeof(int) ||
+                t == typeof(long) || t == typeof(sbyte) || t == typeof(float) || t == typeof(string) || t == typeof(ushort) || t == typeof(uint) || t == typeof(ulong) || t.IsEnum());
+#endif
+        }
+        //private static ISet<Type> s_PrimitiveType_Set = new HashSet<Type>(new Type[]
+        //{
+        //    typeof(string), typeof(bool), typeof(byte),
+        //    typeof(short), typeof(int), typeof(long),
+        //    typeof(double), typeof(float), typeof(bool),
+        //    typeof(byte), typeof(short), typeof(int),
+        //    typeof(long), typeof(float), typeof(double),
+        //    typeof(Type)
+        //});
+        private static bool IsPrimitiveType(Type cls)
+        {
+            return IsConvertible(cls) || cls == typeof(Type);
+            //return s_PrimitiveType_Set.Contains(cls);
+        }
+    }
 }

@@ -13,7 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using Tup.Cobar4Net.Config;
+
+using System;
 
 namespace Tup.Cobar4Net.Config.Model
 {
@@ -27,7 +28,7 @@ namespace Tup.Cobar4Net.Config.Model
 
         private const string DefaultCharset = "UTF-8";
 
-        //private static readonly int DefaultProcessors = Runtime.GetRuntime().AvailableProcessors			();
+        private static readonly int DefaultProcessors = Environment.ProcessorCount;
 
         private const long DefaultIdleTimeout = 8 * 3600 * 1000L;
 
@@ -53,57 +54,185 @@ namespace Tup.Cobar4Net.Config.Model
 
         private int serverPort;
 
+        public int ServerPort
+        {
+            get { return serverPort; }
+            set { serverPort = value; }
+        }
+
         private int managerPort;
+
+        public int ManagerPort
+        {
+            get { return managerPort; }
+            set { managerPort = value; }
+        }
 
         private string charset;
 
+        public string Charset
+        {
+            get { return charset; }
+            set { charset = value; }
+        }
+
         private int processors;
+
+        public int Processors
+        {
+            get { return processors; }
+            set { processors = value; }
+        }
 
         private int processorHandler;
 
+        public int ProcessorHandler
+        {
+            get { return processorHandler; }
+            set { processorHandler = value; }
+        }
+
         private int processorExecutor;
+
+        public int ProcessorExecutor
+        {
+            get { return processorExecutor; }
+            set { processorExecutor = value; }
+        }
 
         private int initExecutor;
 
+        public int InitExecutor
+        {
+            get { return initExecutor; }
+            set { initExecutor = value; }
+        }
+
         private int timerExecutor;
+
+        public int TimerExecutor
+        {
+            get { return timerExecutor; }
+            set { timerExecutor = value; }
+        }
 
         private int managerExecutor;
 
+        public int ManagerExecutor
+        {
+            get { return managerExecutor; }
+            set { managerExecutor = value; }
+        }
+
         private long idleTimeout;
+
+        public long IdleTimeout
+        {
+            get { return idleTimeout; }
+            set { idleTimeout = value; }
+        }
 
         private long processorCheckPeriod;
 
+        public long ProcessorCheckPeriod
+        {
+            get { return processorCheckPeriod; }
+            set { processorCheckPeriod = value; }
+        }
+
         private long dataNodeIdleCheckPeriod;
+
+        public long DataNodeIdleCheckPeriod
+        {
+            get { return dataNodeIdleCheckPeriod; }
+            set { dataNodeIdleCheckPeriod = value; }
+        }
 
         private long dataNodeHeartbeatPeriod;
 
+        public long DataNodeHeartbeatPeriod
+        {
+            get { return dataNodeHeartbeatPeriod; }
+            set { dataNodeHeartbeatPeriod = value; }
+        }
+
         private string clusterHeartbeatUser;
+
+        public string ClusterHeartbeatUser
+        {
+            get { return clusterHeartbeatUser; }
+            set { clusterHeartbeatUser = value; }
+        }
 
         private string clusterHeartbeatPass;
 
+        public string ClusterHeartbeatPass
+        {
+            get { return clusterHeartbeatPass; }
+            set { clusterHeartbeatPass = value; }
+        }
+
         private long clusterHeartbeatPeriod;
+
+        public long ClusterHeartbeatPeriod
+        {
+            get { return clusterHeartbeatPeriod; }
+            set { clusterHeartbeatPeriod = value; }
+        }
 
         private long clusterHeartbeatTimeout;
 
+        public long ClusterHeartbeatTimeout
+        {
+            get { return clusterHeartbeatTimeout; }
+            set { clusterHeartbeatTimeout = value; }
+        }
+
         private int clusterHeartbeatRetry;
+
+        public int ClusterHeartbeatRetry
+        {
+            get { return clusterHeartbeatRetry; }
+            set { clusterHeartbeatRetry = value; }
+        }
 
         private int txIsolation;
 
+        public int TxIsolation
+        {
+            get { return txIsolation; }
+            set { txIsolation = value; }
+        }
+
         private int parserCommentVersion;
 
+        public int ParserCommentVersion
+        {
+            get { return parserCommentVersion; }
+            set { parserCommentVersion = value; }
+        }
+
         private int sqlRecordCount;
+
+        public int SqlRecordCount
+        {
+            get { return sqlRecordCount; }
+            set { sqlRecordCount = value; }
+        }
 
         public SystemConfig()
         {
             this.serverPort = DefaultPort;
             this.managerPort = DefaultManagerPort;
             this.charset = DefaultCharset;
-            //this.processors = DefaultProcessors;
-            //this.processorHandler = DefaultProcessors;
-            //this.processorExecutor = DefaultProcessors;
-            //this.managerExecutor = DefaultProcessors;
-            //this.timerExecutor = DefaultProcessors;
-            //this.initExecutor = DefaultProcessors;
+
+            this.processors = DefaultProcessors;
+            this.processorHandler = DefaultProcessors;
+            this.processorExecutor = DefaultProcessors;
+            this.managerExecutor = DefaultProcessors;
+            this.timerExecutor = DefaultProcessors;
+            this.initExecutor = DefaultProcessors;
+
             this.idleTimeout = DefaultIdleTimeout;
             this.processorCheckPeriod = DefaultProcessorCheckPeriod;
             this.dataNodeIdleCheckPeriod = DefaultDatanodeIdleCheckPeriod;
@@ -326,6 +455,24 @@ namespace Tup.Cobar4Net.Config.Model
         public void SetSqlRecordCount(int sqlRecordCount)
         {
             this.sqlRecordCount = sqlRecordCount;
+        }
+
+        /// <summary>
+        ///
+        /// </summary>
+        /// <returns></returns>
+        public override string ToString()
+        {
+            return string.Format("[SystemConfig ServerPort={0}, ManagerPort={1}, Charset={2}, Processors={3}, ProcessorHandler={4}, ProcessorExecutor={5}, InitExecutor={6}, TimerExecutor={7}, ManagerExecutor={8}, IdleTimeout={9}, ProcessorCheckPeriod={10}, DataNodeIdleCheckPeriod={11}, DataNodeHeartbeatPeriod={12}, ClusterHeartbeatUser={13}, ClusterHeartbeatPass={14}, ClusterHeartbeatPeriod={15}, ClusterHeartbeatTimeout={16}, ClusterHeartbeatRetry={17}, TxIsolation={18}, ParserCommentVersion={19}, SqlRecordCount={20}]",
+                                        serverPort, managerPort, charset,
+                                        processors, processorHandler, processorExecutor,
+                                        initExecutor, timerExecutor, managerExecutor,
+                                        idleTimeout, processorCheckPeriod,
+                                        dataNodeIdleCheckPeriod, dataNodeHeartbeatPeriod,
+                                        clusterHeartbeatUser, clusterHeartbeatPass,
+                                        clusterHeartbeatPeriod, clusterHeartbeatTimeout,
+                                        clusterHeartbeatRetry, txIsolation,
+                                        parserCommentVersion, sqlRecordCount);
         }
     }
 }

@@ -45,7 +45,7 @@ namespace Tup.Cobar4Net.Route
             NUnit.Framework.Assert.AreEqual(" select * ", hint.GetOutputSql());
             NUnit.Framework.Assert.AreEqual("OFFER", hint.GetTable());
             NUnit.Framework.Assert.AreEqual(1, hint.GetDataNodes().Count);
-            //TODO NUnit.Framework.Assert.AreEqual(new Pair<int, int>(0, null), hint.GetDataNodes()[0]);
+            //INFO NUnit.Framework.Assert.AreEqual(new Pair<int, int>(0, null), hint.GetDataNodes()[0]);
             NUnit.Framework.Assert.AreEqual(new Pair<int, int>(0, -1), hint.GetDataNodes()[0]);
             sql = "/*!cobar: $dataNodeId   = [ 1,2,5.2]  , $table =  'offer'   */ select * ";
             hint = CobarHint.ParserCobarHint(sql, 0);

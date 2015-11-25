@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+
 using Tup.Cobar4Net.Config.Loader;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Config.Util;
@@ -23,6 +24,7 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 using Tup.Cobar4Net.Route.Function;
+using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Config
 {
@@ -40,7 +42,7 @@ namespace Tup.Cobar4Net.Route.Config
                 string algorithmString = conf.GetAlgorithm();
                 var lexer = new MySQLLexer(algorithmString);
                 var parser = new MySQLExprParser(lexer, functionManager, false, MySQLParser.DefaultCharset);
-                Tup.Cobar4Net.Parser.Ast.Expression.Expression expression = parser.Expression();
+                Expr expression = parser.Expression();
                 if (lexer.Token() != MySQLToken.Eof)
                 {
                     throw new ConfigException("route algorithm not end with EOF: " + algorithmString);
