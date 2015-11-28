@@ -93,18 +93,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Tup.Cobar4Net.Config\Tup.Cobar4Net.Config.csproj">
-      <Project>{7d1f5512-b442-46f8-9727-586ab36bb8e6}</Project>
-      <Name>Tup.Cobar4Net.Config</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Tup.Cobar4Net.Parser\Tup.Cobar4Net.Parser.csproj">
-      <Project>{cc86ce3d-98b0-4125-a540-eb3c182fd741}</Project>
-      <Name>Tup.Cobar4Net.Parser</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Tup.Cobar4Net.Route\Tup.Cobar4Net.Route.csproj">
-      <Project>{817295d2-b89d-452b-8818-a8bbf189da01}</Project>
-      <Name>Tup.Cobar4Net.Route</Name>
-    </ProjectReference>
     <ProjectReference Include="..\Tup.Cobar4Net\Tup.Cobar4Net.csproj">
       <Project>{d80fd94a-5e8d-489b-8052-7aba84ab0e40}</Project>
       <Name>Tup.Cobar4Net</Name>

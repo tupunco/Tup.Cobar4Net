@@ -59,7 +59,7 @@
   </tableRule>
 
   <function name="twoDimensionFunc"
-    class="Tup.Cobar4Net.Route.Function.Dimension2PartitionFunction,Tup.Cobar4Net.Route">
+    class="Tup.Cobar4Net.Route.Function.Dimension2PartitionFunction,Tup.Cobar4Net">
     <property name="keyTypeX">string</property>
     <property name="partitionCountX">4</property>
     <property name="partitionLengthX">256</property>
@@ -69,13 +69,13 @@
     <property name="partitionLengthY">128</property>
   </function>
   <function name="func"
-    class="Tup.Cobar4Net.Route.Function.PartitionByString,Tup.Cobar4Net.Route">
+    class="Tup.Cobar4Net.Route.Function.PartitionByString,Tup.Cobar4Net">
     <property name="partitionCount">128</property>
     <property name="partitionLength">8</property>
     <property name="hashSlice">:8</property>
   </function>
   <function name="func2"
-    class="Tup.Cobar4Net.Route.Function.PartitionByLong,Tup.Cobar4Net.Route">
+    class="Tup.Cobar4Net.Route.Function.PartitionByLong,Tup.Cobar4Net">
     <property name="partitionCount">128</property>
     <property name="partitionLength">8</property>
   </function>

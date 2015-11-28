@@ -18,4 +18,7 @@
 /Tup.Cobar4Net.NUnitTest/ManagerParserTest.cs
 /Tup.Cobar4Net.NUnitTest/ServerParserTest.cs
 /Tup.Cobar4Net.NUnitTest/ServerParserTestPerf.cs
-/Tup.Cobar4Net.Parser/java.src/*
+/Tup.Cobar4Net.Parser/
+/Tup.Cobar4Net.Route/
+/Tup.Cobar4Net.Config/
+/Tup.Cobar4Net.bak.zip
