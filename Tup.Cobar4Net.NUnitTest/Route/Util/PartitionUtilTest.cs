@@ -14,15 +14,14 @@
 * limitations under the License.
 */
 using NUnit.Framework;
-using Sharpen;
 
 namespace Tup.Cobar4Net.Route.Util
 {
     /// <author>xianmao.hexm from PartitionUtil.main()</author>
-    [NUnit.Framework.TestFixture(Category = "PartitionUtilTest")]
+    [TestFixture(Category = "PartitionUtilTest")]
     public class PartitionUtilTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartition()
         {
             // 本例的分区策略：希望将数据水平分成3份，前两份各占25%，第三份占50%。（故本例非均匀分区）
@@ -42,14 +41,15 @@ namespace Tup.Cobar4Net.Route.Util
             int partNo1 = pu.Partition(offerId);
             // 若根据memberId分配，partNo2将等于2，即按照上述分区策略，memberId为qiushuo时将会被分到partition2中
             int partNo2 = pu.Partition(memberId, 0, DefaultStrHeadLen);
-            NUnit.Framework.Assert.AreEqual(0, partNo1);
-            NUnit.Framework.Assert.AreEqual(2, partNo2);
+            Assert.AreEqual(0, partNo1);
+            Assert.AreEqual(2, partNo2);
         }
-        [NUnit.Framework.Test]
+
+        [Test]
         public virtual void TestPartitionForSingle()
         {
             PartitionForSingle.Main(null);
-            NUnit.Framework.Assert.IsTrue(true);
+            Assert.IsTrue(true);
         }
     }
 }

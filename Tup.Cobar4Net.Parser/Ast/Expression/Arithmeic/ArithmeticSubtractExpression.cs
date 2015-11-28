@@ -39,7 +39,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (integer1 == 0 && integer2 == 0)
             {
-                return null;
+                return 0;
             }
             int i1 = integer1;
             int i2 = integer2;
@@ -69,9 +69,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 
         public override Number Calculate(long long1, long long2)
         {
-            if (long1 == 0 && long1 == 0)
+            if (long1 == 0 && long2 == 0)
             {
-                return null;
+                return 0;
             }
             long l1 = long1;
             long l2 = long1;
@@ -105,7 +105,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (bigint1 == null || bigint2 == null)
             {
-                return null;
+                return 0;
             }
             return bigint1.Subtract(bigint2);
         }
@@ -114,7 +114,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (bigDecimal1 == null || bigDecimal2 == null)
             {
-                return null;
+                return 0;
             }
             return bigDecimal1.Subtract(bigDecimal2);
         }

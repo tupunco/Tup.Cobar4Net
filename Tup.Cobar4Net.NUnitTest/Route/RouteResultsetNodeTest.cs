@@ -13,17 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System.Collections.Generic;
 using NUnit.Framework;
-using Sharpen;
+
+using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Route
 {
     /// <author>xianmao.hexm</author>
-    [NUnit.Framework.TestFixture(Category = "RouteResultsetNodeTest")]
+    [TestFixture(Category = "RouteResultsetNodeTest")]
     public class RouteResultsetNodeTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestMapKeyValue()
         {
             var map = new Dictionary<RouteResultsetNode, string>();
@@ -31,11 +31,11 @@ namespace Tup.Cobar4Net.Route
             var rrn2 = new RouteResultsetNode("test", 1, "select * from t2 limit 1");
             map[rrn] = rrn.GetStatement();
             map[rrn2] = rrn2.GetStatement();
-            NUnit.Framework.Assert.AreEqual(2, map.Count);
+            Assert.AreEqual(2, map.Count);
             for (int i = 0; i < 100; i++)
             {
-                NUnit.Framework.Assert.AreEqual("select * from t1 limit 1", map[rrn]);
-                NUnit.Framework.Assert.AreEqual("select * from t2 limit 1", map[rrn2]);
+                Assert.AreEqual("select * from t1 limit 1", map[rrn]);
+                Assert.AreEqual("select * from t2 limit 1", map[rrn2]);
             }
         }
     }

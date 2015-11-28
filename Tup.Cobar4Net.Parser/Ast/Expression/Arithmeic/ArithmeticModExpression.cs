@@ -81,16 +81,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
+            else if (comp < 0)
+            {
+                return bigint1.Negate().Mod(bigint2).Negate();
+            }
             else
             {
-                if (comp < 0)
-                {
-                    return bigint1.Negate().Mod(bigint2).Negate();
-                }
-                else
-                {
-                    return bigint1.Mod(bigint2);
-                }
+                return bigint1.Mod(bigint2);
             }
         }
 

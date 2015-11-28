@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
@@ -359,31 +360,25 @@ namespace Tup.Cobar4Net.Route.Function
             return Calculate(parameters);
         }
 
-        private int[] Eval(object xInput, object yInput)
+        private Number[] Eval(object xInput, object yInput)
         {
             int? x = Calculate(xInput, partitionUtilX, keyTypeX, hashSliceStartX, hashSliceEndX);
             int? y = Calculate(yInput, partitionUtilY, keyTypeY, hashSliceStartY, hashSliceEndY);
             if (x != null && y != null)
             {
-                return new int[] { GetByXY(x.Value, y.Value) };
+                return new Number[] { GetByXY(x.Value, y.Value) };
+            }
+            else if (x == null && y != null)
+            {
+                return Number.ValueOf(GetByY(y.Value));
+            }
+            else if (x != null && y == null)
+            {
+                return Number.ValueOf(GetByX(x.Value));
             }
             else
             {
-                if (x == null && y != null)
-                {
-                    return GetByY(y.Value);
-                }
-                else
-                {
-                    if (x != null && y == null)
-                    {
-                        return GetByX(x.Value);
-                    }
-                    else
-                    {
-                        return GetAll();
-                    }
-                }
+                return Number.ValueOf(GetAll());
             }
         }
 
@@ -441,7 +436,7 @@ namespace Tup.Cobar4Net.Route.Function
             return rst;
         }
 
-        public int[] Calculate(IDictionary<object, object> parameters)
+        public Number[] Calculate(IDictionary<object, object> parameters)
         {
             if (arguments == null || arguments.Count < 2)
             {

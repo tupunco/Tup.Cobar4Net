@@ -40,7 +40,7 @@ namespace Tup.Cobar4Net.Route.Function
         {
         }
 
-        public virtual int[] Calculate(IDictionary<object, object> parameters)
+        public virtual Number[] Calculate(IDictionary<object, object> parameters)
         {
             int[] rst;
             object eval = expr.Evaluation(parameters);
@@ -62,15 +62,6 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 rst = new int[1];
                 rst[0] = System.Convert.ToInt32(((string)eval));
-            }
-            else if (eval is int[])
-            {
-                int[] ints = (int[])eval;
-                rst = new int[ints.Length];
-                for (int i = 0, len = ints.Length; i < len; ++i)
-                {
-                    rst[0] = ints[i];
-                }
             }
             else if (eval is Number[])
             {
@@ -94,7 +85,7 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 throw new ArgumentException("rule calculate err: result of route function is wrong type or null: " + eval);
             }
-            return rst;
+            return Number.ValueOf(rst);
         }
     }
 }

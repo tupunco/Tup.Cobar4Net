@@ -92,12 +92,16 @@ namespace Tup.Cobar4Net.Parser.Util
 
                 case ClassMapDouble:
                     {
+#pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
                         return ((double)num) != 0d;
+#pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
                     }
 
                 case ClassMapFloat:
                     {
+#pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
                         return ((float)num) != 0f;
+#pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
                     }
 
                 case ClassMapLong:
@@ -279,6 +283,10 @@ namespace Tup.Cobar4Net.Parser.Util
             if (typeof(BigDecimal).IsAssignableFrom(clz))
             {
                 return NumBigDecimal;
+            }
+            if (typeof(Number).IsAssignableFrom(clz))
+            {
+                return (int)NumLong;
             }
             throw new ArgumentException("unsupported number class: " + clz);
         }

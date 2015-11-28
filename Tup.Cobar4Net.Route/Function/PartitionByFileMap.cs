@@ -76,7 +76,7 @@ namespace Tup.Cobar4Net.Route.Function
             return Calculate(parameters)[0];
         }
 
-        public int[] Calculate(IDictionary<object, object> parameters)
+        public Number[] Calculate(IDictionary<object, object> parameters)
         {
             int[] rst = new int[1];
             object arg = arguments[0].Evaluation(parameters);
@@ -84,12 +84,9 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 throw new ArgumentException("partition key is null ");
             }
-            else
+            else if (arg == ExpressionConstants.Unevaluatable)
             {
-                if (arg == ExpressionConstants.Unevaluatable)
-                {
-                    throw new ArgumentException("argument is UNEVALUATABLE");
-                }
+                throw new ArgumentException("argument is UNEVALUATABLE");
             }
 
             int pid = app2Partition.GetValue(arg.ToString(), int.MinValue);
@@ -101,7 +98,7 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 rst[0] = pid;
             }
-            return rst;
+            return Number.ValueOf(rst);
         }
 
         public override FunctionExpression ConstructFunction(IList<Expr> arguments)

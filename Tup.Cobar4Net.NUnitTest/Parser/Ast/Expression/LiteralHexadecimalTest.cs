@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
@@ -21,19 +22,19 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "LiteralHexadecimalTest")]
+    [TestFixture(Category = "LiteralHexadecimalTest")]
     public class LiteralHexadecimalTest
     {
         /// <exception cref="System.Exception"/>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestUtf8()
         {
             string sql = "x'E982B1E7A195275C73'";
             LiteralHexadecimal hex = (LiteralHexadecimal)new MySQLExprParser(new MySQLLexer(sql), "utf-8").Expression();
-            NUnit.Framework.Assert.AreEqual("邱硕'\\s", hex.Evaluation(null));
+            Assert.AreEqual("邱硕'\\s", hex.Evaluation(null));
             sql = "x'd0A'";
             hex = (LiteralHexadecimal)new MySQLExprParser(new MySQLLexer(sql), "utf-8").Expression();
-            NUnit.Framework.Assert.AreEqual("\r\n", hex.Evaluation(null));
+            Assert.AreEqual("\r\n", hex.Evaluation(null));
         }
     }
 }

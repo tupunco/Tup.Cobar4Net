@@ -42,39 +42,36 @@ namespace Tup.Cobar4Net.Route.Function
             return Calculate(parameters)[0];
         }
 
-        public int[] Calculate(IDictionary<object, object> parameters)
+        public Number[] Calculate(IDictionary<object, object> parameters)
         {
             int[] rst = new int[1];
             object arg = arguments[0].Evaluation(parameters);
             if (arg == null)
+                arg = 0L;
+
+            //if (arg == null)
+            //{
+            //    throw new ArgumentException("partition key is null ");
+            //}
+            //else
+            //{
+            if (arg == ExpressionConstants.Unevaluatable)
             {
-                throw new ArgumentException("partition key is null ");
+                throw new ArgumentException("argument is UNEVALUATABLE");
             }
-            else
-            {
-                if (arg == ExpressionConstants.Unevaluatable)
-                {
-                    throw new ArgumentException("argument is UNEVALUATABLE");
-                }
-            }
+            //}
             Number key = null;
             if (arg is Number)
-            {
                 key = (Number)arg;
-            }
+            else if (arg is long)
+                key = (long)arg;
+            else if (arg is string)
+                key = long.Parse((string)arg);
             else
-            {
-                if (arg is string)
-                {
-                    key = long.Parse((string)arg);
-                }
-                else
-                {
-                    throw new ArgumentException("unsupported data type for partition key: " + arg.GetType());
-                }
-            }
+                throw new ArgumentException("unsupported data type for partition key: " + arg.GetType());
+
             rst[0] = PartitionIndex((long)key);
-            return rst;
+            return Number.ValueOf(rst);
         }
 
         public override FunctionExpression ConstructFunction(IList<Expr> arguments)

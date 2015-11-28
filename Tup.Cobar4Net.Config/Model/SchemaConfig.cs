@@ -140,7 +140,8 @@ namespace Tup.Cobar4Net.Config.Model
             {
                 return null;
             }
-            return allDataNodes.GetEnumerator().Current;
+            return allDataNodes.FirstOrDefault();
+            //return allDataNodes.GetEnumerator().Current;
         }
 
         /// <summary>取得含有不同Meta信息的数据节点,比如表和表结构。</summary>

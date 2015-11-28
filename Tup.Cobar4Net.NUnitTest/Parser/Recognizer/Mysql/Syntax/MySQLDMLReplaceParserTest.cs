@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
@@ -20,11 +21,11 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "MySQLDMLReplaceParserTest")]
+    [TestFixture(Category = "MySQLDMLReplaceParserTest")]
     public class MySQLDMLReplaceParserTest : AbstractSyntaxTest
     {
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestReplace()
         {
             string sql = "ReplaCe LOW_PRIORITY intO test.t1 seT t1.id1:=?, id2='123'";
@@ -33,9 +34,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                 (lexer));
             DMLReplaceStatement replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
-            NUnit.Framework.Assert.IsNotNull(replace);
+            Assert.IsNotNull(replace);
             string output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO test.t1 (t1.id1, id2) VALUES (?, '123')"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO test.t1 (t1.id1, id2) VALUES (?, '123')"
                 , output);
             sql = "ReplaCe   test.t1 seT t1.id1:=? ";
             lexer = new MySQLLexer(sql);
@@ -43,7 +44,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE INTO test.t1 (t1.id1) VALUES (?)", output
+            Assert.AreEqual("REPLACE INTO test.t1 (t1.id1) VALUES (?)", output
                 );
             sql = "ReplaCe t1 value (123,?) ";
             lexer = new MySQLLexer(sql);
@@ -51,14 +52,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE INTO t1 VALUES (123, ?)", output);
+            Assert.AreEqual("REPLACE INTO t1 VALUES (123, ?)", output);
             sql = "ReplaCe LOW_PRIORITY t1 valueS (12e-2), (?)";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLReplaceParser(lexer, new MySQLExprParser(lexer));
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 VALUES (0.12), (?)"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 VALUES (0.12), (?)"
                 , output);
             sql = "ReplaCe LOW_PRIORITY t1 select id from t1";
             lexer = new MySQLLexer(sql);
@@ -66,7 +67,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 SELECT id FROM t1",
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 SELECT id FROM t1",
                 output);
             sql = "ReplaCe delayed t1 select id from t1";
             lexer = new MySQLLexer(sql);
@@ -74,7 +75,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE DELAYED INTO t1 SELECT id FROM t1", output
+            Assert.AreEqual("REPLACE DELAYED INTO t1 SELECT id FROM t1", output
                 );
             sql = "ReplaCe LOW_PRIORITY t1 (select id from t1) ";
             lexer = new MySQLLexer(sql);
@@ -82,7 +83,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 SELECT id FROM t1",
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 SELECT id FROM t1",
                 output);
             sql = "ReplaCe LOW_PRIORITY t1 (t1.col1) valueS (123),('12''34')";
             lexer = new MySQLLexer(sql);
@@ -90,7 +91,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (t1.col1) VALUES (123), ('12\\'34')"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (t1.col1) VALUES (123), ('12\\'34')"
                 , output);
             sql = "ReplaCe LOW_PRIORITY t1 (col1, t1.col2) VALUE (123,'123\\'4') ";
             lexer = new MySQLLexer(sql);
@@ -98,7 +99,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1, t1.col2) VALUES (123, '123\\'4')"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1, t1.col2) VALUES (123, '123\\'4')"
                 , output);
             sql = "REPLACE LOW_PRIORITY t1 (col1, t1.col2) select id from t3 ";
             lexer = new MySQLLexer(sql);
@@ -106,7 +107,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1, t1.col2) SELECT id FROM t3"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1, t1.col2) SELECT id FROM t3"
                 , output);
             sql = "replace LOW_PRIORITY  intO t1 (col1) ( select id from t3) ";
             lexer = new MySQLLexer(sql);
@@ -114,7 +115,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             replace = parser.Replace();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(replace, sql);
-            NUnit.Framework.Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1) SELECT id FROM t3"
+            Assert.AreEqual("REPLACE LOW_PRIORITY INTO t1 (col1) SELECT id FROM t3"
                 , output);
         }
     }

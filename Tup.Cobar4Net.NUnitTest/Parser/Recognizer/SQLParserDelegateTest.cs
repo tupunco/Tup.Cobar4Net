@@ -13,8 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 using NUnit.Framework;
+
 using System;
 using Tup.Cobar4Net.Parser.Ast.Stmt;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
@@ -23,22 +23,22 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 namespace Tup.Cobar4Net.Parser.Recognizer
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "SQLParserDelegateTest")]
+    [TestFixture(Category = "SQLParserDelegateTest")]
     public class SQLParserDelegateTest : AbstractSyntaxTest
     {
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestProperlyEnd()
         {
             string sql = "select * from tb1;";
             SQLStatement stmt = SQLParserDelegate.Parse(sql);
-            NUnit.Framework.Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
             sql = "select * from tb1 ;;;  ";
             stmt = SQLParserDelegate.Parse(sql);
-            NUnit.Framework.Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
             sql = "select * from tb1 /***/  ";
             stmt = SQLParserDelegate.Parse(sql);
-            NUnit.Framework.Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
             sql = "select * from tb1 ,  ";
             try
             {

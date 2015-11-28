@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 using System.Text;
 using Tup.Cobar4Net.Parser.Ast;
@@ -20,7 +21,7 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    [NUnit.Framework.TestFixture]
+    [TestFixture]
     public abstract class AbstractSyntaxTest
     {
         private const bool debug = false;

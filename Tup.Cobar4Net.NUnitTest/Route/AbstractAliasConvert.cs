@@ -13,16 +13,17 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using Sharpen;
+
+using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Route
 {
-	[NUnit.Framework.TestFixture]
-	public abstract class AbstractAliasConvert
-	{
-		protected internal virtual string AliasConvert(string alias)
-		{
-			return alias.ToUpper();
-		}
-	}
+    [TestFixture]
+    public abstract class AbstractAliasConvert
+    {
+        protected internal virtual string AliasConvert(string alias)
+        {
+            return alias.ToUpper();
+        }
+    }
 }

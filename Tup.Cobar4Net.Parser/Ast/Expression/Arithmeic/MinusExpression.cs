@@ -40,7 +40,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             object operand = GetOperand().Evaluation(parameters);
             if (operand == null)
             {
-                return null;
+                return 0;
             }
             if (operand == ExpressionConstants.Unevaluatable)
             {
@@ -63,7 +63,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (num == 0)
             {
-                return 0;
+                return -0;
             }
             int n = num;
             if (n == int.MinValue)
@@ -77,7 +77,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (num == 0)
             {
-                return 0;
+                return -0;
             }
             long n = num;
             if (n == long.MinValue)
@@ -91,7 +91,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (num == null)
             {
-                return null;
+                return -0;
             }
             return num.Negate();
         }
@@ -100,7 +100,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
             if (num == null)
             {
-                return null;
+                return -0;
             }
             return num.Negate();
         }

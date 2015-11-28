@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
@@ -20,11 +21,11 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
     /// <author><a href="mailto:danping.yudp@alibaba-inc.com">YU Danping</a></author>
-    [NUnit.Framework.TestFixture(Category = "MySQLDMLCallParserTest")]
+    [TestFixture(Category = "MySQLDMLCallParserTest")]
     public class MySQLDMLCallParserTest : AbstractSyntaxTest
     {
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestCall()
         {
             string sql = "call p(?,?) ";
@@ -34,28 +35,28 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             DMLCallStatement calls = parser.Call();
             parser.Match(MySQLToken.Eof);
             string output = Output2MySQL(calls, sql);
-            NUnit.Framework.Assert.AreEqual("CALL p(?, ?)", output);
+            Assert.AreEqual("CALL p(?, ?)", output);
             sql = "call p(@var1,'@var2',var3)";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLCallParser(lexer, new MySQLExprParser(lexer));
             calls = parser.Call();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(calls, sql);
-            NUnit.Framework.Assert.AreEqual("CALL p(@var1, '@var2', var3)", output);
+            Assert.AreEqual("CALL p(@var1, '@var2', var3)", output);
             sql = "call p()";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLCallParser(lexer, new MySQLExprParser(lexer));
             calls = parser.Call();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(calls, sql);
-            NUnit.Framework.Assert.AreEqual("CALL p()", output);
+            Assert.AreEqual("CALL p()", output);
             sql = "call p(?)";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLCallParser(lexer, new MySQLExprParser(lexer));
             calls = parser.Call();
             parser.Match(MySQLToken.Eof);
             output = Output2MySQL(calls, sql);
-            NUnit.Framework.Assert.AreEqual("CALL p(?)", output);
+            Assert.AreEqual("CALL p(?)", output);
         }
     }
 }

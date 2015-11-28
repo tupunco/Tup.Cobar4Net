@@ -49,7 +49,7 @@ namespace Tup.Cobar4Net.Route.Function
         {
             get { return m_DualHashLength; }
             set { SetHashLength(value); }
-        }        
+        }
         public void SetHashLength(int hashLength)
         {
             m_DualHashLength = hashLength;
@@ -77,7 +77,7 @@ namespace Tup.Cobar4Net.Route.Function
             return Calculate(parameters)[0];
         }
 
-        public int[] Calculate(IDictionary<object, object> parameters)
+        public Number[] Calculate(IDictionary<object, object> parameters)
         {
             int[] rst = new int[1];
             object arg = arguments[0].Evaluation(parameters);
@@ -85,12 +85,13 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 throw new ArgumentException("argument is UNEVALUATABLE");
             }
-            string key = arg.ToString();
+            //TODO string key = arg.ToString();
+            string key = (arg ?? "null").ToString();
             int start = hashSliceStart >= 0 ? hashSliceStart : key.Length + hashSliceStart;
             int end = hashSliceEnd > 0 ? hashSliceEnd : key.Length + hashSliceEnd;
             long hash = StringUtil.Hash(key, start, end);
             rst[0] = PartitionIndex(hash);
-            return rst;
+            return Number.ValueOf(rst);
         }
 
         public override FunctionExpression ConstructFunction(IList<Expr> arguments)

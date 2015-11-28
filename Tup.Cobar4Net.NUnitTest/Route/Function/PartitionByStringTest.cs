@@ -13,20 +13,20 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
+
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
-using Sharpen;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Route.Function
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "PartitionByStringTest")]
+    [TestFixture(Category = "PartitionByStringTest")]
     public class PartitionByStringTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartition()
         {
             PartitionByString sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -37,11 +37,11 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual((int)Execute(sut, "12"), (int)Execute(sut, "012")
+            Assert.AreEqual((int)Execute(sut, "12"), (int)Execute(sut, "012")
                 );
-            NUnit.Framework.Assert.AreEqual((int)Execute(sut, "112"), (int)Execute(sut, "012"
+            Assert.AreEqual((int)Execute(sut, "112"), (int)Execute(sut, "012"
                 ));
-            NUnit.Framework.Assert.AreEqual((int)Execute(sut, "2"), (int)Execute(sut, "2"));
+            Assert.AreEqual((int)Execute(sut, "2"), (int)Execute(sut, "2"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -50,13 +50,13 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(49, (int)Execute(sut, "012"));
-            NUnit.Framework.Assert.AreEqual(49, (int)Execute(sut, "12"));
-            NUnit.Framework.Assert.AreEqual(49, (int)Execute(sut, "15"));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, "2"));
-            NUnit.Framework.Assert.AreEqual(56, (int)Execute(sut, "888888"));
-            NUnit.Framework.Assert.AreEqual(56, (int)Execute(sut, "89"));
-            NUnit.Framework.Assert.AreEqual(56, (int)Execute(sut, "780"));
+            Assert.AreEqual(49, (int)Execute(sut, "012"));
+            Assert.AreEqual(49, (int)Execute(sut, "12"));
+            Assert.AreEqual(49, (int)Execute(sut, "15"));
+            Assert.AreEqual(0, (int)Execute(sut, "2"));
+            Assert.AreEqual(56, (int)Execute(sut, "888888"));
+            Assert.AreEqual(56, (int)Execute(sut, "89"));
+            Assert.AreEqual(56, (int)Execute(sut, "780"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -65,14 +65,14 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(49, (int)Execute(sut, "012"));
-            NUnit.Framework.Assert.AreEqual(49, (int)Execute(sut, "219"));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, "2"));
-            NUnit.Framework.Assert.AreEqual(512, (int)Execute(sut, "888888"));
+            Assert.AreEqual(49, (int)Execute(sut, "012"));
+            Assert.AreEqual(49, (int)Execute(sut, "219"));
+            Assert.AreEqual(0, (int)Execute(sut, "2"));
+            Assert.AreEqual(512, (int)Execute(sut, "888888"));
         }
 
         /// <summary>start == end , except 0:0,</summary>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartitionStartEqEnd()
         {
             // 同号，不越界
@@ -84,9 +84,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -96,9 +96,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，不越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -109,9 +109,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -121,9 +121,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，边界值
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -134,8 +134,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(641, (int)Execute(sut, "skkdifisd-"));
-            NUnit.Framework.Assert.AreEqual(74, (int)Execute(sut, "sdsdfsafaw"));
+            Assert.AreEqual(641, (int)Execute(sut, "skkdifisd-"));
+            Assert.AreEqual(74, (int)Execute(sut, "sdsdfsafaw"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -144,9 +144,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，边界值
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -157,9 +157,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -169,9 +169,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -182,9 +182,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -194,15 +194,15 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
         }
 
         // 异号，越界，不存在
         /// <summary>if end==0, then end = key.length</summary>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartitionStartLtEnd()
         {
             // 同号，不越界
@@ -214,9 +214,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -226,9 +226,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，不越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -239,9 +239,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -251,9 +251,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，边界值， 双边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -264,8 +264,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(119, (int)Execute(sut, "qiycgsrmkw"));
-            NUnit.Framework.Assert.AreEqual(104, (int)Execute(sut, "tbctwicjyh"));
+            Assert.AreEqual(119, (int)Execute(sut, "qiycgsrmkw"));
+            Assert.AreEqual(104, (int)Execute(sut, "tbctwicjyh"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -274,9 +274,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，边界值， 单边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -287,8 +287,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(176, (int)Execute(sut, "kducgalemc"));
-            NUnit.Framework.Assert.AreEqual(182, (int)Execute(sut, "1icuwixjsn"));
+            Assert.AreEqual(176, (int)Execute(sut, "kducgalemc"));
+            Assert.AreEqual(182, (int)Execute(sut, "1icuwixjsn"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -297,9 +297,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -309,9 +309,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -321,9 +321,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，边界值，双边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -334,9 +334,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -346,8 +346,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(108, (int)Execute(sut, "tcjsyckxhl"));
-            NUnit.Framework.Assert.AreEqual(106, (int)Execute(sut, "1uxhklsycj"));
+            Assert.AreEqual(108, (int)Execute(sut, "tcjsyckxhl"));
+            Assert.AreEqual(106, (int)Execute(sut, "1uxhklsycj"));
             // 异号，边界值，单边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -357,9 +357,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -369,8 +369,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(631, (int)Execute(sut, "1kckdlxhxw"));
-            NUnit.Framework.Assert.AreEqual(864, (int)Execute(sut, "nhyjklouqj"));
+            Assert.AreEqual(631, (int)Execute(sut, "1kckdlxhxw"));
+            Assert.AreEqual(864, (int)Execute(sut, "nhyjklouqj"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -379,9 +379,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -391,9 +391,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，双越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -404,9 +404,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -416,9 +416,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，单越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -429,9 +429,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -441,9 +441,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，双越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -454,9 +454,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 异号，单越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -467,9 +467,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -479,13 +479,13 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartitionStartgtEnd()
         {
             string testKey = "abcdefghij";
@@ -498,12 +498,12 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, "a" + Sharpen.Runtime.Substring
+            Assert.AreEqual(36, (int)Execute(sut, testKey));
+            Assert.AreEqual(36, (int)Execute(sut, "a" + Sharpen.Runtime.Substring
                 (testKey, 1, 6) + "abcd"));
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, "b" + Sharpen.Runtime.Substring
+            Assert.AreEqual(36, (int)Execute(sut, "b" + Sharpen.Runtime.Substring
                 (testKey, 1, 6) + "sila"));
-            NUnit.Framework.Assert.IsTrue((36 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
+            Assert.IsTrue((36 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
                 (testKey, 1, 5) + "sil2")));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -513,10 +513,10 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, "12" + Sharpen.Runtime.Substring
+            Assert.AreEqual(36, (int)Execute(sut, testKey));
+            Assert.AreEqual(36, (int)Execute(sut, "12" + Sharpen.Runtime.Substring
                 (testKey, 2, 5) + "12345"));
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, "45" + Sharpen.Runtime.Substring
+            Assert.AreEqual(36, (int)Execute(sut, "45" + Sharpen.Runtime.Substring
                 (testKey, 2, 5) + "78923"));
             // 异号，不越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -527,9 +527,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(260, (int)Execute(sut, "a" + Sharpen.Runtime.Substring
+            Assert.AreEqual(260, (int)Execute(sut, "a" + Sharpen.Runtime.Substring
                 (testKey, 1, 9) + "8"));
-            NUnit.Framework.Assert.AreEqual(260, (int)Execute(sut, "f" + Sharpen.Runtime.Substring
+            Assert.AreEqual(260, (int)Execute(sut, "f" + Sharpen.Runtime.Substring
                 (testKey, 1, 9) + "*"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -539,9 +539,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(934, (int)Execute(sut, "ab" + Sharpen.Runtime.Substring
+            Assert.AreEqual(934, (int)Execute(sut, "ab" + Sharpen.Runtime.Substring
                 (testKey, 2, 9) + "8"));
-            NUnit.Framework.Assert.AreEqual(934, (int)Execute(sut, "fj" + Sharpen.Runtime.Substring
+            Assert.AreEqual(934, (int)Execute(sut, "fj" + Sharpen.Runtime.Substring
                 (testKey, 2, 9) + "*"));
             // 同号，边界值， 双边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -552,9 +552,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "#"));
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "*"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -564,9 +564,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "#"));
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "*"));
             // 同号，边界值， 单边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -577,9 +577,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 5) + "#uiyt"));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 5) + "*rfsj"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -589,9 +589,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "%"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -601,9 +601,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(36, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 5) + "#uiyt45"));
-            NUnit.Framework.Assert.AreEqual(36, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(36, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 5) + "*rfsjkm"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -613,9 +613,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(936, (int)Execute(sut, "#uiyt4" + Sharpen.Runtime.Substring
+            Assert.AreEqual(936, (int)Execute(sut, "#uiyt4" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(936, (int)Execute(sut, "*rfsj$" + Sharpen.Runtime.Substring
+            Assert.AreEqual(936, (int)Execute(sut, "*rfsj$" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "%"));
             // 异号，边界值，双边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -626,9 +626,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "%"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -638,9 +638,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
+            Assert.AreEqual(101, (int)Execute(sut, Sharpen.Runtime.Substring(
                 testKey, 0, 9) + "%"));
             // 异号，边界值，单边界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -651,9 +651,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 4) + "asdebh"));
-            NUnit.Framework.Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 4) + "%^&*()"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -663,9 +663,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 4) + "asdebh"));
-            NUnit.Framework.Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(66, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 4) + "%^&*()"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -675,9 +675,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "%"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -687,9 +687,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "#uiyt" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "a"));
-            NUnit.Framework.Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
+            Assert.AreEqual(386, (int)Execute(sut, "*rfsj" + Sharpen.Runtime.Substring
                 (testKey, 5, 9) + "%"));
             // 同号，双越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -700,9 +700,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -712,9 +712,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 同号，单越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -725,11 +725,11 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(33, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(33, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 2) + "dskfdijc"));
-            NUnit.Framework.Assert.AreEqual(33, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(33, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 2) + "cuiejdjj"));
-            NUnit.Framework.Assert.AreEqual(129, (int)Execute(sut, "$%cuiejdjj"));
+            Assert.AreEqual(129, (int)Execute(sut, "$%cuiejdjj"));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -738,11 +738,11 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(450, (int)Execute(sut, "#uiyt#" + Sharpen.Runtime.Substring
+            Assert.AreEqual(450, (int)Execute(sut, "#uiyt#" + Sharpen.Runtime.Substring
                 (testKey, 6, 10)));
-            NUnit.Framework.Assert.AreEqual(450, (int)Execute(sut, "*rfsj*" + Sharpen.Runtime.Substring
+            Assert.AreEqual(450, (int)Execute(sut, "*rfsj*" + Sharpen.Runtime.Substring
                 (testKey, 6, 10)));
-            NUnit.Framework.Assert.AreEqual(345, (int)Execute(sut, "#uiyt#" + "dkug"));
+            Assert.AreEqual(345, (int)Execute(sut, "#uiyt#" + "dkug"));
             // 异号，双越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -752,8 +752,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(165, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(725, (int)Execute(sut, "1" + Sharpen.Runtime.Substring
+            Assert.AreEqual(165, (int)Execute(sut, testKey));
+            Assert.AreEqual(725, (int)Execute(sut, "1" + Sharpen.Runtime.Substring
                 (testKey, 1, 10)));
             // 异号，单越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -764,9 +764,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(388, (int)Execute(sut, "1q" + Sharpen.Runtime.Substring
+            Assert.AreEqual(388, (int)Execute(sut, "1q" + Sharpen.Runtime.Substring
                 (testKey, 2, 10)));
-            NUnit.Framework.Assert.AreEqual(388, (int)Execute(sut, "sd" + Sharpen.Runtime.Substring
+            Assert.AreEqual(388, (int)Execute(sut, "sd" + Sharpen.Runtime.Substring
                 (testKey, 2, 10)));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -776,13 +776,13 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "abcd"));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "efgh"));
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPartitionNoStartOrNoEnd()
         {
             string testKey = "abcdefghij";
@@ -795,12 +795,12 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, testKey));
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "abcd"));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "sila"));
-            NUnit.Framework.Assert.IsTrue((99 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
+            Assert.IsTrue((99 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
                 (testKey, 1, 5) + "sil2")));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -810,12 +810,12 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, testKey));
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "abcd"));
-            NUnit.Framework.Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
+            Assert.AreEqual(99, (int)Execute(sut, Sharpen.Runtime.Substring(testKey
                 , 0, 6) + "sila"));
-            NUnit.Framework.Assert.IsTrue((99 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
+            Assert.IsTrue((99 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
                 (testKey, 1, 5) + "sil2")));
             // 无start， 越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -826,8 +826,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(165, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(647, (int)Execute(sut, "b" + testKey));
+            Assert.AreEqual(165, (int)Execute(sut, testKey));
+            Assert.AreEqual(647, (int)Execute(sut, "b" + testKey));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -836,9 +836,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 无end， 不越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -849,12 +849,12 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(388, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(388, (int)Execute(sut, "ab" + Sharpen.Runtime.Substring
+            Assert.AreEqual(388, (int)Execute(sut, testKey));
+            Assert.AreEqual(388, (int)Execute(sut, "ab" + Sharpen.Runtime.Substring
                 (testKey, 2, 10)));
-            NUnit.Framework.Assert.AreEqual(388, (int)Execute(sut, "e&" + Sharpen.Runtime.Substring
+            Assert.AreEqual(388, (int)Execute(sut, "e&" + Sharpen.Runtime.Substring
                 (testKey, 2, 10)));
-            NUnit.Framework.Assert.IsTrue((388 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
+            Assert.IsTrue((388 != (int)Execute(sut, "c" + Sharpen.Runtime.Substring
                 (testKey, 1, 5) + "sil2")));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
@@ -864,10 +864,10 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(808, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(808, (int)Execute(sut, "abT*1" + Sharpen.Runtime.Substring
+            Assert.AreEqual(808, (int)Execute(sut, testKey));
+            Assert.AreEqual(808, (int)Execute(sut, "abT*1" + Sharpen.Runtime.Substring
                 (testKey, 5, 10)));
-            NUnit.Framework.Assert.AreEqual(808, (int)Execute(sut, "ab^^!" + Sharpen.Runtime.Substring
+            Assert.AreEqual(808, (int)Execute(sut, "ab^^!" + Sharpen.Runtime.Substring
                 (testKey, 5, 10)));
             // 无end， 越界
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -878,8 +878,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(165, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(647, (int)Execute(sut, "b" + testKey));
+            Assert.AreEqual(165, (int)Execute(sut, testKey));
+            Assert.AreEqual(647, (int)Execute(sut, "b" + testKey));
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
                 >)ListUtil.CreateList(new PlaceHolder("member_id", "MEMBER_ID").SetCacheEvalRst(
                 false)));
@@ -888,9 +888,9 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
-            NUnit.Framework.Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
+            Assert.AreEqual(0, (int)Execute(sut, Sharpen.Runtime.Substring(UUID
                 .RandomUUID().ToString(), 0, 10)));
             // 无start 无end
             sut = new PartitionByString("test   ", (IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression
@@ -901,8 +901,8 @@ namespace Tup.Cobar4Net.Route.Function
             sut.SetPartitionCount("1024");
             sut.SetPartitionLength("1");
             sut.Init();
-            NUnit.Framework.Assert.AreEqual(165, (int)Execute(sut, testKey));
-            NUnit.Framework.Assert.AreEqual(452, (int)Execute(sut, "b" + Sharpen.Runtime.Substring
+            Assert.AreEqual(165, (int)Execute(sut, testKey));
+            Assert.AreEqual(452, (int)Execute(sut, "b" + Sharpen.Runtime.Substring
                 (testKey, 1)));
         }
 
@@ -910,7 +910,7 @@ namespace Tup.Cobar4Net.Route.Function
         {
             var map = new Dictionary<object, object>(1);
             map["MEMBER_ID"] = key;
-            int v = (int)sut.Evaluation(map);
+            int v = (int)new Number(sut.Evaluation(map));
             return v;
         }
 

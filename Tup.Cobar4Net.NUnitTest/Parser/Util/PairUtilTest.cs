@@ -13,41 +13,42 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Parser.Util
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "PairUtilTest")]
+    [TestFixture(Category = "PairUtilTest")]
     public class PairUtilTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestSequenceSlicing()
         {
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(0, 2), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(0, 2), PairUtil.SequenceSlicing
                 ("2"));
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(1, 2), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(1, 2), PairUtil.SequenceSlicing
                 ("1: 2"));
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(1, 0), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(1, 0), PairUtil.SequenceSlicing
                 (" 1 :"));
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
                 ("-1: "));
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
                 (" -1:0"));
-            NUnit.Framework.Assert.AreEqual(new Pair<int, int>(0, 0), PairUtil.SequenceSlicing
+            Assert.AreEqual(new Pair<int, int>(0, 0), PairUtil.SequenceSlicing
                 (" :"));
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void SplitIndexTest()
         {
             string src1 = "offer_group[10]";
             Pair<string, int> pair1 = PairUtil.SplitIndex(src1, '[', ']');
-            NUnit.Framework.Assert.AreEqual("offer_group", pair1.GetKey());
-            NUnit.Framework.Assert.AreEqual(10, pair1.GetValue());
+            Assert.AreEqual("offer_group", pair1.GetKey());
+            Assert.AreEqual(10, pair1.GetValue());
             string src2 = "offer_group";
             Pair<string, int> pair2 = PairUtil.SplitIndex(src2, '[', ']');
-            NUnit.Framework.Assert.AreEqual("offer_group", pair2.GetKey());
-            NUnit.Framework.Assert.AreEqual(-1, pair2.GetValue());
+            Assert.AreEqual("offer_group", pair2.GetKey());
+            Assert.AreEqual(-1, pair2.GetValue());
         }
     }
 }

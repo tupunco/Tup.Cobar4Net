@@ -90,7 +90,7 @@ namespace Tup.Cobar4Net.Route
             var ast_1 = SQLParserDelegate.Parse(stmt, charset == null
                                                                 ? MySQLParser.DefaultCharset
                                                                 : charset);
-             var visitor_1 = new PartitionKeyVisitor(schema.GetTables());
+            var visitor_1 = new PartitionKeyVisitor(schema.GetTables());
             visitor_1.SetTrimSchema(schema.IsKeepSqlSchema() ? schema.GetName() : null);
             ast_1.Accept(visitor_1);
             // 如果sql包含用户自定义的schema，则路由到default节点
@@ -206,7 +206,8 @@ namespace Tup.Cobar4Net.Route
             // 判断路由结果是单库还是多库
             if (dnMap.Count == 1)
             {
-                string dataNode = matchedTable.GetDataNodes()[dnMap.Keys.GetEnumerator().Current];
+                string dataNode = matchedTable.GetDataNodes()[dnMap.Keys.FirstOrDefault()];
+                //string dataNode = matchedTable.GetDataNodes()[dnMap.Keys.GetEnumerator().Current];
                 string sql = visitor_1.IsSchemaTrimmed() ? GenSQL(ast_1, stmt) : stmt;
                 RouteResultsetNode[] rn = new RouteResultsetNode[1];
                 rn[0] = new RouteResultsetNode(dataNode, sql);
@@ -470,12 +471,13 @@ namespace Tup.Cobar4Net.Route
                             string dataNode = GetMetaReadDataNode(schema, table);
                             dataNodeSet.Add(dataNode);
                         }
-                        dataNodes = new string[dataNodeSet.Count];
-                        IEnumerator<string> iter = dataNodeSet.GetEnumerator();
-                        for (int i = 0; i < dataNodes.Length; ++i)
-                        {
-                            dataNodes[i] = iter.Current;
-                        }
+                        dataNodes = dataNodeSet.ToArray();
+                        //dataNodes = new string[dataNodeSet.Count];
+                        //IEnumerator<string> iter = dataNodeSet.GetEnumerator();
+                        //for (int i = 0; i < dataNodes.Length; ++i)
+                        //{
+                        //    dataNodes[i] = iter.Current;
+                        //}
                     }
                 }
                 RouteResultsetNode[] nodes = new RouteResultsetNode[dataNodes.Length];
@@ -491,7 +493,9 @@ namespace Tup.Cobar4Net.Route
                 string dataNode = schema.GetDataNode();
                 var tables = schema.GetTables();
                 TableConfig tc;
-                if (tables != null && (tc = tables.GetValue(table)) != null)
+                if (tables != null
+                    && table != null //TODO GetMetaReadDataNode table != null
+                    && (tc = tables.GetValue(table)) != null)
                 {
                     string[] dn = tc.GetDataNodes();
                     if (dn != null && dn.Length > 0)
@@ -506,7 +510,7 @@ namespace Tup.Cobar4Net.Route
         private static int[] CalcDataNodeIndexesByFunction(RuleAlgorithm algorithm, IDictionary<string, object> parameter)
         {
             //int[] dataNodeIndexes;
-            return algorithm.Calculate(parameter.ToDictionary(x => (object)x.Key, y => y.Value));
+            return Number.ToInt32(algorithm.Calculate(parameter.ToDictionary(x => (object)x.Key, y => y.Value)));
             //object calRst = algorithm.Calculate(parameter);
             //if (calRst is Number)
             //{
@@ -655,28 +659,36 @@ namespace Tup.Cobar4Net.Route
             var algorithm = rule.GetRuleAlgorithm();
             var cols = rule.GetColumns();
             var parameter = new Dictionary<string, object>(cols.Count);
-            var colsValIter = new List<IEnumerator<object>>(columnValues.Count);
-            foreach (string rc in cols)
+            var colsValIter = new List<IList<object>>(columnValues.Count);
+            var columnCount = 0;
+            foreach (var rc in cols)
             {
-                IList<object> list = columnValues.GetValue(rc);
+                var list = columnValues.GetValue(rc);
                 if (list == null)
                 {
                     string msg = "route err: rule column " + rc + " dosn't exist in extract: " + columnValues;
                     throw new ArgumentException(msg);
                 }
-                colsValIter.Add(list.GetEnumerator());
+                if (columnCount <= 0)
+                    columnCount = list.Count;
+
+                colsValIter.Add(list);
             }
+
             try
             {
-                for (var mainIter = colsValIter[0]; mainIter.MoveNext();)
+
+                var countIndex = 0;
+                while (countIndex < columnCount)
                 {
-                    object[] tuple = new object[cols.Count];
+                    var tuple = new object[cols.Count];
                     for (int i = 0, len = cols.Count; i < len; ++i)
                     {
-                        object value = colsValIter[i].Current;
+                        object value = colsValIter[i][countIndex];
                         tuple[i] = value;
                         parameter[cols[i]] = value;
                     }
+
                     int[] dataNodeIndexes = CalcDataNodeIndexesByFunction(algorithm, parameter);
                     for (int i_1 = 0; i_1 < dataNodeIndexes.Length; ++i_1)
                     {
@@ -689,6 +701,8 @@ namespace Tup.Cobar4Net.Route
                         }
                         list.Add(tuple);
                     }
+
+                    countIndex++;
                 }
             }
             catch (Exception e)

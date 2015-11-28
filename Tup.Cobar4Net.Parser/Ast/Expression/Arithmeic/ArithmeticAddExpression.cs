@@ -36,10 +36,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 
         public override Number Calculate(int integer1, int integer2)
         {
-            if (integer1 == 0 && integer1 == 0)
-            {
+            if (integer1 == 0 && integer2 == 0)
                 return 0;
-            }
 
             int i1 = integer1;
             int i2 = integer2;

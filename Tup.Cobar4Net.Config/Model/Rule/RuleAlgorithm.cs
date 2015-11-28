@@ -14,6 +14,7 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model.Rule
@@ -26,6 +27,6 @@ namespace Tup.Cobar4Net.Config.Model.Rule
         void Initialize();
 
         /// <returns>never null</returns>
-        int[] Calculate(IDictionary<object, object> parameters);
+        Number[] Calculate(IDictionary<object, object> parameters);
     }
 }

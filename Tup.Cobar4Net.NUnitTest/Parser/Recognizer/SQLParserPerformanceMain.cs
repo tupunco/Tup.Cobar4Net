@@ -13,18 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Parser.Recognizer
 {
     /// <author>xianmao.hexm</author>
-    [NUnit.Framework.TestFixture(Category = "SQLParserPerformanceMain")]
+    [TestFixture(Category = "SQLParserPerformanceMain")]
     public class SQLParserPerformanceMain
     {
-        //[NUnit.Framework.Test]
+        //[Test]
         //public virtual void TestMain()
         //{
         //    Main(null);
-        //    NUnit.Framework.Assert.IsTrue(true);
+        //    Assert.IsTrue(true);
         //}
 
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>

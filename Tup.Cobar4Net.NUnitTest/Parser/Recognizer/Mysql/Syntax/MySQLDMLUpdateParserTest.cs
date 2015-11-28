@@ -13,6 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
 
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
@@ -20,7 +21,7 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "MySQLDMLUpdateParserTest")]
+    [TestFixture(Category = "MySQLDMLUpdateParserTest")]
     public class MySQLDMLUpdateParserTest : AbstractSyntaxTest
     {
         /// <summary>
@@ -32,7 +33,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         /// </pre></code>
         /// </summary>
         /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestUpdate()
         {
             string sql = "upDate LOw_PRIORITY IGNORE test.t1 sEt t1.col1=?, col2=DefaulT";
@@ -41,36 +42,36 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                 (lexer));
             DMLUpdateStatement update = parser.Update();
             string output = Output2MySQL(update, sql);
-            NUnit.Framework.Assert.IsNotNull(update);
-            NUnit.Framework.Assert.AreEqual("UPDATE LOW_PRIORITY IGNORE test.t1 SET t1.col1 = ?, col2 = DEFAULT"
+            Assert.IsNotNull(update);
+            Assert.AreEqual("UPDATE LOW_PRIORITY IGNORE test.t1 SET t1.col1 = ?, col2 = DEFAULT"
                 , output);
             sql = "upDate  IGNORE (t1) set col2=DefaulT order bY t1.col2 ";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLUpdateParser(lexer, new MySQLExprParser(lexer));
             update = parser.Update();
             output = Output2MySQL(update, sql);
-            NUnit.Framework.Assert.AreEqual("UPDATE IGNORE t1 SET col2 = DEFAULT ORDER BY t1.col2"
+            Assert.AreEqual("UPDATE IGNORE t1 SET col2 = DEFAULT ORDER BY t1.col2"
                 , output);
             sql = "upDate   (test.t1) SET col2=DefaulT order bY t1.col2 limit ? offset 1";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLUpdateParser(lexer, new MySQLExprParser(lexer));
             update = parser.Update();
             output = Output2MySQL(update, sql);
-            NUnit.Framework.Assert.AreEqual("UPDATE test.t1 SET col2 = DEFAULT ORDER BY t1.col2 LIMIT 1, ?"
+            Assert.AreEqual("UPDATE test.t1 SET col2 = DEFAULT ORDER BY t1.col2 LIMIT 1, ?"
                 , output);
             sql = "upDate LOW_PRIORITY  t1, test.t2 SET col2=DefaulT , col2='123''4'";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLUpdateParser(lexer, new MySQLExprParser(lexer));
             update = parser.Update();
             output = Output2MySQL(update, sql);
-            NUnit.Framework.Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4'"
+            Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4'"
                 , output);
             sql = "upDate LOW_PRIORITY  t1, test.t2 SET col2:=DefaulT , col2='123''4' where id='a'";
             lexer = new MySQLLexer(sql);
             parser = new MySQLDMLUpdateParser(lexer, new MySQLExprParser(lexer));
             update = parser.Update();
             output = Output2MySQL(update, sql);
-            NUnit.Framework.Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4' WHERE id = 'a'"
+            Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4' WHERE id = 'a'"
                 , output);
         }
     }

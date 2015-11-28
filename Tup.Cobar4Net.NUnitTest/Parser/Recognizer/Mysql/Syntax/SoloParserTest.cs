@@ -1,18 +1,15 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    [NUnit.Framework.TestFixture(Category = "SoloParserTest")]
+    [TestFixture(Category = "SoloParserTest")]
     public class SoloParserTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestMain()
         {
             SoloParser.Main(null);
-            NUnit.Framework.Assert.IsTrue(true);
+            Assert.IsTrue(true);
         }
     }
 }

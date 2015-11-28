@@ -13,60 +13,60 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
+
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
-using Sharpen;
 
 namespace Tup.Cobar4Net.Route.Util
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [NUnit.Framework.TestFixture(Category = "PermutationUtilTest")]
+    [TestFixture(Category = "PermutationUtilTest")]
     public class PermutationUtilTest
     {
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPermutate()
         {
             ICollection<string> set = PermutationUtil.PermutateSQL("-", "1");
-            NUnit.Framework.Assert.AreEqual(1, set.Count);
-            NUnit.Framework.Assert.IsTrue(set.Contains("1"));
+            Assert.AreEqual(1, set.Count);
+            Assert.IsTrue(set.Contains("1"));
             set = PermutationUtil.PermutateSQL("-", "1", "1");
-            NUnit.Framework.Assert.AreEqual(1, set.Count);
-            NUnit.Framework.Assert.IsTrue(set.Contains("1-1"));
+            Assert.AreEqual(1, set.Count);
+            Assert.IsTrue(set.Contains("1-1"));
             set = PermutationUtil.PermutateSQL("-", "1", "2");
-            NUnit.Framework.Assert.AreEqual(2, set.Count);
-            NUnit.Framework.Assert.IsTrue(set.Contains("1-2"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("2-1"));
+            Assert.AreEqual(2, set.Count);
+            Assert.IsTrue(set.Contains("1-2"));
+            Assert.IsTrue(set.Contains("2-1"));
             set = PermutationUtil.PermutateSQL("-", "1", "2", "2");
-            NUnit.Framework.Assert.AreEqual(3, set.Count);
-            NUnit.Framework.Assert.IsTrue(set.Contains("1-2-2"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("2-1-2"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("2-2-1"));
+            Assert.AreEqual(3, set.Count);
+            Assert.IsTrue(set.Contains("1-2-2"));
+            Assert.IsTrue(set.Contains("2-1-2"));
+            Assert.IsTrue(set.Contains("2-2-1"));
             set = PermutationUtil.PermutateSQL("-", "1", "2", "3");
-            NUnit.Framework.Assert.AreEqual(6, set.Count);
-            NUnit.Framework.Assert.IsTrue(set.Contains("1-2-3"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("1-3-2"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("2-1-3"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("2-3-1"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("3-2-1"));
-            NUnit.Framework.Assert.IsTrue(set.Contains("3-1-2"));
+            Assert.AreEqual(6, set.Count);
+            Assert.IsTrue(set.Contains("1-2-3"));
+            Assert.IsTrue(set.Contains("1-3-2"));
+            Assert.IsTrue(set.Contains("2-1-3"));
+            Assert.IsTrue(set.Contains("2-3-1"));
+            Assert.IsTrue(set.Contains("3-2-1"));
+            Assert.IsTrue(set.Contains("3-1-2"));
         }
 
-        [NUnit.Framework.Test]
+        [Test]
         public virtual void TestPermutateNull()
         {
             try
             {
                 PermutationUtil.PermutateSQL("-");
-                NUnit.Framework.Assert.IsFalse(true);
+                Assert.IsFalse(true);
             }
             catch (ArgumentException)
             {
-                NUnit.Framework.Assert.IsTrue(true);
+                Assert.IsTrue(true);
             }
             catch
             {
-                NUnit.Framework.Assert.IsFalse(true);
+                Assert.IsFalse(true);
             }
         }
     }

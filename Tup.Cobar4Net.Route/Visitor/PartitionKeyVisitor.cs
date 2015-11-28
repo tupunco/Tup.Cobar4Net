@@ -16,6 +16,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Parser.Ast;
 using Tup.Cobar4Net.Parser.Ast.Expression;
@@ -170,18 +171,21 @@ namespace Tup.Cobar4Net.Route.Visitor
         {
             if (IsTableMetaRead())
             {
-                ICollection<string> tables = columnValue.Keys;
+                var tables = columnValue.Keys;
                 if (tables == null || tables.IsEmpty())
                 {
                     return EmptyStringArray;
                 }
-                string[] array = new string[tables.Count];
-                IEnumerator<string> iter = tables.GetEnumerator();
-                for (int i = 0; i < array.Length; ++i)
-                {
-                    array[i] = iter.Current;
-                }
-                return array;
+                return tables.ToArray();
+                //string[] array = new string[tables.Count];
+                //using (var iter = tables.GetEnumerator())
+                //{
+                //    for (int i = 0; i < array.Length; ++i)
+                //    {
+                //        array[i] = iter.Current;
+                //    }
+                //}
+                //return array;
             }
             return null;
         }
@@ -284,12 +288,11 @@ namespace Tup.Cobar4Net.Route.Visitor
             Expr expr,
             ASTNode parent)
         {
-            var exprSet = valMap.GetValue(value);
+            var exprSet = value == null ? null : valMap.GetValue(value);
             if (exprSet == null)
             {
-                // exprSet = new HashSet<Pair<Expression, ASTNode>>(2, 1);
-                exprSet = new SortedSet<Pair<Expr, ASTNode>>();
-                valMap[value] = exprSet;
+                exprSet = new HashSet<Pair<Expr, ASTNode>>();
+                valMap[value ?? Null_Alias_Key] = exprSet;
             }
             var pair = new Pair<Expr, ASTNode>(expr, parent);
             exprSet.Add(pair);
@@ -314,11 +317,11 @@ namespace Tup.Cobar4Net.Route.Visitor
             IDictionary<string, ColumnValueType> colMap,
             string column)
         {
-            var valMap = colMap.GetValue(column);
+            var valMap = column == null ? null : colMap.GetValue(column);
             if (valMap == null)
             {
                 valMap = new Dictionary<object, ICollection<Pair<Expr, ASTNode>>>();
-                colMap[column] = valMap;
+                colMap[column ?? Null_Alias_Key] = valMap;
             }
             return valMap;
         }
@@ -729,7 +732,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (verdictColumn && !node.IsNot() && fst is Identifier)
             {
                 Identifier col = (Identifier)fst;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     object e1 = snd.Evaluation(evaluationParameter);
@@ -774,7 +777,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (verdictColumn && (operand is Identifier))
             {
                 Identifier col = (Identifier)operand;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     switch (node.GetMode())
@@ -865,7 +868,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (value != ExpressionConstants.Unevaluatable
                 && (nullsafe || value != null))
             {
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
                 if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
                 {
                     AddColumnValue(table, col.GetIdTextUpUnescape(), value, node, null);
@@ -882,7 +885,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             {
                 var col = (Identifier)left;
                 string colName = col.GetIdTextUpUnescape();
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2)?? Null_Alias_Key);
+                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
                 if (IsRuledColumn(table, colName))
                 {
                     var valList = EnsureColumnValueList(EnsureColumnValueByTable(table), colName);

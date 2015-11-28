@@ -13,51 +13,52 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+using NUnit.Framework;
+
 using Sharpen;
 using Tup.Cobar4Net.Config.Model;
-using Tup.Cobar4Net.Route;
 
 namespace Tup.Cobar4Net.Route.Perf
 {
-	/// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-	public class ShardingDefaultSpace
-	{
-		private SchemaConfig schema;
+    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    public class ShardingDefaultSpace
+    {
+        private SchemaConfig schema;
 
-		/// <exception cref="System.Exception"/>
-		public ShardingDefaultSpace()
-		{
-		}
+        /// <exception cref="System.Exception"/>
+        public ShardingDefaultSpace()
+        {
+        }
 
-		// schema =
-		// CobarServer.getInstance().getConfig().getSchemas().get("cndb");
-		/// <summary>路由到defaultSpace的�?�能测试</summary>
-		/// <exception cref="System.Data.Sql.SQLNonTransientException"/>
-		public virtual void TestDefaultSpace()
-		{
-			SchemaConfig schema = this.GetSchema();
-			string sql = "insert into xoffer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
-			for (int i = 0; i < 1000000; i++)
-			{
-				ServerRouter.Route(schema, sql, null, null);
-			}
-		}
+        // schema =
+        // CobarServer.getInstance().getConfig().getSchemas().get("cndb");
+        /// <summary>路由到defaultSpace的�?�能测试</summary>
+        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
+        public virtual void TestDefaultSpace()
+        {
+            SchemaConfig schema = this.GetSchema();
+            string sql = "insert into xoffer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
+            for (int i = 0; i < 1000000; i++)
+            {
+                ServerRouter.Route(schema, sql, null, null);
+            }
+        }
 
-		protected internal virtual SchemaConfig GetSchema()
-		{
-			return schema;
-		}
+        protected internal virtual SchemaConfig GetSchema()
+        {
+            return schema;
+        }
 
-		/// <exception cref="System.Exception"/>
-		public static void Main(string[] args)
-		{
-			Tup.Cobar4Net.Route.Perf.ShardingDefaultSpace test = new Tup.Cobar4Net.Route.Perf.ShardingDefaultSpace
-				();
-			Runtime.CurrentTimeMillis();
-			long start = Runtime.CurrentTimeMillis();
-			test.TestDefaultSpace();
-			long end = Runtime.CurrentTimeMillis();
-			System.Console.Out.WriteLine("take " + (end - start) + " ms.");
-		}
-	}
+        /// <exception cref="System.Exception"/>
+        public static void Main(string[] args)
+        {
+            Tup.Cobar4Net.Route.Perf.ShardingDefaultSpace test = new Tup.Cobar4Net.Route.Perf.ShardingDefaultSpace
+                ();
+            Runtime.CurrentTimeMillis();
+            long start = Runtime.CurrentTimeMillis();
+            test.TestDefaultSpace();
+            long end = Runtime.CurrentTimeMillis();
+            System.Console.Out.WriteLine("take " + (end - start) + " ms.");
+        }
+    }
 }
