@@ -10,6 +10,14 @@ Cobar 是提供关系型数据库 (MySQL) 分布式服务的中间件, 它可以
 2.  [Config][3]
 3.  [Route][4]
 
+##Roadmap
+* 0.1 完成 SqlParser+Route.
+* 0.2 去掉遗留 JAVA 语法特征, 整理代码符合 C#/.NET 规范.
+* 0.3 实现一组简单 ADO.NET DbProviderFactory 封装类,  可以直连方式使用 Route 功能. 作为一个基本 MySQL  Sharding 方案来使用.
+* 0.5 待定...
+* 1.0 实现 Cobar Server 完整功能.
+* 1.1 实现 Cobar Manager 功能.
+
 ##相关资料:
 *  Cobar wiki ([https://github.com/alibaba/cobar/wiki](https://github.com/alibaba/cobar/wiki))
 *  Cobar 文档 ([https://github.com/alibaba/cobar/tree/master/doc](https://github.com/alibaba/cobar/tree/master/doc))
@@ -17,8 +25,9 @@ Cobar 是提供关系型数据库 (MySQL) 分布式服务的中间件, 它可以
 ##环境:
 *  .NET 4.0/VS2015
 
-##辅助工具:
+##第三方:
 *  Sharpen (Automated Java->C# coversion) ([https://github.com/mono/sharpen](https://github.com/mono/sharpen))
+*  Deveel Math (A library for handling big numbers and decimals under Mono/.NET frameworks) ([https://github.com/deveel/deveel-math))
 
 ##协议:
 *  [Apache 2.0 license][1]
