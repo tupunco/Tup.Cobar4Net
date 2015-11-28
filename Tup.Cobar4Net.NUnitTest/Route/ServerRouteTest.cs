@@ -36,7 +36,6 @@ namespace Tup.Cobar4Net.Route
     [TestFixture(Category = "ServerRouteTest")]
     public class ServerRouteTest : AbstractAliasConvert
     {
-        //TODO ServerRouteTest schemaMap
         protected internal IDictionary<string, SchemaConfig> schemaMap = null;
 
         public ServerRouteTest()

@@ -14,10 +14,13 @@
 * limitations under the License.
 */
 using System;
-using System.Linq;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Reflection;
+
+#if CONFG_BEAN
+using System.Linq;
+using System.ComponentModel;
+#endif
 
 namespace Tup.Cobar4Net.Config.Util
 {
@@ -65,22 +68,21 @@ namespace Tup.Cobar4Net.Config.Util
                         value = Convert(cls, @string);
                     }
                 }
-                else
+#if CONFG_BEAN
+                else if (obj is BeanConfig)
                 {
-                    if (obj is BeanConfig)
-                    {
-                        value = CreateBean((BeanConfig)obj);
-                    }
-                    else if (obj is IList<BeanConfig>)
-                    {
-                        var list = new List<object>();
-                        foreach (var beanconfig in (IList<BeanConfig>)obj)
-                        {
-                            list.Add(CreateBean(beanconfig));
-                        }
-                        value = list.ToArray();
-                    }
+                    value = CreateBean((BeanConfig)obj);
                 }
+                else if (obj is IList<BeanConfig>)
+                {
+                    var list = new List<object>();
+                    foreach (var beanconfig in (IList<BeanConfig>)obj)
+                    {
+                        list.Add(CreateBean(beanconfig));
+                    }
+                    value = list.ToArray();
+                }
+#endif
                 if (cls != null && value != null)
                 {
                     pd.SetValue(@object, value, null);
@@ -88,7 +90,8 @@ namespace Tup.Cobar4Net.Config.Util
             }
         }
 
-        /// <exception cref="System.MemberAccessException"/>
+#if CONFG_BEAN
+     /// <exception cref="System.MemberAccessException"/>
         /// <exception cref="System.Reflection.TargetInvocationException"/>
         public static object CreateBean(BeanConfig config)
         {
@@ -119,6 +122,7 @@ namespace Tup.Cobar4Net.Config.Util
             }
             return bean;
         }
+#endif
 
         private static PropertyInfo[] GetDescriptors(Type clazz)
         {

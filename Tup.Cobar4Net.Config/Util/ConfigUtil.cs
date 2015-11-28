@@ -14,11 +14,14 @@
 * limitations under the License.
 */
 using System.Collections.Generic;
-using System.Text;
-using Sharpen;
 using Tup.Cobar4Net.Util;
 using System.Xml;
 using System;
+
+#if CONFG_BEAN
+using System.Text;
+using Sharpen;
+#endif
 
 namespace Tup.Cobar4Net.Config.Util
 {
@@ -164,24 +167,29 @@ namespace Tup.Cobar4Net.Config.Util
                     if ("property".Equals(name))
                     {
                         var key = e.GetAttribute("name");
-                        //var nl = e.ChildNodes;
+
+#if CONFG_BEAN
                         var nl = e.GetElementsByTagName("bean");
                         if (nl.Count == 0 )
+#endif
                         {
                             //|| (nl.Count == 1 && nl.Item(0).NodeType == XmlNodeType.Text)
                             string value = e.InnerText;
                             map[key] = StringUtil.IsEmpty(value) ? null : value.Trim();
                         }
-                        else
+#if CONFG_BEAN
+else
                         {
                             map[key] = LoadBean((XmlElement)nl.Item(0));
                         }
+#endif
                     }
                 }
             }
             return map;
         }
 
+#if CONFG_BEAN
         public static BeanConfig LoadBean(XmlElement parent, string tagName)
         {
             var nodeList = parent.GetElementsByTagName(tagName);
@@ -209,5 +217,6 @@ namespace Tup.Cobar4Net.Config.Util
             bean.SetParams(LoadElements(e));
             return bean;
         }
+#endif
     }
 }

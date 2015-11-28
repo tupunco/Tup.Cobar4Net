@@ -509,7 +509,6 @@ namespace Tup.Cobar4Net.Route
 
         private static int[] CalcDataNodeIndexesByFunction(RuleAlgorithm algorithm, IDictionary<string, object> parameter)
         {
-            //int[] dataNodeIndexes;
             return Number.ToInt32(algorithm.Calculate(parameter.ToDictionary(x => (object)x.Key, y => y.Value)));
             //object calRst = algorithm.Calculate(parameter);
             //if (calRst is Number)

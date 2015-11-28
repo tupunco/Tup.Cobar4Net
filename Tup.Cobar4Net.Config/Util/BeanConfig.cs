@@ -13,7 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System;
+
+#if CONFG_BEAN
+System;
 using System.Collections.Generic;
 using Sharpen;
 using Tup.Cobar4Net.Util;
@@ -162,3 +164,4 @@ namespace Tup.Cobar4Net.Config.Util
         }
     }
 }
+#endif
