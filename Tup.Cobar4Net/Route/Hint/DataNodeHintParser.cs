@@ -14,73 +14,76 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
+using Sharpen;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Route.Hint
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class DataNodeHintParser : HintParser
     {
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public override void Process(CobarHint hint, string hintName, string sql)
         {
+            Pair<int, int> pair = null;
             if (CurrentChar(hint, sql) == '[')
             {
                 for (;;)
                 {
                     NextChar(hint, sql);
-                    Pair<int, int> pair = ParseDataNode(hint, sql);
-                    hint.AddDataNode(pair.GetKey(), pair.GetValue());
+                    pair = ParseDataNode(hint, sql);
+                    hint.AddDataNode(pair.Key, pair.Value);
                     switch (CurrentChar(hint, sql))
                     {
                         case ',':
-                            {
-                                continue;
-                            }
+                        {
+                            continue;
+                        }
 
                         case ']':
-                            {
-                                NextChar(hint, sql);
-                                return;
-                            }
+                        {
+                            NextChar(hint, sql);
+                            return;
+                        }
 
                         default:
-                            {
-                                throw new SQLSyntaxErrorException("err for dataNodeId: " + sql);
-                            }
+                        {
+                            throw new SqlSyntaxErrorException("err for dataNodeId: " + sql);
+                        }
                     }
                 }
             }
             else
             {
-                Pair<int, int> pair = ParseDataNode(hint, sql);
-                hint.AddDataNode(pair.GetKey(), pair.GetValue());
+                pair = ParseDataNode(hint, sql);
+                hint.AddDataNode(pair.Key, pair.Value);
             }
         }
 
         /// <summary>first char is not separator</summary>
         private Pair<int, int> ParseDataNode(CobarHint hint, string sql)
         {
-            int start = hint.GetCurrentIndex();
-            int ci = start;
+            var start = hint.CurrentIndex;
+            var ci = start;
             for (; IsDigit(sql[ci]); ++ci)
             {
             }
-            int nodeIndex = Convert.ToInt32(Runtime.Substring(sql, start, ci));
-            int replica = RouteResultsetNode.DefaultReplicaIndex;
-            hint.SetCurrentIndex(ci);
+            var nodeIndex = Convert.ToInt32(Runtime.Substring(sql, start, ci));
+            var replica = RouteResultsetNode.DefaultReplicaIndex;
+            hint.CurrentIndex = ci;
             if (CurrentChar(hint, sql) == '.')
             {
                 NextChar(hint, sql);
-                start = hint.GetCurrentIndex();
+                start = hint.CurrentIndex;
                 ci = start;
                 for (; IsDigit(sql[ci]); ++ci)
                 {
                 }
                 replica = Convert.ToInt32(Runtime.Substring(sql, start, ci));
-                hint.SetCurrentIndex(ci);
+                hint.CurrentIndex = ci;
             }
             return new Pair<int, int>(nodeIndex, replica);
         }

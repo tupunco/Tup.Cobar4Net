@@ -18,9 +18,11 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class DALShowStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class DalShowStatement : ISqlStatement
     {
-        public abstract void Accept(SQLASTVisitor visitor);
+        public abstract void Accept(ISqlAstVisitor visitor);
     }
 }

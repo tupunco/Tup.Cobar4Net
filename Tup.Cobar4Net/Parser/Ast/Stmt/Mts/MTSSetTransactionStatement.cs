@@ -20,22 +20,23 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Mts
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MTSSetTransactionStatement : SQLStatement
+    /// <summary>
+    ///     MTSSetTransactionStatement IsolationLevel
+    /// </summary>
+    public enum IsolationLevel
     {
-        public enum IsolationLevel
-        {
-            None = 0,
-            ReadUncommitted,
-            ReadCommitted,
-            RepeatableRead,
-            Serializable
-        }
+        None = 0,
+        ReadUncommitted,
+        ReadCommitted,
+        RepeatableRead,
+        Serializable
+    }
 
-        private readonly VariableScope scope;
-
-        private readonly IsolationLevel level;
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MTSSetTransactionStatement : ISqlStatement
+    {
         public MTSSetTransactionStatement(VariableScope scope, IsolationLevel level)
         {
             if (level == IsolationLevel.None)
@@ -43,22 +44,16 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Mts
                 throw new ArgumentException("isolation level is null");
             }
 
-            this.level = level;
-            this.scope = scope;
+            Level = level;
+            Scope = scope;
         }
 
-        /// <retern>null means scope undefined</retern>
-        public virtual VariableScope GetScope()
-        {
-            return scope;
-        }
+        /// <retern>null means _hintScope undefined</retern>
+        public virtual VariableScope Scope { get; }
 
-        public virtual IsolationLevel GetLevel()
-        {
-            return level;
-        }
+        public virtual IsolationLevel Level { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

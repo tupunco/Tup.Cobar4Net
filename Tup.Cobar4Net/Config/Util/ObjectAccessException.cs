@@ -13,23 +13,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 
 namespace Tup.Cobar4Net.Config.Util
 {
-	[System.Serializable]
-	public class ObjectAccessException : Exception
-	{
-		private const long serialVersionUID = 1L;
+    [Serializable]
+    public class ObjectAccessException : Exception
+    {
+        public ObjectAccessException(string message)
+            : base(message)
+        {
+        }
 
-		public ObjectAccessException(string message)
-			: base(message)
-		{
-		}
-
-		public ObjectAccessException(string message, Exception cause)
-			: base(message, cause)
-		{
-		}
-	}
+        public ObjectAccessException(string message, Exception cause)
+            : base(message, cause)
+        {
+        }
+    }
 }

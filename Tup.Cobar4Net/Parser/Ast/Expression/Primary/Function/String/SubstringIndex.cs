@@ -18,19 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class SubstringIndex : FunctionExpression
     {
-        public SubstringIndex(IList<Expression> arguments
-            )
+        public SubstringIndex(IList<IExpression> arguments)
             : base("SUBSTRING_INDEX", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String.SubstringIndex
-                (arguments);
+            return new SubstringIndex(arguments);
         }
     }
 }

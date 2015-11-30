@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class NameConst : FunctionExpression
     {
-        public NameConst(IList<Expression> arguments)
+        public NameConst(IList<IExpression> arguments)
             : base("NAME_CONST", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc.NameConst(arguments
-                );
+            return new NameConst(arguments);
         }
     }
 }

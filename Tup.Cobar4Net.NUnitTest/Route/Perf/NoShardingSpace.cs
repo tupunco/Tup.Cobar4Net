@@ -13,45 +13,42 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
+using System;
 using Sharpen;
 using Tup.Cobar4Net.Config.Model;
 
 namespace Tup.Cobar4Net.Route.Perf
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class NoShardingSpace
     {
-        private SchemaConfig schema = null;
-
-        public NoShardingSpace()
-        {
-        }
+        private readonly SchemaConfig schema = null;
 
         // CobarConfig conf = CobarServer.getInstance().getConfig();
         // schema = conf.getSchemas().get("dubbo");
-        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
+        /// <exception cref="System.Data.Sql.SQLNonTransientException" />
         public virtual void TestDefaultSpace()
         {
-            SchemaConfig schema = this.schema;
-            string stmt = "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
-            for (int i = 0; i < 1000000; i++)
+            var schema = this.schema;
+            var stmt = "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
+            for (var i = 0; i < 1000000; i++)
             {
                 ServerRouter.Route(schema, stmt, null, null);
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
+        /// <exception cref="System.Data.Sql.SQLNonTransientException" />
         public static void Main(string[] args)
         {
-            Tup.Cobar4Net.Route.Perf.NoShardingSpace test = new Tup.Cobar4Net.Route.Perf.NoShardingSpace
-                ();
+            var test = new NoShardingSpace();
             Runtime.CurrentTimeMillis();
-            long start = Runtime.CurrentTimeMillis();
+            var start = Runtime.CurrentTimeMillis();
             test.TestDefaultSpace();
-            long end = Runtime.CurrentTimeMillis();
-            System.Console.Out.WriteLine("take " + (end - start) + " ms.");
+            var end = Runtime.CurrentTimeMillis();
+            Console.Out.WriteLine("take " + (end - start) + " ms.");
         }
     }
 }

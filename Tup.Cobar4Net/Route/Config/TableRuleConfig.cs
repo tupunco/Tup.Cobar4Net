@@ -15,81 +15,68 @@
 */
 
 using System.Text;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 
 namespace Tup.Cobar4Net.Route.Config
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class TableRuleConfig
     {
-        private readonly string name;
-
-        private readonly RuleConfig[] rules;
-
         public TableRuleConfig(string name, RuleConfig[] rules)
         {
-            this.name = name;
-            this.rules = rules;
+            Name = name;
+            Rules = rules;
+
             if (rules != null)
             {
-                foreach (RuleConfig r in rules)
+                foreach (var r in rules)
                 {
-                    r.tableRuleName = name;
+                    r.TableRuleName = name;
                 }
             }
         }
 
-        public string GetName()
+        public string Name { get; }
+
+        public RuleConfig[] Rules { get; }
+    }
+
+    public sealed class RuleConfig
+    {
+        /// <summary>upper-case</summary>
+        private readonly string[] _columns;
+
+        internal string TableRuleName;
+
+        public RuleConfig(string[] columns, IExpression algorithm)
         {
-            return name;
+            _columns = columns ?? new string[0];
+            Algorithm = algorithm;
         }
 
-        public RuleConfig[] GetRules()
+        public string[] Columns
         {
-            return rules;
+            get { return _columns; }
         }
 
-        public sealed class RuleConfig
+        public IExpression Algorithm { get; }
+
+        public override string ToString()
         {
-            internal string tableRuleName;
-
-            /// <summary>upper-case</summary>
-            private readonly string[] columns;
-
-            private readonly Expr algorithm;
-
-            public RuleConfig(string[] columns, Expr
-                 algorithm)
+            var s = new StringBuilder();
+            s.Append("{tableRule:").Append(TableRuleName).Append(", _columns:[");
+            for (var i = 0; i < _columns.Length; ++i)
             {
-                this.columns = columns == null ? new string[0] : columns;
-                this.algorithm = algorithm;
-            }
-
-            public string[] GetColumns()
-            {
-                return columns;
-            }
-
-            public Expr GetAlgorithm()
-            {
-                return algorithm;
-            }
-
-            public override string ToString()
-            {
-                var s = new StringBuilder();
-                s.Append("{tableRule:").Append(tableRuleName).Append(", columns:[");
-                for (int i = 0; i < columns.Length; ++i)
+                if (i > 0)
                 {
-                    if (i > 0)
-                    {
-                        s.Append(", ");
-                    }
-                    s.Append(columns[i]);
+                    s.Append(", ");
                 }
-                s.Append("]}");
-                return s.ToString();
+                s.Append(_columns[i]);
             }
+            s.Append("]}");
+            return s.ToString();
         }
     }
 }

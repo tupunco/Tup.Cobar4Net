@@ -21,28 +21,33 @@ using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class DMLInsertReplaceStatement : DMLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class DmlInsertReplaceStatement : DmlStatement
     {
-        protected readonly Identifier table;
-
         protected readonly IList<Identifier> columnNameList;
+
+        protected readonly IQueryExpression select;
+        protected readonly Identifier table;
 
         protected IList<RowExpression> rowList;
 
-        protected readonly QueryExpression select;
+        private IList<RowExpression> rowListBak;
 
-        public DMLInsertReplaceStatement(Identifier table,
-            IList<Identifier> columnNameList, IList<RowExpression> rowList)
+        protected DmlInsertReplaceStatement(Identifier table,
+            IList<Identifier> columnNameList,
+            IList<RowExpression> rowList)
         {
             this.table = table;
             this.columnNameList = EnsureListType(columnNameList);
             this.rowList = EnsureListType(rowList);
-            this.select = null;
+            select = null;
         }
 
-        public DMLInsertReplaceStatement(Identifier table, IList<Identifier> columnNameList
-            , QueryExpression select)
+        protected DmlInsertReplaceStatement(Identifier table,
+            IList<Identifier> columnNameList,
+            IQueryExpression select)
         {
             if (select == null)
             {
@@ -51,45 +56,42 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
             this.select = select;
             this.table = table;
             this.columnNameList = EnsureListType(columnNameList);
-            this.rowList = null;
+            rowList = null;
         }
 
-        public virtual Identifier GetTable()
+        public virtual Identifier Table
         {
-            return table;
+            get { return table; }
         }
 
-        /// <returns>
-        ///
-        /// <see cref="System.Collections.ArrayList{E}">ArrayList{E}</see>
-        /// </returns>
-        public virtual IList<Identifier> GetColumnNameList()
+        /// <value>
+        ///     <see cref="System.Collections.Generic.List{E}">ArrayList{E}</see>
+        /// </value>
+        public virtual IList<Identifier> ColumnNameList
         {
-            return columnNameList;
+            get { return columnNameList; }
         }
 
-        /// <returns>
-        ///
-        /// <see cref="System.Collections.ArrayList{E}">ArrayList{E}</see>
-        /// or
-        /// <see cref="Sharpen.Collections.EmptyList{T}()">EMPTY_LIST</see>
-        /// </returns>
-        public virtual IList<RowExpression> GetRowList()
+        /// <value>
+        ///     <see cref="System.Collections.Generic.List{E}">ArrayList{E}</see>
+        /// </value>
+        public virtual IList<RowExpression> RowList
         {
-            return rowList;
+            get { return rowList; }
         }
 
-        public virtual QueryExpression GetSelect()
+        public virtual IQueryExpression Select
         {
-            return select;
+            get { return @select; }
         }
 
-        private IList<RowExpression> rowListBak;
-
-        public virtual void SetReplaceRowList(IList<RowExpression> list)
+        public virtual IList<RowExpression> ReplaceRowList
         {
-            rowListBak = rowList;
-            rowList = list;
+            set
+            {
+                rowListBak = rowList;
+                rowList = value;
+            }
         }
 
         public virtual void ClearReplaceRowList()

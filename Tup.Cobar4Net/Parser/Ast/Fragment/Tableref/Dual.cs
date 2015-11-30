@@ -18,10 +18,22 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Dual : TableReference
     {
-        public override void Accept(SQLASTVisitor visitor)
+        public override bool IsSingleTable
+        {
+            get { return true; }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceFactor; }
+        }
+
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }
@@ -29,16 +41,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         public override object RemoveLastConditionElement()
         {
             return null;
-        }
-
-        public override bool IsSingleTable()
-        {
-            return true;
-        }
-
-        public override int GetPrecedence()
-        {
-            return PrecedenceFactor;
         }
     }
 }

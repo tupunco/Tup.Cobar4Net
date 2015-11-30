@@ -29,8 +29,6 @@ using Tup.Cobar4Net.Parser.Ast.Expression.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Type;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Datatype;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dal;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
@@ -40,8 +38,10 @@ using Tup.Cobar4Net.Parser.Ast.Stmt.Mts;
 
 namespace Tup.Cobar4Net.Parser.Visitor
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface SQLASTVisitor
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface ISqlAstVisitor
     {
         void Visit(BetweenAndExpression node);
 
@@ -241,26 +241,26 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         void Visit(ShowWarnings node);
 
-        void Visit(DALSetStatement node);
+        void Visit(DalSetStatement node);
 
-        void Visit(DALSetNamesStatement node);
+        void Visit(DalSetNamesStatement node);
 
-        void Visit(DALSetCharacterSetStatement node);
+        void Visit(DalSetCharacterSetStatement node);
 
         // -------------------------------------------------------
-        void Visit(DMLCallStatement node);
+        void Visit(DmlCallStatement node);
 
-        void Visit(DMLDeleteStatement node);
+        void Visit(DmlDeleteStatement node);
 
-        void Visit(DMLInsertStatement node);
+        void Visit(DmlInsertStatement node);
 
-        void Visit(DMLReplaceStatement node);
+        void Visit(DmlReplaceStatement node);
 
-        void Visit(DMLSelectStatement node);
+        void Visit(DmlSelectStatement node);
 
-        void Visit(DMLSelectUnionStatement node);
+        void Visit(DmlSelectUnionStatement node);
 
-        void Visit(DMLUpdateStatement node);
+        void Visit(DmlUpdateStatement node);
 
         void Visit(MTSSetTransactionStatement node);
 
@@ -270,26 +270,26 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         void Visit(MTSRollbackStatement node);
 
-        void Visit(DDLTruncateStatement node);
+        void Visit(DdlTruncateStatement node);
 
-        void Visit(DDLAlterTableStatement node);
+        void Visit(DdlAlterTableStatement node);
 
-        void Visit(DDLCreateIndexStatement node);
+        void Visit(DdlCreateIndexStatement node);
 
-        void Visit(DDLCreateTableStatement node);
+        void Visit(DdlCreateTableStatement node);
 
-        void Visit(DDLRenameTableStatement node);
+        void Visit(DdlRenameTableStatement node);
 
-        void Visit(DDLDropIndexStatement node);
+        void Visit(DdlDropIndexStatement node);
 
-        void Visit(DDLDropTableStatement node);
+        void Visit(DdlDropTableStatement node);
 
-        void Visit(DDLAlterTableStatement.AlterSpecification node);
+        void Visit(DdlAlterTableStatement.AlterSpecification node);
 
         void Visit(DescTableStatement node);
 
-        void Visit(ExtDDLCreatePolicy node);
+        void Visit(ExtDdlCreatePolicy node);
 
-        void Visit(ExtDDLDropPolicy node);
+        void Visit(ExtDdlDropPolicy node);
     }
 }

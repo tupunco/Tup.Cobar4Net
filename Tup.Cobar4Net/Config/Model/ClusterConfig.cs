@@ -19,52 +19,33 @@ using System.Linq;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ClusterConfig
     {
-        private readonly IDictionary<string, CobarNodeConfig> nodes = null;
-
-        private readonly IDictionary<string, IList<string>> groups = null;
-
-        public IDictionary<string, CobarNodeConfig> Nodes
-        {
-            get { return nodes; }
-        }
-
-        public IDictionary<string, IList<string>> Groups
-        {
-            get { return groups; }
-        }
-
         /// <summary>
-        ///
         /// </summary>
         /// <param name="nodes"></param>
         /// <param name="groups"></param>
         public ClusterConfig(IDictionary<string, CobarNodeConfig> nodes,
                              IDictionary<string, IList<string>> groups)
         {
-            this.nodes = nodes;
-            this.groups = groups;
+            Nodes = nodes;
+            Groups = groups;
         }
 
-        public virtual IDictionary<string, CobarNodeConfig> GetNodes()
-        {
-            return nodes;
-        }
+        public IDictionary<string, CobarNodeConfig> Nodes { get; }
 
-        public virtual IDictionary<string, IList<string>> GetGroups()
-        {
-            return groups;
-        }
+        public IDictionary<string, IList<string>> Groups { get; }
 
         public override string ToString()
         {
             return string.Format("[ClusterConfig nodes:[{0}], groups:[{1}]]",
-                                    string.Join(",", nodes ?? new Dictionary<string, CobarNodeConfig>(0)),
-                                    string.Join(",", (groups ?? new Dictionary<string, IList<string>>(0))
-                                                                        .Select(x => string.Format("<{0}, [{1}]>", x.Key,
-                                                                                                    string.Join(",", x.Value)))));
+                string.Join(",", Nodes ?? new Dictionary<string, CobarNodeConfig>(0)),
+                string.Join(",", (Groups ?? new Dictionary<string, IList<string>>(0))
+                    .Select(x => string.Format("<{0}, [{1}]>", x.Key,
+                        string.Join(",", x.Value)))));
         }
     }
 }

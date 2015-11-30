@@ -19,43 +19,44 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Count : FunctionExpression
     {
         /// <summary>
-        /// either
-        /// <see cref="distinct"/>
-        /// or
-        /// <see cref="wildcard"/>
-        /// is false. if both are false,
-        /// expressionList must be size 1
+        ///     either
+        ///     <see cref="distinct" />
+        ///     or
+        ///     <see cref="wildcard" />
+        ///     is false. if both are false,
+        ///     expressionList must be size 1
         /// </summary>
         private readonly bool distinct;
 
-        public Count(IList<Expression> arguments)
+        public Count(IList<IExpression> arguments)
             : base("COUNT", arguments)
         {
-            this.distinct = true;
+            distinct = true;
         }
 
-        public Count(Expression arg)
+        public Count(IExpression arg)
             : base("COUNT", WrapList(arg))
         {
-            this.distinct = false;
+            distinct = false;
         }
 
-        public virtual bool IsDistinct()
+        public virtual bool IsDistinct
         {
-            return distinct;
+            get { return distinct; }
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby.Count(arguments
-                );
+            return new Count(arguments);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

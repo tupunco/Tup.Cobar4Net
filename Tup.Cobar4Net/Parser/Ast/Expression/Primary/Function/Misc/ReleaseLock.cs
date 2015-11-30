@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ReleaseLock : FunctionExpression
     {
-        public ReleaseLock(IList<Expression> arguments)
+        public ReleaseLock(IList<IExpression> arguments)
             : base("RELEASE_LOCK", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc.ReleaseLock(arguments
-                );
+            return new ReleaseLock(arguments);
         }
     }
 }

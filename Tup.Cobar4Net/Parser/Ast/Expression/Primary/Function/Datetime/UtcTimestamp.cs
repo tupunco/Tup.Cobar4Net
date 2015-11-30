@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class UtcTimestamp : FunctionExpression
     {
-        public UtcTimestamp(IList<Expression> arguments)
+        public UtcTimestamp(IList<IExpression> arguments)
             : base("UTC_TIMESTAMP", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime.UtcTimestamp
-                (arguments);
+            return new UtcTimestamp(arguments);
         }
     }
 }

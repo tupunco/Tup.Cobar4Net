@@ -15,194 +15,129 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
+    /// <summary>
+    ///     DdlCreateTableStatement CreateTableSelectOption
+    /// </summary>
+    public enum CreateTableSelectOption
+    {
+        None = 0,
+
+        Ignored,
+        Replace
+    }
+
     /// <summary>NOT FULL AST: foreign key, ...</summary>
     /// <remarks>NOT FULL AST: foreign key, ... not supported</remarks>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLCreateTableStatement : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlCreateTableStatement : IDdlStatement
     {
-        public enum SelectOption
-        {
-            None = 0,
-
-            Ignored,
-            Replace
-        }
-
-        private readonly bool temporary;
-
-        private readonly bool ifNotExists;
-
-        private readonly Identifier table;
-
-        private readonly IList<Pair<Identifier, ColumnDefinition>> colDefs;
-
-        private IndexDefinition primaryKey;
-
-        private readonly IList<Pair<Identifier, IndexDefinition>> uniqueKeys;
-
-        private readonly IList<Pair<Identifier, IndexDefinition>> keys;
-
-        private readonly IList<Pair<Identifier, IndexDefinition>> fullTextKeys;
-
-        private readonly IList<Pair<Identifier, IndexDefinition>> spatialKeys;
-
-        private readonly IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression> checks;
-
-        private TableOptions tableOptions;
-
-        private Pair<DDLCreateTableStatement.SelectOption, DMLSelectStatement> select;
-
-        public DDLCreateTableStatement(bool temporary,
+        public DdlCreateTableStatement(bool temporary,
             bool ifNotExists,
             Identifier table)
         {
-            this.table = table;
-            this.temporary = temporary;
-            this.ifNotExists = ifNotExists;
-            this.colDefs = new List<Pair<Identifier, ColumnDefinition>>(4);
-            this.uniqueKeys = new List<Pair<Identifier, IndexDefinition>>(1);
-            this.keys = new List<Pair<Identifier, IndexDefinition>>(2);
-            this.fullTextKeys = new List<Pair<Identifier, IndexDefinition>>(1);
-            this.spatialKeys = new List<Pair<Identifier, IndexDefinition>>(1);
-            this.checks = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>(1);
+            Table = table;
+            IsTemporary = temporary;
+            IsIfNotExists = ifNotExists;
+            ColDefs = new List<Pair<Identifier, ColumnDefinition>>(4);
+            UniqueKeys = new List<Pair<Identifier, IndexDefinition>>(1);
+            Keys = new List<Pair<Identifier, IndexDefinition>>(2);
+            FullTextKeys = new List<Pair<Identifier, IndexDefinition>>(1);
+            SpatialKeys = new List<Pair<Identifier, IndexDefinition>>(1);
+            Checks = new List<IExpression>(1);
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement SetTableOptions
-            (TableOptions tableOptions)
-        {
-            this.tableOptions = tableOptions;
-            return this;
-        }
+        public virtual TableOptions TableOptions { get; private set; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddColumnDefinition
-            (Identifier colname, ColumnDefinition def)
-        {
-            colDefs.Add(new Pair<Identifier, ColumnDefinition>(colname, def));
-            return this;
-        }
+        public virtual Pair<CreateTableSelectOption, DmlSelectStatement> Select { get; private set; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement SetPrimaryKey
-            (IndexDefinition def)
-        {
-            primaryKey = def;
-            return this;
-        }
+        public virtual bool IsTemporary { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddUniqueIndex
-            (Identifier colname, IndexDefinition def)
-        {
-            uniqueKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
-            return this;
-        }
+        public virtual bool IsIfNotExists { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddIndex(Identifier
-             colname, IndexDefinition def)
-        {
-            keys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
-            return this;
-        }
+        public virtual Identifier Table { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddFullTextIndex
-            (Identifier colname, IndexDefinition def)
-        {
-            fullTextKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
-            return this;
-        }
+        /// <value>key := columnName</value>
+        public virtual IList<Pair<Identifier, ColumnDefinition>> ColDefs { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddSpatialIndex
-            (Identifier colname, IndexDefinition def)
-        {
-            spatialKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
-            return this;
-        }
+        public virtual IndexDefinition PrimaryKey { get; private set; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Stmt.Ddl.DDLCreateTableStatement AddCheck(
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression check)
-        {
-            checks.Add(check);
-            return this;
-        }
+        public virtual IList<Pair<Identifier, IndexDefinition>> UniqueKeys { get; }
 
-        public virtual TableOptions GetTableOptions()
-        {
-            return tableOptions;
-        }
+        public virtual IList<Pair<Identifier, IndexDefinition>> Keys { get; }
 
-        public virtual Pair<DDLCreateTableStatement.SelectOption, DMLSelectStatement> GetSelect
-            ()
-        {
-            return select;
-        }
+        public virtual IList<Pair<Identifier, IndexDefinition>> FullTextKeys { get; }
 
-        public virtual void SetSelect(DDLCreateTableStatement.SelectOption option,
-            DMLSelectStatement select)
-        {
-            this.select = new Pair<DDLCreateTableStatement.SelectOption, DMLSelectStatement>(option, select);
-        }
+        public virtual IList<Pair<Identifier, IndexDefinition>> SpatialKeys { get; }
 
-        public virtual bool IsTemporary()
-        {
-            return temporary;
-        }
+        public virtual IList<IExpression> Checks { get; }
 
-        public virtual bool IsIfNotExists()
-        {
-            return ifNotExists;
-        }
-
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
-
-        /// <returns>key := columnName</returns>
-        public virtual IList<Pair<Identifier, ColumnDefinition>> GetColDefs()
-        {
-            return colDefs;
-        }
-
-        public virtual IndexDefinition GetPrimaryKey()
-        {
-            return primaryKey;
-        }
-
-        public virtual IList<Pair<Identifier, IndexDefinition>> GetUniqueKeys()
-        {
-            return uniqueKeys;
-        }
-
-        public virtual IList<Pair<Identifier, IndexDefinition>> GetKeys()
-        {
-            return keys;
-        }
-
-        public virtual IList<Pair<Identifier, IndexDefinition>> GetFullTextKeys()
-        {
-            return fullTextKeys;
-        }
-
-        public virtual IList<Pair<Identifier, IndexDefinition>> GetSpatialKeys()
-        {
-            return spatialKeys;
-        }
-
-        public virtual IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression> GetChecks()
-        {
-            return checks;
-        }
-
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public virtual DdlCreateTableStatement SetTableOptions(TableOptions tableOptions)
+        {
+            this.TableOptions = tableOptions;
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddColumnDefinition(Identifier colname, ColumnDefinition def)
+        {
+            ColDefs.Add(new Pair<Identifier, ColumnDefinition>(colname, def));
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement SetPrimaryKey(IndexDefinition def)
+        {
+            PrimaryKey = def;
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddUniqueIndex(Identifier colname, IndexDefinition def)
+        {
+            UniqueKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddIndex(Identifier colname, IndexDefinition def)
+        {
+            Keys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddFullTextIndex(Identifier colname, IndexDefinition def)
+        {
+            FullTextKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddSpatialIndex(Identifier colname, IndexDefinition def)
+        {
+            SpatialKeys.Add(new Pair<Identifier, IndexDefinition>(colname, def));
+            return this;
+        }
+
+        public virtual DdlCreateTableStatement AddCheck(IExpression check)
+        {
+            Checks.Add(check);
+            return this;
+        }
+
+        public virtual void SetSelect(CreateTableSelectOption option, DmlSelectStatement select)
+        {
+            this.Select = new Pair<CreateTableSelectOption, DmlSelectStatement>(option, select);
         }
     }
 }

@@ -17,14 +17,18 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class DMLStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class DmlStatement : ISqlStatement
     {
+        public abstract void Accept(ISqlAstVisitor visitor);
+
         protected static IList<TItem> EnsureListType<TItem>(IList<TItem> list)
         {
             if (list == null || list.Count <= 0)
@@ -38,18 +42,20 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
             return new List<TItem>(list);
         }
 
-        protected static IList<IList<Expr>> CheckAndConvertValuesList(IList<IList<Expr>> valuesList)
+        protected static IList<IList<IExpression>> CheckAndConvertValuesList(IList<IList<IExpression>> valuesList)
         {
             if (valuesList == null || valuesList.IsEmpty())
             {
                 throw new ArgumentException("argument 'valuesList' is empty");
             }
-            var rst = (valuesList is List<IList<Expr>>) ? valuesList : new List<IList<Expr>>(valuesList.Count);
-            bool copy = rst != valuesList;
-            int size = -1;
+            var rst = valuesList is List<IList<IExpression>>
+                ? valuesList
+                : new List<IList<IExpression>>(valuesList.Count);
+            var copy = rst != valuesList;
+            var size = -1;
             if (copy)
             {
-                foreach (IList<Expr> values in valuesList)
+                foreach (var values in valuesList)
                 {
                     if (values == null || values.Count <= 0)
                     {
@@ -64,14 +70,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
                         if (size != values.Count)
                         {
                             throw new ArgumentException("argument 'valuesList' contains empty elements with different size: "
-                                 + size + " != " + values.Count);
+                                                        + size + " != " + values.Count);
                         }
                     }
                     rst.Add(EnsureListType(values));
                 }
                 return rst;
             }
-            for (int i = 0; i < valuesList.Count; ++i)
+            for (var i = 0; i < valuesList.Count; ++i)
             {
                 var values = valuesList[i];
                 if (values == null || values.Count <= 0)
@@ -87,12 +93,12 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
                     if (size != values.Count)
                     {
                         throw new ArgumentException("argument 'valuesList' contains empty elements with different size: "
-                             + size + " != " + values.Count);
+                                                    + size + " != " + values.Count);
                     }
                 }
-                if (!(values is List<Expr>))
+                if (!(values is List<IExpression>))
                 {
-                    valuesList[i] = new List<Expr>(values);
+                    valuesList[i] = new List<IExpression>(values);
                 }
             }
             return rst;
@@ -100,11 +106,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            Accept(new MySQLOutputASTVisitor(sb));
+            var sb = new StringBuilder();
+            Accept(new MySqlOutputAstVisitor(sb));
             return sb.ToString();
         }
-
-        public abstract void Accept(SQLASTVisitor visitor);
     }
 }

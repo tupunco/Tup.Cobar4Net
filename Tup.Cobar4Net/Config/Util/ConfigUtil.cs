@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,14 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System.Collections.Generic;
-using Tup.Cobar4Net.Util;
-using System.Xml;
+
 using System;
+using System.Collections.Generic;
+using System.Xml;
+using Tup.Cobar4Net.Util;
 
 #if CONFG_BEAN
-using System.Text;
-using Sharpen;
+
 #endif
 
 namespace Tup.Cobar4Net.Config.Util
@@ -147,8 +147,7 @@ namespace Tup.Cobar4Net.Config.Util
 
             if (nodeList.Count == 1)
                 return (XmlElement)nodeList.Item(0);
-            else
-                return null;
+            return null;
         }
 
         public static IDictionary<string, object> LoadElements(XmlElement parent)
@@ -157,34 +156,34 @@ namespace Tup.Cobar4Net.Config.Util
             var children = parent.ChildNodes;
             XmlNode node = null;
             XmlElement e = null;
-            for (int i = 0; i < children.Count; i++)
+            for (var i = 0; i < children.Count; i++)
             {
                 node = children.Item(i);
-                if (node.NodeType == XmlNodeType.Element)
-                {
-                    e = (XmlElement)node;
-                    string name = e.Name;
-                    if ("property".Equals(name))
-                    {
-                        var key = e.GetAttribute("name");
+                if (node.NodeType != XmlNodeType.Element)
+                    continue;
+
+                e = (XmlElement)node;
+                var name = e.Name;
+                if ("property" != name)
+                    continue;
+
+                var key = e.GetAttribute("name");
 
 #if CONFG_BEAN
-                        var nl = e.GetElementsByTagName("bean");
-                        if (nl.Count == 0 )
+                var nl = e.GetElementsByTagName("bean");
+                if (nl.Count == 0)
 #endif
-                        {
-                            //|| (nl.Count == 1 && nl.Item(0).NodeType == XmlNodeType.Text)
-                            string value = e.InnerText;
-                            map[key] = StringUtil.IsEmpty(value) ? null : value.Trim();
-                        }
-#if CONFG_BEAN
-else
-                        {
-                            map[key] = LoadBean((XmlElement)nl.Item(0));
-                        }
-#endif
-                    }
+                {
+                    //|| (nl.Count == 1 && nl.Item(0).NodeType == XmlNodeType.Text)
+                    var value = e.InnerText;
+                    map[key] = StringUtil.IsEmpty(value) ? null : value.Trim();
                 }
+#if CONFG_BEAN
+                else
+                {
+                    map[key] = LoadBean((XmlElement) nl.Item(0));
+                }
+#endif
             }
             return map;
         }
@@ -197,7 +196,7 @@ else
             {
                 throw new ConfigException(tagName + " elements length over one!");
             }
-            return LoadBean((XmlElement)nodeList.Item(0));
+            return LoadBean((XmlElement) nodeList.Item(0));
         }
 
         public static BeanConfig LoadBean(XmlElement e)
@@ -206,15 +205,15 @@ else
                 return null;
 
             var bean = new BeanConfig();
-            bean.SetName(e.GetAttribute("name"));
+            bean.Name = e.GetAttribute("name");
             var element = LoadElement(e, "className");
 
             if (element != null)
-                bean.SetClassName(element.InnerText);
+                bean.ClassName = element.InnerText;
             else
-                bean.SetClassName(e.GetAttribute("class"));
+                bean.ClassName = e.GetAttribute("class");
 
-            bean.SetParams(LoadElements(e));
+            bean.Params = LoadElements(e);
             return bean;
         }
 #endif

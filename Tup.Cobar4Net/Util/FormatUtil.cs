@@ -13,8 +13,8 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Text;
-using Sharpen;
 
 namespace Tup.Cobar4Net.Util
 {
@@ -29,7 +29,7 @@ namespace Tup.Cobar4Net.Util
 
         private const char defaultSplitChar = ' ';
 
-        private static readonly string[] timeFormat = new string[] { "d ", "h ", "m ", "s ", "ms" };
+        private static readonly string[] timeFormat = {"d ", "h ", "m ", "s ", "ms"};
 
         // 右对齐格式化字符串
         // 左对齐格式化字符串
@@ -75,64 +75,61 @@ namespace Tup.Cobar4Net.Util
             {
                 s = s.Trim();
             }
-            int charLen = fillLength - s.Length;
+            var charLen = fillLength - s.Length;
             if (charLen > 0)
             {
-                char[] fills = new char[charLen];
-                for (int i = 0; i < charLen; i++)
+                var fills = new char[charLen];
+                for (var i = 0; i < charLen; i++)
                 {
                     fills[i] = fillChar;
                 }
-                StringBuilder str = new StringBuilder(s);
+                var str = new StringBuilder(s);
                 switch (align)
                 {
                     case AlignRight:
-                        {
-                            str.Insert(0, fills);
-                            break;
-                        }
+                    {
+                        str.Insert(0, fills);
+                        break;
+                    }
 
                     case AlignLeft:
-                        {
-                            str.Append(fills);
-                            break;
-                        }
+                    {
+                        str.Append(fills);
+                        break;
+                    }
 
                     default:
-                        {
-                            str.Append(fills);
-                            break;
-                        }
+                    {
+                        str.Append(fills);
+                        break;
+                    }
                 }
                 return str.ToString();
             }
-            else
-            {
-                return s;
-            }
+            return s;
         }
 
         /// <summary>
-        /// 格式化时间输出
-        /// <p>
-        /// 1d 15h 4m 15s 987ms
-        /// </p>
+        ///     格式化时间输出
+        ///     <p>
+        ///         1d 15h 4m 15s 987ms
+        ///     </p>
         /// </summary>
         public static string FormatTime(long millis, int precision)
         {
-            long[] la = new long[5];
-            la[0] = (millis / 86400000);
+            var la = new long[5];
+            la[0] = millis/86400000;
             // days
-            la[1] = (millis / 3600000) % 24;
+            la[1] = millis/3600000%24;
             // hours
-            la[2] = (millis / 60000) % 60;
+            la[2] = millis/60000%60;
             // minutes
-            la[3] = (millis / 1000) % 60;
+            la[3] = millis/1000%60;
             // seconds
-            la[4] = (millis % 1000);
+            la[4] = millis%1000;
             // ms
-            int index = 0;
-            for (int i = 0; i < la.Length; i++)
+            var index = 0;
+            for (var i = 0; i < la.Length; i++)
             {
                 if (la[i] != 0)
                 {
@@ -140,9 +137,9 @@ namespace Tup.Cobar4Net.Util
                     break;
                 }
             }
-            StringBuilder buf = new StringBuilder();
-            int validLength = la.Length - index;
-            for (int i_1 = 0; (i_1 < validLength && i_1 < precision); i_1++)
+            var buf = new StringBuilder();
+            var validLength = la.Length - index;
+            for (var i_1 = 0; i_1 < validLength && i_1 < precision; i_1++)
             {
                 buf.Append(la[index]).Append(timeFormat[index]);
                 index++;

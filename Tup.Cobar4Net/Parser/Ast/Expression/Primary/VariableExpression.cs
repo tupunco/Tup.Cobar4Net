@@ -16,7 +16,9 @@
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class VariableExpression : PrimaryExpression
     {
     }

@@ -17,21 +17,23 @@
 using System;
 using System.Collections.Generic;
 using Tup.Cobar4Net.Config.Model.Rule;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ExpressionAdapter : RuleAlgorithm
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ExpressionAdapter : IRuleAlgorithm
     {
-        private readonly Expr expr;
+        private readonly IExpression _expr;
 
-        public ExpressionAdapter(Expr expr)
+        public ExpressionAdapter(IExpression expr)
         {
-            this.expr = expr;
+            _expr = expr;
         }
 
-        public virtual RuleAlgorithm ConstructMe(params object[] objects)
+        public virtual IRuleAlgorithm ConstructMe(params object[] objects)
         {
             throw new NotSupportedException();
         }
@@ -43,7 +45,7 @@ namespace Tup.Cobar4Net.Route.Function
         public virtual Number[] Calculate(IDictionary<object, object> parameters)
         {
             int[] rst;
-            object eval = expr.Evaluation(parameters);
+            var eval = _expr.Evaluation(parameters);
             if (eval is int)
             {
                 rst = new int[1];
@@ -56,16 +58,16 @@ namespace Tup.Cobar4Net.Route.Function
             else if (eval is Number)
             {
                 rst = new int[1];
-                rst[0] = (int)((Number)eval);
+                rst[0] = (int)(Number)eval;
             }
             else if (eval is string)
             {
                 rst = new int[1];
-                rst[0] = System.Convert.ToInt32(((string)eval));
+                rst[0] = Convert.ToInt32((string)eval);
             }
             else if (eval is Number[])
             {
-                Number[] longs = (Number[])eval;
+                var longs = (Number[])eval;
                 rst = new int[longs.Length];
                 for (int i = 0, len = longs.Length; i < len; ++i)
                 {
@@ -74,7 +76,7 @@ namespace Tup.Cobar4Net.Route.Function
             }
             else if (eval is long[])
             {
-                long[] longs = (long[])eval;
+                var longs = (long[])eval;
                 rst = new int[longs.Length];
                 for (int i = 0, len = longs.Length; i < len; ++i)
                 {
@@ -83,7 +85,8 @@ namespace Tup.Cobar4Net.Route.Function
             }
             else
             {
-                throw new ArgumentException("rule calculate err: result of route function is wrong type or null: " + eval);
+                throw new ArgumentException("rule calculate err: result of route function is wrong type or null: " +
+                                            eval);
             }
             return Number.ValueOf(rst);
         }

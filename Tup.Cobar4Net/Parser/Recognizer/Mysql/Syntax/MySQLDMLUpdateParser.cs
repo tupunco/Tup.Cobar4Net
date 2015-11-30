@@ -15,86 +15,88 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 using Tup.Cobar4Net.Parser.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLUpdateParser : MySQLDMLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlUpdateParser : MySqlDmlParser
     {
-        public MySQLDMLUpdateParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        public MySqlDmlUpdateParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer, exprParser)
         {
         }
 
         /// <summary>
-        /// nothing has been pre-consumed <code><pre>
-        /// 'UPDATE' 'LOW_PRIORITY'? 'IGNORE'? table_reference
-        /// 'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
-        /// ('WHERE' cond)?
-        /// {singleTable}? =&gt; ('ORDER' 'BY' orderBy)?  ('LIMIT' count)?
-        /// </pre></code>
+        ///     nothing has been pre-consumed
+        ///     <code><pre>
+        ///         'UPDATE' 'LOW_PRIORITY'? 'IGNORE'? table_reference
+        ///         'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
+        ///         ('WHERE' cond)?
+        ///         {singleTable}? =&gt; ('ORDER' 'BY' orderBy)?  ('LIMIT' Count)?
+        ///     </pre></code>
         /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLUpdateStatement Update()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlUpdateStatement Update()
         {
-            Match(MySQLToken.KwUpdate);
-            bool lowPriority = false;
-            bool ignore = false;
-            if (lexer.Token() == MySQLToken.KwLowPriority)
+            Match(MySqlToken.KwUpdate);
+            var lowPriority = false;
+            var ignore = false;
+            if (lexer.Token() == MySqlToken.KwLowPriority)
             {
                 lexer.NextToken();
                 lowPriority = true;
             }
-            if (lexer.Token() == MySQLToken.KwIgnore)
+            if (lexer.Token() == MySqlToken.KwIgnore)
             {
                 lexer.NextToken();
                 ignore = true;
             }
-            TableReferences tableRefs = TableRefs();
-            Match(MySQLToken.KwSet);
-            IList<Pair<Identifier, Expr>> values;
-            Identifier col = Identifier();
-            Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
-            Expr expr = exprParser.Expression();
-            if (lexer.Token() == MySQLToken.PuncComma)
+            var tableRefs = TableRefs();
+            Match(MySqlToken.KwSet);
+            IList<Pair<Identifier, IExpression>> values;
+            var col = Identifier();
+            Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
+            var expr = exprParser.Expression();
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
-                values = new List<Pair<Identifier, Expr>>();
-                values.Add(new Pair<Identifier, Expr>(col, expr));
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                values = new List<Pair<Identifier, IExpression>>();
+                values.Add(new Pair<Identifier, IExpression>(col, expr));
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     col = Identifier();
-                    Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
+                    Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
                     expr = exprParser.Expression();
-                    values.Add(new Pair<Identifier, Expr>(col, expr));
+                    values.Add(new Pair<Identifier, IExpression>(col, expr));
                 }
             }
             else
             {
-                values = new List<Pair<Identifier, Expr>>(1);
-                values.Add(new Pair<Identifier, Expr>(col, expr));
+                values = new List<Pair<Identifier, IExpression>>(1);
+                values.Add(new Pair<Identifier, IExpression>(col, expr));
             }
-            Expr where = null;
-            if (lexer.Token() == MySQLToken.KwWhere)
+            IExpression where = null;
+            if (lexer.Token() == MySqlToken.KwWhere)
             {
                 lexer.NextToken();
                 where = exprParser.Expression();
             }
             OrderBy orderBy = null;
             Limit limit = null;
-            if (tableRefs.IsSingleTable())
+            if (tableRefs.IsSingleTable)
             {
                 orderBy = OrderBy();
                 limit = Limit();
             }
-            return new DMLUpdateStatement(lowPriority, ignore, tableRefs, values, where, orderBy, limit);
+            return new DmlUpdateStatement(lowPriority, ignore, tableRefs, values, where, orderBy, limit);
         }
     }
 }

@@ -17,45 +17,41 @@
 using System;
 using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class UnaryOperatorExpression : AbstractExpression
     {
-        private readonly Expr operand;
-
         protected readonly int precedence;
 
-        public UnaryOperatorExpression(Expr operand, int precedence)
+        protected UnaryOperatorExpression(IExpression operand, int precedence)
         {
             if (operand == null)
             {
                 throw new ArgumentException("operand is null");
             }
-            this.operand = operand;
+            Operand = operand;
             this.precedence = precedence;
         }
 
-        public virtual Expr GetOperand()
+        public virtual IExpression Operand { get; }
+
+        public override int Precedence
         {
-            return operand;
+            get { return precedence; }
         }
 
-        public override int GetPrecedence()
-        {
-            return precedence;
-        }
-
-        public abstract string GetOperator();
+        public abstract string Operator { get; }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return ExpressionConstants.Unevaluatable;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

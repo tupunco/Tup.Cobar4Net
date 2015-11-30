@@ -20,15 +20,17 @@ using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class DMLQueryStatement : DMLStatement, QueryExpression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class DmlQueryStatement : DmlStatement, IQueryExpression
     {
-        public virtual int GetPrecedence()
+        public virtual int Precedence
         {
-            return Expression.ExpressionConstants.PrecedenceQuery;
+            get { return ExpressionConstants.PrecedenceQuery; }
         }
 
-        public virtual Expression.Expression SetCacheEvalRst(bool cacheEvalRst)
+        public virtual IExpression SetCacheEvalRst(bool cacheEvalRst)
         {
             return this;
         }

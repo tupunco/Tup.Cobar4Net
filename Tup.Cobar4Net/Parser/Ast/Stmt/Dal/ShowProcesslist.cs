@@ -18,22 +18,19 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowProcesslist : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowProcesslist : DalShowStatement
     {
-        private readonly bool full;
-
         public ShowProcesslist(bool full)
         {
-            this.full = full;
+            IsFull = full;
         }
 
-        public virtual bool IsFull()
-        {
-            return full;
-        }
+        public virtual bool IsFull { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

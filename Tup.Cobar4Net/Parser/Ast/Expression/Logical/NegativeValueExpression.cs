@@ -24,21 +24,19 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class NegativeValueExpression : UnaryOperatorExpression
     {
-        public NegativeValueExpression(Expression operand
-            )
+        public NegativeValueExpression(IExpression operand)
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "!";
+            get { return "!"; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object operand = GetOperand().Evaluation(parameters);
+            object operand = Operand.Evaluation(parameters);
             if (operand == null)
             {
                 return null;

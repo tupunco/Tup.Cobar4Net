@@ -17,341 +17,383 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-
+using Sharpen;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Route.Util;
 using Tup.Cobar4Net.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class Dimension2PartitionFunction : FunctionExpression, RuleAlgorithm
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class Dimension2PartitionFunction : FunctionExpression, IRuleAlgorithm
     {
+        private const int PartitionKeyTypeLong = 1;
+
+        private const int PartitionKeyTypeString = 2;
+
+        private int[] _all;
+
+        private int[][] _byX;
+
+        private int[][] _byY;
+
+        private int[] _countX;
+
+        private int[] _countY;
+
+        private int _hashSliceEndX = 8;
+
+        private int _hashSliceEndY = 8;
+
+        private int _hashSliceStartX;
+
+        private int _hashSliceStartY;
+
+        private int _keyTypeX = PartitionKeyTypeLong;
+
+        private int _keyTypeY = PartitionKeyTypeLong;
+
+        private int[] _lengthX;
+
+        private int[] _lengthY;
+
+        private PartitionUtil _partitionUtilX;
+
+        private PartitionUtil _partitionUtilY;
+
+        private int _xSize;
+
+        private int _ySize;
+
+        private int m_DualHashLengthX;
+
+        private int m_DualHashLengthY;
+
+        private string m_DualHashSliceX = string.Empty;
+
+        private string m_DualHashSliceY = string.Empty;
+
+        private string m_DualPartitionCountX = string.Empty;
+
+        private string m_DualPartitionCountY = string.Empty;
+
+        private string m_DualPartitionLengthX = string.Empty;
+
+        private string m_DualPartitionLengthY = string.Empty;
+
         public Dimension2PartitionFunction(string functionName)
             : this(functionName, null)
         {
         }
 
-        public Dimension2PartitionFunction(string functionName, IList<Expr> arguments)
+        public Dimension2PartitionFunction(string functionName, IList<IExpression> arguments)
             : base(functionName, arguments)
         {
         }
 
-        private const int PartitionKeyTypeLong = 1;
+        public string KeyTypeX
+        {
+            get
+            {
+                return _keyTypeX == PartitionKeyTypeLong
+                    ? "long"
+                    : (_keyTypeX == PartitionKeyTypeString ? "string" : "error");
+            }
+            set { _keyTypeX = ConvertType(value); }
+        }
 
-        private const int PartitionKeyTypeString = 2;
+        public string KeyTypeY
+        {
+            get
+            {
+                return _keyTypeY == PartitionKeyTypeLong
+                    ? "long"
+                    : (_keyTypeY == PartitionKeyTypeString ? "string" : "error");
+            }
+            set { _keyTypeY = ConvertType(value); }
+        }
 
-        private int[] countX;
+        public string PartitionCountX
+        {
+            get { return m_DualPartitionCountX; }
+            set
+            {
+                m_DualPartitionCountX = value;
 
-        private int[] lengthX;
+                _countX = ToIntArray(value);
+                _xSize = 0;
+                foreach (var c in _countX)
+                {
+                    _xSize += c;
+                }
+            }
+        }
 
-        private int[] countY;
+        public string PartitionLengthX
+        {
+            get { return m_DualPartitionLengthX; }
+            set
+            {
+                m_DualPartitionLengthX = value;
+                _lengthX = ToIntArray(value);
+            }
+        }
 
-        private int[] lengthY;
+        public int HashLengthX
+        {
+            get { return m_DualHashLengthX; }
+            set
+            {
+                m_DualHashLengthX = value;
+
+                HashSliceX = value.ToString();
+            }
+        }
+
+        public string HashSliceX
+        {
+            get { return m_DualHashSliceX; }
+            set
+            {
+                m_DualHashSliceX = value;
+
+                var p = PairUtil.SequenceSlicing(value);
+                _hashSliceStartX = p.Key;
+                _hashSliceEndX = p.Value;
+            }
+        }
+
+        public string PartitionCountY
+        {
+            get { return m_DualPartitionCountY; }
+            set
+            {
+                m_DualPartitionCountY = value;
+
+                _countY = ToIntArray(value);
+                _ySize = 0;
+                foreach (var c in _countY)
+                {
+                    _ySize += c;
+                }
+            }
+        }
+
+        public string PartitionLengthY
+        {
+            get { return m_DualPartitionLengthY; }
+            set
+            {
+                m_DualPartitionLengthY = value;
+
+                _lengthY = ToIntArray(value);
+            }
+        }
+
+        public int HashLengthY
+        {
+            get { return m_DualHashLengthY; }
+            set
+            {
+                m_DualHashLengthY = value;
+
+                HashSliceY = value.ToString();
+            }
+        }
+
+        public string HashSliceY
+        {
+            get { return m_DualHashSliceY; }
+            set
+            {
+                m_DualHashSliceY = value;
+
+                var p = PairUtil.SequenceSlicing(value);
+                _hashSliceStartY = p.Key;
+                _hashSliceEndY = p.Value;
+            }
+        }
+
+        public void Initialize()
+        {
+            _partitionUtilX = new PartitionUtil(_countX, _lengthX);
+            _partitionUtilY = new PartitionUtil(_countY, _lengthY);
+            BuildAll();
+            BuildByX();
+            BuildByY();
+        }
+
+        public IRuleAlgorithm ConstructMe(params object[] objects)
+        {
+            var args = objects.Select(x => (IExpression)x).ToList();
+
+            return new Dimension2PartitionFunction(functionName, args)
+            {
+                _countX = _countX,
+                _xSize = _xSize,
+                _lengthX = _lengthX,
+                _keyTypeX = _keyTypeX,
+                _hashSliceStartX = _hashSliceStartX,
+                _hashSliceEndX = _hashSliceEndX,
+                _countY = _countY,
+                _ySize = _ySize,
+                _lengthY = _lengthY,
+                _keyTypeY = _keyTypeY,
+                _hashSliceStartY = _hashSliceStartY,
+                _hashSliceEndY = _hashSliceEndY
+            };
+        }
+
+        public Number[] Calculate(IDictionary<object, object> parameters)
+        {
+            if (arguments == null || arguments.Count < 2)
+            {
+                throw new ArgumentException("arguments.size < 2 for function of " + FunctionName);
+            }
+            var xInput = arguments[0].Evaluation(parameters);
+            var yInput = arguments[1].Evaluation(parameters);
+
+            return Eval(xInput, yInput);
+        }
 
         private static int ConvertType(string keyType)
         {
-            if (Sharpen.Runtime.EqualsIgnoreCase("long", keyType))
+            if (Runtime.EqualsIgnoreCase("long", keyType))
             {
                 return PartitionKeyTypeLong;
             }
-            if (Sharpen.Runtime.EqualsIgnoreCase("string", keyType))
+            if (Runtime.EqualsIgnoreCase("string", keyType))
             {
                 return PartitionKeyTypeString;
             }
             throw new ArgumentException("unknown partition key type: " + keyType);
         }
 
-        private string m_DualPartitionCountX = string.Empty;
-        public string PartitionCountX
-        {
-            get { return m_DualPartitionCountX; }
-            set { SetPartitionCountX(value); }
-        }
-
-        public void SetPartitionCountX(string partitionCount)
-        {
-            m_DualPartitionCountX = partitionCount;
-
-            this.countX = ToIntArray(partitionCount);
-            this.xSize = 0;
-            foreach (int c in countX)
-            {
-                this.xSize += c;
-            }
-        }
-
-        private string m_DualPartitionLengthX = string.Empty;
-        public string PartitionLengthX
-        {
-            get { return m_DualPartitionLengthX; }
-            set { SetPartitionLengthX(value); }
-        }
-
-        public void SetPartitionLengthX(string partitionLength)
-        {
-            m_DualPartitionLengthX = partitionLength;
-            this.lengthX = ToIntArray(partitionLength);
-        }
-
-        private int m_DualHashLengthX = 0;
-        public int HashLengthX
-        {
-            get { return m_DualHashLengthX; }
-            set { SetHashLengthX(value); }
-        }
-        public void SetHashLengthX(int hashLengthX)
-        {
-            m_DualHashLengthX = hashLengthX;
-
-            SetHashSliceX(hashLengthX.ToString());
-        }
-
-        private string m_DualHashSliceX = string.Empty;
-        public string HashSliceX
-        {
-            get { return m_DualHashSliceX; }
-            set { SetHashSliceX(value); }
-        }
-        public void SetHashSliceX(string hashSlice)
-        {
-            m_DualHashSliceX = hashSlice;
-
-            var p = PairUtil.SequenceSlicing(hashSlice);
-            hashSliceStartX = p.GetKey();
-            hashSliceEndX = p.GetValue();
-        }
-
-        private string m_DualPartitionCountY = string.Empty;
-        public string PartitionCountY
-        {
-            get { return m_DualPartitionCountY; }
-            set { SetPartitionCountY(value); }
-        }
-        public void SetPartitionCountY(string partitionCount)
-        {
-            m_DualPartitionCountY = partitionCount;
-
-            this.countY = ToIntArray(partitionCount);
-            this.ySize = 0;
-            foreach (int c in countY)
-            {
-                this.ySize += c;
-            }
-        }
-
-        private string m_DualPartitionLengthY = string.Empty;
-        public string PartitionLengthY
-        {
-            get { return m_DualPartitionLengthY; }
-            set { SetPartitionLengthY(value); }
-        }
-        public void SetPartitionLengthY(string partitionLength)
-        {
-            m_DualPartitionLengthY = partitionLength;
-
-            this.lengthY = ToIntArray(partitionLength);
-        }
-
-        private int m_DualHashLengthY = 0;
-        public int HashLengthY
-        {
-            get { return m_DualHashLengthY; }
-            set { SetHashLengthY(value); }
-        }
-        public void SetHashLengthY(int hashLengthY)
-        {
-            m_DualHashLengthY = hashLengthY;
-
-            SetHashSliceY(hashLengthY.ToString());
-        }
-
-        private string m_DualHashSliceY = string.Empty;
-        public string HashSliceY
-        {
-            get { return m_DualHashSliceY; }
-            set { SetHashSliceY(value); }
-        }
-        public void SetHashSliceY(string hashSlice)
-        {
-            m_DualHashSliceY = hashSlice;
-
-            var p = PairUtil.SequenceSlicing(hashSlice);
-            hashSliceStartY = p.GetKey();
-            hashSliceEndY = p.GetValue();
-        }
 
         private static int[] ToIntArray(string @string)
         {
-            string[] strs = SplitUtil.Split(@string, ',', true);
-            int[] ints = new int[strs.Length];
-            for (int i = 0; i < strs.Length; ++i)
+            var strs = SplitUtil.Split(@string, ',', true);
+            var ints = new int[strs.Length];
+            for (var i = 0; i < strs.Length; ++i)
             {
-                ints[i] = System.Convert.ToInt32(strs[i]);
+                ints[i] = Convert.ToInt32(strs[i]);
             }
             return ints;
         }
 
-        private int xSize;
-
-        private int keyTypeX = PartitionKeyTypeLong;
-        public string KeyTypeX
-        {
-            get { return keyTypeX == PartitionKeyTypeLong ? "long" : (keyTypeX == PartitionKeyTypeString ? "string" : "error"); }
-            set { SetKeyTypeX(value); }
-        }
-        public void SetKeyTypeX(string keyTypeX)
-        {
-            this.keyTypeX = ConvertType(keyTypeX);
-        }
-
-        private int hashSliceStartX = 0;
-
-        private int hashSliceEndX = 8;
-
-        private PartitionUtil partitionUtilX;
-
-        private int ySize;
-
-        private int keyTypeY = PartitionKeyTypeLong;
-        public string KeyTypeY
-        {
-            get { return keyTypeY == PartitionKeyTypeLong ? "long" : (keyTypeY == PartitionKeyTypeString ? "string" : "error"); }
-            set { SetKeyTypeY(value); }
-        }
-        public void SetKeyTypeY(string keyTypeY)
-        {
-            this.keyTypeY = ConvertType(keyTypeY);
-        }
-
-        private int hashSliceStartY = 0;
-
-        private int hashSliceEndY = 8;
-
-        private PartitionUtil partitionUtilY;
-
-        private int[][] byX;
-
-        private int[][] byY;
-
-        private int[] all;
-
         private void BuildByX()
         {
-            //byX = new int[xSize][ySize];
-            byX = new int[xSize][];
-            for (int x = 0; x < xSize; ++x)
+            //_byX = new int[_xSize][_ySize];
+            _byX = new int[_xSize][];
+            for (var x = 0; x < _xSize; ++x)
             {
-                byX[x] = new int[ySize];
+                _byX[x] = new int[_ySize];
 
-                for (int y = 0; y < ySize; ++y)
+                for (var y = 0; y < _ySize; ++y)
                 {
-                    byX[x][y] = GetByXY(x, y);
+                    _byX[x][y] = GetByXY(x, y);
                 }
             }
         }
 
         private void BuildByY()
         {
-            //byY = new int[ySize][xSize];
-            byY = new int[ySize][];
-            for (int y = 0; y < ySize; ++y)
+            //_byY = new int[_ySize][_xSize];
+            _byY = new int[_ySize][];
+            for (var y = 0; y < _ySize; ++y)
             {
-                byY[y] = new int[xSize];
+                _byY[y] = new int[_xSize];
 
-                for (int x = 0; x < xSize; ++x)
+                for (var x = 0; x < _xSize; ++x)
                 {
-                    byY[y][x] = GetByXY(x, y);
+                    _byY[y][x] = GetByXY(x, y);
                 }
             }
         }
 
         private void BuildAll()
         {
-            int size = xSize * ySize;
-            all = new int[size];
-            for (int i = 0; i < size; ++i)
+            var size = _xSize*_ySize;
+            _all = new int[size];
+            for (var i = 0; i < size; ++i)
             {
-                all[i] = i;
+                _all[i] = i;
             }
         }
 
         private int[] GetAll()
         {
-            return all;
+            return _all;
         }
 
         private int[] GetByX(int x)
         {
-            return byX[x];
+            return _byX[x];
         }
 
         private int[] GetByY(int y)
         {
-            return byY[y];
+            return _byY[y];
         }
 
         private int GetByXY(int x, int y)
         {
-            if (x >= xSize || y >= ySize)
+            if (x >= _xSize || y >= _ySize)
             {
                 throw new ArgumentException("x, y out of bound: x=" + x + ", y=" + y);
             }
-            return x + xSize * y;
+            return x + _xSize*y;
         }
 
         /// <returns>null if eval invalid type</returns>
         private static int? Calculate(object eval,
-                                        PartitionUtil partitionUtil,
-                                        int keyType,
-                                        int hashSliceStart,
-                                        int hashSliceEnd)
+            PartitionUtil partitionUtil,
+            int keyType,
+            int hashSliceStart,
+            int hashSliceEnd)
         {
             if (eval == ExpressionConstants.Unevaluatable || eval == null)
-            {
                 return null;
-            }
 
             switch (keyType)
             {
                 case PartitionKeyTypeLong:
+                {
+                    long longVal;
+                    if (eval is Number)
                     {
-                        long longVal;
-                        if (eval is Number)
-                        {
-                            longVal = (long)((Number)eval);
-                        }
-                        else
-                        {
-                            if (eval is string)
-                            {
-                                longVal = long.Parse((string)eval);
-                            }
-                            else
-                            {
-                                throw new ArgumentException("unsupported data type for partition key: " + eval.GetType());
-                            }
-                        }
-                        return partitionUtil.Partition(longVal);
+                        longVal = (long)(Number)eval;
                     }
+                    else if (eval is string)
+                    {
+                        longVal = long.Parse((string)eval);
+                    }
+                    else
+                    {
+                        throw new ArgumentException("unsupported data type for partition key: " + eval.GetType());
+                    }
+
+                    return partitionUtil.Partition(longVal);
+                }
 
                 case PartitionKeyTypeString:
-                    {
-                        string key = eval.ToString();
-                        int start = hashSliceStart >= 0 ? hashSliceStart : key.Length + hashSliceStart;
-                        int end = hashSliceEnd > 0 ? hashSliceEnd : key.Length + hashSliceEnd;
-                        long hash = StringUtil.Hash(key, start, end);
-                        return partitionUtil.Partition(hash);
-                    }
+                {
+                    var key = eval.ToString();
+                    var start = hashSliceStart >= 0 ? hashSliceStart : key.Length + hashSliceStart;
+                    var end = hashSliceEnd > 0 ? hashSliceEnd : key.Length + hashSliceEnd;
+                    var hash = StringUtil.Hash(key, start, end);
+                    return partitionUtil.Partition(hash);
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unsupported partition key type: " + keyType);
-                    }
+                {
+                    throw new ArgumentException("unsupported partition key type: " + keyType);
+                }
             }
         }
 
@@ -362,24 +404,21 @@ namespace Tup.Cobar4Net.Route.Function
 
         private Number[] Eval(object xInput, object yInput)
         {
-            int? x = Calculate(xInput, partitionUtilX, keyTypeX, hashSliceStartX, hashSliceEndX);
-            int? y = Calculate(yInput, partitionUtilY, keyTypeY, hashSliceStartY, hashSliceEndY);
+            var x = Calculate(xInput, _partitionUtilX, _keyTypeX, _hashSliceStartX, _hashSliceEndX);
+            var y = Calculate(yInput, _partitionUtilY, _keyTypeY, _hashSliceStartY, _hashSliceEndY);
             if (x != null && y != null)
             {
-                return new Number[] { GetByXY(x.Value, y.Value) };
+                return new Number[] {GetByXY(x.Value, y.Value)};
             }
-            else if (x == null && y != null)
+            if (x == null && y != null)
             {
                 return Number.ValueOf(GetByY(y.Value));
             }
-            else if (x != null && y == null)
+            if (x != null && y == null)
             {
                 return Number.ValueOf(GetByX(x.Value));
             }
-            else
-            {
-                return Number.ValueOf(GetAll());
-            }
+            return Number.ValueOf(GetAll());
         }
 
         public override void Init()
@@ -387,83 +426,40 @@ namespace Tup.Cobar4Net.Route.Function
             Initialize();
         }
 
-        public void Initialize()
-        {
-            partitionUtilX = new PartitionUtil(countX, lengthX);
-            partitionUtilY = new PartitionUtil(countY, lengthY);
-            BuildAll();
-            BuildByX();
-            BuildByY();
-        }
-
-        public override FunctionExpression ConstructFunction(IList<Expr> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             if (arguments == null || arguments.Count != 2)
             {
-                throw new ArgumentException("function " + GetFunctionName() + " must have 2 arguments but is " + arguments);
+                throw new ArgumentException("function " + FunctionName + " must have 2 arguments but is " +
+                                            arguments);
             }
 
-            object[] args = new object[arguments.Count];
-            int i = -1;
-            foreach (Expr arg in arguments)
+            var args = new object[arguments.Count];
+            var i = -1;
+            foreach (var arg in arguments)
             {
                 args[++i] = arg;
             }
             return (FunctionExpression)ConstructMe(args);
         }
 
-        public RuleAlgorithm ConstructMe(params object[] objects)
-        {
-            var args = new List<Expr>(objects.Length);
-            foreach (object obj in objects)
-            {
-                args.Add((Expr)obj);
-            }
-
-            var rst = new Dimension2PartitionFunction(functionName, args);
-            rst.countX = countX;
-            rst.xSize = xSize;
-            rst.lengthX = lengthX;
-            rst.keyTypeX = keyTypeX;
-            rst.hashSliceStartX = hashSliceStartX;
-            rst.hashSliceEndX = hashSliceEndX;
-            rst.countY = countY;
-            rst.ySize = ySize;
-            rst.lengthY = lengthY;
-            rst.keyTypeY = keyTypeY;
-            rst.hashSliceStartY = hashSliceStartY;
-            rst.hashSliceEndY = hashSliceEndY;
-            return rst;
-        }
-
-        public Number[] Calculate(IDictionary<object, object> parameters)
-        {
-            if (arguments == null || arguments.Count < 2)
-            {
-                throw new ArgumentException("arguments.size < 2 for function of " + GetFunctionName());
-            }
-            object xInput = arguments[0].Evaluation(parameters);
-            object yInput = arguments[1].Evaluation(parameters);
-
-            return Eval(xInput, yInput);
-        }
+        // }
+        // }
+        // System.out.println(i);
+        // for(Integer i:ints){
+        // Integer[] ints=func.eval(1023L, "zzzz");
+        //
+        // func.init();
+        // func.setHashLengthY(8);
+        // func.setPartitionLengthY("512");
+        // func.setPartitionCountY("2");
+        // func.setKeyTypeY("string");
+        // func.setPartitionLengthX("512,256");
+        // func.setPartitionCountX("1,2");
+        // func.setKeyTypeX("long");
+        // Dimension2PartitionFunction("test999", new ArrayList<Expression>(2));
+        // Dimension2PartitionFunction func = new
 
         // public static void main(String[] args) throws Exception {
-        // Dimension2PartitionFunction func = new
-        // Dimension2PartitionFunction("test999", new ArrayList<Expression>(2));
-        // func.setKeyTypeX("long");
-        // func.setPartitionCountX("1,2");
-        // func.setPartitionLengthX("512,256");
-        // func.setKeyTypeY("string");
-        // func.setPartitionCountY("2");
-        // func.setPartitionLengthY("512");
-        // func.setHashLengthY(8);
-        // func.init();
-        //
-        // Integer[] ints=func.eval(1023L, "zzzz");
-        // for(Integer i:ints){
-        // System.out.println(i);
-        // }
-        // }
     }
 }

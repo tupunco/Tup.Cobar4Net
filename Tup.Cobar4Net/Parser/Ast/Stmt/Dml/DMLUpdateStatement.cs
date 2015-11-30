@@ -16,104 +16,70 @@
 
 using System;
 using System.Collections.Generic;
-
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLUpdateStatement : DMLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlUpdateStatement : DmlStatement
     {
-        private readonly bool lowPriority;
-
-        private readonly bool ignore;
-
-        private readonly TableReferences tableRefs;
-
-        private readonly IList<Pair<Identifier, Expr>> values;
-
-        private readonly Expr where;
-
-        private readonly OrderBy orderBy;
-
-        private readonly Limit limit;
-
-        public DMLUpdateStatement(bool lowPriority,
+        public DmlUpdateStatement(bool lowPriority,
             bool ignore,
             TableReferences tableRefs,
-            IList<Pair<Identifier, Expr>> values,
-            Expr where, OrderBy orderBy,
+            IList<Pair<Identifier, IExpression>> values,
+            IExpression where, OrderBy orderBy,
             Limit limit)
         {
-            this.lowPriority = lowPriority;
-            this.ignore = ignore;
+            IsLowPriority = lowPriority;
+            IsIgnore = ignore;
             if (tableRefs == null)
             {
                 throw new ArgumentException("argument tableRefs is null for update stmt");
             }
 
-            this.tableRefs = tableRefs;
+            TableRefs = tableRefs;
             if (values == null || values.Count <= 0)
             {
-                this.values = new List<Pair<Identifier, Expr>>(0);
+                Values = new List<Pair<Identifier, IExpression>>(0);
             }
             else
             {
-                if (!(values is List<Pair<Identifier, Expr>>))
+                if (!(values is List<Pair<Identifier, IExpression>>))
                 {
-                    this.values = new List<Pair<Identifier, Expr>>(values);
+                    Values = new List<Pair<Identifier, IExpression>>(values);
                 }
                 else
                 {
-                    this.values = values;
+                    Values = values;
                 }
             }
-            this.where = where;
-            this.orderBy = orderBy;
-            this.limit = limit;
+            Where = where;
+            OrderBy = orderBy;
+            Limit = limit;
         }
 
-        public virtual bool IsLowPriority()
-        {
-            return lowPriority;
-        }
+        public virtual bool IsLowPriority { get; }
 
-        public virtual bool IsIgnore()
-        {
-            return ignore;
-        }
+        public virtual bool IsIgnore { get; }
 
-        public virtual TableReferences GetTableRefs()
-        {
-            return tableRefs;
-        }
+        public virtual TableReferences TableRefs { get; }
 
-        public virtual IList<Pair<Identifier, Expr>> GetValues()
-        {
-            return values;
-        }
+        public virtual IList<Pair<Identifier, IExpression>> Values { get; }
 
-        public virtual Expr GetWhere()
-        {
-            return where;
-        }
+        public virtual IExpression Where { get; }
 
-        public virtual OrderBy GetOrderBy()
-        {
-            return orderBy;
-        }
+        public virtual OrderBy OrderBy { get; }
 
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
+        public virtual Limit Limit { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -16,60 +16,96 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class PartitionByString : PartitionFunction, RuleAlgorithm
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class PartitionByString : PartitionFunction, IRuleAlgorithm
     {
+        /// <summary>0 means str.length(), -1 means str.length()-1</summary>
+        private int _hashSliceEnd = 8;
+
+        private int _hashSliceStart;
+
+        private int m_DualHashLength;
+
+        private string m_DualHashSlice = string.Empty;
+
         public PartitionByString(string functionName)
             : this(functionName, null)
         {
         }
 
-        public PartitionByString(string functionName, IList<Expr> arguments)
+        public PartitionByString(string functionName, IList<IExpression> arguments)
             : base(functionName, arguments)
         {
         }
 
-        private int hashSliceStart = 0;
-
-        /// <summary>0 means str.length(), -1 means str.length()-1</summary>
-        private int hashSliceEnd = 8;
-
-        private int m_DualHashLength = 0;
         public int HashLength
         {
             get { return m_DualHashLength; }
-            set { SetHashLength(value); }
-        }
-        public void SetHashLength(int hashLength)
-        {
-            m_DualHashLength = hashLength;
+            set
+            {
+                m_DualHashLength = value;
 
-            SetHashSlice(hashLength.ToString());
+                HashSlice = value.ToString();
+            }
         }
 
-        private string m_DualHashSlice = string.Empty;
         public string HashSlice
         {
             get { return m_DualHashSlice; }
-            set { SetHashSlice(value); }
-        }
-        public void SetHashSlice(string hashSlice)
-        {
-            m_DualHashSlice = hashSlice;
+            set
+            {
+                m_DualHashSlice = value;
 
-            var p = PairUtil.SequenceSlicing(hashSlice);
-            hashSliceStart = p.GetKey();
-            hashSliceEnd = p.GetValue();
+                var p = PairUtil.SequenceSlicing(value);
+                _hashSliceStart = p.Key;
+                _hashSliceEnd = p.Value;
+            }
+        }
+
+        public Number[] Calculate(IDictionary<object, object> parameters)
+        {
+            var rst = new int[1];
+            var arg = arguments[0].Evaluation(parameters);
+            if (arg == ExpressionConstants.Unevaluatable)
+                throw new ArgumentException("argument is UNEVALUATABLE");
+
+            //TODO string key = arg.ToString();
+            var key = (arg ?? "null").ToString();
+            var start = _hashSliceStart >= 0 ? _hashSliceStart : key.Length + _hashSliceStart;
+            var end = _hashSliceEnd > 0 ? _hashSliceEnd : key.Length + _hashSliceEnd;
+            var hash = StringUtil.Hash(key, start, end);
+            rst[0] = PartitionIndex(hash);
+            return Number.ValueOf(rst);
+        }
+
+        public IRuleAlgorithm ConstructMe(params object[] objects)
+        {
+            var args = objects.Select(x => (IExpression)x).ToList();
+
+            var partitionFunc = new PartitionByString(functionName, args)
+            {
+                _hashSliceStart = _hashSliceStart,
+                _hashSliceEnd = _hashSliceEnd,
+                Count = Count,
+                Length = Length
+            };
+            return partitionFunc;
+        }
+
+        public void Initialize()
+        {
+            Init();
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
@@ -77,58 +113,21 @@ namespace Tup.Cobar4Net.Route.Function
             return Calculate(parameters)[0];
         }
 
-        public Number[] Calculate(IDictionary<object, object> parameters)
-        {
-            int[] rst = new int[1];
-            object arg = arguments[0].Evaluation(parameters);
-            if (arg == ExpressionConstants.Unevaluatable)
-            {
-                throw new ArgumentException("argument is UNEVALUATABLE");
-            }
-            //TODO string key = arg.ToString();
-            string key = (arg ?? "null").ToString();
-            int start = hashSliceStart >= 0 ? hashSliceStart : key.Length + hashSliceStart;
-            int end = hashSliceEnd > 0 ? hashSliceEnd : key.Length + hashSliceEnd;
-            long hash = StringUtil.Hash(key, start, end);
-            rst[0] = PartitionIndex(hash);
-            return Number.ValueOf(rst);
-        }
-
-        public override FunctionExpression ConstructFunction(IList<Expr> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             if (arguments == null || arguments.Count != 1)
             {
-                throw new ArgumentException("function " + GetFunctionName() + " must have 1 argument but is "
-                     + arguments);
+                throw new ArgumentException("function " + FunctionName + " must have 1 argument but is "
+                                            + arguments);
             }
 
-            object[] args = new object[arguments.Count];
-            int i = -1;
-            foreach (Expr arg in arguments)
+            var args = new object[arguments.Count];
+            var i = -1;
+            foreach (var arg in arguments)
             {
                 args[++i] = arg;
             }
             return (FunctionExpression)ConstructMe(args);
-        }
-
-        public RuleAlgorithm ConstructMe(params object[] objects)
-        {
-            var args = new List<Expr>(objects.Length);
-            foreach (object obj in objects)
-            {
-                args.Add((Expr)obj);
-            }
-            var partitionFunc = new PartitionByString(functionName, args);
-            partitionFunc.hashSliceStart = hashSliceStart;
-            partitionFunc.hashSliceEnd = hashSliceEnd;
-            partitionFunc.count = count;
-            partitionFunc.length = length;
-            return partitionFunc;
-        }
-
-        public void Initialize()
-        {
-            Init();
         }
     }
 }

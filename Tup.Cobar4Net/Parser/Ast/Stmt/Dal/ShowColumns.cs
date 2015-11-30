@@ -14,81 +14,65 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowColumns : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowColumns : DalShowStatement
     {
-        private readonly bool full;
-
-        private readonly Identifier table;
-
-        private readonly string pattern;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
-
-        public ShowColumns(bool full, Identifier table, Identifier database, Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             where)
+        public ShowColumns(bool full,
+            Identifier table,
+            Identifier database,
+            IExpression where)
         {
-            this.full = full;
-            this.table = table;
+            IsFull = full;
+            Table = table;
             if (database != null)
             {
-                this.table.SetParent(database);
+                Table.Parent = database;
             }
-            this.pattern = null;
-            this.where = where;
+            Pattern = null;
+            Where = where;
         }
 
-        public ShowColumns(bool full, Identifier table, Identifier database, string pattern
-            )
+        public ShowColumns(bool full, Identifier table, Identifier database, string pattern)
         {
-            this.full = full;
-            this.table = table;
+            IsFull = full;
+            Table = table;
             if (database != null)
             {
-                this.table.SetParent(database);
+                Table.Parent = database;
             }
-            this.pattern = pattern;
-            this.where = null;
+            Pattern = pattern;
+            Where = null;
         }
 
         public ShowColumns(bool full, Identifier table, Identifier database)
         {
-            this.full = full;
-            this.table = table;
+            IsFull = full;
+            Table = table;
             if (database != null)
             {
-                this.table.SetParent(database);
+                Table.Parent = database;
             }
-            this.pattern = null;
-            this.where = null;
+            Pattern = null;
+            Where = null;
         }
 
-        public virtual bool IsFull()
-        {
-            return full;
-        }
+        public virtual bool IsFull { get; }
 
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
+        public virtual Identifier Table { get; }
 
-        public virtual string GetPattern()
-        {
-            return pattern;
-        }
+        public virtual string Pattern { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
-        {
-            return where;
-        }
+        public virtual IExpression Where { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

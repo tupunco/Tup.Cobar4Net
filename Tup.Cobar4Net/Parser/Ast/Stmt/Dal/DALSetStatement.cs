@@ -15,44 +15,38 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DALSetStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DalSetStatement : ISqlStatement
     {
-        private readonly IList<Pair<VariableExpression, Expr>> assignmentList;
-
-        public DALSetStatement(IList<Pair<VariableExpression, Expr>> assignmentList)
+        public DalSetStatement(IList<Pair<VariableExpression, IExpression>> assignmentList)
         {
             if (assignmentList == null || assignmentList.IsEmpty())
             {
-                this.assignmentList = new List<Pair<VariableExpression, Expr>>(0);
+                AssignmentList = new List<Pair<VariableExpression, IExpression>>(0);
+            }
+            else if (assignmentList is List<Pair<VariableExpression, IExpression>>)
+            {
+                AssignmentList = assignmentList;
             }
             else
             {
-                if (assignmentList is List<Pair<VariableExpression, Expr>>)
-                {
-                    this.assignmentList = assignmentList;
-                }
-                else
-                {
-                    this.assignmentList = new List<Pair<VariableExpression, Expr>>(assignmentList);
-                }
+                AssignmentList = new List<Pair<VariableExpression, IExpression>>(assignmentList);
             }
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<Pair<VariableExpression, Expr>> GetAssignmentList()
-        {
-            return assignmentList;
-        }
+        /// <value>never null</value>
+        public virtual IList<Pair<VariableExpression, IExpression>> AssignmentList { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

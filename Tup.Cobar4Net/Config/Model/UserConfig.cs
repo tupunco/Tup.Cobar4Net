@@ -21,63 +21,17 @@ namespace Tup.Cobar4Net.Config.Model
     /// <author>xianmao.hexm 2011-1-11 ÏÂÎç02:26:09</author>
     public class UserConfig
     {
-        private string name;
-        private string password;
-        private ICollection<string> schemas;
+        public virtual string Name { get; set; }
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public virtual string Password { get; set; }
 
-        public string Password
-        {
-            get { return password; }
-            set { password = value; }
-        }
-
-        public ICollection<string> Schemas
-        {
-            get { return schemas; }
-            set { schemas = value; }
-        }
-
-        public virtual string GetName()
-        {
-            return name;
-        }
-
-        public virtual void SetName(string name)
-        {
-            this.name = name;
-        }
-
-        public virtual string GetPassword()
-        {
-            return password;
-        }
-
-        public virtual void SetPassword(string password)
-        {
-            this.password = password;
-        }
-
-        public virtual ICollection<string> GetSchemas()
-        {
-            return schemas;
-        }
-
-        public virtual void SetSchemas(ICollection<string> schemas)
-        {
-            this.schemas = schemas;
-        }
+        public virtual ICollection<string> Schemas { get; set; }
 
         public override string ToString()
         {
             return string.Format("[UserConfig Name={0}, Password={1}, Schemas={2}]",
-                name, password,
-                string.Join(",", schemas ?? new string[0]));
+                Name, Password,
+                string.Join(",", Schemas ?? new string[0]));
         }
     }
 }

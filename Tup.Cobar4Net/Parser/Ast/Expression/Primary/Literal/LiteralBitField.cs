@@ -19,13 +19,11 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LiteralBitField : Literal
     {
-        private readonly string text;
-
-        private readonly string introducer;
-
         /// <param name="introducer">e.g. "_latin1"</param>
         /// <param name="bitFieldText">e.g. "01010"</param>
         public LiteralBitField(string introducer, string bitFieldText)
@@ -34,21 +32,15 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             {
                 throw new ArgumentException("bit text is null");
             }
-            this.introducer = introducer;
-            this.text = bitFieldText;
+            Introducer = introducer;
+            Text = bitFieldText;
         }
 
-        public virtual string GetText()
-        {
-            return text;
-        }
+        public virtual string Text { get; }
 
-        public virtual string GetIntroducer()
-        {
-            return introducer;
-        }
+        public virtual string Introducer { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

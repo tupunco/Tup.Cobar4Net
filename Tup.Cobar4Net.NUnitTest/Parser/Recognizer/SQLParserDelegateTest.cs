@@ -13,48 +13,49 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
 using System;
-using Tup.Cobar4Net.Parser.Ast.Stmt;
+using NUnit.Framework;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 
 namespace Tup.Cobar4Net.Parser.Recognizer
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [TestFixture(Category = "SQLParserDelegateTest")]
-    public class SQLParserDelegateTest : AbstractSyntaxTest
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    [TestFixture(Category = "SqlParserDelegateTest")]
+    public class SqlParserDelegateTest : AbstractSyntaxTest
     {
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         [Test]
         public virtual void TestProperlyEnd()
         {
-            string sql = "select * from tb1;";
-            SQLStatement stmt = SQLParserDelegate.Parse(sql);
-            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            var sql = "select * from tb1;";
+            var stmt = SqlParserDelegate.Parse(sql);
+            Assert.AreEqual(typeof (DmlSelectStatement), stmt.GetType());
             sql = "select * from tb1 ;;;  ";
-            stmt = SQLParserDelegate.Parse(sql);
-            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            stmt = SqlParserDelegate.Parse(sql);
+            Assert.AreEqual(typeof (DmlSelectStatement), stmt.GetType());
             sql = "select * from tb1 /***/  ";
-            stmt = SQLParserDelegate.Parse(sql);
-            Assert.AreEqual(typeof(DMLSelectStatement), stmt.GetType());
+            stmt = SqlParserDelegate.Parse(sql);
+            Assert.AreEqual(typeof (DmlSelectStatement), stmt.GetType());
             sql = "select * from tb1 ,  ";
             try
             {
-                stmt = SQLParserDelegate.Parse(sql);
+                stmt = SqlParserDelegate.Parse(sql);
                 Assert.Fail("should detect inproperly end");
             }
-            catch (SQLSyntaxErrorException)
+            catch (SqlSyntaxErrorException)
             {
             }
             sql = "select * from tb1 ;,  ";
             try
             {
-                stmt = SQLParserDelegate.Parse(sql);
+                stmt = SqlParserDelegate.Parse(sql);
                 Assert.Fail("should detect inproperly end");
             }
-            catch (SQLSyntaxErrorException)
+            catch (SqlSyntaxErrorException)
             {
             }
         }

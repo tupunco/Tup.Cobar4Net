@@ -12,7 +12,7 @@ namespace Sharpen
 
         #region Encoding
 
-        private readonly static Encoding s_Utf8_Encoding = Encoding.UTF8;
+        private static readonly Encoding s_Utf8_Encoding = Encoding.UTF8;
 
         public static byte[] GetBytesForString(string str)
         {
@@ -44,15 +44,15 @@ namespace Sharpen
             return str.Substring(index, endIndex - index);
         }
 
-        //public static Type GetType(string name)
+        //public static ProfileType GetType(string name)
         //{
         //    foreach (Assembly a in AppDomain.CurrentDomain.GetAssemblies())
         //    {
-        //        Type t = a.GetType(name);
+        //        ProfileType t = a.GetType(name);
         //        if (t != null)
         //            return t;
         //    }
-        //    throw new InvalidOperationException("Type not found: " + name);
+        //    throw new InvalidOperationException("ProfileType not found: " + name);
         //}
 
         //public static void SetCharAt(StringBuilder sb, int index, char c)
@@ -88,7 +88,7 @@ namespace Sharpen
         public static Encoding GetEncoding(string name)
         {
             //			Encoding e = Encoding.GetEncoding (name, EncoderFallback.ExceptionFallback, DecoderFallback.ExceptionFallback);
-            Encoding e = Encoding.GetEncoding(name.Replace('_', '-'));
+            var e = Encoding.GetEncoding(name.Replace('_', '-'));
             if (e is UTF8Encoding)
                 return new UTF8Encoding(false, true);
             return e;

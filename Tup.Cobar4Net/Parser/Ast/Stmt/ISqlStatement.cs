@@ -16,11 +16,15 @@
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface SQLStatement : ASTNode
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface ISqlStatement : IAstNode
     {
     }
-
+    /// <summary>
+    /// StmtType
+    /// </summary>
     public enum StmtType
     {
         DmlSelect,

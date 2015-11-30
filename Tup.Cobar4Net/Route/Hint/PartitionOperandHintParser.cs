@@ -21,20 +21,22 @@ using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Route.Hint
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class PartitionOperandHintParser : HintParser
     {
         private static string[] Convert2String(object[] objs)
         {
-            string[] strings = new string[objs.Length];
-            for (int i = 0; i < objs.Length; ++i)
+            var strings = new string[objs.Length];
+            for (var i = 0; i < objs.Length; ++i)
             {
                 strings[i] = (string)objs[i];
             }
             return strings;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public override void Process(CobarHint hint, string hintName, string sql)
         {
             string[] columns;
@@ -52,40 +54,40 @@ namespace Tup.Cobar4Net.Route.Hint
             switch (NextChar(hint, sql))
             {
                 case '[':
+                {
+                    if (columns.Length == 1)
                     {
-                        if (columns.Length == 1)
+                        hint.IncreaseCurrentIndex();
+                        var vs = ParseArray(hint, sql, -1);
+                        values = new object[vs.Length][];
+                        for (var i = 0; i < vs.Length; ++i)
                         {
-                            hint.IncreaseCurrentIndex();
-                            object[] vs = ParseArray(hint, sql, -1);
-                            values = new object[vs.Length][];
-                            for (int i = 0; i < vs.Length; ++i)
-                            {
-                                values[i] = new object[1] { vs[i] };
-                                //values[i][0] = vs[i];
-                            }
+                            values[i] = new object[1] {vs[i]};
+                            //values[i][0] = vs[i];
                         }
-                        else
-                        {
-                            values = ParseArrayArray(hint, sql, columns.Length);
-                        }
-                        break;
                     }
+                    else
+                    {
+                        values = ParseArrayArray(hint, sql, columns.Length);
+                    }
+                    break;
+                }
 
                 default:
+                {
+                    if (columns.Length == 1)
                     {
-                        if (columns.Length == 1)
-                        {
-                            values = new object[1][] { new object[1] };
-                            values[0][0] = ParsePrimary(hint, sql);
-                        }
-                        else
-                        {
-                            throw new SQLSyntaxErrorException("err for partitionOperand: " + sql);
-                        }
-                        break;
+                        values = new object[1][] {new object[1]};
+                        values[0][0] = ParsePrimary(hint, sql);
                     }
+                    else
+                    {
+                        throw new SqlSyntaxErrorException("err for partitionOperand: " + sql);
+                    }
+                    break;
+                }
             }
-            hint.SetPartitionOperand(new Pair<string[], object[][]>(columns, values));
+            hint.PartitionOperand = new Pair<string[], object[][]>(columns, values);
             if (CurrentChar(hint, sql) == ')')
             {
                 hint.IncreaseCurrentIndex();
@@ -93,11 +95,11 @@ namespace Tup.Cobar4Net.Route.Hint
         }
 
         /// <summary>
-        /// current char is char after '[', after call, current char is char after
-        /// ']'
+        ///     current char is char after '[', after call, current char is char after
+        ///     ']'
         /// </summary>
         /// <param name="len">less than 0 for array length unknown</param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private object[] ParseArray(CobarHint hint, string sql, int len)
         {
             object[] rst = null;
@@ -110,9 +112,9 @@ namespace Tup.Cobar4Net.Route.Hint
             {
                 list = new List<object>();
             }
-            for (int i = 0; ; ++i)
+            for (var i = 0;; ++i)
             {
-                object obj = ParsePrimary(hint, sql);
+                var obj = ParsePrimary(hint, sql);
                 if (len >= 0)
                 {
                     rst[i] = obj;
@@ -124,29 +126,28 @@ namespace Tup.Cobar4Net.Route.Hint
                 switch (CurrentChar(hint, sql))
                 {
                     case ']':
-                        {
-                            hint.IncreaseCurrentIndex();
-                            if (len >= 0)
-                                return rst;
-                            else
-                                return list.ToArray();
-                        }
+                    {
+                        hint.IncreaseCurrentIndex();
+                        if (len >= 0)
+                            return rst;
+                        return list.ToArray();
+                    }
                     case ',':
-                        {
-                            hint.IncreaseCurrentIndex();
-                            break;
-                        }
+                    {
+                        hint.IncreaseCurrentIndex();
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new SQLSyntaxErrorException("err for partitionOperand array: " + sql);
-                        }
+                    {
+                        throw new SqlSyntaxErrorException("err for partitionOperand array: " + sql);
+                    }
                 }
             }
         }
 
         /// <summary>current char is '[[', after call, current char is char after ']]'</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private object[][] ParseArrayArray(CobarHint hint, string sql, int columnNum)
         {
             if (NextChar(hint, sql) == '[')
@@ -156,34 +157,31 @@ namespace Tup.Cobar4Net.Route.Hint
                 {
                     NextChar(hint, sql);
                     list.Add(ParseArray(hint, sql, columnNum));
-                    char c = CurrentChar(hint, sql);
+                    var c = CurrentChar(hint, sql);
                     switch (c)
                     {
                         case ']':
-                            {
-                                hint.IncreaseCurrentIndex();
-                                return list.ToArray();
-                            }
+                        {
+                            hint.IncreaseCurrentIndex();
+                            return list.ToArray();
+                        }
 
                         case ',':
-                            {
-                                NextChar(hint, sql);
-                                break;
-                            }
+                        {
+                            NextChar(hint, sql);
+                            break;
+                        }
 
                         default:
-                            {
-                                throw new SQLSyntaxErrorException("err for partitionOperand array[]: " + sql);
-                            }
+                        {
+                            throw new SqlSyntaxErrorException("err for partitionOperand array[]: " + sql);
+                        }
                     }
                 }
             }
-            else
-            {
-                var rst = new object[][] { new object[columnNum] };
-                rst[0] = ParseArray(hint, sql, columnNum);
-                return rst;
-            }
+            var rst = new[] {new object[columnNum]};
+            rst[0] = ParseArray(hint, sql, columnNum);
+            return rst;
         }
     }
 }

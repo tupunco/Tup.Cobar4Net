@@ -22,179 +22,43 @@ namespace Tup.Cobar4Net.Config.Model
     {
         private const int DefaultSqlRecordCount = 10;
 
-        private string name;
+        public string Name { get; set; }
 
-        private string type;
-
-        private string host;
-
-        private int port;
-
-        private string user;
-
-        private string password;
-
-        private string database;
-
-        private string sqlMode;
-
-        private int sqlRecordCount = DefaultSqlRecordCount;
-
-        public int SqlRecordCount
-        {
-            get { return sqlRecordCount; }
-            set { sqlRecordCount = value; }
-        }
-
-        public string SqlMode
-        {
-            get { return sqlMode; }
-            set { sqlMode = value; }
-        }
-
-        public string Database
-        {
-            get { return database; }
-            set { database = value; }
-        }
-
-        public string Password
-        {
-            get { return password; }
-            set { password = value; }
-        }
-
-        public string User
-        {
-            get { return user; }
-            set { user = value; }
-        }
-
-        public int Port
-        {
-            get { return port; }
-            set { port = value; }
-        }
-
-        public string Host
-        {
-            get { return host; }
-            set { host = value; }
-        }
+        public string SourceType { get; private set; }
 
         public string Type
         {
-            get { return type; }
-            set { type = value; }
+            set { SourceType = value; }
         }
 
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
+        public string Host { get; set; }
 
-        public string GetName()
-        {
-            return name;
-        }
+        public int Port { get; set; }
 
-        public void SetName(string name)
-        {
-            this.name = name;
-        }
+        public string User { get; set; }
 
-        public string GetSourceType()
-        {
-            return type;
-        }
+        public string Password { set; get; }
 
-        public void SetType(string type)
-        {
-            this.type = type;
-        }
+        public string Database { get; set; }
 
-        public string GetHost()
-        {
-            return host;
-        }
+        public string SqlMode { get; set; }
 
-        public void SetHost(string host)
-        {
-            this.host = host;
-        }
-
-        public int GetPort()
-        {
-            return port;
-        }
-
-        public void SetPort(int port)
-        {
-            this.port = port;
-        }
-
-        public string GetUser()
-        {
-            return user;
-        }
-
-        public void SetUser(string user)
-        {
-            this.user = user;
-        }
-
-        public string GetPassword()
-        {
-            return password;
-        }
-
-        public void SetPassword(string password)
-        {
-            this.Password = password;
-        }
-
-        public string GetDatabase()
-        {
-            return database;
-        }
-
-        public void SetDatabase(string database)
-        {
-            this.database = database;
-        }
-
-        public string GetSqlMode()
-        {
-            return sqlMode;
-        }
-
-        public void SetSqlMode(string sqlMode)
-        {
-            this.sqlMode = sqlMode;
-        }
-
-        public int GetSqlRecordCount()
-        {
-            return sqlRecordCount;
-        }
-
-        public void SetSqlRecordCount(int sqlRecordCount)
-        {
-            this.sqlRecordCount = sqlRecordCount;
-        }
+        public int SqlRecordCount { get; set; } = DefaultSqlRecordCount;
 
         public override string ToString()
         {
-            return string.Format("[DataSourceConfig Name={0}, Type={1}, Host={2}, Port={3}, User={4}, Password={5}, Database={6}, SqlMode={7}, SqlRecordCount={8}]",
-                                    name, type, host, port, user, password, database, sqlMode, sqlRecordCount);
+            return
+                string.Format(
+                    "[DataSourceConfig Name={0}, ProfileType={1}, Host={2}, Port={3}, User={4}, Password={5}, Database={6}, SqlMode={7}, SqlRecordCount={8}]",
+                    Name, SourceType, Host, Port, User, Password, Database, SqlMode, SqlRecordCount);
         }
 
-        //public override string ToString()
-        //{
-        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
-        //        Host).Append(",port=").Append(Port).Append(",database=").Append(Database).Append
-        //        (']').ToString();
         //}
+        //        (']').ToString();
+        //        Host).Append(",port=").Append(Port).Append(",database=").Append(Database).Append
+        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
+        //{
+
+        //public override string ToString()
     }
 }

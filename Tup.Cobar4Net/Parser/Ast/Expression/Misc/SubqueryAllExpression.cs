@@ -16,18 +16,22 @@
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 {
-    /// <summary><code>'ALL' '(' subquery  ')'</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'ALL' '(' subquery  ')'</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class SubqueryAllExpression : UnaryOperatorExpression
     {
-        public SubqueryAllExpression(QueryExpression subquery)
+        public SubqueryAllExpression(IQueryExpression subquery)
             : base(subquery, ExpressionConstants.PrecedencePrimary)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "ALL";
+            get { return "ALL"; }
         }
     }
 }

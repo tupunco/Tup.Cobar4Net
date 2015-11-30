@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class StddevSamp : FunctionExpression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class StdDevSamp : FunctionExpression
     {
-        public StddevSamp(IList<Expression> arguments)
+        public StdDevSamp(IList<IExpression> arguments)
             : base("STDDEV_SAMP", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby.StddevSamp(arguments
-                );
+            return new StdDevSamp(arguments);
         }
     }
 }

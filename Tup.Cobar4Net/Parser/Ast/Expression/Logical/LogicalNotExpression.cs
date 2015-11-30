@@ -24,20 +24,19 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LogicalNotExpression : UnaryOperatorExpression
     {
-        public LogicalNotExpression(Expression operand)
+        public LogicalNotExpression(IExpression operand)
             : base(operand, ExpressionConstants.PrecedenceLogicalNot)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "NOT";
+            get { return "NOT"; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object operand = GetOperand().Evaluation(parameters);
+            object operand = Operand.Evaluation(parameters);
             if (operand == null)
             {
                 return null;

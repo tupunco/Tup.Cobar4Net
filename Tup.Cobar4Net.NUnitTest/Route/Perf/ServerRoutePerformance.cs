@@ -13,10 +13,10 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
-using Sharpen;
+using System;
 using System.Text;
+using Sharpen;
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Parser.Ast.Stmt;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
@@ -28,29 +28,73 @@ using Tup.Cobar4Net.Route.Visitor;
 
 namespace Tup.Cobar4Net.Route.Perf
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ServerRoutePerformance
     {
+        private readonly SchemaConfig schema = null;
+
+        /// <exception cref="System.Exception" />
+        public virtual void Perf()
+        {
+            TestProvider provider;
+            provider = new InsertLongSQLGen();
+            provider = new InsertLongSQLGenShort();
+            provider = new SelectShort();
+            provider = new InsertLong();
+            provider = new SelectLongIn();
+            provider = new ShardingMultiTableSpace();
+            provider = new ShardingDefaultSpace();
+            provider = new ShardingTableSpace();
+            var schema = GetSchema();
+            var sql = provider.GetSql();
+            Console.Out.WriteLine(ServerRouter.Route(schema, sql, null, null));
+            var start = Runtime.CurrentTimeMillis();
+            provider.Route(schema, 1, sql);
+            long end;
+            var loop = 200*10000;
+            start = Runtime.CurrentTimeMillis();
+            provider.Route(schema, loop, sql);
+            end = Runtime.CurrentTimeMillis();
+            Console.Out.WriteLine((end - start)*1000.0d/loop + " us");
+        }
+
+        // CobarConfig conf = CobarServer.getInstance().getConfig();
+        // schema = conf.getSchemas().get("cndb");
+        /// <param name="args" />
+        /// <exception cref="System.Exception" />
+        public static void Main(string[] args)
+        {
+            var perf = new ServerRoutePerformance();
+            perf.Perf();
+        }
+
+        protected internal virtual SchemaConfig GetSchema()
+        {
+            return schema;
+        }
+
         private abstract class TestProvider
         {
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public abstract string GetSql();
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public abstract void Route(SchemaConfig schema, int loop, string sql);
         }
 
-        private class ShardingDefaultSpace : ServerRoutePerformance.TestProvider
+        private class ShardingDefaultSpace : TestProvider
         {
-            private SQLStatement stmt;
+            private ISqlStatement stmt;
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
                     // SQLLexer lexer = new SQLLexer(sql);
-                    // DMLSelectStatement select = new DMLSelectParser(lexer, new
+                    // DmlSelectStatement select = new DmlSelectParser(lexer, new
                     // SQLExprParser(lexer)).select();
                     // PartitionKeyVisitor visitor = new
                     // PartitionKeyVisitor(schema.getTablesSpace());
@@ -61,28 +105,28 @@ namespace Tup.Cobar4Net.Route.Perf
             }
 
             // StringBuilder s = new StringBuilder();
-            // stmt.accept(new MySQLOutputASTVisitor(s));
+            // stmt.accept(new MySqlOutputAstVisitor(s));
             // s.toString();
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                string sql = "insert into xoffer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
-                stmt = SQLParserDelegate.Parse(sql);
+                var sql = "insert into xoffer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
+                stmt = SqlParserDelegate.Parse(sql);
                 return "insert into xoffer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
             }
         }
 
-        private class ShardingTableSpace : ServerRoutePerformance.TestProvider
+        private class ShardingTableSpace : TestProvider
         {
-            private SQLStatement stmt;
+            private ISqlStatement stmt;
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
                     // SQLLexer lexer = new SQLLexer(sql);
-                    // DMLSelectStatement select = new DMLSelectParser(lexer, new
+                    // DmlSelectStatement select = new DmlSelectParser(lexer, new
                     // SQLExprParser(lexer)).select();
                     // PartitionKeyVisitor visitor = new
                     // PartitionKeyVisitor(schema.getTablesSpace());
@@ -93,28 +137,29 @@ namespace Tup.Cobar4Net.Route.Perf
             }
 
             // StringBuilder s = new StringBuilder();
-            // stmt.accept(new MySQLOutputASTVisitor(s));
+            // stmt.accept(new MySqlOutputAstVisitor(s));
             // s.toString();
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                string sql = "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
-                stmt = SQLParserDelegate.Parse(sql);
-                return "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33'),('1','2001-09-13 20:20:34')";
+                var sql = "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33')";
+                stmt = SqlParserDelegate.Parse(sql);
+                return
+                    "insert into offer (member_id, gmt_create) values ('1','2001-09-13 20:20:33'),('1','2001-09-13 20:20:34')";
             }
         }
 
-        private class ShardingMultiTableSpace : ServerRoutePerformance.TestProvider
+        private class ShardingMultiTableSpace : TestProvider
         {
-            private SQLStatement stmt;
+            private ISqlStatement stmt;
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop * 5; ++i)
+                for (var i = 0; i < loop*5; ++i)
                 {
                     // SQLLexer lexer = new SQLLexer(sql);
-                    // DMLSelectStatement select = new DMLSelectParser(lexer, new
+                    // DmlSelectStatement select = new DmlSelectParser(lexer, new
                     // SQLExprParser(lexer)).select();
                     // PartitionKeyVisitor visitor = new
                     // PartitionKeyVisitor(schema.getTablesSpace());
@@ -125,65 +170,63 @@ namespace Tup.Cobar4Net.Route.Perf
             }
 
             // StringBuilder s = new StringBuilder();
-            // stmt.accept(new MySQLOutputASTVisitor(s));
+            // stmt.accept(new MySqlOutputAstVisitor(s));
             // s.toString();
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                string sql = "select id,member_id,gmt_create from offer where member_id in ('22')";
-                stmt = SQLParserDelegate.Parse(sql);
+                var sql = "select id,member_id,gmt_create from offer where member_id in ('22')";
+                stmt = SqlParserDelegate.Parse(sql);
                 return "select id,member_id,gmt_create from offer where member_id in ('1','22','333','1124','4525')";
             }
         }
 
-        private class SelectShort : ServerRoutePerformance.TestProvider
+        private class SelectShort : TestProvider
         {
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
-                    MySQLLexer lexer = new MySQLLexer(sql);
-                    DMLSelectStatement select = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer
-                        )).Select();
-                    PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.GetTables());
+                    var lexer = new MySqlLexer(sql);
+                    var select = new MySqlDmlSelectParser(lexer, new MySqlExprParser(lexer)).Select();
+                    var visitor = new PartitionKeyVisitor(schema.Tables);
                     select.Accept(visitor);
                 }
             }
 
             // visitor.getColumnValue();
             // ServerRoute.route(schema, sql);
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                return " seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from    offer_detail wheRe \t\t\n offer_id =  123 AND member_id\t=\t-123.456";
+                return
+                    " seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from    offer_detail wheRe \t\t\n offer_id =  123 AND member_id\t=\t-123.456";
             }
         }
 
-        private class SelectLongIn : ServerRoutePerformance.TestProvider
+        private class SelectLongIn : TestProvider
         {
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
-                    MySQLLexer lexer = new MySQLLexer(sql);
-                    DMLSelectStatement select = new MySQLDMLSelectParser(lexer, new MySQLExprParser(lexer
-                        )).Select();
-                    PartitionKeyVisitor visitor = new PartitionKeyVisitor(schema.GetTables());
+                    var lexer = new MySqlLexer(sql);
+                    var select = new MySqlDmlSelectParser(lexer, new MySqlExprParser(lexer)).Select();
+                    var visitor = new PartitionKeyVisitor(schema.Tables);
                     select.Accept(visitor);
                 }
             }
 
             // visitor.getColumnValue();
             // ServerRoute.route(schema, sql);
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(" seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from"
-                    ).Append("    offer_detail wheRe \t\t\n offer_id in (");
-                for (int i = 0; i < 1024; ++i)
+                var sb = new StringBuilder();
+                sb.Append(" seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from").Append("    offer_detail wheRe \t\t\n offer_id in (");
+                for (var i = 0; i < 1024; ++i)
                 {
                     if (i > 0)
                     {
@@ -197,14 +240,13 @@ namespace Tup.Cobar4Net.Route.Perf
             }
         }
 
-        private class InsertLong : ServerRoutePerformance.TestProvider
+        private class InsertLong : TestProvider
         {
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                StringBuilder sb = new StringBuilder("insert into offer_detail (offer_id, gmt) values "
-                    );
-                for (int i = 0; i < 1024; ++i)
+                var sb = new StringBuilder("insert into offer_detail (offer_id, gmt) values ");
+                for (var i = 0; i < 1024; ++i)
                 {
                     if (i > 0)
                     {
@@ -216,67 +258,66 @@ namespace Tup.Cobar4Net.Route.Perf
                 return sb.ToString();
             }
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
-                    MySQLLexer lexer = new MySQLLexer(sql);
-                    DMLInsertStatement insert = new MySQLDMLInsertParser(lexer, new MySQLExprParser(lexer
-                        )).Insert();
+                    var lexer = new MySqlLexer(sql);
+                    var insert = new MySqlDmlInsertParser(lexer, new MySqlExprParser(lexer)).Insert();
                 }
             }
 
-            // PartitionKeyVisitor visitor = new
             // PartitionKeyVisitor(schema.getTablesSpace());
+
+            // PartitionKeyVisitor visitor = new
             // insert.accept(visitor);
             // visitor.getColumnValue();
             // SQLLexer lexer = new SQLLexer(sql);
-            // new DMLInsertParser(lexer, new
+            // new DmlInsertParser(lexer, new
             // SQLExprParser(lexer)).insert();
             // RouteResultset rrs = ServerRoute.route(schema, sql);
             // System.out.println(rrs);
         }
 
-        private class InsertLongSQLGen : ServerRoutePerformance.TestProvider
+        private class InsertLongSQLGen : TestProvider
         {
-            private DMLInsertStatement insert;
+            private DmlInsertStatement insert;
 
-            private int sqlSize = 0;
+            private readonly int sqlSize = 0;
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                string sql = new ServerRoutePerformance.InsertLong().GetSql();
-                MySQLLexer lexer = new MySQLLexer(sql);
-                insert = new MySQLDMLInsertParser(lexer, new MySQLExprParser(lexer)).Insert();
+                var sql = new InsertLong().GetSql();
+                var lexer = new MySqlLexer(sql);
+                insert = new MySqlDmlInsertParser(lexer, new MySqlExprParser(lexer)).Insert();
                 return sql;
             }
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
-                    StringBuilder sb = new StringBuilder(sqlSize);
-                    insert.Accept(new MySQLOutputASTVisitor(sb));
+                    var sb = new StringBuilder(sqlSize);
+                    insert.Accept(new MySqlOutputAstVisitor(sb));
                     sb.ToString();
                 }
             }
         }
 
-        private class InsertLongSQLGenShort : ServerRoutePerformance.TestProvider
+        private class InsertLongSQLGenShort : TestProvider
         {
-            private DMLInsertStatement insert;
+            private DmlInsertStatement insert;
 
             private int sqlSize;
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override string GetSql()
             {
-                StringBuilder sb = new StringBuilder("insert into offer_detail (offer_id, gmt) values "
-                    );
-                for (int i = 0; i < 8; ++i)
+                var sb = new StringBuilder("insert into offer_detail (offer_id, gmt) values ");
+                for (var i = 0; i < 8; ++i)
                 {
                     if (i > 0)
                     {
@@ -284,72 +325,26 @@ namespace Tup.Cobar4Net.Route.Perf
                     }
                     sb.Append("(" + (i + 100) + ", now())");
                 }
-                string sql = sb.ToString();
-                MySQLLexer lexer = new MySQLLexer(sql);
-                insert = new MySQLDMLInsertParser(lexer, new MySQLExprParser(lexer)).Insert();
-                sqlSize = new ServerRoutePerformance.InsertLong().GetSql().Length;
+                var sql = sb.ToString();
+                var lexer = new MySqlLexer(sql);
+                insert = new MySqlDmlInsertParser(lexer, new MySqlExprParser(lexer)).Insert();
+                sqlSize = new InsertLong().GetSql().Length;
                 return sql;
             }
 
-            /// <exception cref="System.Exception"/>
+            /// <exception cref="System.Exception" />
             public override void Route(SchemaConfig schema, int loop, string sql)
             {
-                for (int i = 0; i < loop; ++i)
+                for (var i = 0; i < loop; ++i)
                 {
-                    for (int j = 0; j < 128; ++j)
+                    for (var j = 0; j < 128; ++j)
                     {
-                        StringBuilder sb = new StringBuilder();
-                        insert.Accept(new MySQLOutputASTVisitor(sb));
+                        var sb = new StringBuilder();
+                        insert.Accept(new MySqlOutputAstVisitor(sb));
                         sb.ToString();
                     }
                 }
             }
-        }
-
-        /// <exception cref="System.Exception"/>
-        public virtual void Perf()
-        {
-            ServerRoutePerformance.TestProvider provider;
-            provider = new ServerRoutePerformance.InsertLongSQLGen();
-            provider = new ServerRoutePerformance.InsertLongSQLGenShort();
-            provider = new ServerRoutePerformance.SelectShort();
-            provider = new ServerRoutePerformance.InsertLong();
-            provider = new ServerRoutePerformance.SelectLongIn();
-            provider = new ServerRoutePerformance.ShardingMultiTableSpace();
-            provider = new ServerRoutePerformance.ShardingDefaultSpace();
-            provider = new ServerRoutePerformance.ShardingTableSpace();
-            SchemaConfig schema = GetSchema();
-            string sql = provider.GetSql();
-            System.Console.Out.WriteLine(ServerRouter.Route(schema, sql, null, null));
-            long start = Runtime.CurrentTimeMillis();
-            provider.Route(schema, 1, sql);
-            long end;
-            int loop = 200 * 10000;
-            start = Runtime.CurrentTimeMillis();
-            provider.Route(schema, loop, sql);
-            end = Runtime.CurrentTimeMillis();
-            System.Console.Out.WriteLine((end - start) * 1000.0d / loop + " us");
-        }
-
-        private SchemaConfig schema = null;
-
-        public ServerRoutePerformance()
-        {
-        }
-
-        // CobarConfig conf = CobarServer.getInstance().getConfig();
-        // schema = conf.getSchemas().get("cndb");
-        /// <param name="args"/>
-        /// <exception cref="System.Exception"/>
-        public static void Main(string[] args)
-        {
-            ServerRoutePerformance perf = new ServerRoutePerformance();
-            perf.Perf();
-        }
-
-        protected internal virtual SchemaConfig GetSchema()
-        {
-            return schema;
         }
     }
 }

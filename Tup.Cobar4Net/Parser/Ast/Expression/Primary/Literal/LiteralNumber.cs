@@ -21,33 +21,29 @@ using Tup.Cobar4Net.Parser.Visitor;
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 {
     /// <summary>literal date is also possible</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LiteralNumber : Literal
     {
-        private readonly Number number;
-
-        public LiteralNumber(Number number)
+        public LiteralNumber(Number numberValue)
         {
-            if (number == null)
-            {
-                throw new ArgumentException("number is null!");
-            }
-            this.number = number;
+            if (numberValue == null)
+                throw new ArgumentException("NumberValue is null!");
+
+            NumberValue = numberValue;
         }
+
+        public virtual Number NumberValue { get; }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            return number;
+            return NumberValue;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
-        }
-
-        public virtual Number GetNumber()
-        {
-            return number;
         }
     }
 }

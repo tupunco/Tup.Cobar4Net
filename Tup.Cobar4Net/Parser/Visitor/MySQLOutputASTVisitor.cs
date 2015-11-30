@@ -17,7 +17,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
 using Tup.Cobar4Net.Parser.Ast;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Comparison;
@@ -34,1063 +33,901 @@ using Tup.Cobar4Net.Parser.Ast.Expression.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Type;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Datatype;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dal;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Extension;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Mts;
-using Tup.Cobar4Net.Parser.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
+using Char = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String.Char;
+using Convert = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast.Convert;
 
 namespace Tup.Cobar4Net.Parser.Visitor
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class MySQLOutputASTVisitor : SQLASTVisitor
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class MySqlOutputAstVisitor : ISqlAstVisitor
     {
         private static readonly object[] EmptyObjArray = new object[0];
 
         private static readonly int[] EmptyIntArray = new int[0];
 
-        private readonly StringBuilder appendable;
+        private readonly StringBuilder _appendable;
 
-        private readonly object[] args;
+        private readonly object[] _args;
 
-        private int[] argsIndex;
+        private int[] _argsIndex;
 
-        private IDictionary<PlaceHolder, object> placeHolderToString;
+        private int _index = -1;
 
-        public MySQLOutputASTVisitor(StringBuilder appendable)
+        private IDictionary<PlaceHolder, object> _placeHolderToString;
+
+        public MySqlOutputAstVisitor(StringBuilder appendable)
             : this(appendable, null)
         {
         }
 
-        /// <param name="args">
-        /// parameters for
-        /// <see cref="System.Data.Sql.PreparedStatement">preparedStmt</see>
-        /// </param>
-        public MySQLOutputASTVisitor(StringBuilder appendable, object[] args)
+        /// <summary>
+        /// </summary>
+        /// <param name="appendable"></param>
+        /// <param name="args"></param>
+        public MySqlOutputAstVisitor(StringBuilder appendable, object[] args)
         {
-            this.appendable = appendable;
-            this.args = args == null ? EmptyObjArray : args;
-            this.argsIndex = args == null ? EmptyIntArray : new int[args.Length];
-        }
-
-        public void SetPlaceHolderToString(IDictionary<PlaceHolder, object> map)
-        {
-            this.placeHolderToString = map;
-        }
-
-        public string GetSql()
-        {
-            return appendable.ToString();
-        }
-
-        /// <returns>
-        /// never null. rst[i] â‰?
-        /// <see cref="args"/>
-        /// [
-        /// <see cref="argsIndex"/>
-        /// [i]]
-        /// </returns>
-        public object[] GetArguments()
-        {
-            int argsIndexSize = argsIndex.Length;
-            if (argsIndexSize <= 0)
-            {
-                return EmptyObjArray;
-            }
-            bool noChange = true;
-            for (int i = 0; i < argsIndexSize; ++i)
-            {
-                if (i != argsIndex[i])
-                {
-                    noChange = false;
-                    break;
-                }
-            }
-            if (noChange)
-            {
-                return args;
-            }
-            object[] rst = new object[argsIndexSize];
-            for (int i_1 = 0; i_1 < argsIndexSize; ++i_1)
-            {
-                rst[i_1] = args[argsIndex[i_1]];
-            }
-            return rst;
-        }
-
-        /// <param name="list">never null</param>
-        private void PrintList<TItem>(IList<TItem> list)
-            where TItem : ASTNode
-        {
-            PrintList(list, ", ");
-        }
-
-        /// <param name="list">never null</param>
-        private void PrintList<TItem>(IList<TItem> list, string sep)
-            where TItem : ASTNode
-        {
-            bool isFst = true;
-            foreach (ASTNode arg in list)
-            {
-                if (isFst)
-                {
-                    isFst = false;
-                }
-                else
-                {
-                    appendable.Append(sep);
-                }
-                arg.Accept(this);
-            }
+            this._appendable = appendable;
+            this._args = args ?? EmptyObjArray;
+            _argsIndex = args == null ? EmptyIntArray : new int[args.Length];
         }
 
         public void Visit(BetweenAndExpression node)
         {
-            Expr comparee = node.GetFirst();
-            bool paren = comparee.GetPrecedence() <= node.GetPrecedence();
+            var comparee = node.First;
+            var paren = comparee.Precedence <= node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             comparee.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
-            if (node.IsNot())
-            {
-                appendable.Append(" NOT BETWEEN ");
-            }
+                _appendable.Append(')');
+
+            if (node.IsNot)
+                _appendable.Append(" NOT BETWEEN ");
             else
-            {
-                appendable.Append(" BETWEEN ");
-            }
-            Expr start = node.GetSecond();
-            paren = start.GetPrecedence() < node.GetPrecedence();
+                _appendable.Append(" BETWEEN ");
+
+            var start = node.Second;
+            paren = start.Precedence < node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             start.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
-            appendable.Append(" AND ");
-            Expr end = node.GetThird();
-            paren = end.GetPrecedence() < node.GetPrecedence();
+                _appendable.Append(')');
+
+            _appendable.Append(" AND ");
+            var end = node.Third;
+            paren = end.Precedence < node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             end.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
+                _appendable.Append(')');
         }
 
         public void Visit(ComparisionIsExpression node)
         {
-            Expr comparee = node.GetOperand();
-            bool paren = comparee.GetPrecedence() < node.GetPrecedence();
+            var comparee = node.Operand;
+            var paren = comparee.Precedence < node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             comparee.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
-            switch (node.GetMode())
+                _appendable.Append(')');
+
+            switch (node.Mode)
             {
                 case ComparisionIsExpression.IsNull:
-                    {
-                        appendable.Append(" IS NULL");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS NULL");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsTrue:
-                    {
-                        appendable.Append(" IS TRUE");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS TRUE");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsFalse:
-                    {
-                        appendable.Append(" IS FALSE");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS FALSE");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsUnknown:
-                    {
-                        appendable.Append(" IS UNKNOWN");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS UNKNOWN");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsNotNull:
-                    {
-                        appendable.Append(" IS NOT NULL");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS NOT NULL");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsNotTrue:
-                    {
-                        appendable.Append(" IS NOT TRUE");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS NOT TRUE");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsNotFalse:
-                    {
-                        appendable.Append(" IS NOT FALSE");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS NOT FALSE");
+                    break;
+                }
 
                 case ComparisionIsExpression.IsNotUnknown:
-                    {
-                        appendable.Append(" IS NOT UNKNOWN");
-                        break;
-                    }
+                {
+                    _appendable.Append(" IS NOT UNKNOWN");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown mode for IS expression: " + node.GetMode());
-                    }
+                {
+                    throw new ArgumentException("unknown mode for IS expression: " + node.Mode);
+                }
             }
         }
 
         public void Visit(InExpressionList node)
         {
-            appendable.Append('(');
-            PrintList(node.GetList());
-            appendable.Append(')');
+            _appendable.Append('(');
+            PrintList(node.ExprList);
+            _appendable.Append(')');
         }
 
         public void Visit(LikeExpression node)
         {
-            Expr comparee = node.GetFirst();
-            bool paren = comparee.GetPrecedence() < node.GetPrecedence();
+            var comparee = node.First;
+            var paren = comparee.Precedence < node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             comparee.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
-            if (node.IsNot())
-            {
-                appendable.Append(" NOT LIKE ");
-            }
+                _appendable.Append(')');
+
+            if (node.IsNot)
+                _appendable.Append(" NOT LIKE ");
             else
-            {
-                appendable.Append(" LIKE ");
-            }
-            Expr pattern = node.GetSecond();
-            paren = pattern.GetPrecedence() <= node.GetPrecedence();
+                _appendable.Append(" LIKE ");
+
+            var pattern = node.Second;
+            paren = pattern.Precedence <= node.Precedence;
             if (paren)
-            {
-                appendable.Append('(');
-            }
+                _appendable.Append('(');
+
             pattern.Accept(this);
             if (paren)
-            {
-                appendable.Append(')');
-            }
-            Expr escape = node.GetThird();
+                _appendable.Append(')');
+
+            var escape = node.Third;
             if (escape != null)
             {
-                appendable.Append(" ESCAPE ");
-                paren = escape.GetPrecedence() <= node.GetPrecedence();
+                _appendable.Append(" ESCAPE ");
+                paren = escape.Precedence <= node.Precedence;
                 if (paren)
-                {
-                    appendable.Append('(');
-                }
+                    _appendable.Append('(');
                 escape.Accept(this);
+
                 if (paren)
-                {
-                    appendable.Append(')');
-                }
+                    _appendable.Append(')');
             }
         }
 
         public void Visit(CollateExpression node)
         {
-            Expr @string = node.GetString();
-            bool paren = @string.GetPrecedence() < node.GetPrecedence();
+            var @string = node.StringValue;
+            var paren = @string.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             @string.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(" COLLATE ").Append(node.GetCollateName());
+            _appendable.Append(" COLLATE ").Append(node.CollateName);
         }
 
         public void Visit(UserExpression node)
         {
-            appendable.Append(node.GetUserAtHost());
+            _appendable.Append(node.UserAtHost);
         }
 
         public void Visit(UnaryOperatorExpression node)
         {
-            appendable.Append(node.GetOperator()).Append(' ');
-            bool paren = node.GetOperand().GetPrecedence() < node.GetPrecedence();
+            _appendable.Append(node.Operator).Append(' ');
+            var paren = node.Operand.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
-            node.GetOperand().Accept(this);
+            node.Operand.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
         }
 
         public void Visit(BinaryOperatorExpression node)
         {
-            Expr left = node.GetLeftOprand();
-            bool paren = node.IsLeftCombine()
-                ? left.GetPrecedence() < node.GetPrecedence()
-                : left.GetPrecedence() <= node.GetPrecedence();
+            var left = node.LeftOprand;
+            var paren = node.IsLeftCombine
+                ? left.Precedence < node.Precedence
+                : left.Precedence <= node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             left.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(' ').Append(node.GetOperator()).Append(' ');
-            Expr right = node.GetRightOprand();
-            paren = node.IsLeftCombine()
-                ? right.GetPrecedence() <= node.GetPrecedence()
-                : right.GetPrecedence() < node.GetPrecedence();
+            _appendable.Append(' ').Append(node.Operator).Append(' ');
+            var right = node.RightOprand;
+            paren = node.IsLeftCombine
+                ? right.Precedence <= node.Precedence
+                : right.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             right.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
         }
 
         public void Visit(PolyadicOperatorExpression node)
         {
-            for (int i = 0, len = node.GetArity(); i < len; ++i)
+            for (int i = 0, len = node.Arity; i < len; ++i)
             {
                 if (i > 0)
                 {
-                    appendable.Append(' ').Append(node.GetOperator()).Append(' ');
+                    _appendable.Append(' ').Append(node.Operator).Append(' ');
                 }
-                Expr operand = node.GetOperand(i);
-                bool paren = operand.GetPrecedence() < node.GetPrecedence();
+                var operand = node.GetOperand(i);
+                var paren = operand.Precedence < node.Precedence;
                 if (paren)
                 {
-                    appendable.Append('(');
+                    _appendable.Append('(');
                 }
                 operand.Accept(this);
                 if (paren)
                 {
-                    appendable.Append(')');
+                    _appendable.Append(')');
                 }
             }
         }
 
         public void Visit(LogicalAndExpression node)
         {
-            Visit((PolyadicOperatorExpression)node);
+            Visit((PolyadicOperatorExpression) node);
         }
 
         public void Visit(LogicalOrExpression node)
         {
-            Visit((PolyadicOperatorExpression)node);
+            Visit((PolyadicOperatorExpression) node);
         }
 
         public void Visit(ComparisionEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public void Visit(ComparisionNullSafeEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public void Visit(InExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public void Visit(FunctionExpression node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
-        public void Visit(Ast.Expression.Primary.Function.String.Char node)
+        public void Visit(Char node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            PrintList(node.GetArguments());
-            string charset = node.GetCharset();
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            PrintList(node.Arguments);
+            var charset = node.Charset;
             if (charset != null)
             {
-                appendable.Append(" USING ").Append(charset);
+                _appendable.Append(" USING ").Append(charset);
             }
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
-        public void Visit(Ast.Expression.Primary.Function.Cast.Convert node)
+        public void Visit(Convert node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            PrintList(node.GetArguments());
-            string transcodeName = node.GetTranscodeName();
-            appendable.Append(" USING ").Append(transcodeName);
-            appendable.Append(')');
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            PrintList(node.Arguments);
+            var transcodeName = node.TranscodeName;
+            _appendable.Append(" USING ").Append(transcodeName);
+            _appendable.Append(')');
         }
 
         public void Visit(Trim node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            Expr remStr = node.GetRemainString();
-            switch (node.GetDirection())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            var remStr = node.RemainString;
+            switch (node.Direction)
             {
-                case Trim.Direction.Default:
+                case TrimDirection.Default:
+                {
+                    if (remStr != null)
                     {
-                        if (remStr != null)
-                        {
-                            remStr.Accept(this);
-                            appendable.Append(" FROM ");
-                        }
-                        break;
+                        remStr.Accept(this);
+                        _appendable.Append(" FROM ");
                     }
+                    break;
+                }
 
-                case Trim.Direction.Both:
+                case TrimDirection.Both:
+                {
+                    _appendable.Append("BOTH ");
+                    if (remStr != null)
                     {
-                        appendable.Append("BOTH ");
-                        if (remStr != null)
-                        {
-                            remStr.Accept(this);
-                        }
-                        appendable.Append(" FROM ");
-                        break;
+                        remStr.Accept(this);
                     }
+                    _appendable.Append(" FROM ");
+                    break;
+                }
 
-                case Trim.Direction.Leading:
+                case TrimDirection.Leading:
+                {
+                    _appendable.Append("LEADING ");
+                    if (remStr != null)
                     {
-                        appendable.Append("LEADING ");
-                        if (remStr != null)
-                        {
-                            remStr.Accept(this);
-                        }
-                        appendable.Append(" FROM ");
-                        break;
+                        remStr.Accept(this);
                     }
+                    _appendable.Append(" FROM ");
+                    break;
+                }
 
-                case Trim.Direction.Trailing:
+                case TrimDirection.Trailing:
+                {
+                    _appendable.Append("TRAILING ");
+                    if (remStr != null)
                     {
-                        appendable.Append("TRAILING ");
-                        if (remStr != null)
-                        {
-                            remStr.Accept(this);
-                        }
-                        appendable.Append(" FROM ");
-                        break;
+                        remStr.Accept(this);
                     }
+                    _appendable.Append(" FROM ");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown trim direction: " + node.GetDirection());
-                    }
+                {
+                    throw new ArgumentException("unknown trim direction: " + node.Direction);
+                }
             }
-            Expr str = node.GetString();
+            var str = node.StringValue;
             str.Accept(this);
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
         public void Visit(Cast node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            node.GetExpr().Accept(this);
-            appendable.Append(" AS ");
-            string typeName = node.GetTypeName();
-            appendable.Append(typeName);
-            Expr info1 = node.GetTypeInfo1();
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            node.Expr.Accept(this);
+            _appendable.Append(" AS ");
+            var typeName = node.TypeName;
+            _appendable.Append(typeName);
+            var info1 = node.TypeInfo1;
             if (info1 != null)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
                 info1.Accept(this);
-                Expr info2 = node.GetTypeInfo2();
+                var info2 = node.TypeInfo2;
                 if (info2 != null)
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                     info2.Accept(this);
                 }
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
         public void Visit(Avg node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Max node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Min node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Sum node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Count node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(GroupConcat node)
         {
-            string functionName = node.GetFunctionName();
-            appendable.Append(functionName).Append('(');
-            if (node.IsDistinct())
+            var functionName = node.FunctionName;
+            _appendable.Append(functionName).Append('(');
+            if (node.IsDistinct)
             {
-                appendable.Append("DISTINCT ");
+                _appendable.Append("DISTINCT ");
             }
-            PrintList(node.GetArguments());
-            Expr orderBy = node.GetOrderBy();
+            PrintList(node.Arguments);
+            var orderBy = node.OrderBy;
             if (orderBy != null)
             {
-                appendable.Append(" ORDER BY ");
+                _appendable.Append(" ORDER BY ");
                 orderBy.Accept(this);
-                if (node.IsDesc())
+                if (node.IsDesc)
                 {
-                    appendable.Append(" DESC");
+                    _appendable.Append(" DESC");
                 }
                 else
                 {
-                    appendable.Append(" ASC");
+                    _appendable.Append(" ASC");
                 }
-                var list = node.GetAppendedColumnNames();
+                var list = node.AppendedColumnNames;
                 if (list != null && !list.IsEmpty())
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                     PrintList(list);
                 }
             }
-            string sep = node.GetSeparator();
+            var sep = node.Separator;
             if (sep != null)
             {
-                appendable.Append(" SEPARATOR ").Append(sep);
+                _appendable.Append(" SEPARATOR ").Append(sep);
             }
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
         public void Visit(Extract node)
         {
-            appendable.Append("EXTRACT(")
-                .Append(node.GetUnit().GetEnumName())
+            _appendable.Append("EXTRACT(")
+                .Append(node.Unit.GetEnumName())
                 .Append(" FROM ");
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Timestampdiff node)
         {
-            appendable.Append("TIMESTAMPDIFF(")
-                .Append(node.GetUnit().GetEnumName())
+            _appendable.Append("TIMESTAMPDIFF(")
+                .Append(node.Unit.GetEnumName())
                 .Append(", ");
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(Timestampadd node)
         {
-            appendable.Append("TIMESTAMPADD(")
-                .Append(node.GetUnit().GetEnumName())
+            _appendable.Append("TIMESTAMPADD(")
+                .Append(node.Unit.GetEnumName())
                 .Append(", ");
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(GetFormat node)
         {
-            appendable.Append("GET_FORMAT(");
-            GetFormat.FormatType type = node.GetFormatType();
-            appendable.Append(type.ToString())
-                      .Append(", ");
-            PrintList(node.GetArguments());
-            appendable.Append(')');
+            _appendable.Append("GET_FORMAT(");
+            var type = node.GetFormatType();
+            _appendable.Append(type)
+                .Append(", ");
+            PrintList(node.Arguments);
+            _appendable.Append(')');
         }
 
         public void Visit(PlaceHolder node)
         {
-            if (placeHolderToString == null)
+            if (_placeHolderToString == null)
             {
-                appendable.Append("${")
-                            .Append(node.GetName())
-                            .Append('}');
+                _appendable.Append("${")
+                    .Append(node.Name)
+                    .Append('}');
                 return;
             }
-            object toStringer = placeHolderToString.GetValue(node);
+            var toStringer = _placeHolderToString.GetValue(node);
             if (toStringer == null)
             {
-                appendable.Append("${")
-                            .Append(node.GetName())
-                            .Append('}');
+                _appendable.Append("${")
+                    .Append(node.Name)
+                    .Append('}');
             }
             else
             {
-                appendable.Append(toStringer.ToString());
+                _appendable.Append(toStringer);
             }
         }
 
         public void Visit(IntervalPrimary node)
         {
-            appendable.Append("INTERVAL ");
-            Expr quantity = node.GetQuantity();
-            bool paren = quantity.GetPrecedence() < node.GetPrecedence();
+            _appendable.Append("INTERVAL ");
+            var quantity = node.Quantity;
+            var paren = quantity.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             quantity.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            IntervalPrimary.Unit unit = node.GetUnit();
-            appendable.Append(' ').Append(unit.GetEnumName());
+            var unit = node.Unit;
+            _appendable.Append(' ').Append(unit.GetEnumName());
         }
 
         public void Visit(LiteralBitField node)
         {
-            string introducer = node.GetIntroducer();
+            var introducer = node.Introducer;
             if (introducer != null)
             {
-                appendable.Append(introducer)
-                            .Append(' ');
+                _appendable.Append(introducer)
+                    .Append(' ');
             }
-            appendable.Append("b'")
-                        .Append(node.GetText())
-                        .Append('\'');
+            _appendable.Append("b'")
+                .Append(node.Text)
+                .Append('\'');
         }
 
         public void Visit(LiteralBoolean node)
         {
-            if (node.IsTrue())
+            if (node.IsTrue)
             {
-                appendable.Append("TRUE");
+                _appendable.Append("TRUE");
             }
             else
             {
-                appendable.Append("FALSE");
+                _appendable.Append("FALSE");
             }
         }
 
         public void Visit(LiteralHexadecimal node)
         {
-            string introducer = node.GetIntroducer();
+            var introducer = node.Introducer;
             if (introducer != null)
             {
-                appendable.Append(introducer).Append(' ');
+                _appendable.Append(introducer).Append(' ');
             }
-            appendable.Append("x'");
-            node.AppendTo(appendable);
-            appendable.Append('\'');
+            _appendable.Append("x'");
+            node.AppendTo(_appendable);
+            _appendable.Append('\'');
         }
 
         public void Visit(LiteralNull node)
         {
-            appendable.Append("NULL");
+            _appendable.Append("NULL");
         }
 
         public void Visit(LiteralNumber node)
         {
-            appendable.Append(node.GetNumber().ToString());
+            _appendable.Append(node.NumberValue);
         }
 
         public void Visit(LiteralString node)
         {
-            string introducer = node.GetIntroducer();
+            var introducer = node.Introducer;
             if (introducer != null)
             {
-                appendable.Append(introducer);
+                _appendable.Append(introducer);
             }
             else
             {
-                if (node.IsNchars())
+                if (node.IsNChars)
                 {
-                    appendable.Append('N');
+                    _appendable.Append('N');
                 }
             }
-            appendable.Append('\'').Append(node.GetString()).Append('\'');
+            _appendable.Append('\'').Append(node.StringValue).Append('\'');
         }
 
         public void Visit(CaseWhenOperatorExpression node)
         {
-            appendable.Append("CASE");
-            Expr comparee = node.GetComparee();
+            _appendable.Append("CASE");
+            var comparee = node.Comparee;
             if (comparee != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 comparee.Accept(this);
             }
-            var whenList = node.GetWhenList();
+            var whenList = node.WhenList;
             foreach (var whenthen in whenList)
             {
-                appendable.Append(" WHEN ");
-                Expr when = whenthen.GetKey();
+                _appendable.Append(" WHEN ");
+                var when = whenthen.Key;
                 when.Accept(this);
-                appendable.Append(" THEN ");
-                Expr then = whenthen.GetValue();
+                _appendable.Append(" THEN ");
+                var then = whenthen.Value;
                 then.Accept(this);
             }
-            Expr elseRst = node.GetElseResult();
+            var elseRst = node.ElseResult;
             if (elseRst != null)
             {
-                appendable.Append(" ELSE ");
+                _appendable.Append(" ELSE ");
                 elseRst.Accept(this);
             }
-            appendable.Append(" END");
+            _appendable.Append(" END");
         }
 
         public void Visit(DefaultValue node)
         {
-            appendable.Append("DEFAULT");
+            _appendable.Append("DEFAULT");
         }
 
         public void Visit(ExistsPrimary node)
         {
-            appendable.Append("EXISTS (");
-            node.GetSubquery().Accept(this);
-            appendable.Append(')');
+            _appendable.Append("EXISTS (");
+            node.Subquery.Accept(this);
+            _appendable.Append(')');
         }
 
         public void Visit(Identifier node)
         {
-            Expr parent = node.GetParent();
+            IExpression parent = node.Parent;
             if (parent != null)
             {
                 parent.Accept(this);
-                appendable.Append('.');
+                _appendable.Append('.');
             }
-            appendable.Append(node.GetIdText());
-        }
-
-        private static bool ContainsCompIn(Expr pat)
-        {
-            if (pat.GetPrecedence() > ExpressionConstants.PrecedenceComparision)
-            {
-                return false;
-            }
-            if (pat is BinaryOperatorExpression)
-            {
-                if (pat is InExpression)
-                {
-                    return true;
-                }
-                BinaryOperatorExpression bp = (BinaryOperatorExpression)pat;
-                if (bp.IsLeftCombine())
-                {
-                    return ContainsCompIn(bp.GetLeftOprand());
-                }
-                else
-                {
-                    return ContainsCompIn(bp.GetLeftOprand());
-                }
-            }
-            else
-            {
-                if (pat is ComparisionIsExpression)
-                {
-                    ComparisionIsExpression @is = (ComparisionIsExpression)pat;
-                    return ContainsCompIn(@is.GetOperand());
-                }
-                else
-                {
-                    if (pat is TernaryOperatorExpression)
-                    {
-                        TernaryOperatorExpression tp = (TernaryOperatorExpression)pat;
-                        return ContainsCompIn(tp.GetFirst()) || ContainsCompIn(tp.GetSecond()) || ContainsCompIn
-                            (tp.GetThird());
-                    }
-                    else
-                    {
-                        if (pat is UnaryOperatorExpression)
-                        {
-                            UnaryOperatorExpression up = (UnaryOperatorExpression)pat;
-                            return ContainsCompIn(up.GetOperand());
-                        }
-                        else
-                        {
-                            return false;
-                        }
-                    }
-                }
-            }
+            _appendable.Append(node.IdText);
         }
 
         public void Visit(MatchExpression node)
         {
-            appendable.Append("MATCH (");
-            PrintList(node.GetColumns());
-            appendable.Append(") AGAINST (");
-            Expr pattern = node.GetPattern();
-            bool inparen = ContainsCompIn(pattern);
+            _appendable.Append("MATCH (");
+            PrintList(node.Columns);
+            _appendable.Append(") AGAINST (");
+            var pattern = node.Pattern;
+            var inparen = ContainsCompIn(pattern);
             if (inparen)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             pattern.Accept(this);
             if (inparen)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            switch (node.GetModifier())
+            switch (node.Modifier)
             {
-                case MatchExpression.Modifier.InBooleanMode:
-                    {
-                        appendable.Append(" IN BOOLEAN MODE");
-                        break;
-                    }
+                case MatchModifier.InBooleanMode:
+                {
+                    _appendable.Append(" IN BOOLEAN MODE");
+                    break;
+                }
 
-                case MatchExpression.Modifier.InNaturalLanguageMode:
-                    {
-                        appendable.Append(" IN NATURAL LANGUAGE MODE");
-                        break;
-                    }
+                case MatchModifier.InNaturalLanguageMode:
+                {
+                    _appendable.Append(" IN NATURAL LANGUAGE MODE");
+                    break;
+                }
 
-                case MatchExpression.Modifier.InNaturalLanguageModeWithQueryExpansion:
-                    {
-                        appendable.Append(" IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION");
-                        break;
-                    }
+                case MatchModifier.InNaturalLanguageModeWithQueryExpansion:
+                {
+                    _appendable.Append(" IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION");
+                    break;
+                }
 
-                case MatchExpression.Modifier.WithQueryExpansion:
-                    {
-                        appendable.Append(" WITH QUERY EXPANSION");
-                        break;
-                    }
+                case MatchModifier.WithQueryExpansion:
+                {
+                    _appendable.Append(" WITH QUERY EXPANSION");
+                    break;
+                }
 
-                case MatchExpression.Modifier.Default:
-                    {
-                        break;
-                    }
+                case MatchModifier.Default:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unkown modifier for match expression: " + node.GetModifier
-                            ());
-                    }
-            }
-            appendable.Append(')');
-        }
-
-        private int index = -1;
-
-        private void AppendArgsIndex(int value)
-        {
-            int i = ++index;
-            if (argsIndex.Length <= i)
-            {
-                int[] a = new int[i + 1];
-                if (i > 0)
                 {
-                    System.Array.Copy(argsIndex, 0, a, 0, i);
+                    throw new ArgumentException("unkown modifier for match expression: " + node.Modifier);
                 }
-                argsIndex = a;
             }
-            argsIndex[i] = value;
+            _appendable.Append(')');
         }
 
         public void Visit(ParamMarker node)
         {
-            appendable.Append('?');
-            AppendArgsIndex(node.GetParamIndex() - 1);
+            _appendable.Append('?');
+            AppendArgsIndex(node.ParamIndex - 1);
         }
 
         public void Visit(RowExpression node)
         {
-            appendable.Append("ROW(");
-            PrintList(node.GetRowExprList());
-            appendable.Append(')');
+            _appendable.Append("ROW(");
+            PrintList(node.RowExprList);
+            _appendable.Append(')');
         }
 
         public void Visit(SysVarPrimary node)
         {
-            VariableScope scope = node.GetScope();
+            var scope = node.Scope;
             switch (scope)
             {
                 case VariableScope.Global:
-                    {
-                        appendable.Append("@@global.");
-                        break;
-                    }
+                {
+                    _appendable.Append("@@global.");
+                    break;
+                }
 
                 case VariableScope.Session:
-                    {
-                        appendable.Append("@@");
-                        break;
-                    }
+                {
+                    _appendable.Append("@@");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unkown scope for sysVar primary: " + scope);
-                    }
+                {
+                    throw new ArgumentException("unkown _hintScope for sysVar primary: " + scope);
+                }
             }
-            appendable.Append(node.GetVarText());
+            _appendable.Append(node.VarText);
         }
 
         public void Visit(UsrDefVarPrimary node)
         {
-            appendable.Append(node.GetVarText());
+            _appendable.Append(node.VarText);
         }
 
         public void Visit(IndexHint node)
         {
-            IndexHint.IndexAction action = node.GetAction();
-            switch (action)
+            var _hintAction = node.HintAction;
+            switch (_hintAction)
             {
-                case IndexHint.IndexAction.Force:
-                    {
-                        appendable.Append("FORCE ");
-                        break;
-                    }
+                case IndexHintAction.Force:
+                {
+                    _appendable.Append("FORCE ");
+                    break;
+                }
 
-                case IndexHint.IndexAction.Ignore:
-                    {
-                        appendable.Append("IGNORE ");
-                        break;
-                    }
+                case IndexHintAction.Ignore:
+                {
+                    _appendable.Append("IGNORE ");
+                    break;
+                }
 
-                case IndexHint.IndexAction.Use:
-                    {
-                        appendable.Append("USE ");
-                        break;
-                    }
+                case IndexHintAction.Use:
+                {
+                    _appendable.Append("USE ");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unkown index action for index hint: " + action);
-                    }
+                {
+                    throw new ArgumentException("unkown _index _hintAction for _index hint: " + _hintAction);
+                }
             }
-            IndexHint.IndexType type = node.GetIndexType();
-            switch (type)
+            var _hintType = node.IndexType;
+            switch (_hintType)
             {
-                case IndexHint.IndexType.Index:
-                    {
-                        appendable.Append("INDEX ");
-                        break;
-                    }
+                case IndexHintType.Index:
+                {
+                    _appendable.Append("INDEX ");
+                    break;
+                }
 
-                case IndexHint.IndexType.Key:
-                    {
-                        appendable.Append("KEY ");
-                        break;
-                    }
+                case IndexHintType.Key:
+                {
+                    _appendable.Append("KEY ");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unkown index type for index hint: " + type);
-                    }
+                {
+                    throw new ArgumentException("unkown _index _hintType for _index hint: " + _hintType);
+                }
             }
-            IndexHint.IndexScope scope = node.GetScope();
-            switch (scope)
+            var _hintScope = node.HintScope;
+            switch (_hintScope)
             {
-                case IndexHint.IndexScope.GroupBy:
-                    {
-                        appendable.Append("FOR GROUP BY ");
-                        break;
-                    }
+                case IndexHintScope.GroupBy:
+                {
+                    _appendable.Append("FOR GROUP BY ");
+                    break;
+                }
 
-                case IndexHint.IndexScope.OrderBy:
-                    {
-                        appendable.Append("FOR ORDER BY ");
-                        break;
-                    }
+                case IndexHintScope.OrderBy:
+                {
+                    _appendable.Append("FOR ORDER BY ");
+                    break;
+                }
 
-                case IndexHint.IndexScope.Join:
-                    {
-                        appendable.Append("FOR JOIN ");
-                        break;
-                    }
+                case IndexHintScope.Join:
+                {
+                    _appendable.Append("FOR JOIN ");
+                    break;
+                }
 
-                case IndexHint.IndexScope.All:
-                    {
-                        break;
-                    }
+                case IndexHintScope.All:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unkown index scope for index hint: " + scope);
-                    }
+                {
+                    throw new ArgumentException("unkown _index _hintScope for _index hint: " + _hintScope);
+                }
             }
-            appendable.Append('(');
-            IList<string> indexList = node.GetIndexList();
-            bool isFst = true;
-            foreach (string indexName in indexList)
+            _appendable.Append('(');
+            var indexList = node.IndexList;
+            var isFst = true;
+            foreach (var indexName in indexList)
             {
                 if (isFst)
                 {
@@ -1098,57 +935,57 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                appendable.Append(indexName);
+                _appendable.Append(indexName);
             }
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
         public void Visit(TableReferences node)
         {
-            PrintList(node.GetTableReferenceList());
+            PrintList(node.TableReferenceList);
         }
 
         public void Visit(InnerJoin node)
         {
-            TableReference left = node.GetLeftTableRef();
-            bool paren = left.GetPrecedence() < node.GetPrecedence();
+            var left = node.LeftTableRef;
+            var paren = left.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             left.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(" INNER JOIN ");
-            TableReference right = node.GetRightTableRef();
-            paren = right.GetPrecedence() <= node.GetPrecedence();
+            _appendable.Append(" INNER JOIN ");
+            var right = node.RightTableRef;
+            paren = right.Precedence <= node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             right.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            Expr on = node.GetOnCond();
-            IList<string> @using = node.GetUsing();
+            var on = node.OnCond;
+            var @using = node.Using;
             if (on != null)
             {
-                appendable.Append(" ON ");
+                _appendable.Append(" ON ");
                 on.Accept(this);
             }
             else
             {
                 if (@using != null)
                 {
-                    appendable.Append(" USING (");
-                    bool isFst = true;
-                    foreach (string col in @using)
+                    _appendable.Append(" USING (");
+                    var isFst = true;
+                    foreach (var col in @using)
                     {
                         if (isFst)
                         {
@@ -1156,133 +993,133 @@ namespace Tup.Cobar4Net.Parser.Visitor
                         }
                         else
                         {
-                            appendable.Append(", ");
+                            _appendable.Append(", ");
                         }
-                        appendable.Append(col);
+                        _appendable.Append(col);
                     }
-                    appendable.Append(")");
+                    _appendable.Append(")");
                 }
             }
         }
 
         public void Visit(NaturalJoin node)
         {
-            TableReference left = node.GetLeftTableRef();
-            bool paren = left.GetPrecedence() < node.GetPrecedence();
+            var left = node.LeftTableRef;
+            var paren = left.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             left.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(" NATURAL ");
-            if (node.IsOuter())
+            _appendable.Append(" NATURAL ");
+            if (node.IsOuter)
             {
-                if (node.IsLeft())
+                if (node.IsLeft)
                 {
-                    appendable.Append("LEFT ");
+                    _appendable.Append("LEFT ");
                 }
                 else
                 {
-                    appendable.Append("RIGHT ");
+                    _appendable.Append("RIGHT ");
                 }
             }
-            appendable.Append("JOIN ");
-            TableReference right = node.GetRightTableRef();
-            paren = right.GetPrecedence() <= node.GetPrecedence();
+            _appendable.Append("JOIN ");
+            var right = node.RightTableRef;
+            paren = right.Precedence <= node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             right.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
         }
 
         public void Visit(StraightJoin node)
         {
-            TableReference left = node.GetLeftTableRef();
-            bool paren = left.GetPrecedence() < node.GetPrecedence();
+            var left = node.LeftTableRef;
+            var paren = left.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             left.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            appendable.Append(" STRAIGHT_JOIN ");
-            TableReference right = node.GetRightTableRef();
-            paren = right.GetPrecedence() <= node.GetPrecedence();
+            _appendable.Append(" STRAIGHT_JOIN ");
+            var right = node.RightTableRef;
+            paren = right.Precedence <= node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             right.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            Expr on = node.GetOnCond();
+            var on = node.OnCond;
             if (on != null)
             {
-                appendable.Append(" ON ");
+                _appendable.Append(" ON ");
                 on.Accept(this);
             }
         }
 
         public void Visit(OuterJoin node)
         {
-            TableReference left = node.GetLeftTableRef();
-            bool paren = left.GetPrecedence() < node.GetPrecedence();
+            var left = node.LeftTableRef;
+            var paren = left.Precedence < node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             left.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            if (node.IsLeftJoin())
+            if (node.IsLeftJoin)
             {
-                appendable.Append(" LEFT JOIN ");
+                _appendable.Append(" LEFT JOIN ");
             }
             else
             {
-                appendable.Append(" RIGHT JOIN ");
+                _appendable.Append(" RIGHT JOIN ");
             }
-            TableReference right = node.GetRightTableRef();
-            paren = right.GetPrecedence() <= node.GetPrecedence();
+            var right = node.RightTableRef;
+            paren = right.Precedence <= node.Precedence;
             if (paren)
             {
-                appendable.Append('(');
+                _appendable.Append('(');
             }
             right.Accept(this);
             if (paren)
             {
-                appendable.Append(')');
+                _appendable.Append(')');
             }
-            Expr on = node.GetOnCond();
-            IList<string> @using = node.GetUsing();
+            var on = node.OnCond;
+            var @using = node.Using;
             if (on != null)
             {
-                appendable.Append(" ON ");
+                _appendable.Append(" ON ");
                 on.Accept(this);
             }
             else
             {
                 if (@using != null)
                 {
-                    appendable.Append(" USING (");
-                    bool isFst = true;
-                    foreach (string col in @using)
+                    _appendable.Append(" USING (");
+                    var isFst = true;
+                    foreach (var col in @using)
                     {
                         if (isFst)
                         {
@@ -1290,11 +1127,11 @@ namespace Tup.Cobar4Net.Parser.Visitor
                         }
                         else
                         {
-                            appendable.Append(", ");
+                            _appendable.Append(", ");
                         }
-                        appendable.Append(col);
+                        _appendable.Append(col);
                     }
-                    appendable.Append(")");
+                    _appendable.Append(")");
                 }
                 else
                 {
@@ -1305,39 +1142,39 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(SubqueryFactor node)
         {
-            appendable.Append('(');
-            QueryExpression query = node.GetSubquery();
+            _appendable.Append('(');
+            var query = node.Subquery;
             query.Accept(this);
-            appendable.Append(") AS ").Append(node.GetAlias());
+            _appendable.Append(") AS ").Append(node.Alias);
         }
 
         public void Visit(TableRefFactor node)
         {
-            Identifier table = node.GetTable();
+            var table = node.Table;
             table.Accept(this);
-            string alias = node.GetAlias();
+            var alias = node.Alias;
             if (alias != null)
             {
-                appendable.Append(" AS ").Append(alias);
+                _appendable.Append(" AS ").Append(alias);
             }
-            IList<IndexHint> list = node.GetHintList();
+            var list = node.HintList;
             if (list != null && !list.IsEmpty())
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 PrintList(list, " ");
             }
         }
 
         public void Visit(Dual dual)
         {
-            appendable.Append("DUAL");
+            _appendable.Append("DUAL");
         }
 
         public void Visit(GroupBy node)
         {
-            appendable.Append("GROUP BY ");
-            bool isFst = true;
-            foreach (var p in node.GetOrderByList())
+            _appendable.Append("GROUP BY ");
+            var isFst = true;
+            foreach (var p in node.OrderByList)
             {
                 if (isFst)
                 {
@@ -1345,30 +1182,30 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                Expr col = p.GetKey();
+                var col = p.Key;
                 col.Accept(this);
-                switch (p.GetValue())
+                switch (p.Value)
                 {
                     case SortOrder.Desc:
-                        {
-                            appendable.Append(" DESC");
-                            break;
-                        }
+                    {
+                        _appendable.Append(" DESC");
+                        break;
+                    }
                 }
             }
-            if (node.IsWithRollup())
+            if (node.IsWithRollup)
             {
-                appendable.Append(" WITH ROLLUP");
+                _appendable.Append(" WITH ROLLUP");
             }
         }
 
         public void Visit(OrderBy node)
         {
-            appendable.Append("ORDER BY ");
-            bool isFst = true;
-            foreach (var p in node.GetOrderByList())
+            _appendable.Append("ORDER BY ");
+            var isFst = true;
+            foreach (var p in node.OrderByList)
             {
                 if (isFst)
                 {
@@ -1376,42 +1213,42 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                Expr col = p.GetKey();
+                var col = p.Key;
                 col.Accept(this);
-                switch (p.GetValue())
+                switch (p.Value)
                 {
                     case SortOrder.Desc:
-                        {
-                            appendable.Append(" DESC");
-                            break;
-                        }
+                    {
+                        _appendable.Append(" DESC");
+                        break;
+                    }
                 }
             }
         }
 
         public void Visit(Limit node)
         {
-            appendable.Append("LIMIT ");
-            object offset = node.GetOffset();
+            _appendable.Append("LIMIT ");
+            var offset = node.Offset;
             if (offset is ParamMarker)
             {
-                ((ParamMarker)offset).Accept(this);
+                ((ParamMarker) offset).Accept(this);
             }
             else
             {
-                appendable.Append(offset.ToString());
+                _appendable.Append(offset);
             }
-            appendable.Append(", ");
-            object size = node.GetSize();
+            _appendable.Append(", ");
+            var size = node.Size;
             if (size is ParamMarker)
             {
-                ((ParamMarker)size).Accept(this);
+                ((ParamMarker) size).Accept(this);
             }
             else
             {
-                appendable.Append(size.ToString());
+                _appendable.Append(size);
             }
         }
 
@@ -1422,45 +1259,45 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(IndexOption node)
         {
-            if (node.GetKeyBlockSize() != null)
+            if (node.KeyBlockSize != null)
             {
-                appendable.Append("KEY_BLOCK_SIZE = ");
-                node.GetKeyBlockSize().Accept(this);
+                _appendable.Append("KEY_BLOCK_SIZE = ");
+                node.KeyBlockSize.Accept(this);
             }
             else
             {
-                if (node.GetIndexType() != IndexType.None)
+                if (node.IndexType != IndexType.None)
                 {
-                    appendable.Append("USING ");
-                    switch (node.GetIndexType())
+                    _appendable.Append("USING ");
+                    switch (node.IndexType)
                     {
                         case IndexType.Btree:
-                            {
-                                // USING {BTREE | HASH}
-                                appendable.Append("BTREE");
-                                break;
-                            }
+                        {
+                            // USING {BTREE | HASH}
+                            _appendable.Append("BTREE");
+                            break;
+                        }
 
                         case IndexType.Hash:
-                            {
-                                appendable.Append("HASH");
-                                break;
-                            }
+                        {
+                            _appendable.Append("HASH");
+                            break;
+                        }
                     }
                 }
                 else
                 {
-                    if (node.GetParserName() != null)
+                    if (node.ParserName != null)
                     {
-                        appendable.Append("WITH PARSER ");
-                        node.GetParserName().Accept(this);
+                        _appendable.Append("WITH PARSER ");
+                        node.ParserName.Accept(this);
                     }
                     else
                     {
-                        if (node.GetComment() != null)
+                        if (node.Comment != null)
                         {
-                            appendable.Append("COMMENT ");
-                            node.GetComment().Accept(this);
+                            _appendable.Append("COMMENT ");
+                            node.Comment.Accept(this);
                         }
                     }
                 }
@@ -1477,7 +1314,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
         }
 
         // QS_TODO
-        public void Visit(DDLAlterTableStatement.AlterSpecification node)
+        public void Visit(DdlAlterTableStatement.AlterSpecification node)
         {
             throw new NotSupportedException("subclass have not implement visit");
         }
@@ -1485,11 +1322,6 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(DataType node)
         {
             throw new NotSupportedException("subclass have not implement visit");
-        }
-
-        private void PrintSimpleShowStmt(string attName)
-        {
-            appendable.Append("SHOW ").Append(attName);
         }
 
         public void Visit(ShowAuthors node)
@@ -1504,66 +1336,48 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowBinLogEvent node)
         {
-            appendable.Append("SHOW BINLOG EVENTS");
-            string logName = node.GetLogName();
+            _appendable.Append("SHOW BINLOG EVENTS");
+            var logName = node.LogName;
             if (logName != null)
             {
-                appendable.Append(" IN ").Append(logName);
+                _appendable.Append(" IN ").Append(logName);
             }
-            Expr pos = node.GetPos();
+            var pos = node.Pos;
             if (pos != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 pos.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
-            }
-        }
-
-        /// <summary>' ' will be prepended</summary>
-        private void PrintLikeOrWhere(string like, Expr
-             where)
-        {
-            if (like != null)
-            {
-                appendable.Append(" LIKE ").Append(like);
-            }
-            else
-            {
-                if (where != null)
-                {
-                    appendable.Append(" WHERE ");
-                    where.Accept(this);
-                }
             }
         }
 
         public void Visit(ShowCharaterSet node)
         {
-            appendable.Append("SHOW CHARACTER SET");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW CHARACTER SET");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowCollation node)
         {
-            appendable.Append("SHOW COLLATION");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW COLLATION");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowColumns node)
         {
-            appendable.Append("SHOW ");
-            if (node.IsFull())
+            _appendable.Append("SHOW ");
+            if (node.IsFull)
             {
-                appendable.Append("FULL ");
+                _appendable.Append("FULL ");
             }
-            appendable.Append("COLUMNS FROM ");
-            node.GetTable().Accept(this);
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("COLUMNS FROM ");
+            node.Table.Accept(this);
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowContributors node)
@@ -1573,44 +1387,43 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowCreate node)
         {
-            appendable.Append("SHOW CREATE ").Append(node.GetCreateType().GetEnumName()).Append(' ');
-            node.GetId().Accept(this);
+            _appendable.Append("SHOW CREATE ").Append(node.CreateType.GetEnumName()).Append(' ');
+            node.Id.Accept(this);
         }
 
         public void Visit(ShowDatabases node)
         {
-            appendable.Append("SHOW DATABASES");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW DATABASES");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowEngine node)
         {
-            appendable.Append("SHOW ENGINE ");
-            switch (node.GetEngineType())
+            _appendable.Append("SHOW ENGINE ");
+            switch (node.EngineType)
             {
-                case ShowEngine.EngineType.InnodbMutex:
-                    {
-                        appendable.Append("INNODB MUTEX");
-                        break;
-                    }
+                case EngineType.InnodbMutex:
+                {
+                    _appendable.Append("INNODB MUTEX");
+                    break;
+                }
 
-                case ShowEngine.EngineType.InnodbStatus:
-                    {
-                        appendable.Append("INNODB STATUS");
-                        break;
-                    }
+                case EngineType.InnodbStatus:
+                {
+                    _appendable.Append("INNODB STATUS");
+                    break;
+                }
 
-                case ShowEngine.EngineType.PerformanceSchemaStatus:
-                    {
-                        appendable.Append("PERFORMANCE SCHEMA STATUS");
-                        break;
-                    }
+                case EngineType.PerformanceSchemaStatus:
+                {
+                    _appendable.Append("PERFORMANCE SCHEMA STATUS");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unrecognized type for SHOW ENGINE: " + node.GetEngineType(
-                            ));
-                    }
+                {
+                    throw new ArgumentException("unrecognized type for SHOW ENGINE: " + node.EngineType);
+                }
             }
         }
 
@@ -1621,18 +1434,18 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowErrors node)
         {
-            appendable.Append("SHOW ");
-            if (node.IsCount())
+            _appendable.Append("SHOW ");
+            if (node.IsCount)
             {
-                appendable.Append("COUNT(*) ERRORS");
+                _appendable.Append("COUNT(*) ERRORS");
             }
             else
             {
-                appendable.Append("ERRORS");
-                Limit limit = node.GetLimit();
-                if (node.GetLimit() != null)
+                _appendable.Append("ERRORS");
+                var limit = node.Limit;
+                if (node.Limit != null)
                 {
-                    appendable.Append(' ');
+                    _appendable.Append(' ');
                     limit.Accept(this);
                 }
             }
@@ -1640,70 +1453,69 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowEvents node)
         {
-            appendable.Append("SHOW EVENTS");
-            Identifier schema = node.GetSchema();
+            _appendable.Append("SHOW EVENTS");
+            var schema = node.Schema;
             if (schema != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 schema.Accept(this);
             }
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowFunctionCode node)
         {
-            appendable.Append("SHOW FUNCTION CODE ");
-            node.GetFunctionName().Accept(this);
+            _appendable.Append("SHOW FUNCTION CODE ");
+            node.FunctionName.Accept(this);
         }
 
         public void Visit(ShowFunctionStatus node)
         {
-            appendable.Append("SHOW FUNCTION STATUS");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW FUNCTION STATUS");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowGrants node)
         {
-            appendable.Append("SHOW GRANTS");
-            Expr user = node.GetUser();
+            _appendable.Append("SHOW GRANTS");
+            var user = node.User;
             if (user != null)
             {
-                appendable.Append(" FOR ");
+                _appendable.Append(" FOR ");
                 user.Accept(this);
             }
         }
 
         public void Visit(ShowIndex node)
         {
-            appendable.Append("SHOW ");
-            switch (node.GetIndexType())
+            _appendable.Append("SHOW ");
+            switch (node.IndexType)
             {
-                case ShowIndex.Type.Index:
-                    {
-                        appendable.Append("INDEX ");
-                        break;
-                    }
+                case ShowIndexType.Index:
+                {
+                    _appendable.Append("INDEX ");
+                    break;
+                }
 
-                case ShowIndex.Type.Indexes:
-                    {
-                        appendable.Append("INDEXES ");
-                        break;
-                    }
+                case ShowIndexType.Indexes:
+                {
+                    _appendable.Append("INDEXES ");
+                    break;
+                }
 
-                case ShowIndex.Type.Keys:
-                    {
-                        appendable.Append("KEYS ");
-                        break;
-                    }
+                case ShowIndexType.Keys:
+                {
+                    _appendable.Append("KEYS ");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unrecognized type for SHOW INDEX: " + node.GetIndexType()
-                            );
-                    }
+                {
+                    throw new ArgumentException("unrecognized type for SHOW INDEX: " + node.IndexType);
+                }
             }
-            appendable.Append("IN ");
-            node.GetTable().Accept(this);
+            _appendable.Append("IN ");
+            node.Table.Accept(this);
         }
 
         public void Visit(ShowMasterStatus node)
@@ -1713,14 +1525,14 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowOpenTables node)
         {
-            appendable.Append("SHOW OPEN TABLES");
-            Identifier db = node.GetSchema();
+            _appendable.Append("SHOW OPEN TABLES");
+            var db = node.Schema;
             if (db != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 db.Accept(this);
             }
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowPlugins node)
@@ -1735,54 +1547,54 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowProcedureCode node)
         {
-            appendable.Append("SHOW PROCEDURE CODE ");
-            node.GetProcedureName().Accept(this);
+            _appendable.Append("SHOW PROCEDURE CODE ");
+            node.ProcedureName.Accept(this);
         }
 
         public void Visit(ShowProcedureStatus node)
         {
-            appendable.Append("SHOW PROCEDURE STATUS");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW PROCEDURE STATUS");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowProcesslist node)
         {
-            appendable.Append("SHOW ");
-            if (node.IsFull())
+            _appendable.Append("SHOW ");
+            if (node.IsFull)
             {
-                appendable.Append("FULL ");
+                _appendable.Append("FULL ");
             }
-            appendable.Append("PROCESSLIST");
+            _appendable.Append("PROCESSLIST");
         }
 
         public void Visit(ShowProfile node)
         {
-            appendable.Append("SHOW PROFILE");
-            IList<ShowProfile.Type> types = node.GetTypes();
-            bool isFst = true;
-            foreach (ShowProfile.Type type in types)
+            _appendable.Append("SHOW PROFILE");
+            var types = node.ProfileTypes;
+            var isFst = true;
+            foreach (var type in types)
             {
                 if (isFst)
                 {
                     isFst = false;
-                    appendable.Append(' ');
+                    _appendable.Append(' ');
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                appendable.Append(type.GetEnumName().Replace('_', ' '));
+                _appendable.Append(type.GetEnumName().Replace('_', ' '));
             }
-            Expr query = node.GetForQuery();
+            var query = node.ForQuery;
             if (query != null)
             {
-                appendable.Append(" FOR QUERY ");
+                _appendable.Append(" FOR QUERY ");
                 query.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
             }
         }
@@ -1804,73 +1616,71 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(ShowStatus node)
         {
-            appendable.Append("SHOW ").Append(node.GetScope().GetEnumName().Replace('_', ' ')).Append
-                (" STATUS");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW ").Append(node.Scope.GetEnumName().Replace('_', ' ')).Append(" STATUS");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowTables node)
         {
-            appendable.Append("SHOW");
-            if (node.IsFull())
+            _appendable.Append("SHOW");
+            if (node.IsFull)
             {
-                appendable.Append(" FULL");
+                _appendable.Append(" FULL");
             }
-            appendable.Append(" TABLES");
-            Identifier schema = node.GetSchema();
+            _appendable.Append(" TABLES");
+            var schema = node.Schema;
             if (schema != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 schema.Accept(this);
             }
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowTableStatus node)
         {
-            appendable.Append("SHOW TABLE STATUS");
-            Identifier schema = node.GetDatabase();
+            _appendable.Append("SHOW TABLE STATUS");
+            var schema = node.Database;
             if (schema != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 schema.Accept(this);
             }
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowTriggers node)
         {
-            appendable.Append("SHOW TRIGGERS");
-            Identifier schema = node.GetSchema();
+            _appendable.Append("SHOW TRIGGERS");
+            var schema = node.Schema;
             if (schema != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 schema.Accept(this);
             }
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowVariables node)
         {
-            appendable.Append("SHOW ").Append(node.GetScope().GetEnumName().Replace('_', ' ')).Append
-                (" VARIABLES");
-            PrintLikeOrWhere(node.GetPattern(), node.GetWhere());
+            _appendable.Append("SHOW ").Append(node.Scope.GetEnumName().Replace('_', ' ')).Append(" VARIABLES");
+            PrintLikeOrWhere(node.Pattern, node.Where);
         }
 
         public void Visit(ShowWarnings node)
         {
-            appendable.Append("SHOW ");
-            if (node.IsCount())
+            _appendable.Append("SHOW ");
+            if (node.IsCount)
             {
-                appendable.Append("COUNT(*) WARNINGS");
+                _appendable.Append("COUNT(*) WARNINGS");
             }
             else
             {
-                appendable.Append("WARNINGS");
-                Limit limit = node.GetLimit();
+                _appendable.Append("WARNINGS");
+                var limit = node.Limit;
                 if (limit != null)
                 {
-                    appendable.Append(' ');
+                    _appendable.Append(' ');
                     limit.Accept(this);
                 }
             }
@@ -1878,16 +1688,16 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(DescTableStatement node)
         {
-            appendable.Append("DESC ");
-            node.GetTable().Accept(this);
+            _appendable.Append("DESC ");
+            node.Table.Accept(this);
         }
 
-        public void Visit(DALSetStatement node)
+        public void Visit(DalSetStatement node)
         {
-            appendable.Append("SET ");
-            bool isFst = true;
-            foreach (Pair<VariableExpression, Expr> p in
-                node.GetAssignmentList())
+            _appendable.Append("SET ");
+            var isFst = true;
+            foreach (var p in
+                node.AssignmentList)
             {
                 if (isFst)
                 {
@@ -1895,285 +1705,285 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                p.GetKey().Accept(this);
-                appendable.Append(" = ");
-                p.GetValue().Accept(this);
+                p.Key.Accept(this);
+                _appendable.Append(" = ");
+                p.Value.Accept(this);
             }
         }
 
-        public void Visit(DALSetNamesStatement node)
+        public void Visit(DalSetNamesStatement node)
         {
-            appendable.Append("SET NAMES ");
-            if (node.IsDefault())
+            _appendable.Append("SET NAMES ");
+            if (node.IsDefault)
             {
-                appendable.Append("DEFAULT");
+                _appendable.Append("DEFAULT");
             }
             else
             {
-                appendable.Append(node.GetCharsetName());
-                string collate = node.GetCollationName();
+                _appendable.Append(node.CharsetName);
+                var collate = node.CollationName;
                 if (collate != null)
                 {
-                    appendable.Append(" COLLATE ");
-                    appendable.Append(collate);
+                    _appendable.Append(" COLLATE ");
+                    _appendable.Append(collate);
                 }
             }
         }
 
-        public void Visit(DALSetCharacterSetStatement node)
+        public void Visit(DalSetCharacterSetStatement node)
         {
-            appendable.Append("SET CHARACTER SET ");
-            if (node.IsDefault())
+            _appendable.Append("SET CHARACTER SET ");
+            if (node.IsDefault)
             {
-                appendable.Append("DEFAULT");
+                _appendable.Append("DEFAULT");
             }
             else
             {
-                appendable.Append(node.GetCharset());
+                _appendable.Append(node.Charset);
             }
         }
 
         public void Visit(MTSSetTransactionStatement node)
         {
-            appendable.Append("SET ");
-            VariableScope scope = node.GetScope();
+            _appendable.Append("SET ");
+            var scope = node.Scope;
             if (scope != VariableScope.None)
             {
                 switch (scope)
                 {
                     case VariableScope.Session:
-                        {
-                            appendable.Append("SESSION ");
-                            break;
-                        }
+                    {
+                        _appendable.Append("SESSION ");
+                        break;
+                    }
 
                     case VariableScope.Global:
-                        {
-                            appendable.Append("GLOBAL ");
-                            break;
-                        }
+                    {
+                        _appendable.Append("GLOBAL ");
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("unknown scope for SET TRANSACTION ISOLATION LEVEL: "
-                                 + scope);
-                        }
+                    {
+                        throw new ArgumentException("unknown _hintScope for SET TRANSACTION ISOLATION LEVEL: "
+                                                    + scope);
+                    }
                 }
             }
-            appendable.Append("TRANSACTION ISOLATION LEVEL ");
-            switch (node.GetLevel())
+            _appendable.Append("TRANSACTION ISOLATION LEVEL ");
+            switch (node.Level)
             {
-                case MTSSetTransactionStatement.IsolationLevel.ReadCommitted:
-                    {
-                        appendable.Append("READ COMMITTED");
-                        break;
-                    }
+                case IsolationLevel.ReadCommitted:
+                {
+                    _appendable.Append("READ COMMITTED");
+                    break;
+                }
 
-                case MTSSetTransactionStatement.IsolationLevel.ReadUncommitted:
-                    {
-                        appendable.Append("READ UNCOMMITTED");
-                        break;
-                    }
+                case IsolationLevel.ReadUncommitted:
+                {
+                    _appendable.Append("READ UNCOMMITTED");
+                    break;
+                }
 
-                case MTSSetTransactionStatement.IsolationLevel.RepeatableRead:
-                    {
-                        appendable.Append("REPEATABLE READ");
-                        break;
-                    }
+                case IsolationLevel.RepeatableRead:
+                {
+                    _appendable.Append("REPEATABLE READ");
+                    break;
+                }
 
-                case MTSSetTransactionStatement.IsolationLevel.Serializable:
-                    {
-                        appendable.Append("SERIALIZABLE");
-                        break;
-                    }
+                case IsolationLevel.Serializable:
+                {
+                    _appendable.Append("SERIALIZABLE");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown level for SET TRANSACTION ISOLATION LEVEL: "
-                             + node.GetLevel());
-                    }
+                {
+                    throw new ArgumentException("unknown level for SET TRANSACTION ISOLATION LEVEL: "
+                                                + node.Level);
+                }
             }
         }
 
         public void Visit(MTSSavepointStatement node)
         {
-            appendable.Append("SAVEPOINT ");
-            node.GetSavepoint().Accept(this);
+            _appendable.Append("SAVEPOINT ");
+            node.Savepoint.Accept(this);
         }
 
         public void Visit(MTSReleaseStatement node)
         {
-            appendable.Append("RELEASE SAVEPOINT ");
-            node.GetSavepoint().Accept(this);
+            _appendable.Append("RELEASE SAVEPOINT ");
+            node.Savepoint.Accept(this);
         }
 
         public void Visit(MTSRollbackStatement node)
         {
-            appendable.Append("ROLLBACK");
-            Identifier savepoint = node.GetSavepoint();
+            _appendable.Append("ROLLBACK");
+            var savepoint = node.Savepoint;
             if (savepoint == null)
             {
-                MTSRollbackStatement.CompleteType type = node.GetCompleteType();
+                var type = node.CompleteType;
                 switch (type)
                 {
-                    case MTSRollbackStatement.CompleteType.Chain:
-                        {
-                            appendable.Append(" AND CHAIN");
-                            break;
-                        }
+                    case CompleteType.Chain:
+                    {
+                        _appendable.Append(" AND CHAIN");
+                        break;
+                    }
 
-                    case MTSRollbackStatement.CompleteType.NoChain:
-                        {
-                            appendable.Append(" AND NO CHAIN");
-                            break;
-                        }
+                    case CompleteType.NoChain:
+                    {
+                        _appendable.Append(" AND NO CHAIN");
+                        break;
+                    }
 
-                    case MTSRollbackStatement.CompleteType.NoRelease:
-                        {
-                            appendable.Append(" NO RELEASE");
-                            break;
-                        }
+                    case CompleteType.NoRelease:
+                    {
+                        _appendable.Append(" NO RELEASE");
+                        break;
+                    }
 
-                    case MTSRollbackStatement.CompleteType.Release:
-                        {
-                            appendable.Append(" RELEASE");
-                            break;
-                        }
+                    case CompleteType.Release:
+                    {
+                        _appendable.Append(" RELEASE");
+                        break;
+                    }
 
-                    case MTSRollbackStatement.CompleteType.UnDef:
-                        {
-                            break;
-                        }
+                    case CompleteType.UnDef:
+                    {
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("unrecgnized complete type: " + type);
-                        }
+                    {
+                        throw new ArgumentException("unrecgnized complete type: " + type);
+                    }
                 }
             }
             else
             {
-                appendable.Append(" TO SAVEPOINT ");
+                _appendable.Append(" TO SAVEPOINT ");
                 savepoint.Accept(this);
             }
         }
 
-        public void Visit(DMLCallStatement node)
+        public void Visit(DmlCallStatement node)
         {
-            appendable.Append("CALL ");
+            _appendable.Append("CALL ");
             node.GetProcedure().Accept(this);
-            appendable.Append('(');
+            _appendable.Append('(');
             PrintList(node.GetArguments());
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
-        public void Visit(DMLDeleteStatement node)
+        public void Visit(DmlDeleteStatement node)
         {
-            appendable.Append("DELETE ");
-            if (node.IsLowPriority())
+            _appendable.Append("DELETE ");
+            if (node.IsLowPriority)
             {
-                appendable.Append("LOW_PRIORITY ");
+                _appendable.Append("LOW_PRIORITY ");
             }
-            if (node.IsQuick())
+            if (node.IsQuick)
             {
-                appendable.Append("QUICK ");
+                _appendable.Append("QUICK ");
             }
-            if (node.IsIgnore())
+            if (node.IsIgnore)
             {
-                appendable.Append("IGNORE ");
+                _appendable.Append("IGNORE ");
             }
-            TableReferences tableRefs = node.GetTableRefs();
+            var tableRefs = node.TableRefs;
             if (tableRefs == null)
             {
-                appendable.Append("FROM ");
-                node.GetTableNames()[0].Accept(this);
+                _appendable.Append("FROM ");
+                node.TableNames[0].Accept(this);
             }
             else
             {
-                PrintList(node.GetTableNames());
-                appendable.Append(" FROM ");
-                node.GetTableRefs().Accept(this);
+                PrintList(node.TableNames);
+                _appendable.Append(" FROM ");
+                node.TableRefs.Accept(this);
             }
-            Expr where = node.GetWhereCondition();
+            var where = node.WhereCondition;
             if (where != null)
             {
-                appendable.Append(" WHERE ");
+                _appendable.Append(" WHERE ");
                 where.Accept(this);
             }
-            OrderBy orderBy = node.GetOrderBy();
+            var orderBy = node.OrderBy;
             if (orderBy != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 orderBy.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
             }
         }
 
-        public void Visit(DMLInsertStatement node)
+        public void Visit(DmlInsertStatement node)
         {
-            appendable.Append("INSERT ");
-            switch (node.GetMode())
+            _appendable.Append("INSERT ");
+            switch (node.Mode)
             {
-                case DMLInsertStatement.InsertMode.Delay:
-                    {
-                        appendable.Append("DELAYED ");
-                        break;
-                    }
+                case InsertMode.Delay:
+                {
+                    _appendable.Append("DELAYED ");
+                    break;
+                }
 
-                case DMLInsertStatement.InsertMode.High:
-                    {
-                        appendable.Append("HIGH_PRIORITY ");
-                        break;
-                    }
+                case InsertMode.High:
+                {
+                    _appendable.Append("HIGH_PRIORITY ");
+                    break;
+                }
 
-                case DMLInsertStatement.InsertMode.Low:
-                    {
-                        appendable.Append("LOW_PRIORITY ");
-                        break;
-                    }
+                case InsertMode.Low:
+                {
+                    _appendable.Append("LOW_PRIORITY ");
+                    break;
+                }
 
-                case DMLInsertStatement.InsertMode.Undef:
-                    {
-                        break;
-                    }
+                case InsertMode.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown mode for INSERT: " + node.GetMode());
-                    }
+                {
+                    throw new ArgumentException("unknown mode for INSERT: " + node.Mode);
+                }
             }
-            if (node.IsIgnore())
+            if (node.IsIgnore)
             {
-                appendable.Append("IGNORE ");
+                _appendable.Append("IGNORE ");
             }
-            appendable.Append("INTO ");
-            node.GetTable().Accept(this);
-            appendable.Append(' ');
-            IList<Identifier> cols = node.GetColumnNameList();
+            _appendable.Append("INTO ");
+            node.Table.Accept(this);
+            _appendable.Append(' ');
+            var cols = node.ColumnNameList;
             if (cols != null && !cols.IsEmpty())
             {
-                appendable.Append('(');
+                _appendable.Append('(');
                 PrintList(cols);
-                appendable.Append(") ");
+                _appendable.Append(") ");
             }
-            QueryExpression select = node.GetSelect();
+            var select = node.Select;
             if (select == null)
             {
-                appendable.Append("VALUES ");
-                IList<RowExpression> rows = node.GetRowList();
+                _appendable.Append("VALUES ");
+                var rows = node.RowList;
                 if (rows != null && !rows.IsEmpty())
                 {
-                    bool isFst = true;
-                    foreach (RowExpression row in rows)
+                    var isFst = true;
+                    foreach (var row in rows)
                     {
-                        if (row == null || row.GetRowExprList().IsEmpty())
+                        if (row == null || row.RowExprList.IsEmpty())
                         {
                             continue;
                         }
@@ -2183,11 +1993,11 @@ namespace Tup.Cobar4Net.Parser.Visitor
                         }
                         else
                         {
-                            appendable.Append(", ");
+                            _appendable.Append(", ");
                         }
-                        appendable.Append('(');
-                        PrintList(row.GetRowExprList());
-                        appendable.Append(')');
+                        _appendable.Append('(');
+                        PrintList(row.RowExprList);
+                        _appendable.Append(')');
                     }
                 }
                 else
@@ -2199,12 +2009,12 @@ namespace Tup.Cobar4Net.Parser.Visitor
             {
                 select.Accept(this);
             }
-            var dup = node.GetDuplicateUpdate();
+            var dup = node.DuplicateUpdate;
             if (dup != null && !dup.IsEmpty())
             {
-                appendable.Append(" ON DUPLICATE KEY UPDATE ");
-                bool isFst = true;
-                foreach (Pair<Identifier, Expr> p in dup)
+                _appendable.Append(" ON DUPLICATE KEY UPDATE ");
+                var isFst = true;
+                foreach (var p in dup)
                 {
                     if (isFst)
                     {
@@ -2212,63 +2022,63 @@ namespace Tup.Cobar4Net.Parser.Visitor
                     }
                     else
                     {
-                        appendable.Append(", ");
+                        _appendable.Append(", ");
                     }
-                    p.GetKey().Accept(this);
-                    appendable.Append(" = ");
-                    p.GetValue().Accept(this);
+                    p.Key.Accept(this);
+                    _appendable.Append(" = ");
+                    p.Value.Accept(this);
                 }
             }
         }
 
-        public void Visit(DMLReplaceStatement node)
+        public void Visit(DmlReplaceStatement node)
         {
-            appendable.Append("REPLACE ");
-            switch (node.GetMode())
+            _appendable.Append("REPLACE ");
+            switch (node.Mode)
             {
-                case DMLReplaceStatement.ReplaceMode.Delay:
-                    {
-                        appendable.Append("DELAYED ");
-                        break;
-                    }
+                case ReplaceMode.Delay:
+                {
+                    _appendable.Append("DELAYED ");
+                    break;
+                }
 
-                case DMLReplaceStatement.ReplaceMode.Low:
-                    {
-                        appendable.Append("LOW_PRIORITY ");
-                        break;
-                    }
+                case ReplaceMode.Low:
+                {
+                    _appendable.Append("LOW_PRIORITY ");
+                    break;
+                }
 
-                case DMLReplaceStatement.ReplaceMode.Undef:
-                    {
-                        break;
-                    }
+                case ReplaceMode.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown mode for INSERT: " + node.GetMode());
-                    }
+                {
+                    throw new ArgumentException("unknown mode for INSERT: " + node.Mode);
+                }
             }
-            appendable.Append("INTO ");
-            node.GetTable().Accept(this);
-            appendable.Append(' ');
-            IList<Identifier> cols = node.GetColumnNameList();
+            _appendable.Append("INTO ");
+            node.Table.Accept(this);
+            _appendable.Append(' ');
+            var cols = node.ColumnNameList;
             if (cols != null && !cols.IsEmpty())
             {
-                appendable.Append('(');
+                _appendable.Append('(');
                 PrintList(cols);
-                appendable.Append(") ");
+                _appendable.Append(") ");
             }
-            QueryExpression select = node.GetSelect();
+            var select = node.Select;
             if (select == null)
             {
-                appendable.Append("VALUES ");
-                IList<RowExpression> rows = node.GetRowList();
+                _appendable.Append("VALUES ");
+                var rows = node.RowList;
                 if (rows != null && !rows.IsEmpty())
                 {
-                    bool isFst = true;
-                    foreach (RowExpression row in rows)
+                    var isFst = true;
+                    foreach (var row in rows)
                     {
-                        if (row == null || row.GetRowExprList().IsEmpty())
+                        if (row == null || row.RowExprList.IsEmpty())
                         {
                             continue;
                         }
@@ -2278,11 +2088,11 @@ namespace Tup.Cobar4Net.Parser.Visitor
                         }
                         else
                         {
-                            appendable.Append(", ");
+                            _appendable.Append(", ");
                         }
-                        appendable.Append('(');
-                        PrintList(row.GetRowExprList());
-                        appendable.Append(')');
+                        _appendable.Append('(');
+                        PrintList(row.RowExprList);
+                        _appendable.Append(')');
                     }
                 }
                 else
@@ -2296,101 +2106,101 @@ namespace Tup.Cobar4Net.Parser.Visitor
             }
         }
 
-        public void Visit(DMLSelectStatement node)
+        public void Visit(DmlSelectStatement node)
         {
-            appendable.Append("SELECT ");
-            DMLSelectStatement.SelectOption option = node.GetOption();
+            _appendable.Append("SELECT ");
+            var option = node.Option;
             switch (option.resultDup)
             {
-                case DMLSelectStatement.SelectDuplicationStrategy.All:
-                    {
-                        break;
-                    }
+                case SelectDuplicationStrategy.All:
+                {
+                    break;
+                }
 
-                case DMLSelectStatement.SelectDuplicationStrategy.Distinct:
-                    {
-                        appendable.Append("DISTINCT ");
-                        break;
-                    }
+                case SelectDuplicationStrategy.Distinct:
+                {
+                    _appendable.Append("DISTINCT ");
+                    break;
+                }
 
-                case DMLSelectStatement.SelectDuplicationStrategy.Distinctrow:
-                    {
-                        appendable.Append("DISTINCTROW ");
-                        break;
-                    }
+                case SelectDuplicationStrategy.Distinctrow:
+                {
+                    _appendable.Append("DISTINCTROW ");
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown option for SELECT: " + option);
-                    }
+                {
+                    throw new ArgumentException("unknown option for SELECT: " + option);
+                }
             }
             if (option.highPriority)
             {
-                appendable.Append("HIGH_PRIORITY ");
+                _appendable.Append("HIGH_PRIORITY ");
             }
             if (option.straightJoin)
             {
-                appendable.Append("STRAIGHT_JOIN ");
+                _appendable.Append("STRAIGHT_JOIN ");
             }
             switch (option.resultSize)
             {
-                case DMLSelectStatement.SmallOrBigResult.SqlBigResult:
-                    {
-                        appendable.Append("SQL_BIG_RESULT ");
-                        break;
-                    }
+                case SelectSmallOrBigResult.SqlBigResult:
+                {
+                    _appendable.Append("SQL_BIG_RESULT ");
+                    break;
+                }
 
-                case DMLSelectStatement.SmallOrBigResult.SqlSmallResult:
-                    {
-                        appendable.Append("SQL_SMALL_RESULT ");
-                        break;
-                    }
+                case SelectSmallOrBigResult.SqlSmallResult:
+                {
+                    _appendable.Append("SQL_SMALL_RESULT ");
+                    break;
+                }
 
-                case DMLSelectStatement.SmallOrBigResult.Undef:
-                    {
-                        break;
-                    }
+                case SelectSmallOrBigResult.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown option for SELECT: " + option);
-                    }
+                {
+                    throw new ArgumentException("unknown option for SELECT: " + option);
+                }
             }
             if (option.sqlBufferResult)
             {
-                appendable.Append("SQL_BUFFER_RESULT ");
+                _appendable.Append("SQL_BUFFER_RESULT ");
             }
-            switch (option.queryCache)
+            switch (option.SelectQueryCache)
             {
-                case DMLSelectStatement.QueryCacheStrategy.SqlCache:
-                    {
-                        appendable.Append("SQL_CACHE ");
-                        break;
-                    }
+                case SelectQueryCacheStrategy.SqlCache:
+                {
+                    _appendable.Append("SQL_CACHE ");
+                    break;
+                }
 
-                case DMLSelectStatement.QueryCacheStrategy.SqlNoCache:
-                    {
-                        appendable.Append("SQL_NO_CACHE ");
-                        break;
-                    }
+                case SelectQueryCacheStrategy.SqlNoCache:
+                {
+                    _appendable.Append("SQL_NO_CACHE ");
+                    break;
+                }
 
-                case DMLSelectStatement.QueryCacheStrategy.Undef:
-                    {
-                        break;
-                    }
+                case SelectQueryCacheStrategy.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown option for SELECT: " + option);
-                    }
+                {
+                    throw new ArgumentException("unknown option for SELECT: " + option);
+                }
             }
             if (option.sqlCalcFoundRows)
             {
-                appendable.Append("SQL_CALC_FOUND_ROWS ");
+                _appendable.Append("SQL_CALC_FOUND_ROWS ");
             }
-            bool isFst = true;
-            var exprList = node.GetSelectExprList();
-            foreach (Pair<Expr, string> p in exprList)
+            var isFst = true;
+            var exprList = node.SelectExprList;
+            foreach (var p in exprList)
             {
                 if (isFst)
                 {
@@ -2398,131 +2208,130 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                p.GetKey().Accept(this);
-                string alias = p.GetValue();
+                p.Key.Accept(this);
+                var alias = p.Value;
                 if (alias != null)
                 {
-                    appendable.Append(" AS ").Append(alias);
+                    _appendable.Append(" AS ").Append(alias);
                 }
             }
-            TableReferences from = node.GetTables();
+            var from = node.Tables;
             if (from != null)
             {
-                appendable.Append(" FROM ");
+                _appendable.Append(" FROM ");
                 from.Accept(this);
             }
-            Expr where = node.GetWhere();
+            var where = node.Where;
             if (where != null)
             {
-                appendable.Append(" WHERE ");
+                _appendable.Append(" WHERE ");
                 where.Accept(this);
             }
-            GroupBy group = node.GetGroup();
+            var group = node.Group;
             if (group != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 group.Accept(this);
             }
-            Expr having = node.GetHaving();
+            var having = node.Having;
             if (having != null)
             {
-                appendable.Append(" HAVING ");
+                _appendable.Append(" HAVING ");
                 having.Accept(this);
             }
-            OrderBy order = node.GetOrder();
+            var order = node.Order;
             if (order != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 order.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
             }
             switch (option.lockMode)
             {
-                case DMLSelectStatement.LockMode.ForUpdate:
-                    {
-                        appendable.Append(" FOR UPDATE");
-                        break;
-                    }
+                case LockMode.ForUpdate:
+                {
+                    _appendable.Append(" FOR UPDATE");
+                    break;
+                }
 
-                case DMLSelectStatement.LockMode.LockInShareMode:
-                    {
-                        appendable.Append(" LOCK IN SHARE MODE");
-                        break;
-                    }
+                case LockMode.LockInShareMode:
+                {
+                    _appendable.Append(" LOCK IN SHARE MODE");
+                    break;
+                }
 
-                case DMLSelectStatement.LockMode.Undef:
-                    {
-                        break;
-                    }
+                case LockMode.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unknown option for SELECT: " + option);
-                    }
+                {
+                    throw new ArgumentException("unknown option for SELECT: " + option);
+                }
             }
         }
 
-        public void Visit(DMLSelectUnionStatement node)
+        public void Visit(DmlSelectUnionStatement node)
         {
-            IList<DMLSelectStatement> list = node.GetSelectStmtList();
+            var list = node.SelectStmtList;
             if (list == null || list.IsEmpty())
             {
                 throw new ArgumentException("SELECT UNION must have at least one SELECT");
             }
-            int fstDist = node.GetFirstDistinctIndex();
-            int i = 0;
-            foreach (DMLSelectStatement select in list)
+            var fstDist = node.FirstDistinctIndex;
+            var i = 0;
+            foreach (var select in list)
             {
                 if (i > 0)
                 {
-                    appendable.Append(" UNION ");
+                    _appendable.Append(" UNION ");
                     if (i > fstDist)
                     {
-                        appendable.Append("ALL ");
+                        _appendable.Append("ALL ");
                     }
                 }
-                appendable.Append('(');
+                _appendable.Append('(');
                 select.Accept(this);
-                appendable.Append(')');
+                _appendable.Append(')');
                 ++i;
             }
-            OrderBy order = node.GetOrderBy();
+            var order = node.OrderBy;
             if (order != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 order.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
             }
         }
 
-        public void Visit(DMLUpdateStatement node)
+        public void Visit(DmlUpdateStatement node)
         {
-            appendable.Append("UPDATE ");
-            if (node.IsLowPriority())
+            _appendable.Append("UPDATE ");
+            if (node.IsLowPriority)
             {
-                appendable.Append("LOW_PRIORITY ");
+                _appendable.Append("LOW_PRIORITY ");
             }
-            if (node.IsIgnore())
+            if (node.IsIgnore)
             {
-                appendable.Append("IGNORE ");
+                _appendable.Append("IGNORE ");
             }
-            node.GetTableRefs().Accept(this);
-            appendable.Append(" SET ");
-            bool isFst = true;
-            foreach (Pair<Identifier, Expr> p in node.GetValues
-                ())
+            node.TableRefs.Accept(this);
+            _appendable.Append(" SET ");
+            var isFst = true;
+            foreach (var p in node.Values)
             {
                 if (isFst)
                 {
@@ -2530,58 +2339,58 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                p.GetKey().Accept(this);
-                appendable.Append(" = ");
-                p.GetValue().Accept(this);
+                p.Key.Accept(this);
+                _appendable.Append(" = ");
+                p.Value.Accept(this);
             }
-            Expr where = node.GetWhere();
+            var where = node.Where;
             if (where != null)
             {
-                appendable.Append(" WHERE ");
+                _appendable.Append(" WHERE ");
                 where.Accept(this);
             }
-            OrderBy order = node.GetOrderBy();
+            var order = node.OrderBy;
             if (order != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 order.Accept(this);
             }
-            Limit limit = node.GetLimit();
+            var limit = node.Limit;
             if (limit != null)
             {
-                appendable.Append(' ');
+                _appendable.Append(' ');
                 limit.Accept(this);
             }
         }
 
-        public void Visit(DDLTruncateStatement node)
+        public void Visit(DdlTruncateStatement node)
         {
-            appendable.Append("TRUNCATE TABLE ");
-            node.GetTable().Accept(this);
+            _appendable.Append("TRUNCATE TABLE ");
+            node.Table.Accept(this);
         }
 
-        public void Visit(DDLAlterTableStatement node)
+        public void Visit(DdlAlterTableStatement node)
         {
             throw new NotSupportedException("ALTER TABLE is partially parsed");
         }
 
-        public void Visit(DDLCreateIndexStatement node)
+        public void Visit(DdlCreateIndexStatement node)
         {
             throw new NotSupportedException("CREATE INDEX is partially parsed");
         }
 
-        public void Visit(DDLCreateTableStatement node)
+        public void Visit(DdlCreateTableStatement node)
         {
             throw new NotSupportedException("CREATE TABLE is partially parsed");
         }
 
-        public void Visit(DDLRenameTableStatement node)
+        public void Visit(DdlRenameTableStatement node)
         {
-            appendable.Append("RENAME TABLE ");
-            bool isFst = true;
-            foreach (Pair<Identifier, Identifier> p in node.GetList())
+            _appendable.Append("RENAME TABLE ");
+            var isFst = true;
+            foreach (var p in node.PairList)
             {
                 if (isFst)
                 {
@@ -2589,68 +2398,68 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                p.GetKey().Accept(this);
-                appendable.Append(" TO ");
-                p.GetValue().Accept(this);
+                p.Key.Accept(this);
+                _appendable.Append(" TO ");
+                p.Value.Accept(this);
             }
         }
 
-        public void Visit(DDLDropIndexStatement node)
+        public void Visit(DdlDropIndexStatement node)
         {
-            appendable.Append("DROP INDEX ");
-            node.GetIndexName().Accept(this);
-            appendable.Append(" ON ");
-            node.GetTable().Accept(this);
+            _appendable.Append("DROP INDEX ");
+            node.IndexName.Accept(this);
+            _appendable.Append(" ON ");
+            node.Table.Accept(this);
         }
 
-        public void Visit(DDLDropTableStatement node)
+        public void Visit(DdlDropTableStatement node)
         {
-            appendable.Append("DROP ");
-            if (node.IsTemp())
+            _appendable.Append("DROP ");
+            if (node.IsTemp)
             {
-                appendable.Append("TEMPORARY ");
+                _appendable.Append("TEMPORARY ");
             }
-            appendable.Append("TABLE ");
-            if (node.IsIfExists())
+            _appendable.Append("TABLE ");
+            if (node.IsIfExists)
             {
-                appendable.Append("IF EXISTS ");
+                _appendable.Append("IF EXISTS ");
             }
-            PrintList(node.GetTableNames());
-            switch (node.GetMode())
+            PrintList(node.TableNames);
+            switch (node.Mode)
             {
-                case DDLDropTableStatement.Mode.Cascade:
-                    {
-                        appendable.Append(" CASCADE");
-                        break;
-                    }
+                case DropTableMode.Cascade:
+                {
+                    _appendable.Append(" CASCADE");
+                    break;
+                }
 
-                case DDLDropTableStatement.Mode.Restrict:
-                    {
-                        appendable.Append(" RESTRICT");
-                        break;
-                    }
+                case DropTableMode.Restrict:
+                {
+                    _appendable.Append(" RESTRICT");
+                    break;
+                }
 
-                case DDLDropTableStatement.Mode.Undef:
-                    {
-                        break;
-                    }
+                case DropTableMode.Undef:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unsupported mode for DROP TABLE: " + node.GetMode());
-                    }
+                {
+                    throw new ArgumentException("unsupported mode for DROP TABLE: " + node.Mode);
+                }
             }
         }
 
-        public void Visit(ExtDDLCreatePolicy node)
+        public void Visit(ExtDdlCreatePolicy node)
         {
-            appendable.Append("CREATE POLICY ");
-            node.GetName().Accept(this);
-            appendable.Append(" (");
-            bool first = true;
-            foreach (var p in node.GetProportion())
+            _appendable.Append("CREATE POLICY ");
+            node.Name.Accept(this);
+            _appendable.Append(" (");
+            var first = true;
+            foreach (var p in node.Proportion)
             {
                 if (first)
                 {
@@ -2658,18 +2467,164 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 }
                 else
                 {
-                    appendable.Append(", ");
+                    _appendable.Append(", ");
                 }
-                appendable.Append(p.GetKey()).Append(' ');
-                p.GetValue().Accept(this);
+                _appendable.Append(p.Key).Append(' ');
+                p.Value.Accept(this);
             }
-            appendable.Append(')');
+            _appendable.Append(')');
         }
 
-        public void Visit(ExtDDLDropPolicy node)
+        public void Visit(ExtDdlDropPolicy node)
         {
-            appendable.Append("DROP POLICY ");
-            node.GetPolicyName().Accept(this);
+            _appendable.Append("DROP POLICY ");
+            node.PolicyName.Accept(this);
+        }
+
+        public void SetPlaceHolderToString(IDictionary<PlaceHolder, object> map)
+        {
+            _placeHolderToString = map;
+        }
+
+        public string GetSql()
+        {
+            return _appendable.ToString();
+        }
+
+        /// <returns>
+        ///     never null. rst[i]
+        ///     <see cref="_args" />
+        ///     [
+        ///     <see cref="_argsIndex" />
+        ///     [i]]
+        /// </returns>
+        public object[] GetArguments()
+        {
+            var argsIndexSize = _argsIndex.Length;
+            if (argsIndexSize <= 0)
+            {
+                return EmptyObjArray;
+            }
+
+            var noChange = true;
+            for (var i = 0; i < argsIndexSize; ++i)
+            {
+                if (i != _argsIndex[i])
+                {
+                    noChange = false;
+                    break;
+                }
+            }
+            if (noChange)
+            {
+                return _args;
+            }
+            var rst = new object[argsIndexSize];
+            for (var i_1 = 0; i_1 < argsIndexSize; ++i_1)
+            {
+                rst[i_1] = _args[_argsIndex[i_1]];
+            }
+            return rst;
+        }
+
+        /// <param name="list">never null</param>
+        private void PrintList<TItem>(IList<TItem> list)
+            where TItem : IAstNode
+        {
+            PrintList(list, ", ");
+        }
+
+        /// <param name="list">never null</param>
+        private void PrintList<TItem>(IList<TItem> list, string sep)
+            where TItem : IAstNode
+        {
+            var isFst = true;
+            foreach (IAstNode arg in list)
+            {
+                if (isFst)
+                {
+                    isFst = false;
+                }
+                else
+                {
+                    _appendable.Append(sep);
+                }
+                arg.Accept(this);
+            }
+        }
+
+        private static bool ContainsCompIn(IExpression pat)
+        {
+            if (pat.Precedence > ExpressionConstants.PrecedenceComparision)
+            {
+                return false;
+            }
+            if (pat is BinaryOperatorExpression)
+            {
+                if (pat is InExpression)
+                {
+                    return true;
+                }
+                var bp = (BinaryOperatorExpression) pat;
+                if (bp.IsLeftCombine)
+                {
+                    return ContainsCompIn(bp.LeftOprand);
+                }
+                return ContainsCompIn(bp.LeftOprand);
+            }
+            if (pat is ComparisionIsExpression)
+            {
+                var @is = (ComparisionIsExpression) pat;
+                return ContainsCompIn(@is.Operand);
+            }
+            if (pat is TernaryOperatorExpression)
+            {
+                var tp = (TernaryOperatorExpression) pat;
+                return ContainsCompIn(tp.First) || ContainsCompIn(tp.Second) || ContainsCompIn(tp.Third);
+            }
+            if (pat is UnaryOperatorExpression)
+            {
+                var up = (UnaryOperatorExpression) pat;
+                return ContainsCompIn(up.Operand);
+            }
+            return false;
+        }
+
+        private void AppendArgsIndex(int value)
+        {
+            var i = ++_index;
+            if (_argsIndex.Length <= i)
+            {
+                var a = new int[i + 1];
+                if (i > 0)
+                {
+                    Array.Copy(_argsIndex, 0, a, 0, i);
+                }
+                _argsIndex = a;
+            }
+            _argsIndex[i] = value;
+        }
+
+        private void PrintSimpleShowStmt(string attName)
+        {
+            _appendable.Append("SHOW ").Append(attName);
+        }
+
+        /// <summary>' ' will be prepended</summary>
+        private void PrintLikeOrWhere(string like, IExpression where)
+        {
+            if (like != null)
+            {
+                _appendable.Append(" LIKE ").Append(like);
+            }
+            else
+            {
+                if (where != null)
+                {
+                    _appendable.Append(" WHERE ");
+                    where.Accept(this);
+                }
+            }
         }
     }
 }

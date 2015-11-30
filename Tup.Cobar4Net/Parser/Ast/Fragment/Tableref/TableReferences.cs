@@ -21,9 +21,55 @@ using Tup.Cobar4Net.Parser.Visitor;
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
     /// <summary>used in <code>FROM</code> fragment</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class TableReferences : TableReference
     {
+        private readonly IList<TableReference> _list;
+
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public TableReferences(IList<TableReference> list)
+        {
+            if (list == null || list.IsEmpty())
+            {
+                throw new SqlSyntaxErrorException("at least one table reference");
+            }
+            _list = EnsureListType(list);
+        }
+
+        /// <value>never null</value>
+        public virtual IList<TableReference> TableReferenceList
+        {
+            get { return _list; }
+        }
+
+        public override bool IsSingleTable
+        {
+            get
+            {
+                if (_list == null)
+                {
+                    return false;
+                }
+                var count = 0;
+                TableReference first = null;
+                foreach (var @ref in _list)
+                {
+                    if (@ref != null && 1 == ++count)
+                    {
+                        first = @ref;
+                    }
+                }
+                return count == 1 && first.IsSingleTable;
+            }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceRefs; }
+        }
+
         protected static IList<TableReference> EnsureListType(IList<TableReference> list)
         {
             if (list is List<TableReference>)
@@ -33,57 +79,16 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return new List<TableReference>(list);
         }
 
-        private readonly IList<TableReference> list;
-
-        /// <returns>never null</returns>
-        public virtual IList<TableReference> GetTableReferenceList()
-        {
-            return list;
-        }
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public TableReferences(IList<TableReference> list)
-        {
-            if (list == null || list.IsEmpty())
-            {
-                throw new SQLSyntaxErrorException("at least one table reference");
-            }
-            this.list = EnsureListType(list);
-        }
-
         public override object RemoveLastConditionElement()
         {
-            if (list != null && !list.IsEmpty())
+            if (_list != null && !_list.IsEmpty())
             {
-                return list[list.Count - 1].RemoveLastConditionElement();
+                return _list[_list.Count - 1].RemoveLastConditionElement();
             }
             return null;
         }
 
-        public override bool IsSingleTable()
-        {
-            if (list == null)
-            {
-                return false;
-            }
-            int count = 0;
-            TableReference first = null;
-            foreach (TableReference @ref in list)
-            {
-                if (@ref != null && 1 == ++count)
-                {
-                    first = @ref;
-                }
-            }
-            return count == 1 && first.IsSingleTable();
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceRefs;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

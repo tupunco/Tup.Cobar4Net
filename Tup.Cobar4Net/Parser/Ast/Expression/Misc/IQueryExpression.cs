@@ -14,20 +14,12 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
-using System;
-
-namespace Tup.Cobar4Net.Parser.Util
+namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface UnaryOperandCalculator
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IQueryExpression : IExpression
     {
-        Number Calculate(int num);
-
-        Number Calculate(long num);
-
-        Number Calculate(BigInteger num);
-
-        Number Calculate(BigDecimal num);
     }
 }

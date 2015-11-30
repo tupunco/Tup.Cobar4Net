@@ -13,21 +13,22 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
 using System;
-using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Route.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     [TestFixture(Category = "PermutationUtilTest")]
     public class PermutationUtilTest
     {
         [Test]
         public virtual void TestPermutate()
         {
-            ICollection<string> set = PermutationUtil.PermutateSQL("-", "1");
+            var set = PermutationUtil.PermutateSQL("-", "1");
             Assert.AreEqual(1, set.Count);
             Assert.IsTrue(set.Contains("1"));
             set = PermutationUtil.PermutateSQL("-", "1", "1");

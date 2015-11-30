@@ -20,26 +20,23 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Mts
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MTSReleaseStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MTSReleaseStatement : ISqlStatement
     {
-        private readonly Identifier savepoint;
-
         public MTSReleaseStatement(Identifier savepoint)
         {
             if (savepoint == null)
             {
                 throw new ArgumentException("savepoint is null");
             }
-            this.savepoint = savepoint;
+            Savepoint = savepoint;
         }
 
-        public virtual Identifier GetSavepoint()
-        {
-            return savepoint;
-        }
+        public virtual Identifier Savepoint { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -14,12 +14,22 @@
 * limitations under the License.
 */
 
-namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
+using System;
+using Deveel.Math;
+
+namespace Tup.Cobar4Net.Parser.Util
 {
-    /// <summary>NOT FULL AST</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface DDLStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IBinaryOperandCalculator
     {
-        // QS_TODO ddl regenerate sql by router
+        Number Calculate(int integer1, int integer2);
+
+        Number Calculate(long long1, long long2);
+
+        Number Calculate(BigInteger bigint1, BigInteger bigint2);
+
+        Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
     }
 }

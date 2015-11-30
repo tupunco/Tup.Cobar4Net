@@ -16,107 +16,94 @@
 
 using System;
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class IndexHint : ASTNode
+    /// <summary>
+    ///     IndexHint Action
+    /// </summary>
+    public enum IndexHintAction
     {
-        public enum IndexAction
+        None = 0,
+
+        Use,
+        Ignore,
+        Force
+    }
+
+    /// <summary>
+    ///     IndexHint Scope
+    /// </summary>
+    public enum IndexHintScope
+    {
+        None = 0,
+
+        All,
+        Join,
+        GroupBy,
+        OrderBy
+    }
+
+    /// <summary>
+    ///     IndexHint ProfileType
+    /// </summary>
+    public enum IndexHintType
+    {
+        None = 0,
+
+        Index,
+        Key
+    }
+
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class IndexHint : IAstNode
+    {
+        public IndexHint(IndexHintAction hintAction,
+                         IndexHintType hintType,
+                         IndexHintScope hintScope,
+                         IList<string> indexList)
         {
-            None = 0,
-
-            Use,
-            Ignore,
-            Force
-        }
-
-        public enum IndexType
-        {
-            None = 0,
-
-            Index,
-            Key
-        }
-
-        public enum IndexScope
-        {
-            None = 0,
-
-            All,
-            Join,
-            GroupBy,
-            OrderBy
-        }
-
-        private readonly IndexAction action;
-
-        private readonly IndexType type;
-
-        private readonly IndexScope scope;
-
-        private readonly IList<string> indexList;
-
-        public IndexHint(IndexAction action,
-            IndexType type,
-            IndexScope scope,
-            IList<string> indexList)
-        {
-            if (action == IndexAction.None)
+            if (hintAction == IndexHintAction.None)
             {
-                throw new ArgumentException("index hint action is null");
+                throw new ArgumentException("index hint hintAction is null");
             }
-            if (type == IndexType.None)
+            if (hintType == IndexHintType.None)
             {
-                throw new ArgumentException("index hint type is null");
+                throw new ArgumentException("index hint hintType is null");
             }
-            if (scope == IndexScope.None)
+            if (hintScope == IndexHintScope.None)
             {
-                throw new ArgumentException("index hint scope is null");
+                throw new ArgumentException("index hint hintScope is null");
             }
-            this.action = action;
-            this.type = type;
-            this.scope = scope;
+            HintAction = hintAction;
+            IndexType = hintType;
+            HintScope = hintScope;
             if (indexList == null || indexList.IsEmpty())
             {
-                this.indexList = new List<string>(0);
+                IndexList = new List<string>(0);
+            }
+            else if (indexList is List<string>)
+            {
+                IndexList = indexList;
             }
             else
             {
-                if (indexList is List<string>)
-                {
-                    this.indexList = indexList;
-                }
-                else
-                {
-                    this.indexList = new List<string>(indexList);
-                }
+                IndexList = new List<string>(indexList);
             }
         }
 
-        public virtual IndexAction GetAction()
-        {
-            return action;
-        }
+        public virtual IndexHintAction HintAction { get; }
 
-        public virtual IndexType GetIndexType()
-        {
-            return type;
-        }
+        public virtual IndexHintType IndexType { get; }
 
-        public virtual IndexScope GetScope()
-        {
-            return scope;
-        }
+        public virtual IndexHintScope HintScope { get; }
 
-        public virtual IList<string> GetIndexList()
-        {
-            return indexList;
-        }
+        public virtual IList<string> IndexList { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

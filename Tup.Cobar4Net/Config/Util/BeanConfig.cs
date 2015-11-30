@@ -14,92 +14,27 @@
 * limitations under the License.
 */
 
+
 #if CONFG_BEAN
-System;
+using System;
 using System.Collections.Generic;
-using Sharpen;
-using Tup.Cobar4Net.Util;
 using System.Reflection;
 
 namespace Tup.Cobar4Net.Config.Util
 {
     public class BeanConfig : ICloneable
     {
-        //private static readonly ReflectionProvider refProvider = new ReflectionProvider();
+        private IDictionary<string, object> @params =
+            new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
-        private string name;
+        public virtual string Name { get; set; }
 
-        private string className;
+        public virtual string ClassName { get; set; }
 
-        private IDictionary<string, object> @params = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
-        public string ClassName
-        {
-            get { return className; }
-            set { className = value; }
-        }
-
-        public IDictionary<string, object> Params
+        public virtual IDictionary<string, object> Params
         {
             get { return @params; }
             set { @params = value; }
-        }
-
-        public virtual string GetName()
-        {
-            return name;
-        }
-
-        public virtual void SetName(string name)
-        {
-            this.name = name;
-        }
-
-        public virtual string GetClassName()
-        {
-            return className;
-        }
-
-        public virtual void SetClassName(string beanObject)
-        {
-            this.className = beanObject;
-        }
-
-        public virtual IDictionary<string, object> GetParams()
-        {
-            return @params;
-        }
-
-        public virtual void SetParams(IDictionary<string, object> @params)
-        {
-            this.@params = @params;
-        }
-
-        /// <exception cref="System.MemberAccessException"/>
-        /// <exception cref="System.Reflection.TargetInvocationException"/>
-        public virtual object Create(bool initEarly)
-        {
-            object obj = null;
-            try
-            {
-                obj = Activator.CreateInstance(Type.GetType(className));
-            }
-            catch (TypeLoadException e)
-            {
-                throw new ConfigException(e);
-            }
-            ParameterMapping.Mapping(obj, @params);
-            if (initEarly && (obj is Initializable))
-            {
-                ((Initializable)obj).Init();
-            }
-            return obj;
         }
 
         public object Clone()
@@ -107,7 +42,7 @@ namespace Tup.Cobar4Net.Config.Util
             BeanConfig bc = null;
             try
             {
-                bc = (BeanConfig)Activator.CreateInstance(GetType());
+                bc = (BeanConfig) Activator.CreateInstance(GetType());
             }
             catch (TargetInvocationException e)
             {
@@ -121,21 +56,43 @@ namespace Tup.Cobar4Net.Config.Util
             {
                 return null;
             }
-            bc.className = className;
-            bc.name = name;
+            bc.ClassName = ClassName;
+            bc.Name = Name;
             var @params = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
-            @params.AddRange(this.@params);
+            @params.AddRange(@params);
             bc.@params = @params;
             return bc;
         }
 
+        /// <exception cref="System.MemberAccessException" />
+        /// <exception cref="System.Reflection.TargetInvocationException" />
+        public virtual object Create(bool initEarly)
+        {
+            ThrowHelper.ThrowIfNull(ClassName, "className");
+
+            object obj = null;
+            try
+            {
+                obj = Activator.CreateInstance(ProfileType.GetType(ClassName));
+            }
+            catch (TypeLoadException e)
+            {
+                throw new ConfigException(e);
+            }
+            ParameterMapping.Mapping(obj, Params);
+            if (initEarly && obj is IInitializable)
+            {((IInitializable) obj).Init();
+            }
+            return obj;
+        }
+
         public override int GetHashCode()
         {
-            int hashcode = 37;
+            var hashcode = 37;
 #pragma warning disable RECS0025 // Non-readonly field referenced in 'GetHashCode()'
-            hashcode += (name == null ? 0 : name.GetHashCode());
-            hashcode += (className == null ? 0 : className.GetHashCode());
-            hashcode += (@params == null ? 0 : @params.GetHashCode());
+            hashcode += Name == null ? 0 : Name.GetHashCode();
+            hashcode += ClassName == null ? 0 : ClassName.GetHashCode();
+            hashcode += Params == null ? 0 : Params.GetHashCode();
 #pragma warning restore RECS0025 // Non-readonly field referenced in 'GetHashCode()'
             return hashcode;
         }
@@ -144,11 +101,11 @@ namespace Tup.Cobar4Net.Config.Util
         {
             if (obj is BeanConfig)
             {
-                var entity = (BeanConfig)obj;
-                bool isEquals = Equals(name, entity.name);
-                isEquals = isEquals && Equals(className, entity.GetClassName());
+                var entity = (BeanConfig) obj;
+                var isEquals = Equals(Name, entity.Name);
+                isEquals = isEquals && Equals(ClassName, entity.ClassName);
 #pragma warning disable RECS0030 // Suggests using the class declaring a static function when calling it
-                isEquals = isEquals && (ObjectUtil.Equals(@params, entity.@params));
+                isEquals = isEquals && Equals(Params, entity.Params);
 #pragma warning restore RECS0030 // Suggests using the class declaring a static function when calling it
                 return isEquals;
             }
@@ -164,4 +121,5 @@ namespace Tup.Cobar4Net.Config.Util
         }
     }
 }
+
 #endif

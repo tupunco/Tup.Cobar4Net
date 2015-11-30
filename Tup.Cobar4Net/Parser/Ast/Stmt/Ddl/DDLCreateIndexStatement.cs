@@ -19,30 +19,22 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLCreateIndexStatement : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlCreateIndexStatement : IDdlStatement
     {
-        private readonly Identifier indexName;
-
-        private readonly Identifier table;
-
-        public DDLCreateIndexStatement(Identifier indexName, Identifier table)
+        public DdlCreateIndexStatement(Identifier indexName, Identifier table)
         {
-            this.indexName = indexName;
-            this.table = table;
+            IndexName = indexName;
+            Table = table;
         }
 
-        public virtual Identifier GetIndexName()
-        {
-            return indexName;
-        }
+        public virtual Identifier IndexName { get; }
 
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
+        public virtual Identifier Table { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

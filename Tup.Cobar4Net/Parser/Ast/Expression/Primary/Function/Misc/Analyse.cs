@@ -18,19 +18,20 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc
 {
-    /// <summary>MySQL extending function</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>MySql extending function</summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Analyse : FunctionExpression
     {
-        public Analyse(IList<Expression> arguments)
+        public Analyse(IList<IExpression> arguments)
             : base("ANALYSE", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc.Analyse(arguments
-                );
+            return new Analyse(arguments);
         }
     }
 }

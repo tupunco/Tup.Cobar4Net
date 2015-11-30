@@ -19,7 +19,7 @@ using System;
 namespace Tup.Cobar4Net.Parser.Util
 {
     /// <author>xianmao.hexm</author>
-    public sealed class ParseString
+    public static class ParseString
     {
         private static readonly byte[] EmptyByteArray = new byte[0];
 
@@ -33,8 +33,8 @@ namespace Tup.Cobar4Net.Parser.Util
             {
                 return EmptyByteArray;
             }
-            bool odd = length << 31 == int.MinValue;
-            byte[] bs = new byte[odd ? (length + 1) >> 1 : length >> 1];
+            var odd = length << 31 == int.MinValue;
+            var bs = new byte[odd ? (length + 1) >> 1 : length >> 1];
             for (int i = offset, limit = offset + length; i < limit; ++i)
             {
                 char high;
@@ -53,223 +53,223 @@ namespace Tup.Cobar4Net.Parser.Util
                 switch (high)
                 {
                     case '0':
-                        {
-                            b = 0;
-                            break;
-                        }
+                    {
+                        b = 0;
+                        break;
+                    }
 
                     case '1':
-                        {
-                            b = unchecked((int)(0x10));
-                            break;
-                        }
+                    {
+                        b = 0x10;
+                        break;
+                    }
 
                     case '2':
-                        {
-                            b = unchecked((int)(0x20));
-                            break;
-                        }
+                    {
+                        b = 0x20;
+                        break;
+                    }
 
                     case '3':
-                        {
-                            b = unchecked((int)(0x30));
-                            break;
-                        }
+                    {
+                        b = 0x30;
+                        break;
+                    }
 
                     case '4':
-                        {
-                            b = unchecked((int)(0x40));
-                            break;
-                        }
+                    {
+                        b = 0x40;
+                        break;
+                    }
 
                     case '5':
-                        {
-                            b = unchecked((int)(0x50));
-                            break;
-                        }
+                    {
+                        b = 0x50;
+                        break;
+                    }
 
                     case '6':
-                        {
-                            b = unchecked((int)(0x60));
-                            break;
-                        }
+                    {
+                        b = 0x60;
+                        break;
+                    }
 
                     case '7':
-                        {
-                            b = unchecked((int)(0x70));
-                            break;
-                        }
+                    {
+                        b = 0x70;
+                        break;
+                    }
 
                     case '8':
-                        {
-                            b = unchecked((int)(0x80));
-                            break;
-                        }
+                    {
+                        b = 0x80;
+                        break;
+                    }
 
                     case '9':
-                        {
-                            b = unchecked((int)(0x90));
-                            break;
-                        }
+                    {
+                        b = 0x90;
+                        break;
+                    }
 
                     case 'a':
                     case 'A':
-                        {
-                            b = unchecked((int)(0xa0));
-                            break;
-                        }
+                    {
+                        b = 0xa0;
+                        break;
+                    }
 
                     case 'b':
                     case 'B':
-                        {
-                            b = unchecked((int)(0xb0));
-                            break;
-                        }
+                    {
+                        b = 0xb0;
+                        break;
+                    }
 
                     case 'c':
                     case 'C':
-                        {
-                            b = unchecked((int)(0xc0));
-                            break;
-                        }
+                    {
+                        b = 0xc0;
+                        break;
+                    }
 
                     case 'd':
                     case 'D':
-                        {
-                            b = unchecked((int)(0xd0));
-                            break;
-                        }
+                    {
+                        b = 0xd0;
+                        break;
+                    }
 
                     case 'e':
                     case 'E':
-                        {
-                            b = unchecked((int)(0xe0));
-                            break;
-                        }
+                    {
+                        b = 0xe0;
+                        break;
+                    }
 
                     case 'f':
                     case 'F':
-                        {
-                            b = unchecked((int)(0xf0));
-                            break;
-                        }
+                    {
+                        b = 0xf0;
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
-                                , length));
-                        }
+                    {
+                        throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
+                            , length));
+                    }
                 }
                 switch (low)
                 {
                     case '0':
-                        {
-                            break;
-                        }
+                    {
+                        break;
+                    }
 
                     case '1':
-                        {
-                            b += 1;
-                            break;
-                        }
+                    {
+                        b += 1;
+                        break;
+                    }
 
                     case '2':
-                        {
-                            b += 2;
-                            break;
-                        }
+                    {
+                        b += 2;
+                        break;
+                    }
 
                     case '3':
-                        {
-                            b += 3;
-                            break;
-                        }
+                    {
+                        b += 3;
+                        break;
+                    }
 
                     case '4':
-                        {
-                            b += 4;
-                            break;
-                        }
+                    {
+                        b += 4;
+                        break;
+                    }
 
                     case '5':
-                        {
-                            b += 5;
-                            break;
-                        }
+                    {
+                        b += 5;
+                        break;
+                    }
 
                     case '6':
-                        {
-                            b += 6;
-                            break;
-                        }
+                    {
+                        b += 6;
+                        break;
+                    }
 
                     case '7':
-                        {
-                            b += 7;
-                            break;
-                        }
+                    {
+                        b += 7;
+                        break;
+                    }
 
                     case '8':
-                        {
-                            b += 8;
-                            break;
-                        }
+                    {
+                        b += 8;
+                        break;
+                    }
 
                     case '9':
-                        {
-                            b += 9;
-                            break;
-                        }
+                    {
+                        b += 9;
+                        break;
+                    }
 
                     case 'a':
                     case 'A':
-                        {
-                            b += 10;
-                            break;
-                        }
+                    {
+                        b += 10;
+                        break;
+                    }
 
                     case 'b':
                     case 'B':
-                        {
-                            b += 11;
-                            break;
-                        }
+                    {
+                        b += 11;
+                        break;
+                    }
 
                     case 'c':
                     case 'C':
-                        {
-                            b += 12;
-                            break;
-                        }
+                    {
+                        b += 12;
+                        break;
+                    }
 
                     case 'd':
                     case 'D':
-                        {
-                            b += 13;
-                            break;
-                        }
+                    {
+                        b += 13;
+                        break;
+                    }
 
                     case 'e':
                     case 'E':
-                        {
-                            b += 14;
-                            break;
-                        }
+                    {
+                        b += 14;
+                        break;
+                    }
 
                     case 'f':
                     case 'F':
-                        {
-                            b += 15;
-                            break;
-                        }
+                    {
+                        b += 15;
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
-                                , length));
-                        }
+                    {
+                        throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
+                            , length));
+                    }
                 }
-                bs[(i - offset) >> 1] = unchecked((byte)b);
+                bs[(i - offset) >> 1] = unchecked((byte) b);
             }
             return bs;
         }

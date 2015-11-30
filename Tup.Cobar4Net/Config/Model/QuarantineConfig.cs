@@ -23,29 +23,24 @@ namespace Tup.Cobar4Net.Config.Model
     /// <author>haiqing.zhuhq 2012-4-17</author>
     public sealed class QuarantineConfig
     {
-        private readonly IDictionary<string, ICollection<string>> hosts;
-
         public QuarantineConfig()
         {
-            hosts = new Dictionary<string, ICollection<string>>();
+            Hosts = new Dictionary<string, ICollection<string>>();
         }
 
-        public IDictionary<string, ICollection<string>> Hosts
-        {
-            get { return hosts; }
-        }
+        //public IDictionary<string, ICollection<string>> Hosts
+        //{
+        //    get { return hosts; }
+        //}
 
-        public IDictionary<string, ICollection<string>> GetHosts()
-        {
-            return hosts;
-        }
+        public IDictionary<string, ICollection<string>> Hosts { get; }
 
         public override string ToString()
         {
             return string.Format("[QuarantineConfig hosts:[{0}]]",
-                                    string.Join(",", (hosts ?? new Dictionary<string, ICollection<string>>(0))
-                                                                        .Select(x => string.Format("<{0}, [{1}]>", x.Key,
-                                                                                                    string.Join(",", x.Value)))));
+                string.Join(",", (Hosts ?? new Dictionary<string, ICollection<string>>(0))
+                    .Select(x => string.Format("<{0}, [{1}]>", x.Key,
+                        string.Join(",", x.Value)))));
         }
     }
 }

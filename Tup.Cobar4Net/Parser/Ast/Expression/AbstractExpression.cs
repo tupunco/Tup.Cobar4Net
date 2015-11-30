@@ -14,46 +14,45 @@
 * limitations under the License.
 */
 
-using System;
 using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class AbstractExpression : Expression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class AbstractExpression : IExpression
     {
-        private bool cacheEvalRst = true;
+        private bool _cacheEvalRst = true;
 
-        private bool evaluated;
+        private bool _evaluated;
 
-        private object evaluationCache;
+        private object _evaluationCache;
 
-        public abstract int GetPrecedence();
+        public abstract int Precedence { get; }
 
-        public virtual Expression SetCacheEvalRst(bool cacheEvalRst)
+        public virtual IExpression SetCacheEvalRst(bool cacheEvalRst)
         {
-            this.cacheEvalRst = cacheEvalRst;
+            _cacheEvalRst = cacheEvalRst;
             return this;
         }
 
         public virtual object Evaluation(IDictionary<object, object> parameters)
         {
-            if (cacheEvalRst)
-            {
-                if (evaluated)
-                {
-                    return evaluationCache;
-                }
-                evaluationCache = EvaluationInternal(parameters);
-                evaluated = true;
-                return evaluationCache;
-            }
-            return EvaluationInternal(parameters);
+            if (!_cacheEvalRst)
+                return EvaluationInternal(parameters);
+
+            if (_evaluated)
+                return _evaluationCache;
+
+            _evaluationCache = EvaluationInternal(parameters);
+            _evaluated = true;
+            return _evaluationCache;
         }
 
-        protected abstract object EvaluationInternal(IDictionary<object, object> parameters);
+        public abstract void Accept(ISqlAstVisitor visitor);
 
-        public abstract void Accept(SQLASTVisitor visitor);
+        protected abstract object EvaluationInternal(IDictionary<object, object> parameters);
     }
 }

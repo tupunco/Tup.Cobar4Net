@@ -16,40 +16,52 @@
 
 using System;
 using System.Collections.Generic;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
     /// <summary>
-    /// an operator with arity of n<br/>
-    /// associative and commutative<br/>
-    /// non-polyadic operator with same precedence is not exist
+    ///     an operator with arity of n<br />
+    ///     associative and commutative<br />
+    ///     non-polyadic operator with same precedence is not exist
     /// </summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class PolyadicOperatorExpression : AbstractExpression
     {
-        protected IList<Expr> operands;
-
         protected readonly int precedence;
+        protected IList<IExpression> operands;
 
-        public PolyadicOperatorExpression(int precedence)
+        protected PolyadicOperatorExpression(int precedence)
             : this(precedence, true)
         {
         }
 
-        public PolyadicOperatorExpression(int precedence, bool leftCombine)
+        protected PolyadicOperatorExpression(int precedence, bool leftCombine)
             : this(precedence, 4)
         {
         }
 
-        public PolyadicOperatorExpression(int precedence, int initArity)
+        protected PolyadicOperatorExpression(int precedence, int initArity)
         {
             this.precedence = precedence;
-            this.operands = new List<Expr>(initArity);
+            operands = new List<IExpression>(initArity);
         }
 
+        public virtual int Arity
+        {
+            get { return operands.Count; }
+        }
+
+        public override int Precedence
+        {
+            get { return precedence; }
+        }
+
+        public abstract string Operator { get; }
+
         /// <returns>this</returns>
-        public virtual PolyadicOperatorExpression AppendOperand(Expr operand)
+        public virtual PolyadicOperatorExpression AppendOperand(IExpression operand)
         {
             if (operand == null)
             {
@@ -57,7 +69,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
             }
             if (GetType().IsAssignableFrom(operand.GetType()))
             {
-                var sub = (PolyadicOperatorExpression)operand;
+                var sub = (PolyadicOperatorExpression) operand;
                 operands.AddRange(sub.operands);
             }
             else
@@ -68,27 +80,15 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
         }
 
         /// <param name="index">start from 0</param>
-        public virtual Expr GetOperand(int index)
+        public virtual IExpression GetOperand(int index)
         {
             if (index >= operands.Count)
             {
                 throw new ArgumentException("only contains " + operands.Count + " operands," + index
-                     + " is out of bound");
+                                            + " is out of bound");
             }
             return operands[index];
         }
-
-        public virtual int GetArity()
-        {
-            return operands.Count;
-        }
-
-        public override int GetPrecedence()
-        {
-            return precedence;
-        }
-
-        public abstract string GetOperator();
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {

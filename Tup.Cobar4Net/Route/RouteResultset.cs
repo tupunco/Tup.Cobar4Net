@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -30,69 +30,31 @@ namespace Tup.Cobar4Net.Route
 
         public const int RewriteField = 4;
 
-        private readonly string statement;
-
-        private RouteResultsetNode[] nodes;
-
-        private int flag;
-
-        private long limitSize;
-
         public RouteResultset(string stmt)
         {
-            // Ô­Ê¼Óï¾ä
-            // Â·ÓÉ½á¹û½Úµã
-            // ½á¹û¼¯µÄ´¦Àí±êÊ¶£¬±ÈÈç£ººÏ²¢£¬Ïà¼ÓµÈ¡£
-            this.statement = stmt;
-            this.limitSize = -1;
+            Statement = stmt;
+            LimitSize = -1;
         }
 
-        public string GetStatement()
-        {
-            return statement;
-        }
+        public string Statement { get; }
 
-        public RouteResultsetNode[] GetNodes()
-        {
-            return nodes;
-        }
+        public RouteResultsetNode[] Nodes { get; set; }
 
-        public void SetNodes(RouteResultsetNode[] nodes)
-        {
-            this.nodes = nodes;
-        }
+        public int Flag { get; set; }
 
-        public int GetFlag()
-        {
-            return flag;
-        }
-
-        public void SetFlag(int flag)
-        {
-            this.flag = flag;
-        }
-
-        /// <returns>-1 if no limit</returns>
-        public long GetLimitSize()
-        {
-            return limitSize;
-        }
-
-        public void SetLimitSize(long limitSize)
-        {
-            this.limitSize = limitSize;
-        }
+        /// <value>-1 if no limit</value>
+        public long LimitSize { get; set; }
 
         public override string ToString()
         {
-            StringBuilder s = new StringBuilder();
-            s.Append(statement).Append(", route={");
-            if (nodes != null)
+            var s = new StringBuilder();
+            s.Append(Statement).Append(", route={");
+            if (Nodes != null)
             {
-                for (int i = 0; i < nodes.Length; ++i)
+                for (var i = 0; i < Nodes.Length; ++i)
                 {
                     s.Append("\n ").Append(FormatUtil.Format(i + 1, 3));
-                    s.Append(" -> ").Append(nodes[i]);
+                    s.Append(" -> ").Append(Nodes[i]);
                 }
             }
             s.Append("\n}");

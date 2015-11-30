@@ -15,14 +15,74 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class InnerJoin : TableReference
     {
+        private IExpression onCond;
+
+        private IList<string> @using;
+
+        private InnerJoin(TableReference leftTableRef,
+                          TableReference rightTableRef,
+                          IExpression onCond,
+                          IList<string> @using)
+        {
+            LeftTableRef = leftTableRef;
+            RightTableRef = rightTableRef;
+            this.onCond = onCond;
+            this.@using = EnsureListType(@using);
+        }
+
+        public InnerJoin(TableReference leftTableRef, TableReference rightTableRef)
+            : this(leftTableRef, rightTableRef, null, null)
+        {
+        }
+
+        public InnerJoin(TableReference leftTableRef,
+                         TableReference rightTableRef,
+                         IExpression onCond)
+            : this(leftTableRef, rightTableRef, onCond, null)
+        {
+        }
+
+        public InnerJoin(TableReference leftTableRef,
+                         TableReference rightTableRef,
+                         IList<string> @using)
+            : this(leftTableRef, rightTableRef, null, @using)
+        {
+        }
+
+        public virtual TableReference LeftTableRef { get; }
+
+        public virtual TableReference RightTableRef { get; }
+
+        public virtual IExpression OnCond
+        {
+            get { return onCond; }
+        }
+
+        public virtual IList<string> Using
+        {
+            get { return @using; }
+        }
+
+        public override bool IsSingleTable
+        {
+            get { return false; }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceJoin; }
+        }
+
         private static IList<string> EnsureListType(IList<string> list)
         {
             if (list == null)
@@ -40,63 +100,6 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return new List<string>(list);
         }
 
-        private readonly TableReference leftTableRef;
-
-        private readonly TableReference rightTableRef;
-
-        private Expr onCond;
-
-        private IList<string> @using;
-
-        private InnerJoin(TableReference leftTableRef,
-            TableReference rightTableRef,
-            Expr onCond, IList<string> @using)
-        {
-            this.leftTableRef = leftTableRef;
-            this.rightTableRef = rightTableRef;
-            this.onCond = onCond;
-            this.@using = EnsureListType(@using);
-        }
-
-        public InnerJoin(TableReference leftTableRef, TableReference rightTableRef)
-            : this(leftTableRef, rightTableRef, null, null)
-        {
-        }
-
-        public InnerJoin(TableReference leftTableRef,
-            TableReference rightTableRef,
-            Expr onCond)
-            : this(leftTableRef, rightTableRef, onCond, null)
-        {
-        }
-
-        public InnerJoin(TableReference leftTableRef,
-            TableReference rightTableRef,
-            IList<string> @using)
-            : this(leftTableRef, rightTableRef, null, @using)
-        {
-        }
-
-        public virtual TableReference GetLeftTableRef()
-        {
-            return leftTableRef;
-        }
-
-        public virtual TableReference GetRightTableRef()
-        {
-            return rightTableRef;
-        }
-
-        public virtual Expr GetOnCond()
-        {
-            return onCond;
-        }
-
-        public virtual IList<string> GetUsing()
-        {
-            return @using;
-        }
-
         public override object RemoveLastConditionElement()
         {
             object obj;
@@ -105,32 +108,20 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
                 obj = onCond;
                 onCond = null;
             }
+            else if (@using != null)
+            {
+                obj = @using;
+                @using = null;
+            }
             else
             {
-                if (@using != null)
-                {
-                    obj = @using;
-                    @using = null;
-                }
-                else
-                {
-                    return null;
-                }
+                return null;
             }
+
             return obj;
         }
 
-        public override bool IsSingleTable()
-        {
-            return false;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceJoin;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

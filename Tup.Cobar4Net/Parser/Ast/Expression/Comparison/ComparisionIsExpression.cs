@@ -16,12 +16,13 @@
 
 using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ComparisionIsExpression : AbstractExpression, ReplacableExpression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ComparisionIsExpression : AbstractExpression, IReplacableExpression
     {
         public const int IsNull = 1;
 
@@ -39,76 +40,65 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 
         public const int IsNotUnknown = 8;
 
-        private readonly int mode;
-
-        private readonly Expr operand;
+        private IExpression _replaceExpr;
 
         /// <param name="mode">
-        ///
-        /// <see cref="IsNull"/>
-        /// or
-        /// <see cref="IsTrue"/>
-        /// or
-        /// <see cref="IsFalse"/>
-        /// or
-        /// <see cref="IsUnknown"/>
-        /// or
-        /// <see cref="IsNotNull"/>
-        /// or
-        /// <see cref="IsNotTrue"/>
-        /// or
-        /// <see cref="IsNotFalse"/>
-        /// or
-        /// <see cref="IsNotUnknown"/>
+        ///     <see cref="IsNull" />
+        ///     or
+        ///     <see cref="IsTrue" />
+        ///     or
+        ///     <see cref="IsFalse" />
+        ///     or
+        ///     <see cref="IsUnknown" />
+        ///     or
+        ///     <see cref="IsNotNull" />
+        ///     or
+        ///     <see cref="IsNotTrue" />
+        ///     or
+        ///     <see cref="IsNotFalse" />
+        ///     or
+        ///     <see cref="IsNotUnknown" />
         /// </param>
-        public ComparisionIsExpression(Expr operand, int mode)
+        public ComparisionIsExpression(IExpression operand, int mode)
         {
-            this.operand = operand;
-            this.mode = mode;
+            Operand = operand;
+            Mode = mode;
         }
 
-        public virtual int GetMode()
+        public virtual int Mode { get; }
+
+        public virtual IExpression Operand { get; }
+
+        public override int Precedence
         {
-            return mode;
+            get { return ExpressionConstants.PrecedenceComparision; }
         }
 
-        public virtual Expr GetOperand()
+        public virtual IExpression ReplaceExpr
         {
-            return operand;
-        }
-
-        public override int GetPrecedence()
-        {
-            return ExpressionConstants.PrecedenceComparision;
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, object> parameters)
-        {
-            return ExpressionConstants.Unevaluatable;
-        }
-
-        private Expr replaceExpr;
-
-        public virtual void SetReplaceExpr(Expr replaceExpr)
-        {
-            this.replaceExpr = replaceExpr;
+            set { _replaceExpr = value; }
         }
 
         public virtual void ClearReplaceExpr()
         {
-            this.replaceExpr = null;
+            _replaceExpr = null;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
-            if (replaceExpr == null)
+            if (_replaceExpr == null)
             {
                 visitor.Visit(this);
             }
             else
             {
-                replaceExpr.Accept(visitor);
+                _replaceExpr.Accept(visitor);
             }
+        }
+
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
+        {
+            return ExpressionConstants.Unevaluatable;
         }
     }
 }

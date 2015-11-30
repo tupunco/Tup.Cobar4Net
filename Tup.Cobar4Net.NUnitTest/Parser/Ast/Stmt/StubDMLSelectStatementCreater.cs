@@ -13,18 +13,19 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class StubDMLSelectStatementCreater
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class StubDmlSelectStatementCreater
     {
-        public static DMLSelectStatement CreateDMLSelectStatement()
+        public static DmlSelectStatement CreateDmlSelectStatement()
         {
-            return new DMLSelectStatement(new DMLSelectStatement.SelectOption(), null, null,
+            return new DmlSelectStatement(new DmlSelectStatement.SelectOption(), null, null,
                 null, null, null, null, null);
         }
     }

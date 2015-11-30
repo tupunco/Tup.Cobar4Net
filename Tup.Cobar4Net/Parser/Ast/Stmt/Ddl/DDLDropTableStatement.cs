@@ -20,68 +20,53 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLDropTableStatement : DDLStatement
+    /// <summary>
+    ///     DdlDropTableStatement Mode
+    /// </summary>
+    public enum DropTableMode
     {
-        public enum Mode
-        {
-            Undef,
-            Restrict,
-            Cascade
-        }
+        Undef,
+        Restrict,
+        Cascade
+    }
 
-        private readonly IList<Identifier> tableNames;
-
-        private readonly bool temp;
-
-        private readonly bool ifExists;
-
-        private readonly DDLDropTableStatement.Mode mode;
-
-        public DDLDropTableStatement(IList<Identifier> tableNames, bool temp, bool ifExists)
-            : this(tableNames, temp, ifExists, DDLDropTableStatement.Mode.Undef)
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlDropTableStatement : IDdlStatement
+    {
+        public DdlDropTableStatement(IList<Identifier> tableNames, bool temp, bool ifExists)
+            : this(tableNames, temp, ifExists, DropTableMode.Undef)
         {
         }
 
-        public DDLDropTableStatement(IList<Identifier> tableNames,
+        public DdlDropTableStatement(IList<Identifier> tableNames,
             bool temp,
             bool ifExists,
-            DDLDropTableStatement.Mode mode)
+            DropTableMode dropTableMode)
         {
             if (tableNames == null || tableNames.IsEmpty())
             {
-                this.tableNames = new List<Identifier>(0);
+                TableNames = new List<Identifier>(0);
             }
             else
             {
-                this.tableNames = tableNames;
+                TableNames = tableNames;
             }
-            this.temp = temp;
-            this.ifExists = ifExists;
-            this.mode = mode;
+            IsTemp = temp;
+            IsIfExists = ifExists;
+            Mode = dropTableMode;
         }
 
-        public virtual IList<Identifier> GetTableNames()
-        {
-            return tableNames;
-        }
+        public virtual IList<Identifier> TableNames { get; }
 
-        public virtual bool IsTemp()
-        {
-            return temp;
-        }
+        public virtual bool IsTemp { get; }
 
-        public virtual bool IsIfExists()
-        {
-            return ifExists;
-        }
+        public virtual bool IsIfExists { get; }
 
-        public virtual DDLDropTableStatement.Mode GetMode()
-        {
-            return mode;
-        }
+        public virtual DropTableMode Mode { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

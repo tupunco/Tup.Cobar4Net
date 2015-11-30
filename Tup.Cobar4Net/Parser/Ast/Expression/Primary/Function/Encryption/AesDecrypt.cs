@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Encryption
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class AesDecrypt : FunctionExpression
     {
-        public AesDecrypt(IList<Expression> arguments)
+        public AesDecrypt(IList<IExpression> arguments)
             : base("AES_DECRYPT", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Encryption.AesDecrypt
-                (arguments);
+            return new AesDecrypt(arguments);
         }
     }
 }

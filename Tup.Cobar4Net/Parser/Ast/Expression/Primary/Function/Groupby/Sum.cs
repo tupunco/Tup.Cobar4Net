@@ -20,28 +20,25 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Sum : FunctionExpression
     {
-        private readonly bool distinct;
-
-        public Sum(Expression expr, bool distinct)
+        public Sum(IExpression expr, bool distinct)
             : base("SUM", WrapList(expr))
         {
-            this.distinct = distinct;
+            IsDistinct = distinct;
         }
 
-        public virtual bool IsDistinct()
-        {
-            return distinct;
-        }
+        public virtual bool IsDistinct { get; }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

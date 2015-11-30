@@ -14,58 +14,45 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowStatus : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowStatus : DalShowStatement
     {
-        private readonly VariableScope scope;
-
-        private readonly string pattern;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
-
         public ShowStatus(VariableScope scope, string pattern)
         {
-            this.scope = scope;
-            this.pattern = pattern;
-            this.where = null;
+            Scope = scope;
+            Pattern = pattern;
+            Where = null;
         }
 
-        public ShowStatus(VariableScope scope, Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             where)
+        public ShowStatus(VariableScope scope, IExpression where)
         {
-            this.scope = scope;
-            this.pattern = null;
-            this.where = where;
+            Scope = scope;
+            Pattern = null;
+            Where = where;
         }
 
         public ShowStatus(VariableScope scope)
         {
-            this.scope = scope;
-            this.pattern = null;
-            this.where = null;
+            Scope = scope;
+            Pattern = null;
+            Where = null;
         }
 
-        public virtual VariableScope GetScope()
-        {
-            return scope;
-        }
+        public virtual VariableScope Scope { get; }
 
-        public virtual string GetPattern()
-        {
-            return pattern;
-        }
+        public virtual string Pattern { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
-        {
-            return where;
-        }
+        public virtual IExpression Where { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

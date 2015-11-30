@@ -19,23 +19,20 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class UserExpression : PrimaryExpression
     {
-        private readonly string userAtHost;
-
-        /// <param name="userAtHost"/>
+        /// <param name="userAtHost" />
         public UserExpression(string userAtHost)
         {
-            this.userAtHost = userAtHost;
+            UserAtHost = userAtHost;
         }
 
-        public virtual string GetUserAtHost()
-        {
-            return userAtHost;
-        }
+        public virtual string UserAtHost { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

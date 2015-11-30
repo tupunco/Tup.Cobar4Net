@@ -14,18 +14,20 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
 using System.Collections.Generic;
-
+using System.Diagnostics.CodeAnalysis;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Util
 {
-    /// <summary>adapt Java's expression rule into MySQL's</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>adapt Java's expression rule into MySql's</summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ExprEvalUtils
     {
         private const int ClassMapDouble = 1;
@@ -38,15 +40,23 @@ namespace Tup.Cobar4Net.Parser.Util
 
         private const int ClassMapLong = 5;
 
+        private const int NumInt = 1;
+
+        private const int NumLong = 2;
+
+        private const int NumBigInteger = 3;
+
+        private const int NumBigDecimal = 4;
+
         private static readonly IDictionary<Type, int> classMap = new Dictionary<Type, int>(5);
 
         static ExprEvalUtils()
         {
-            classMap[typeof(double)] = ClassMapDouble;
-            classMap[typeof(float)] = ClassMapFloat;
-            classMap[typeof(BigInteger)] = ClassMapBigIng;
-            classMap[typeof(BigDecimal)] = ClassMapBigDecimal;
-            classMap[typeof(long)] = ClassMapLong;
+            classMap[typeof (double)] = ClassMapDouble;
+            classMap[typeof (float)] = ClassMapFloat;
+            classMap[typeof (BigInteger)] = ClassMapBigIng;
+            classMap[typeof (BigDecimal)] = ClassMapBigDecimal;
+            classMap[typeof (long)] = ClassMapLong;
         }
 
         public static bool Obj2bool(object obj)
@@ -61,70 +71,62 @@ namespace Tup.Cobar4Net.Parser.Util
             }
             if (obj is bool)
             {
-                return (bool)obj;
+                return (bool) obj;
             }
 
             Number num = null;
             if (obj is string)
             {
-                num = ExprEvalUtils.String2Number((string)obj);
+                num = String2Number((string) obj);
             }
             else
             {
-                num = (Number)obj;
+                num = (Number) obj;
             }
-            int classType = classMap[num.GetType()];
+            var classType = classMap[num.GetType()];
             if (classType == 0)
             {
-                return (int)num != 0;
+                return (int) num != 0;
             }
             switch (classType)
             {
                 case ClassMapBigDecimal:
-                    {
-                        return BigDecimal.Zero.CompareTo((BigDecimal)num) != 0;
-                    }
+                {
+                    return BigDecimal.Zero.CompareTo((BigDecimal) num) != 0;
+                }
 
                 case ClassMapBigIng:
-                    {
-                        return BigInteger.Zero.CompareTo((BigInteger)num) != 0;
-                    }
+                {
+                    return BigInteger.Zero.CompareTo((BigInteger) num) != 0;
+                }
 
                 case ClassMapDouble:
-                    {
+                {
 #pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
-                        return ((double)num) != 0d;
+                    return (double) num != 0d;
 #pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
-                    }
+                }
 
                 case ClassMapFloat:
-                    {
+                {
 #pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
-                        return ((float)num) != 0f;
+                    return (float) num != 0f;
 #pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
-                    }
+                }
 
                 case ClassMapLong:
-                    {
-                        return ((long)num) != 0L;
-                    }
+                {
+                    return (long) num != 0L;
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unsupported number type: " + num.GetType());
-                    }
+                {
+                    throw new ArgumentException("unsupported number type: " + num.GetType());
+                }
             }
         }
 
-        private const int NumInt = 1;
-
-        private const int NumLong = 2;
-
-        private const int NumBigInteger = 3;
-
-        private const int NumBigDecimal = 4;
-
-        public static Number Calculate(UnaryOperandCalculator cal, Number num)
+        public static Number Calculate(IUnaryOperandCalculator cal, Number num)
         {
             if (num == null)
             {
@@ -133,24 +135,24 @@ namespace Tup.Cobar4Net.Parser.Util
             switch (num.TypeCode)
             {
                 case NumberTypeCode.Int32:
-                    return cal.Calculate((int)num);
+                    return cal.Calculate((int) num);
 
                 case NumberTypeCode.Int64:
-                    return cal.Calculate((long)num);
+                    return cal.Calculate((long) num);
 
                 case NumberTypeCode.BigInteger:
-                    return cal.Calculate((BigInteger)num);
+                    return cal.Calculate((BigInteger) num);
 
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
-                    return cal.Calculate((BigDecimal)num);
+                    return cal.Calculate((BigDecimal) num);
             }
 
             throw new ArgumentException("unsupported add calculate: " + num.GetType());
         }
 
-        public static Number Calculate(BinaryOperandCalculator cal, Number n1, Number n2)
+        public static Number Calculate(IBinaryOperandCalculator cal, Number n1, Number n2)
         {
             if (n1 == null || n2 == null)
             {
@@ -159,49 +161,49 @@ namespace Tup.Cobar4Net.Parser.Util
             switch (n1.TypeCode)
             {
                 case NumberTypeCode.Int32:
-                    return cal.Calculate((int)n1, (int)n2);
+                    return cal.Calculate((int) n1, (int) n2);
 
                 case NumberTypeCode.Int64:
-                    return cal.Calculate((long)n1, (long)n2);
+                    return cal.Calculate((long) n1, (long) n2);
 
                 case NumberTypeCode.BigInteger:
-                    return cal.Calculate((BigInteger)n1, (BigInteger)n2);
+                    return cal.Calculate((BigInteger) n1, (BigInteger) n2);
 
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
-                    return cal.Calculate((BigDecimal)n1, (BigDecimal)n2);
+                    return cal.Calculate((BigDecimal) n1, (BigDecimal) n2);
             }
             throw new ArgumentException("unsupported add calculate: " + n1.GetType());
         }
 
-        /// <param name="obj1">class of String or Number</param>
+        /// <param name="obj1">class of String or NumberValue</param>
         public static Pair<Number, Number> ConvertNum2SameLevel(object obj1, object obj2)
         {
             Number n1;
             Number n2;
             if (obj1 is string)
             {
-                n1 = String2Number((string)obj1);
+                n1 = String2Number((string) obj1);
             }
             else
             {
-                n1 = (Number)obj1;
+                n1 = (Number) obj1;
             }
             if (obj2 is string)
             {
-                n2 = String2Number((string)obj2);
+                n2 = String2Number((string) obj2);
             }
             else
             {
-                n2 = (Number)obj2;
+                n2 = (Number) obj2;
             }
             if (n1 == null || n2 == null)
             {
                 return new Pair<Number, Number>(n1, n2);
             }
-            int l1 = GetNumberLevel(n1.GetType());
-            int l2 = GetNumberLevel(n2.GetType());
+            var l1 = GetNumberLevel(n1.GetType());
+            var l2 = GetNumberLevel(n2.GetType());
             if (l1 > l2)
             {
                 n2 = UpTolevel(n2, l1);
@@ -224,74 +226,75 @@ namespace Tup.Cobar4Net.Parser.Util
             switch (level)
             {
                 case NumInt:
+                {
+                    if (num.TypeCode == NumberTypeCode.Int32)
                     {
-                        if (num.TypeCode == NumberTypeCode.Int32)
-                        {
-                            return num;
-                        }
                         return num;
                     }
+                    return num;
+                }
 
                 case NumLong:
+                {
+                    if (num.TypeCode == NumberTypeCode.Int64)
                     {
-                        if (num.TypeCode == NumberTypeCode.Int64)
-                        {
-                            return num;
-                        }
                         return num;
                     }
+                    return num;
+                }
 
                 case NumBigInteger:
+                {
+                    if (num.TypeCode == NumberTypeCode.BigInteger)
                     {
-                        if (num.TypeCode == NumberTypeCode.BigInteger)
-                        {
-                            return num;
-                        }
-                        return BigInteger.Parse(num.ToString());
+                        return num;
                     }
+                    return BigInteger.Parse(num.ToString());
+                }
 
                 case NumBigDecimal:
+                {
+                    if (num.TypeCode == NumberTypeCode.BigDecimal)
                     {
-                        if (num.TypeCode == NumberTypeCode.BigDecimal)
-                        {
-                            return num;
-                        }
-                        return BigDecimal.Parse(num.ToString());
+                        return num;
                     }
+                    return BigDecimal.Parse(num.ToString());
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("unsupported number level: " + level);
-                    }
+                {
+                    throw new ArgumentException("unsupported number level: " + level);
+                }
             }
         }
 
         private static int GetNumberLevel(Type clz)
         {
-            if (typeof(int).IsAssignableFrom(clz))
+            if (typeof (int).IsAssignableFrom(clz))
             {
                 return NumInt;
             }
-            if (typeof(long).IsAssignableFrom(clz))
+            if (typeof (long).IsAssignableFrom(clz))
             {
                 return NumLong;
             }
-            if (typeof(BigInteger).IsAssignableFrom(clz))
+            if (typeof (BigInteger).IsAssignableFrom(clz))
             {
                 return NumBigInteger;
             }
-            if (typeof(BigDecimal).IsAssignableFrom(clz))
+            if (typeof (BigDecimal).IsAssignableFrom(clz))
             {
                 return NumBigDecimal;
             }
-            if (typeof(Number).IsAssignableFrom(clz))
+            if (typeof (Number).IsAssignableFrom(clz))
             {
-                return (int)NumLong;
+                return NumLong;
             }
             throw new ArgumentException("unsupported number class: " + clz);
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<¹ÒÆð>")]
+        [SuppressMessage("Potential Code Quality Issues",
+            "RECS0022:A catch clause that catches System.Exception and has an empty body", Justification = "<¹ÒÆð>")]
         public static Number String2Number(string str)
         {
             if (str == null)
@@ -302,7 +305,7 @@ namespace Tup.Cobar4Net.Parser.Util
             //TODO --ExprEvalUtils-String2Number
             try
             {
-                return System.Convert.ToInt32(str);
+                return Convert.ToInt32(str);
             }
             catch (Exception ex)
             {
@@ -310,7 +313,7 @@ namespace Tup.Cobar4Net.Parser.Util
             }
             try
             {
-                return System.Convert.ToInt64(str);
+                return Convert.ToInt64(str);
             }
             catch (Exception ex)
             {
@@ -318,26 +321,26 @@ namespace Tup.Cobar4Net.Parser.Util
             }
             try
             {
-                MySQLLexer lexer = new MySQLLexer(str);
+                var lexer = new MySqlLexer(str);
                 switch (lexer.Token())
                 {
-                    case MySQLToken.LiteralNumPureDigit:
-                        {
-                            return lexer.IntegerValue();
-                        }
+                    case MySqlToken.LiteralNumPureDigit:
+                    {
+                        return lexer.GetIntegerValue();
+                    }
 
-                    case MySQLToken.LiteralNumMixDigit:
-                        {
-                            return lexer.DecimalValue();
-                        }
+                    case MySqlToken.LiteralNumMixDigit:
+                    {
+                        return lexer.GetDecimalValue();
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("unrecognized number: " + str);
-                        }
+                    {
+                        throw new ArgumentException("unrecognized number: " + str);
+                    }
                 }
             }
-            catch (SQLSyntaxErrorException e)
+            catch (SqlSyntaxErrorException e)
             {
                 throw new ArgumentException("str", e);
             }

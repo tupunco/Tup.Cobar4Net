@@ -14,63 +14,46 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowTableStatus : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowTableStatus : DalShowStatement
     {
-        private Identifier database;
-
-        private readonly string pattern;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
-
         public ShowTableStatus(Identifier database,
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression where)
+            IExpression where)
         {
-            this.database = database;
-            this.pattern = null;
-            this.where = where;
+            Database = database;
+            Pattern = null;
+            Where = where;
         }
 
         public ShowTableStatus(Identifier database, string pattern)
         {
-            this.database = database;
-            this.pattern = pattern;
-            this.where = null;
+            Database = database;
+            Pattern = pattern;
+            Where = null;
         }
 
         public ShowTableStatus(Identifier database)
         {
-            this.database = database;
-            this.pattern = null;
-            this.where = null;
+            Database = database;
+            Pattern = null;
+            Where = null;
         }
 
-        public virtual void SetDatabase(Identifier database)
-        {
-            this.database = database;
-        }
+        public virtual Identifier Database { set; get; }
 
-        public virtual Identifier GetDatabase()
-        {
-            return database;
-        }
+        public virtual string Pattern { get; }
 
-        public virtual string GetPattern()
-        {
-            return pattern;
-        }
+        public virtual IExpression Where { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
-        {
-            return where;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

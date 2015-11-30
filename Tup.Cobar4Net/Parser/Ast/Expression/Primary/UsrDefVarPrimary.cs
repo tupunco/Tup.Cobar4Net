@@ -18,7 +18,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class UsrDefVarPrimary : VariableExpression
     {
         /// <summary>include starting '@', e.g.</summary>
@@ -30,12 +32,12 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             this.varText = varText;
         }
 
-        public virtual string GetVarText()
+        public virtual string VarText
         {
-            return varText;
+            get { return varText; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -19,27 +19,24 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class PlaceHolder : PrimaryExpression
     {
-        private readonly string name;
-
         private readonly string nameUp;
 
         public PlaceHolder(string name, string nameUp)
         {
-            this.name = name;
+            Name = name;
             this.nameUp = nameUp;
         }
 
-        public virtual string GetName()
-        {
-            return name;
-        }
+        public virtual string Name { get; }
 
-        public virtual string GetNameUp()
+        public virtual string NameUp
         {
-            return nameUp;
+            get { return nameUp; }
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
@@ -47,7 +44,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return parameters.GetValue(nameUp);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

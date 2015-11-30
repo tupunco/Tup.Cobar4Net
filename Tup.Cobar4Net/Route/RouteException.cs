@@ -19,11 +19,9 @@ using System;
 namespace Tup.Cobar4Net.Route
 {
     /// <author>xianmao.hexm</author>
-    [System.Serializable]
+    [Serializable]
     public class RouteException : Exception
     {
-        private const long serialVersionUID = -5859343132692693104L;
-
         public RouteException()
         {
         }

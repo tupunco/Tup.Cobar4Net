@@ -19,22 +19,19 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowFunctionCode : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowFunctionCode : DalShowStatement
     {
-        private readonly Identifier functionName;
-
         public ShowFunctionCode(Identifier functionName)
         {
-            this.functionName = functionName;
+            FunctionName = functionName;
         }
 
-        public virtual Identifier GetFunctionName()
-        {
-            return functionName;
-        }
+        public virtual Identifier FunctionName { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

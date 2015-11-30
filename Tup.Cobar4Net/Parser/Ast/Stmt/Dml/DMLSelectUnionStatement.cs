@@ -20,38 +20,58 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLSelectUnionStatement : DMLQueryStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlSelectUnionStatement : DmlQueryStatement
     {
         /// <summary>
-        /// might be
-        /// <see cref="System.Collections.ArrayList{E}"/>
-        ///
+        ///     might be
+        ///     <see cref="System.Collections.Generic.List{E}" />
         /// </summary>
-        private readonly IList<DMLSelectStatement> selectStmtList;
+        private readonly IList<DmlSelectStatement> selectStmtList;
 
         /// <summary>
-        /// <code>Mixed UNION types are treated such that a DISTINCT union overrides any ALL union to its left</code>
-        /// <br/>
-        /// 0 means all relations of selects are union all<br/>
-        /// last index of
-        /// <see cref="selectStmtList"/>
-        /// means all relations of selects are
-        /// union distinct<br/>
+        ///     <code>Mixed UNION types are treated such that a DISTINCT union overrides any ALL union to its left</code>
+        ///     <br />
+        ///     0 means all relations of selects are union all<br />
+        ///     last index of
+        ///     <see cref="selectStmtList" />
+        ///     means all relations of selects are
+        ///     union distinct<br />
         /// </summary>
-        private int firstDistinctIndex = 0;
-
-        private OrderBy orderBy;
+        private int firstDistinctIndex;
 
         private Limit limit;
 
-        public DMLSelectUnionStatement(DMLSelectStatement select)
+        private OrderBy orderBy;
+
+        public DmlSelectUnionStatement(DmlSelectStatement select)
         {
-            this.selectStmtList = new List<DMLSelectStatement>();
-            this.selectStmtList.Add(select);
+            selectStmtList = new List<DmlSelectStatement> {select};
         }
 
-        public virtual DMLSelectUnionStatement AddSelect(DMLSelectStatement select, bool unionAll)
+        public virtual IList<DmlSelectStatement> SelectStmtList
+        {
+            get { return selectStmtList; }
+        }
+
+        public virtual int FirstDistinctIndex
+        {
+            get { return firstDistinctIndex; }
+        }
+
+        public virtual OrderBy OrderBy
+        {
+            get { return orderBy; }
+        }
+
+        public virtual Limit Limit
+        {
+            get { return limit; }
+        }
+
+        public virtual DmlSelectUnionStatement AddSelect(DmlSelectStatement select, bool unionAll)
         {
             selectStmtList.Add(select);
             if (!unionAll)
@@ -61,39 +81,19 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
             return this;
         }
 
-        public virtual DMLSelectUnionStatement SetOrderBy(OrderBy orderBy)
+        public virtual DmlSelectUnionStatement SetOrderBy(OrderBy orderBy)
         {
             this.orderBy = orderBy;
             return this;
         }
 
-        public virtual DMLSelectUnionStatement SetLimit(Limit limit)
+        public virtual DmlSelectUnionStatement SetLimit(Limit limit)
         {
             this.limit = limit;
             return this;
         }
 
-        public virtual IList<DMLSelectStatement> GetSelectStmtList()
-        {
-            return selectStmtList;
-        }
-
-        public virtual int GetFirstDistinctIndex()
-        {
-            return firstDistinctIndex;
-        }
-
-        public virtual OrderBy GetOrderBy()
-        {
-            return orderBy;
-        }
-
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

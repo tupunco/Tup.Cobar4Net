@@ -27,15 +27,17 @@ namespace Tup.Cobar4Net.Route.Util
 
         private const long AndValue = PartitionLength - 1;
 
-        private readonly int[] segment = new int[PartitionLength];
+        private readonly int[] _segment = new int[PartitionLength];
 
-        /// <summary><pre></summary>
+        /// <summary>
+        ///     <pre>
+        /// </summary>
         /// <param name="count">表示定义的分区数</param>
         /// <param name="length">
-        /// 表示对应每个分区的取值长度
-        /// 注意：其中count,length两个数组的长度必须是一致的。
-        /// 约束：1024 = sum((count[i]*length[i])). count和length两个向量的点积恒等于1024
-        /// </pre>
+        ///     表示对应每个分区的取值长度
+        ///     注意：其中count,length两个数组的长度必须是一致的。
+        ///     约束：1024 = sum((Count[i]*length[i])). count和length两个向量的点积恒等于1024
+        ///     </pre>
         /// </param>
         public PartitionUtil(int[] count, int[] length)
         {
@@ -44,18 +46,18 @@ namespace Tup.Cobar4Net.Route.Util
             // 分区线段
             if (count == null || length == null || (count.Length != length.Length))
             {
-                throw new ArgumentException("error,check your scope & scopeLength definition.");
+                throw new ArgumentException("error,check your _hintScope & scopeLength definition.");
             }
-            int segmentLength = 0;
-            for (int i = 0; i < count.Length; i++)
+            var segmentLength = 0;
+            for (var i = 0; i < count.Length; i++)
             {
                 segmentLength += count[i];
             }
-            int[] ai = new int[segmentLength + 1];
-            int index = 0;
-            for (int i_1 = 0; i_1 < count.Length; i_1++)
+            var ai = new int[segmentLength + 1];
+            var index = 0;
+            for (var i_1 = 0; i_1 < count.Length; i_1++)
             {
-                for (int j = 0; j < count[i_1]; j++)
+                for (var j = 0; j < count[i_1]; j++)
                 {
                     ai[++index] = ai[index - 1] + length[i_1];
                 }
@@ -65,18 +67,18 @@ namespace Tup.Cobar4Net.Route.Util
                 throw new ArgumentException("error,check your partitionScope definition.");
             }
             // 数据映射操作
-            for (int i_2 = 1; i_2 < ai.Length; i_2++)
+            for (var i2 = 1; i2 < ai.Length; i2++)
             {
-                for (int j = ai[i_2 - 1]; j < ai[i_2]; j++)
+                for (var j = ai[i2 - 1]; j < ai[i2]; j++)
                 {
-                    segment[j] = (i_2 - 1);
+                    _segment[j] = i2 - 1;
                 }
             }
         }
 
         public int Partition(long hash)
         {
-            return segment[(int)(hash & AndValue)];
+            return _segment[(int)(hash & AndValue)];
         }
 
         public int Partition(string key, int start, int end)

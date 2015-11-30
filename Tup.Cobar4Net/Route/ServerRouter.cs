@@ -18,14 +18,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-
-//using Org.Apache.Log4j;
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Comparison;
-using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Stmt;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dal;
@@ -37,27 +34,27 @@ using Tup.Cobar4Net.Parser.Visitor;
 using Tup.Cobar4Net.Route.Hint;
 using Tup.Cobar4Net.Route.Visitor;
 using Tup.Cobar4Net.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route
 {
-    using ColumnValueType = IDictionary<object, ICollection<Pair<Expr, ASTNode>>>;
+    using ColumnValueType = IDictionary<object, ICollection<Pair<IExpression, IAstNode>>>;
 
     /// <author>xianmao.hexm</author>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class ServerRouter
     {
         //private static readonly Logger Logger = Logger.GetLogger(typeof(ServerRouter));
 
-        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
         public static RouteResultset Route(SchemaConfig schema,
-            string stmt,
-            string charset,
-            object info)
+                                           string stmt,
+                                           string charset,
+                                           object info)
         {
             var rrs = new RouteResultset(stmt);
             // 检查是否含有cobar hint
-            int prefixIndex = HintRouter.IndexOfPrefix(stmt);
+            var prefixIndex = HintRouter.IndexOfPrefix(stmt);
             if (prefixIndex >= 0)
             {
                 HintRouter.RouteFromHint(info, schema, rrs, prefixIndex, stmt);
@@ -65,54 +62,50 @@ namespace Tup.Cobar4Net.Route
             }
 
             // 检查schema是否含有拆分库
-            if (schema.IsNoSharding())
+            if (schema.IsNoSharding)
             {
-                if (schema.IsKeepSqlSchema())
+                if (schema.IsKeepSqlSchema)
                 {
-                    var ast = SQLParserDelegate.Parse(stmt, charset == null
-                                                            ? MySQLParser.DefaultCharset
-                                                            : charset);
-                    var visitor = new PartitionKeyVisitor(schema.GetTables());
-                    visitor.SetTrimSchema(schema.GetName());
+                    var ast = SqlParserDelegate.Parse(stmt, charset ?? MySqlParser.DefaultCharset);
+                    var visitor = new PartitionKeyVisitor(schema.Tables);
+                    visitor.SetTrimSchema(schema.Name);
                     ast.Accept(visitor);
                     if (visitor.IsSchemaTrimmed())
                     {
-                        stmt = GenSQL(ast, stmt);
+                        stmt = GenSql(ast, stmt);
                     }
                 }
-                RouteResultsetNode[] nodes = new RouteResultsetNode[1];
-                nodes[0] = new RouteResultsetNode(schema.GetDataNode(), stmt);
-                rrs.SetNodes(nodes);
+                var nodes = new RouteResultsetNode[1];
+                nodes[0] = new RouteResultsetNode(schema.DataNode, stmt);
+                rrs.Nodes = nodes;
                 return rrs;
             }
 
             // 生成和展开AST
-            var ast_1 = SQLParserDelegate.Parse(stmt, charset == null
-                                                                ? MySQLParser.DefaultCharset
-                                                                : charset);
-            var visitor_1 = new PartitionKeyVisitor(schema.GetTables());
-            visitor_1.SetTrimSchema(schema.IsKeepSqlSchema() ? schema.GetName() : null);
-            ast_1.Accept(visitor_1);
+            var ast1 = SqlParserDelegate.Parse(stmt, charset ?? MySqlParser.DefaultCharset);
+            var visitor1 = new PartitionKeyVisitor(schema.Tables);
+            visitor1.SetTrimSchema(schema.IsKeepSqlSchema ? schema.Name : null);
+            ast1.Accept(visitor1);
             // 如果sql包含用户自定义的schema，则路由到default节点
-            if (schema.IsKeepSqlSchema() && visitor_1.IsCustomedSchema())
+            if (schema.IsKeepSqlSchema && visitor1.IsCustomedSchema())
             {
-                if (visitor_1.IsSchemaTrimmed())
+                if (visitor1.IsSchemaTrimmed())
                 {
-                    stmt = GenSQL(ast_1, stmt);
+                    stmt = GenSql(ast1, stmt);
                 }
-                RouteResultsetNode[] nodes = new RouteResultsetNode[1];
-                nodes[0] = new RouteResultsetNode(schema.GetDataNode(), stmt);
-                rrs.SetNodes(nodes);
+                var nodes = new RouteResultsetNode[1];
+                nodes[0] = new RouteResultsetNode(schema.DataNode, stmt);
+                rrs.Nodes = nodes;
                 return rrs;
             }
 
             // 元数据语句路由
-            if (visitor_1.IsTableMetaRead())
+            if (visitor1.IsTableMetaRead())
             {
-                MetaRouter.RouteForTableMeta(rrs, schema, ast_1, visitor_1, stmt);
-                if (visitor_1.IsNeedRewriteField())
+                MetaRouter.RouteForTableMeta(rrs, schema, ast1, visitor1, stmt);
+                if (visitor1.IsNeedRewriteField())
                 {
-                    rrs.SetFlag(RouteResultset.RewriteField);
+                    rrs.Flag = RouteResultset.RewriteField;
                 }
                 return rrs;
             }
@@ -121,12 +114,12 @@ namespace Tup.Cobar4Net.Route
             TableConfig matchedTable = null;
             RuleConfig rule = null;
             IDictionary<string, IList<object>> columnValues = null;
-            var astExt = visitor_1.GetColumnValue();
-            var tables = schema.GetTables();
+            var astExt = visitor1.GetColumnValue();
+            var tables = schema.Tables;
             foreach (var e in astExt)
             {
                 var col2Val = e.Value;
-                TableConfig tc = tables.GetValue(e.Key);
+                var tc = tables.GetValue(e.Key);
                 if (tc == null)
                 {
                     continue;
@@ -139,16 +132,17 @@ namespace Tup.Cobar4Net.Route
                 {
                     continue;
                 }
-                TableRuleConfig tr = tc.GetRule();
+                var tr = tc.Rule;
                 if (tr != null)
                 {
-                    foreach (RuleConfig rc in tr.GetRules())
+                    foreach (var rc in tr.Rules)
                     {
-                        bool match = true;
-                        foreach (string ruleColumn in rc.GetColumns())
+                        var match = true;
+                        foreach (var ruleColumn in rc.Columns)
                         {
                             match &= col2Val.ContainsKey(ruleColumn);
                         }
+
                         if (match)
                         {
                             columnValues = col2Val;
@@ -159,83 +153,487 @@ namespace Tup.Cobar4Net.Route
                     }
                 }
             }
-        ft_break:;
+            ft_break:
+            ;
 
             // 规则匹配处理，表级别和列级别。
             if (matchedTable == null)
             {
-                string sql = visitor_1.IsSchemaTrimmed() ? GenSQL(ast_1, stmt) : stmt;
-                RouteResultsetNode[] rn = new RouteResultsetNode[1];
-                if (string.Empty.Equals(schema.GetDataNode()) && IsSystemReadSQL(ast_1))
+                var sql = visitor1.IsSchemaTrimmed() ? GenSql(ast1, stmt) : stmt;
+                var rn = new RouteResultsetNode[1];
+                if (string.Empty.Equals(schema.DataNode) && IsSystemReadSql(ast1))
                 {
-                    rn[0] = new RouteResultsetNode(schema.GetRandomDataNode(), sql);
+                    rn[0] = new RouteResultsetNode(schema.RandomDataNode, sql);
                 }
                 else
                 {
-                    rn[0] = new RouteResultsetNode(schema.GetDataNode(), sql);
+                    rn[0] = new RouteResultsetNode(schema.DataNode, sql);
                 }
-                rrs.SetNodes(rn);
+                rrs.Nodes = rn;
                 return rrs;
             }
             if (rule == null)
             {
-                if (matchedTable.IsRuleRequired())
+                if (matchedTable.IsRuleRequired)
                 {
-                    throw new ArgumentException("route rule for table " + matchedTable.GetName() + " is required: "
-                         + stmt);
+                    throw new ArgumentException(string.Format("route rule for table {0} is required: {1}",
+                        matchedTable.Name, stmt));
                 }
-                string[] dataNodes = matchedTable.GetDataNodes();
-                string sql = visitor_1.IsSchemaTrimmed() ? GenSQL(ast_1, stmt) : stmt;
-                RouteResultsetNode[] rn = new RouteResultsetNode[dataNodes.Length];
-                for (int i = 0; i < dataNodes.Length; ++i)
+                var dataNodes = matchedTable.DataNodes;
+                var sql = visitor1.IsSchemaTrimmed() ? GenSql(ast1, stmt) : stmt;
+                var rn = new RouteResultsetNode[dataNodes.Length];
+                for (var i = 0; i < dataNodes.Length; ++i)
                 {
                     rn[i] = new RouteResultsetNode(dataNodes[i], sql);
                 }
-                rrs.SetNodes(rn);
-                SetGroupFlagAndLimit(rrs, visitor_1);
+                rrs.Nodes = rn;
+                SetGroupFlagAndLimit(rrs, visitor1);
                 return rrs;
             }
 
             // 规则计算
-            ValidateAST(ast_1, matchedTable, rule, visitor_1);
+            ValidateAst(ast1, matchedTable, rule, visitor1);
             var dnMap = RuleCalculate(matchedTable, rule, columnValues);
             if (dnMap == null || dnMap.IsEmpty())
             {
                 throw new ArgumentException("No target dataNode for rule " + rule);
             }
+
             // 判断路由结果是单库还是多库
             if (dnMap.Count == 1)
             {
-                string dataNode = matchedTable.GetDataNodes()[dnMap.Keys.FirstOrDefault()];
+                var dataNode = matchedTable.DataNodes[dnMap.Keys.FirstOrDefault()];
                 //string dataNode = matchedTable.GetDataNodes()[dnMap.Keys.GetEnumerator().Current];
-                string sql = visitor_1.IsSchemaTrimmed() ? GenSQL(ast_1, stmt) : stmt;
-                RouteResultsetNode[] rn = new RouteResultsetNode[1];
+                var sql = visitor1.IsSchemaTrimmed() ? GenSql(ast1, stmt) : stmt;
+                var rn = new RouteResultsetNode[1];
                 rn[0] = new RouteResultsetNode(dataNode, sql);
-                rrs.SetNodes(rn);
+                rrs.Nodes = rn;
             }
             else
             {
-                RouteResultsetNode[] rn = new RouteResultsetNode[dnMap.Count];
-                if (ast_1 is DMLInsertReplaceStatement)
+                var rn = new RouteResultsetNode[dnMap.Count];
+                if (ast1 is DmlInsertReplaceStatement)
                 {
-                    DMLInsertReplaceStatement ir = (DMLInsertReplaceStatement)ast_1;
-                    DispatchInsertReplace(rn, ir, rule.GetColumns(), dnMap, matchedTable, stmt, visitor_1);
+                    var ir = (DmlInsertReplaceStatement)ast1;
+                    DispatchInsertReplace(rn, ir, rule.Columns, dnMap, matchedTable, stmt, visitor1);
                 }
                 else
                 {
-                    DispatchWhereBasedStmt(rn, ast_1, rule.GetColumns(), dnMap, matchedTable, stmt, visitor_1);
+                    DispatchWhereBasedStmt(rn, ast1, rule.Columns, dnMap, matchedTable, stmt, visitor1);
                 }
-                rrs.SetNodes(rn);
-                SetGroupFlagAndLimit(rrs, visitor_1);
+                rrs.Nodes = rn;
+                SetGroupFlagAndLimit(rrs, visitor1);
             }
             return rrs;
+        }
+
+        private static int[] CalcDataNodeIndexesByFunction(IRuleAlgorithm algorithm,
+                                                           IDictionary<string, object> parameter)
+        {
+            return Number.ToInt32(algorithm.Calculate(parameter.ToDictionary(x => (object)x.Key, y => y.Value)));
+        }
+
+        private static bool Equals(string str1, string str2)
+        {
+            if (str1 == null)
+            {
+                return str2 == null;
+            }
+            return str1.Equals(str2);
+        }
+
+        /// <summary>
+        /// </summary>
+        /// <param name="ast"></param>
+        /// <param name="tc"></param>
+        /// <param name="rule"></param>
+        /// <param name="visitor"></param>
+        private static void ValidateAst(ISqlStatement ast,
+                                        TableConfig tc,
+                                        RuleConfig rule,
+                                        PartitionKeyVisitor visitor)
+        {
+            if (!(ast is DmlUpdateStatement))
+                return;
+
+            IList<Identifier> columns = null;
+            var ruleCols = rule.Columns;
+            var update = (DmlUpdateStatement)ast;
+            foreach (var pair in update.Values)
+            {
+                foreach (var ruleCol in ruleCols)
+                {
+                    if (pair.Key.IdTextUpUnescape == ruleCol)
+                    {
+                        if (columns == null)
+                        {
+                            columns = new List<Identifier>(ruleCols.Count);
+                        }
+                        columns.Add(pair.Key);
+                    }
+                }
+            }
+
+            if (columns == null)
+                return;
+
+            var alias = visitor.GetTableAlias();
+            foreach (var column in columns)
+            {
+                var table = column.GetLevelUnescapeUpName(2);
+                table = alias.GetValue(table);
+                if (table != null && table.Equals(tc.Name))
+                {
+                    throw new NotSupportedException("partition key cannot be changed");
+                }
+            }
+        }
+
+        private static bool IsSystemReadSql(ISqlStatement ast)
+        {
+            if (ast is DalShowStatement)
+                return true;
+
+            DmlSelectStatement select = null;
+            if (ast is DmlSelectStatement)
+            {
+                select = (DmlSelectStatement)ast;
+            }
+            else if (ast is DmlSelectUnionStatement)
+            {
+                var union = (DmlSelectUnionStatement)ast;
+                if (union.SelectStmtList.Count == 1)
+                {
+                    select = union.SelectStmtList[0];
+                }
+                else
+                {
+                    return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
+
+            return @select.Tables == null;
+        }
+
+        private static void SetGroupFlagAndLimit(RouteResultset rrs, PartitionKeyVisitor visitor)
+        {
+            rrs.LimitSize = visitor.GetLimitSize();
+            switch (visitor.GetGroupFuncType())
+            {
+                case PartitionKeyVisitor.GroupSum:
+                {
+                    rrs.Flag = RouteResultset.SumFlag;
+                    break;
+                }
+
+                case PartitionKeyVisitor.GroupMax:
+                {
+                    rrs.Flag = RouteResultset.MaxFlag;
+                    break;
+                }
+
+                case PartitionKeyVisitor.GroupMin:
+                {
+                    rrs.Flag = RouteResultset.MinFlag;
+                    break;
+                }
+            }
+        }
+
+        /// <returns>dataNodeIndex -&gt; [partitionKeysValueTuple+]</returns>
+        private static IDictionary<int, IList<object[]>> RuleCalculate(TableConfig matchedTable,
+                                                                       RuleConfig rule,
+                                                                       IDictionary<string, IList<object>> columnValues)
+        {
+            var map = new Dictionary<int, IList<object[]>>();
+            var algorithm = rule.RuleAlgorithm;
+            var cols = rule.Columns;
+            var parameter = new Dictionary<string, object>(cols.Count);
+            var colsValIter = new List<IList<object>>(columnValues.Count);
+            var columnCount = 0;
+            foreach (var rc in cols)
+            {
+                var list = columnValues.GetValue(rc);
+                if (list == null)
+                {
+                    var msg = "route err: rule column " + rc + " dosn't exist in extract: " + columnValues;
+                    throw new ArgumentException(msg);
+                }
+                if (columnCount <= 0)
+                    columnCount = list.Count;
+
+                colsValIter.Add(list);
+            }
+
+            try
+            {
+                var countIndex = 0;
+                while (countIndex < columnCount)
+                {
+                    var tuple = new object[cols.Count];
+                    for (int i = 0, len = cols.Count; i < len; ++i)
+                    {
+                        var value = colsValIter[i][countIndex];
+                        tuple[i] = value;
+                        parameter[cols[i]] = value;
+                    }
+
+                    var dataNodeIndexes = CalcDataNodeIndexesByFunction(algorithm, parameter);
+                    for (var i1 = 0; i1 < dataNodeIndexes.Length; ++i1)
+                    {
+                        var dataNodeIndex = dataNodeIndexes[i1];
+                        var list = map.GetValue(dataNodeIndex);
+                        if (list == null)
+                        {
+                            list = new List<object[]>();
+                            map[dataNodeIndex] = list;
+                        }
+                        list.Add(tuple);
+                    }
+
+                    countIndex++;
+                }
+            }
+            catch (Exception e)
+            {
+                var msg = "route err: different rule columns should have same value number:  " + columnValues;
+                throw new ArgumentException(msg, e);
+            }
+            return map;
+        }
+
+        private static void DispatchWhereBasedStmt(RouteResultsetNode[] rn,
+                                                   ISqlStatement stmtAST,
+                                                   IList<string> ruleColumns,
+                                                   IDictionary<int, IList<object[]>> dataNodeMap,
+                                                   TableConfig matchedTable,
+                                                   string originalSQL,
+                                                   PartitionKeyVisitor visitor)
+        {
+            // [perf tag] 11.617 us: sharding multivalue
+            if (ruleColumns.Count > 1)
+            {
+                string sql;
+                if (visitor.IsSchemaTrimmed())
+                    sql = GenSql(stmtAST, originalSQL);
+                else
+                    sql = originalSQL;
+
+                var i = -1;
+                foreach (var dataNodeId in dataNodeMap.Keys)
+                {
+                    var dataNode = matchedTable.DataNodes[dataNodeId];
+                    rn[++i] = new RouteResultsetNode(dataNode, sql);
+                }
+                return;
+            }
+
+            var table = matchedTable.Name;
+            var columnIndex = visitor.GetColumnIndex(table);
+            var valueMap = columnIndex.GetValue(ruleColumns[0]);
+            ReplacePartitionKeyOperand(columnIndex, ruleColumns);
+            var unreplacedInExpr = new Dictionary<InExpression, ICollection<IExpression>>(1);
+            var unreplacedSingleExprs = new HashSet<IReplacableExpression>();
+            // [perf tag] 12.2755 us: sharding multivalue
+            var nodeId = -1;
+            foreach (var en in dataNodeMap)
+            {
+                var tuples = en.Value;
+                unreplacedSingleExprs.Clear();
+                unreplacedInExpr.Clear();
+
+                foreach (var tuple in tuples)
+                {
+                    var value = tuple[0];
+                    var indexedExpressionPair = GetExpressionSet(valueMap, value);
+                    foreach (var pair in indexedExpressionPair)
+                    {
+                        var expr = pair.Key;
+                        var parent = (InExpression)pair.Value;
+                        if (PartitionKeyVisitor.IsPartitionKeyOperandSingle(expr, parent))
+                        {
+                            unreplacedSingleExprs.Add((IReplacableExpression)expr);
+                        }
+                        else if (PartitionKeyVisitor.IsPartitionKeyOperandIn(expr, parent))
+                        {
+                            var newInSet = unreplacedInExpr.GetValue(parent);
+                            if (newInSet == null)
+                            {
+                                newInSet = new HashSet<IExpression>();
+                                unreplacedInExpr[parent] = newInSet;
+                            }
+                            newInSet.Add(expr);
+                        }
+                    }
+                }
+                // [perf tag] 15.3745 us: sharding multivalue
+                foreach (var expr1 in unreplacedSingleExprs)
+                {
+                    expr1.ClearReplaceExpr();
+                }
+
+                foreach (var entemp in unreplacedInExpr)
+                {
+                    var @in = entemp.Key;
+                    var set = entemp.Value;
+                    if (set == null || set.IsEmpty())
+                    {
+                        @in.ReplaceExpr = ReplacableExpressionConstants.BoolFalse;
+                    }
+                    else
+                    {
+                        @in.ClearReplaceExpr();
+                        var inlist = @in.GetInExpressionList();
+                        if (inlist != null)
+                        {
+                            inlist.ReplaceExpr = new List<IExpression>(set);
+                        }
+                    }
+                }
+
+                // [perf tag] 16.506 us: sharding multivalue
+                var sql = GenSql(stmtAST, originalSQL);
+                // [perf tag] 21.3425 us: sharding multivalue
+                var dataNodeName = matchedTable.DataNodes[en.Key];
+                rn[++nodeId] = new RouteResultsetNode(dataNodeName, sql);
+                foreach (var expr2 in unreplacedSingleExprs)
+                {
+                    expr2.ReplaceExpr = ReplacableExpressionConstants.BoolFalse;
+                }
+
+                foreach (var in1 in unreplacedInExpr.Keys)
+                {
+                    in1.ReplaceExpr = ReplacableExpressionConstants.BoolFalse;
+                    var list = in1.GetInExpressionList();
+                    if (list != null)
+                    {
+                        list.ClearReplaceExpr();
+                    }
+                }
+            }
+        }
+
+        // [perf tag] 22.0965 us: sharding multivalue
+        private static void ReplacePartitionKeyOperand(IDictionary<string, ColumnValueType> index, IList<string> cols)
+        {
+            if (cols == null)
+                return;
+
+            foreach (var col in cols)
+            {
+                var map = index.GetValue(col);
+                if (map == null)
+                    continue;
+
+                foreach (var set in map.Values)
+                {
+                    if (set == null)
+                        continue;
+
+                    foreach (var p in set)
+                    {
+                        var expr = p.Key;
+                        var parent = p.Value;
+                        if (PartitionKeyVisitor.IsPartitionKeyOperandSingle(expr, parent))
+                        {
+                            ((IReplacableExpression)expr).ReplaceExpr = ReplacableExpressionConstants.BoolFalse;
+                        }
+                        else if (PartitionKeyVisitor.IsPartitionKeyOperandIn(expr, parent))
+                        {
+                            ((IReplacableExpression)parent).ReplaceExpr = ReplacableExpressionConstants.BoolFalse;
+                        }
+                    }
+                }
+            }
+        }
+
+        private static void DispatchInsertReplace(RouteResultsetNode[] rn,
+                                                  DmlInsertReplaceStatement stmt,
+                                                  IList<string> ruleColumns,
+                                                  IDictionary<int, IList<object[]>> dataNodeMap,
+                                                  TableConfig matchedTable,
+                                                  string originalSql,
+                                                  PartitionKeyVisitor visitor)
+        {
+            if (stmt.Select != null)
+            {
+                DispatchWhereBasedStmt(rn, stmt, ruleColumns, dataNodeMap, matchedTable, originalSql, visitor);
+                return;
+            }
+
+            var colsIndex = visitor.GetColumnIndex(stmt.Table.IdTextUpUnescape);
+            if (colsIndex == null || colsIndex.IsEmpty())
+                throw new ArgumentException("columns index is empty: " + originalSql);
+
+            var colsIndexList = new List<ColumnValueType>(ruleColumns.Count);
+            for (int i = 0, len = ruleColumns.Count; i < len; ++i)
+            {
+                colsIndexList.Add(colsIndex[ruleColumns[i]]);
+            }
+
+            var dataNodeId = -1;
+            foreach (var en in dataNodeMap)
+            {
+                var tuples = en.Value;
+                var replaceRowList = new HashSet<RowExpression>();
+                foreach (var tuple in tuples)
+                {
+                    ICollection<Pair<IExpression, IAstNode>> tupleExprs = null;
+                    for (var i1 = 0; i1 < tuple.Length; ++i1)
+                    {
+                        var valueMap = colsIndexList[i1];
+                        var value = tuple[i1];
+                        var set = GetExpressionSet(valueMap, value);
+                        tupleExprs = CollectionUtil.IntersectSet(tupleExprs, set);
+                    }
+
+                    if (tupleExprs == null || tupleExprs.IsEmpty())
+                        throw new ArgumentException(
+                            string.Format("route: empty expression list for insertReplace stmt: {0}", originalSql));
+
+                    foreach (var p in tupleExprs)
+                    {
+                        if (p.Value == stmt && p.Key is RowExpression)
+                        {
+                            replaceRowList.Add((RowExpression)p.Key);
+                        }
+                    }
+                }
+
+                stmt.ReplaceRowList = new List<RowExpression>(replaceRowList);
+                var sql = GenSql(stmt, originalSql);
+                stmt.ClearReplaceRowList();
+
+                var dataNodeName = matchedTable.DataNodes[en.Key];
+                rn[++dataNodeId] = new RouteResultsetNode(dataNodeName, sql);
+            }
+        }
+
+        private static ICollection<Pair<IExpression, IAstNode>> GetExpressionSet(ColumnValueType map, object value)
+        {
+            if (map == null || map.IsEmpty())
+                return new HashSet<Pair<IExpression, IAstNode>>();
+
+            var set = map.GetValue(value);
+            return set ?? new HashSet<Pair<IExpression, IAstNode>>();
+        }
+
+        private static string GenSql(ISqlStatement ast, string orginalSql)
+        {
+            var s = new StringBuilder();
+            ast.Accept(new MySqlOutputAstVisitor(s));
+            return s.ToString();
         }
 
         private class HintRouter
         {
             public static int IndexOfPrefix(string sql)
             {
-                int i = 0;
+                var i = 0;
                 for (; i < sql.Length; ++i)
                 {
                     switch (sql[i])
@@ -244,9 +642,9 @@ namespace Tup.Cobar4Net.Route
                         case '\t':
                         case '\r':
                         case '\n':
-                            {
-                                continue;
-                            }
+                        {
+                            continue;
+                        }
                     }
                     break;
                 }
@@ -254,61 +652,59 @@ namespace Tup.Cobar4Net.Route
                 {
                     return i;
                 }
-                else
-                {
-                    return -1;
-                }
+                return -1;
             }
 
-            /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+            /// <exception cref="System.SqlSyntaxErrorException" />
             public static void RouteFromHint(object frontConn,
-                SchemaConfig schema,
-                RouteResultset rrs,
-                int prefixIndex,
-                string sql)
+                                             SchemaConfig schema,
+                                             RouteResultset rrs,
+                                             int prefixIndex,
+                                             string sql)
             {
-                CobarHint hint = CobarHint.ParserCobarHint(sql, prefixIndex);
-                string outputSql = hint.GetOutputSql();
-                int replica = hint.GetReplica();
-                string table = hint.GetTable();
-                IList<Pair<int, int>> dataNodes = hint.GetDataNodes();
-                Pair<string[], object[][]> partitionOperand = hint.GetPartitionOperand();
+                var hint = CobarHint.ParserCobarHint(sql, prefixIndex);
+                var outputSql = hint.OutputSql;
+                var replica = hint.Replica;
+                var table = hint.Table;
+                var dataNodes = hint.DataNodes;
+                var partitionOperand = hint.PartitionOperand;
                 TableConfig tableConfig = null;
                 if (table == null
-                    || schema.GetTables() == null
-                    || (tableConfig = schema.GetTables().GetValue(table)) == null)
+                    || schema.Tables == null
+                    || (tableConfig = schema.Tables.GetValue(table)) == null)
                 {
                     // table not indicated
-                    RouteResultsetNode[] nodes = new RouteResultsetNode[1];
-                    rrs.SetNodes(nodes);
+                    var nodes = new RouteResultsetNode[1];
+                    rrs.Nodes = nodes;
                     if (dataNodes != null && !dataNodes.IsEmpty())
                     {
-                        int replicaIndex = dataNodes[0].GetValue();
+                        var replicaIndex = dataNodes[0].Value;
                         if (replicaIndex >= 0 && RouteResultsetNode.DefaultReplicaIndex != replicaIndex)
                         {
                             // replica index indicated in dataNodes references
-                            nodes[0] = new RouteResultsetNode(schema.GetDataNode(), replicaIndex, outputSql);
+                            nodes[0] = new RouteResultsetNode(schema.DataNode, replicaIndex, outputSql);
                             LogExplicitReplicaSet(frontConn, sql, rrs);
                             return;
                         }
                     }
-                    nodes[0] = new RouteResultsetNode(schema.GetDataNode(), replica, outputSql);
+                    nodes[0] = new RouteResultsetNode(schema.DataNode, replica, outputSql);
                     if (replica != RouteResultsetNode.DefaultReplicaIndex)
                     {
                         LogExplicitReplicaSet(frontConn, sql, rrs);
                     }
                     return;
                 }
+
                 if (dataNodes != null && !dataNodes.IsEmpty())
                 {
-                    RouteResultsetNode[] nodes = new RouteResultsetNode[dataNodes.Count];
-                    rrs.SetNodes(nodes);
-                    int i = 0;
-                    bool replicaSet = false;
-                    foreach (Pair<int, int> pair in dataNodes)
+                    var nodes = new RouteResultsetNode[dataNodes.Count];
+                    rrs.Nodes = nodes;
+                    var i = 0;
+                    var replicaSet = false;
+                    foreach (var pair in dataNodes)
                     {
-                        string dataNodeName = tableConfig.GetDataNodes()[pair.GetKey()];
-                        int replicaIndex = dataNodes[i].GetValue();
+                        var dataNodeName = tableConfig.DataNodes[pair.Key];
+                        var replicaIndex = dataNodes[i].Value;
                         if (replicaIndex >= 0 && RouteResultsetNode.DefaultReplicaIndex != replicaIndex)
                         {
                             replicaSet = true;
@@ -327,35 +723,37 @@ namespace Tup.Cobar4Net.Route
                     }
                     return;
                 }
+
                 if (partitionOperand == null)
                 {
-                    string[] tableDataNodes = tableConfig.GetDataNodes();
-                    RouteResultsetNode[] nodes = new RouteResultsetNode[tableDataNodes.Length];
-                    rrs.SetNodes(nodes);
-                    for (int i = 0; i < nodes.Length; ++i)
+                    var tableDataNodes = tableConfig.DataNodes;
+                    var nodes = new RouteResultsetNode[tableDataNodes.Length];
+                    rrs.Nodes = nodes;
+                    for (var i = 0; i < nodes.Length; ++i)
                     {
                         nodes[i] = new RouteResultsetNode(tableDataNodes[i], replica, outputSql);
                     }
                     return;
                 }
-                string[] cols = partitionOperand.GetKey();
-                object[][] vals = partitionOperand.GetValue();
+
+                var cols = partitionOperand.Key;
+                var vals = partitionOperand.Value;
                 if (cols == null || vals == null)
                 {
-                    throw new SQLSyntaxErrorException("${partitionOperand} is invalid: " + sql);
+                    throw new SqlSyntaxErrorException("${partitionOperand} is invalid: " + sql);
                 }
                 RuleConfig rule = null;
-                TableRuleConfig tr = tableConfig.GetRule();
-                IList<RuleConfig> rules = tr == null ? null : tr.GetRules();
+                var tr = tableConfig.Rule;
+                var rules = tr == null ? null : tr.Rules;
                 if (rules != null)
                 {
-                    foreach (RuleConfig r in rules)
+                    foreach (var r in rules)
                     {
-                        IList<string> ruleCols = r.GetColumns();
-                        bool match = true;
-                        foreach (string ruleCol in ruleCols)
+                        var ruleCols = r.Columns;
+                        var match = true;
+                        foreach (var ruleCol in ruleCols)
                         {
-                            match &= ArrayUtil.Contains(cols, ruleCol);
+                            match &= cols.Contains(ruleCol);
                         }
                         if (match)
                         {
@@ -364,16 +762,17 @@ namespace Tup.Cobar4Net.Route
                         }
                     }
                 }
-                string[] tableDataNodes_1 = tableConfig.GetDataNodes();
+
+                var tableDataNodes1 = tableConfig.DataNodes;
                 if (rule == null)
                 {
-                    RouteResultsetNode[] nodes = new RouteResultsetNode[tableDataNodes_1.Length];
-                    rrs.SetNodes(nodes);
-                    bool replicaSet = false;
-                    for (int i = 0; i < tableDataNodes_1.Length; ++i)
+                    var nodes = new RouteResultsetNode[tableDataNodes1.Length];
+                    rrs.Nodes = nodes;
+                    var replicaSet = false;
+                    for (var i = 0; i < tableDataNodes1.Length; ++i)
                     {
                         replicaSet = replicaSet || (replica != RouteResultsetNode.DefaultReplicaIndex);
-                        nodes[i] = new RouteResultsetNode(tableDataNodes_1[i], replica, outputSql);
+                        nodes[i] = new RouteResultsetNode(tableDataNodes1[i], replica, outputSql);
                     }
                     if (replicaSet)
                     {
@@ -381,37 +780,38 @@ namespace Tup.Cobar4Net.Route
                     }
                     return;
                 }
-                var destDataNodes = CalcHintDataNodes(rule, cols, vals, tableDataNodes_1);
-                RouteResultsetNode[] nodes_1 = new RouteResultsetNode[destDataNodes.Count];
-                rrs.SetNodes(nodes_1);
-                int i_1 = 0;
-                bool replicaSet_1 = false;
-                foreach (string dataNode in destDataNodes)
+
+                var destDataNodes = CalcHintDataNodes(rule, cols, vals, tableDataNodes1);
+                var nodes1 = new RouteResultsetNode[destDataNodes.Count];
+                rrs.Nodes = nodes1;
+                var i1 = 0;
+                var replicaSet1 = false;
+                foreach (var dataNode in destDataNodes)
                 {
-                    replicaSet_1 = replicaSet_1 || (replica != RouteResultsetNode.DefaultReplicaIndex);
-                    nodes_1[i_1++] = new RouteResultsetNode(dataNode, replica, outputSql);
+                    replicaSet1 = replicaSet1 || (replica != RouteResultsetNode.DefaultReplicaIndex);
+                    nodes1[i1++] = new RouteResultsetNode(dataNode, replica, outputSql);
                 }
-                if (replicaSet_1)
+                if (replicaSet1)
                 {
                     LogExplicitReplicaSet(frontConn, sql, rrs);
                 }
             }
 
             private static ICollection<string> CalcHintDataNodes(RuleConfig rule,
-                string[] cols,
-                object[][] vals,
-                string[] dataNodes)
+                                                                 string[] cols,
+                                                                 object[][] vals,
+                                                                 string[] dataNodes)
             {
                 ICollection<string> destDataNodes = new HashSet<string>();
                 var parameter = new Dictionary<string, object>(cols.Length);
-                foreach (object[] val in vals)
+                foreach (var val in vals)
                 {
-                    for (int i = 0; i < cols.Length; ++i)
+                    for (var i = 0; i < cols.Length; ++i)
                     {
                         parameter[cols[i]] = val[i];
                     }
-                    int[] dataNodeIndexes = CalcDataNodeIndexesByFunction(rule.GetRuleAlgorithm(), parameter);
-                    foreach (int index in dataNodeIndexes)
+                    var dataNodeIndexes = CalcDataNodeIndexesByFunction(rule.RuleAlgorithm, parameter);
+                    foreach (var index in dataNodeIndexes)
                     {
                         destDataNodes.Add(dataNodes[index]);
                     }
@@ -435,26 +835,24 @@ namespace Tup.Cobar4Net.Route
         private class MetaRouter
         {
             public static void RouteForTableMeta(RouteResultset rrs,
-                SchemaConfig schema,
-                SQLStatement ast,
-                PartitionKeyVisitor visitor,
-                string stmt)
+                                                 SchemaConfig schema,
+                                                 ISqlStatement ast,
+                                                 PartitionKeyVisitor visitor,
+                                                 string stmt)
             {
-                string sql = stmt;
+                var sql = stmt;
                 if (visitor.IsSchemaTrimmed())
-                {
-                    sql = GenSQL(ast, stmt);
-                }
-                string[] tables = visitor.GetMetaReadTable();
+                    sql = GenSql(ast, stmt);
+
+                var tables = visitor.GetMetaReadTable();
                 if (tables == null)
-                {
-                    throw new ArgumentException("route err: tables[] is null for meta read table: " +
-                         stmt);
-                }
+                    throw new ArgumentException(string.Format("route err: tables[] is null for meta read table: {0}",
+                        stmt));
+
                 string[] dataNodes;
                 if (tables.Length <= 0)
                 {
-                    dataNodes = schema.GetMetaDataNodes();
+                    dataNodes = schema.MetaDataNodes;
                 }
                 else
                 {
@@ -466,9 +864,9 @@ namespace Tup.Cobar4Net.Route
                     else
                     {
                         ICollection<string> dataNodeSet = new HashSet<string>();
-                        foreach (string table in tables)
+                        foreach (var table in tables)
                         {
-                            string dataNode = GetMetaReadDataNode(schema, table);
+                            var dataNode = GetMetaReadDataNode(schema, table);
                             dataNodeSet.Add(dataNode);
                         }
                         dataNodes = dataNodeSet.ToArray();
@@ -480,24 +878,25 @@ namespace Tup.Cobar4Net.Route
                         //}
                     }
                 }
-                RouteResultsetNode[] nodes = new RouteResultsetNode[dataNodes.Length];
-                rrs.SetNodes(nodes);
-                for (int i_1 = 0; i_1 < dataNodes.Length; ++i_1)
+
+                var nodes = new RouteResultsetNode[dataNodes.Length];
+                rrs.Nodes = nodes;
+                for (var i1 = 0; i1 < dataNodes.Length; ++i1)
                 {
-                    nodes[i_1] = new RouteResultsetNode(dataNodes[i_1], sql);
+                    nodes[i1] = new RouteResultsetNode(dataNodes[i1], sql);
                 }
             }
 
             private static string GetMetaReadDataNode(SchemaConfig schema, string table)
             {
-                string dataNode = schema.GetDataNode();
-                var tables = schema.GetTables();
+                var dataNode = schema.DataNode;
+                var tables = schema.Tables;
                 TableConfig tc;
                 if (tables != null
                     && table != null //TODO GetMetaReadDataNode table != null
                     && (tc = tables.GetValue(table)) != null)
                 {
-                    string[] dn = tc.GetDataNodes();
+                    var dn = tc.DataNodes;
                     if (dn != null && dn.Length > 0)
                     {
                         dataNode = dn[0];
@@ -505,444 +904,6 @@ namespace Tup.Cobar4Net.Route
                 }
                 return dataNode;
             }
-        }
-
-        private static int[] CalcDataNodeIndexesByFunction(RuleAlgorithm algorithm, IDictionary<string, object> parameter)
-        {
-            return Number.ToInt32(algorithm.Calculate(parameter.ToDictionary(x => (object)x.Key, y => y.Value)));
-            //object calRst = algorithm.Calculate(parameter);
-            //if (calRst is Number)
-            //{
-            //    dataNodeIndexes = new int[1];
-            //    dataNodeIndexes[0] = ((Number)calRst);
-            //}
-            //else if (calRst is int[])
-            //{
-            //    dataNodeIndexes = (int[])calRst;
-            //}
-            //else if (calRst is int[])
-            //{
-            //    int[] intArray = (int[])calRst;
-            //    dataNodeIndexes = new int[intArray.Length];
-            //    for (int i = 0; i < intArray.Length; ++i)
-            //    {
-            //        dataNodeIndexes[i] = intArray[i];
-            //    }
-            //}
-            //else
-            //{
-            //    throw new ArgumentException("route err: result of route function is wrong type or null: "
-            //         + calRst);
-            //}
-            //return dataNodeIndexes;
-        }
-
-        private static bool Equals(string str1, string str2)
-        {
-            if (str1 == null)
-            {
-                return str2 == null;
-            }
-            return str1.Equals(str2);
-        }
-
-        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
-        private static void ValidateAST(SQLStatement ast,
-            TableConfig tc,
-            RuleConfig rule,
-            PartitionKeyVisitor visitor)
-        {
-            if (ast is DMLUpdateStatement)
-            {
-                IList<Identifier> columns = null;
-                IList<string> ruleCols = rule.GetColumns();
-                DMLUpdateStatement update = (DMLUpdateStatement)ast;
-                foreach (Pair<Identifier, Expr> pair in
-                    update.GetValues())
-                {
-                    foreach (string ruleCol in ruleCols)
-                    {
-                        if (Equals(pair.GetKey().GetIdTextUpUnescape(), ruleCol))
-                        {
-                            if (columns == null)
-                            {
-                                columns = new List<Identifier>(ruleCols.Count);
-                            }
-                            columns.Add(pair.GetKey());
-                        }
-                    }
-                }
-                if (columns == null)
-                {
-                    return;
-                }
-                var alias = visitor.GetTableAlias();
-                foreach (Identifier column in columns)
-                {
-                    string table = column.GetLevelUnescapeUpName(2);
-                    table = alias.GetValue(table);
-                    if (table != null && table.Equals(tc.GetName()))
-                    {
-                        throw new NotSupportedException("partition key cannot be changed");
-                        //throw new SQLFeatureNotSupportedException("partition key cannot be changed");
-                    }
-                }
-            }
-        }
-
-        private static bool IsSystemReadSQL(SQLStatement ast)
-        {
-            if (ast is DALShowStatement)
-            {
-                return true;
-            }
-            DMLSelectStatement select = null;
-            if (ast is DMLSelectStatement)
-            {
-                select = (DMLSelectStatement)ast;
-            }
-            else
-            {
-                if (ast is DMLSelectUnionStatement)
-                {
-                    DMLSelectUnionStatement union = (DMLSelectUnionStatement)ast;
-                    if (union.GetSelectStmtList().Count == 1)
-                    {
-                        select = union.GetSelectStmtList()[0];
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    return false;
-                }
-            }
-            return select.GetTables() == null;
-        }
-
-        private static void SetGroupFlagAndLimit(RouteResultset rrs,
-            PartitionKeyVisitor visitor)
-        {
-            rrs.SetLimitSize(visitor.GetLimitSize());
-            switch (visitor.GetGroupFuncType())
-            {
-                case PartitionKeyVisitor.GroupSum:
-                    {
-                        rrs.SetFlag(RouteResultset.SumFlag);
-                        break;
-                    }
-
-                case PartitionKeyVisitor.GroupMax:
-                    {
-                        rrs.SetFlag(RouteResultset.MaxFlag);
-                        break;
-                    }
-
-                case PartitionKeyVisitor.GroupMin:
-                    {
-                        rrs.SetFlag(RouteResultset.MinFlag);
-                        break;
-                    }
-            }
-        }
-
-        /// <returns>dataNodeIndex -&gt; [partitionKeysValueTuple+]</returns>
-        private static IDictionary<int, IList<object[]>> RuleCalculate(TableConfig matchedTable,
-            RuleConfig rule,
-            IDictionary<string, IList<object>> columnValues)
-        {
-            var map = new Dictionary<int, IList<object[]>>();
-            var algorithm = rule.GetRuleAlgorithm();
-            var cols = rule.GetColumns();
-            var parameter = new Dictionary<string, object>(cols.Count);
-            var colsValIter = new List<IList<object>>(columnValues.Count);
-            var columnCount = 0;
-            foreach (var rc in cols)
-            {
-                var list = columnValues.GetValue(rc);
-                if (list == null)
-                {
-                    string msg = "route err: rule column " + rc + " dosn't exist in extract: " + columnValues;
-                    throw new ArgumentException(msg);
-                }
-                if (columnCount <= 0)
-                    columnCount = list.Count;
-
-                colsValIter.Add(list);
-            }
-
-            try
-            {
-
-                var countIndex = 0;
-                while (countIndex < columnCount)
-                {
-                    var tuple = new object[cols.Count];
-                    for (int i = 0, len = cols.Count; i < len; ++i)
-                    {
-                        object value = colsValIter[i][countIndex];
-                        tuple[i] = value;
-                        parameter[cols[i]] = value;
-                    }
-
-                    int[] dataNodeIndexes = CalcDataNodeIndexesByFunction(algorithm, parameter);
-                    for (int i_1 = 0; i_1 < dataNodeIndexes.Length; ++i_1)
-                    {
-                        int dataNodeIndex = dataNodeIndexes[i_1];
-                        var list = map.GetValue(dataNodeIndex);
-                        if (list == null)
-                        {
-                            list = new List<object[]>();
-                            map[dataNodeIndex] = list;
-                        }
-                        list.Add(tuple);
-                    }
-
-                    countIndex++;
-                }
-            }
-            catch (Exception e)
-            {
-                string msg = "route err: different rule columns should have same value number:  " + columnValues;
-                throw new ArgumentException(msg, e);
-            }
-            return map;
-        }
-
-        private static void DispatchWhereBasedStmt(RouteResultsetNode[] rn,
-            SQLStatement stmtAST,
-            IList<string> ruleColumns,
-            IDictionary<int, IList<object[]>> dataNodeMap,
-            TableConfig matchedTable,
-            string originalSQL,
-            PartitionKeyVisitor visitor)
-        {
-            // [perf tag] 11.617 us: sharding multivalue
-            if (ruleColumns.Count > 1)
-            {
-                string sql;
-                if (visitor.IsSchemaTrimmed())
-                {
-                    sql = GenSQL(stmtAST, originalSQL);
-                }
-                else
-                {
-                    sql = originalSQL;
-                }
-                int i = -1;
-                foreach (int dataNodeId in dataNodeMap.Keys)
-                {
-                    string dataNode = matchedTable.GetDataNodes()[dataNodeId];
-                    rn[++i] = new RouteResultsetNode(dataNode, sql);
-                }
-                return;
-            }
-
-            string table = matchedTable.GetName();
-            var columnIndex = visitor.GetColumnIndex(table);
-            var valueMap = columnIndex.GetValue(ruleColumns[0]);
-            ReplacePartitionKeyOperand(columnIndex, ruleColumns);
-            var unreplacedInExpr = new Dictionary<InExpression, ICollection<Expr>>(1);
-            var unreplacedSingleExprs = new HashSet<ReplacableExpression>();
-            // [perf tag] 12.2755 us: sharding multivalue
-            int nodeId = -1;
-            foreach (var en in dataNodeMap)
-            {
-                IList<object[]> tuples = en.Value;
-                unreplacedSingleExprs.Clear();
-                unreplacedInExpr.Clear();
-                foreach (object[] tuple in tuples)
-                {
-                    object value = tuple[0];
-                    var indexedExpressionPair = GetExpressionSet(valueMap, value);
-                    foreach (var pair in indexedExpressionPair)
-                    {
-                        Expr expr = pair.GetKey();
-                        var parent = (InExpression)pair.GetValue();
-                        if (PartitionKeyVisitor.IsPartitionKeyOperandSingle(expr, parent))
-                        {
-                            unreplacedSingleExprs.Add((ReplacableExpression)expr);
-                        }
-                        else
-                        {
-                            if (PartitionKeyVisitor.IsPartitionKeyOperandIn(expr, parent))
-                            {
-                                var newInSet = unreplacedInExpr.GetValue(parent);
-                                if (newInSet == null)
-                                {
-                                    newInSet = new HashSet<Expr>();
-                                    unreplacedInExpr[(InExpression)parent] = newInSet;
-                                }
-                                newInSet.Add(expr);
-                            }
-                        }
-                    }
-                }
-                // [perf tag] 15.3745 us: sharding multivalue
-                foreach (ReplacableExpression expr_1 in unreplacedSingleExprs)
-                {
-                    expr_1.ClearReplaceExpr();
-                }
-                foreach (var entemp in unreplacedInExpr)
-                {
-                    var @in = entemp.Key;
-                    var set = entemp.Value;
-                    if (set == null || set.IsEmpty())
-                    {
-                        @in.SetReplaceExpr(ReplacableExpressionConstants.BoolFalse);
-                    }
-                    else
-                    {
-                        @in.ClearReplaceExpr();
-                        var inlist = @in.GetInExpressionList();
-                        if (inlist != null)
-                        {
-                            inlist.SetReplaceExpr(new List<Expr>(set));
-                        }
-                    }
-                }
-                // [perf tag] 16.506 us: sharding multivalue
-                string sql = GenSQL(stmtAST, originalSQL);
-                // [perf tag] 21.3425 us: sharding multivalue
-                string dataNodeName = matchedTable.GetDataNodes()[en.Key];
-                rn[++nodeId] = new RouteResultsetNode(dataNodeName, sql);
-                foreach (var expr_2 in unreplacedSingleExprs)
-                {
-                    expr_2.SetReplaceExpr(ReplacableExpressionConstants.BoolFalse);
-                }
-                foreach (InExpression in_1 in unreplacedInExpr.Keys)
-                {
-                    in_1.SetReplaceExpr(ReplacableExpressionConstants.BoolFalse);
-                    InExpressionList list = in_1.GetInExpressionList();
-                    if (list != null)
-                    {
-                        list.ClearReplaceExpr();
-                    }
-                }
-            }
-        }
-
-        // [perf tag] 22.0965 us: sharding multivalue
-        private static void ReplacePartitionKeyOperand(IDictionary<string, ColumnValueType> index, IList<string> cols)
-        {
-            if (cols == null)
-            {
-                return;
-            }
-            foreach (string col in cols)
-            {
-                var map = index.GetValue(col);
-                if (map == null)
-                {
-                    continue;
-                }
-                foreach (var set in map.Values)
-                {
-                    if (set == null)
-                    {
-                        continue;
-                    }
-                    foreach (var p in set)
-                    {
-                        Expr expr = p.GetKey();
-                        ASTNode parent = p.GetValue();
-                        if (PartitionKeyVisitor.IsPartitionKeyOperandSingle(expr, parent))
-                        {
-                            ((ReplacableExpression)expr).SetReplaceExpr(ReplacableExpressionConstants.BoolFalse);
-                        }
-                        else
-                        {
-                            if (PartitionKeyVisitor.IsPartitionKeyOperandIn(expr, parent))
-                            {
-                                ((ReplacableExpression)parent).SetReplaceExpr(ReplacableExpressionConstants.BoolFalse);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        private static void DispatchInsertReplace(RouteResultsetNode[] rn,
-            DMLInsertReplaceStatement stmt,
-            IList<string> ruleColumns,
-            IDictionary<int, IList<object[]>> dataNodeMap,
-            TableConfig matchedTable,
-            string originalSQL,
-            PartitionKeyVisitor visitor)
-        {
-            if (stmt.GetSelect() != null)
-            {
-                DispatchWhereBasedStmt(rn, stmt, ruleColumns, dataNodeMap, matchedTable, originalSQL, visitor);
-                return;
-            }
-            var colsIndex = visitor.GetColumnIndex(stmt.GetTable().GetIdTextUpUnescape());
-            if (colsIndex == null || colsIndex.IsEmpty())
-            {
-                throw new ArgumentException("columns index is empty: " + originalSQL);
-            }
-            var colsIndexList = new List<ColumnValueType>(ruleColumns.Count);
-            for (int i = 0, len = ruleColumns.Count; i < len; ++i)
-            {
-                colsIndexList.Add(colsIndex[ruleColumns[i]]);
-            }
-            int dataNodeId = -1;
-            foreach (var en in dataNodeMap)
-            {
-                var tuples = en.Value;
-                var replaceRowList = new HashSet<RowExpression>();
-                foreach (object[] tuple in tuples)
-                {
-                    ICollection<Pair<Expr, ASTNode>> tupleExprs = null;
-                    for (int i_1 = 0; i_1 < tuple.Length; ++i_1)
-                    {
-                        var valueMap = colsIndexList[i_1];
-                        object value = tuple[i_1];
-                        var set = GetExpressionSet(valueMap, value);
-                        tupleExprs = CollectionUtil.IntersectSet(tupleExprs, set);
-                    }
-                    if (tupleExprs == null || tupleExprs.IsEmpty())
-                    {
-                        throw new ArgumentException("route: empty expression list for insertReplace stmt: "
-                             + originalSQL);
-                    }
-                    foreach (var p in tupleExprs)
-                    {
-                        if (p.GetValue() == stmt && p.GetKey() is RowExpression)
-                        {
-                            replaceRowList.Add((RowExpression)p.GetKey());
-                        }
-                    }
-                }
-                stmt.SetReplaceRowList(new List<RowExpression>(replaceRowList));
-                string sql = GenSQL(stmt, originalSQL);
-                stmt.ClearReplaceRowList();
-                string dataNodeName = matchedTable.GetDataNodes()[en.Key];
-                rn[++dataNodeId] = new RouteResultsetNode(dataNodeName, sql);
-            }
-        }
-
-        private static ICollection<Pair<Expr, ASTNode>> GetExpressionSet(ColumnValueType map, object value)
-        {
-            if (map == null || map.IsEmpty())
-            {
-                return new HashSet<Pair<Expr, ASTNode>>();
-            }
-            var set = map.GetValue(value);
-            if (set == null)
-            {
-                return new HashSet<Pair<Expr, ASTNode>>();
-            }
-            return set;
-        }
-
-        private static string GenSQL(SQLStatement ast, string orginalSql)
-        {
-            StringBuilder s = new StringBuilder();
-            ast.Accept(new MySQLOutputASTVisitor(s));
-            return s.ToString();
         }
     }
 }

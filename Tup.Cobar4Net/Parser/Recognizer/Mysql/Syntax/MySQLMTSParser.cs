@@ -15,15 +15,19 @@
 */
 
 using System.Collections.Generic;
-using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Mts;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLMTSParser : MySQLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlMtsParser : MySqlParser
     {
+        /// <summary>
+        /// MySqlMtsParser SpecialIdentifier
+        /// </summary>
         private enum SpecialIdentifier
         {
             None = 0,
@@ -34,10 +38,10 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Savepoint,
             Work
         }
+        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers =
+            new Dictionary<string, SpecialIdentifier>();
 
-        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers = new Dictionary<string, SpecialIdentifier>();
-
-        static MySQLMTSParser()
+        static MySqlMtsParser()
         {
             specialIdentifiers["SAVEPOINT"] = SpecialIdentifier.Savepoint;
             specialIdentifiers["WORK"] = SpecialIdentifier.Work;
@@ -46,111 +50,111 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             specialIdentifiers["NO"] = SpecialIdentifier.No;
         }
 
-        public MySQLMTSParser(MySQLLexer lexer)
+        public MySqlMtsParser(MySqlLexer lexer)
             : base(lexer)
         {
         }
 
         /// <summary>first token <code>SAVEPOINT</code> is scanned but not yet consumed</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public virtual MTSSavepointStatement Savepoint()
         {
             // matchIdentifier("SAVEPOINT"); // for performance issue, change to
             // follow:
             lexer.NextToken();
-            Identifier id = Identifier();
-            Match(MySQLToken.Eof);
+            var id = Identifier();
+            Match(MySqlToken.Eof);
             return new MTSSavepointStatement(id);
         }
 
         /// <summary>first token <code>RELEASE</code> is scanned but not yet consumed</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public virtual MTSReleaseStatement Release()
         {
-            Match(MySQLToken.KwRelease);
+            Match(MySqlToken.KwRelease);
             MatchIdentifier("SAVEPOINT");
-            Identifier id = Identifier();
-            Match(MySQLToken.Eof);
+            var id = Identifier();
+            Match(MySqlToken.Eof);
             return new MTSReleaseStatement(id);
         }
 
         /// <summary>
-        /// first token <code>ROLLBACK</code> is scanned but not yet consumed
-        /// <pre>
-        /// ROLLBACK [WORK] TO [SAVEPOINT] identifier
-        /// ROLLBACK [WORK] [AND [NO] CHAIN | [NO] RELEASE]
-        /// </pre>
+        ///     first token <code>ROLLBACK</code> is scanned but not yet consumed
+        ///     <pre>
+        ///         ROLLBACK [WORK] TO [SAVEPOINT] identifier
+        ///         ROLLBACK [WORK] [AND [NO] CHAIN | [NO] RELEASE]
+        ///     </pre>
         /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public virtual MTSRollbackStatement Rollback()
         {
             // matchIdentifier("ROLLBACK"); // for performance issue, change to
             // follow:
             lexer.NextToken();
-            SpecialIdentifier siTemp = specialIdentifiers.GetValue(lexer.StringValueUppercase());
+            var siTemp = specialIdentifiers.GetValue(lexer.GetStringValueUppercase());
             if (siTemp == SpecialIdentifier.Work)
             {
                 lexer.NextToken();
             }
             switch (lexer.Token())
             {
-                case MySQLToken.Eof:
-                    {
-                        return new MTSRollbackStatement(MTSRollbackStatement.CompleteType.UnDef);
-                    }
+                case MySqlToken.Eof:
+                {
+                    return new MTSRollbackStatement(CompleteType.UnDef);
+                }
 
-                case MySQLToken.KwTo:
+                case MySqlToken.KwTo:
+                {
+                    lexer.NextToken();
+                    if (specialIdentifiers.GetValue(lexer.GetStringValueUppercase()) == SpecialIdentifier.Savepoint)
                     {
                         lexer.NextToken();
-                        if (specialIdentifiers.GetValue(lexer.StringValueUppercase()) == SpecialIdentifier.Savepoint)
-                        {
-                            lexer.NextToken();
-                        }
-                        Identifier savepoint = Identifier();
-                        Match(MySQLToken.Eof);
-                        return new MTSRollbackStatement(savepoint);
                     }
+                    var savepoint = Identifier();
+                    Match(MySqlToken.Eof);
+                    return new MTSRollbackStatement(savepoint);
+                }
 
-                case MySQLToken.KwAnd:
+                case MySqlToken.KwAnd:
+                {
+                    lexer.NextToken();
+                    siTemp = specialIdentifiers.GetValue(lexer.GetStringValueUppercase());
+                    if (siTemp == SpecialIdentifier.No)
                     {
                         lexer.NextToken();
-                        siTemp = specialIdentifiers.GetValue(lexer.StringValueUppercase());
-                        if (siTemp == SpecialIdentifier.No)
-                        {
-                            lexer.NextToken();
-                            MatchIdentifier("CHAIN");
-                            Match(MySQLToken.Eof);
-                            return new MTSRollbackStatement(MTSRollbackStatement.CompleteType.NoChain);
-                        }
                         MatchIdentifier("CHAIN");
-                        Match(MySQLToken.Eof);
-                        return new MTSRollbackStatement(MTSRollbackStatement.CompleteType.Chain);
+                        Match(MySqlToken.Eof);
+                        return new MTSRollbackStatement(CompleteType.NoChain);
                     }
+                    MatchIdentifier("CHAIN");
+                    Match(MySqlToken.Eof);
+                    return new MTSRollbackStatement(CompleteType.Chain);
+                }
 
-                case MySQLToken.KwRelease:
+                case MySqlToken.KwRelease:
+                {
+                    lexer.NextToken();
+                    Match(MySqlToken.Eof);
+                    return new MTSRollbackStatement(CompleteType.Release);
+                }
+
+                case MySqlToken.Identifier:
+                {
+                    siTemp = specialIdentifiers.GetValue(lexer.GetStringValueUppercase());
+                    if (siTemp == SpecialIdentifier.No)
                     {
                         lexer.NextToken();
-                        Match(MySQLToken.Eof);
-                        return new MTSRollbackStatement(MTSRollbackStatement.CompleteType.Release);
+                        Match(MySqlToken.KwRelease);
+                        Match(MySqlToken.Eof);
+                        return new MTSRollbackStatement(CompleteType.NoRelease);
                     }
-
-                case MySQLToken.Identifier:
-                    {
-                        siTemp = specialIdentifiers.GetValue(lexer.StringValueUppercase());
-                        if (siTemp == SpecialIdentifier.No)
-                        {
-                            lexer.NextToken();
-                            Match(MySQLToken.KwRelease);
-                            Match(MySQLToken.Eof);
-                            return new MTSRollbackStatement(MTSRollbackStatement.CompleteType.NoRelease);
-                        }
-                        goto default;
-                    }
+                    goto default;
+                }
 
                 default:
-                    {
-                        throw Err("unrecognized complete type: " + lexer.Token());
-                    }
+                {
+                    throw Err("unrecognized complete type: " + lexer.Token());
+                }
             }
         }
     }

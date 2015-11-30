@@ -4,14 +4,14 @@ using System.Collections.Generic;
 namespace Tup.Cobar4Net
 {
     /// <summary>
-    /// String Helper
+    ///     String Helper
     /// </summary>
     internal static class StringHelper
     {
         #region ToArrayEx
 
         /// <summary>
-        /// 获取 int 类型的参数值列表, 逗号分隔
+        ///     获取 int 类型的参数值列表, 逗号分隔
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
@@ -31,7 +31,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 获取 long 类型的参数值列表, 逗号分隔
+        ///     获取 long 类型的参数值列表, 逗号分隔
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
@@ -51,7 +51,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 获取 float 类型的参数值列表, 逗号分隔
+        ///     获取 float 类型的参数值列表, 逗号分隔
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
@@ -71,7 +71,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 获取 string 类型的参数值列表, 逗号分隔
+        ///     获取 string 类型的参数值列表, 逗号分隔
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
@@ -82,29 +82,29 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 转换 特殊符号 分隔的字符串成 指定类型 的数组
+        ///     转换 特殊符号 分隔的字符串成 指定类型 的数组
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
-        /// <param name="parseAction">解析 Action [当前项, 结果]</param>
+        /// <param name="parseAction">解析 _hintAction [当前项, 结果]</param>
         /// <returns></returns>
         public static TResult[] ToArrayEx<TResult>(this string str,
-                                                            string splitChar,
-                                                            Func<string, TResult> parseAction)
+                                                   string splitChar,
+                                                   Func<string, TResult> parseAction)
         {
-            return ToArrayEx<TResult>(str, new string[] { splitChar }, parseAction);
+            return ToArrayEx(str, new[] {splitChar}, parseAction);
         }
 
         /// <summary>
-        /// 获取指定类型的参数值列表, 逗号分隔
+        ///     获取指定类型的参数值列表, 逗号分隔
         /// </summary>
         /// <param name="str"></param>
         /// <param name="splitChar"></param>
-        /// <param name="parseAction">解析 Action [当前项, 结果]</param>
+        /// <param name="parseAction">解析 _hintAction [当前项, 结果]</param>
         /// <returns></returns>
         public static TResult[] ToArrayEx<TResult>(this string str,
-                                                            string[] splitChars,
-                                                            Func<string, TResult> parseAction)
+                                                   string[] splitChars,
+                                                   Func<string, TResult> parseAction)
         {
             ThrowHelper.ThrowIfNull(splitChars, "splitChars");
             ThrowHelper.ThrowIfNull(parseAction, "parseAction");
@@ -128,7 +128,7 @@ namespace Tup.Cobar4Net
         #region ParseTo
 
         /// <summary>
-        /// 解析当前字符串到 Int32 值
+        ///     解析当前字符串到 Int32 值
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="str"></param>
@@ -140,17 +140,17 @@ namespace Tup.Cobar4Net
                 return defaultVal;
 
             return ParseTo(str, cs =>
-            {
-                var rel = 0;
-                if (!int.TryParse(cs, out rel))
-                    rel = defaultVal;
+                                {
+                                    var rel = 0;
+                                    if (!int.TryParse(cs, out rel))
+                                        rel = defaultVal;
 
-                return rel;
-            });
+                                    return rel;
+                                });
         }
 
         /// <summary>
-        /// 解析当前字符串到 Int64 值
+        ///     解析当前字符串到 Int64 值
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="str"></param>
@@ -162,17 +162,17 @@ namespace Tup.Cobar4Net
                 return defaultVal;
 
             return ParseTo(str, cs =>
-            {
-                var rel = 0L;
-                if (!long.TryParse(cs, out rel))
-                    rel = defaultVal;
+                                {
+                                    var rel = 0L;
+                                    if (!long.TryParse(cs, out rel))
+                                        rel = defaultVal;
 
-                return rel;
-            });
+                                    return rel;
+                                });
         }
 
         /// <summary>
-        /// 解析当前字符串到 DateTime 值
+        ///     解析当前字符串到 DateTime 值
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="str"></param>
@@ -184,17 +184,17 @@ namespace Tup.Cobar4Net
                 return defaultVal;
 
             return ParseTo(str, cs =>
-            {
-                var rel = DateTime.MinValue;
-                if (!DateTime.TryParse(cs, out rel))
-                    rel = defaultVal;
+                                {
+                                    var rel = DateTime.MinValue;
+                                    if (!DateTime.TryParse(cs, out rel))
+                                        rel = defaultVal;
 
-                return rel;
-            });
+                                    return rel;
+                                });
         }
 
         /// <summary>
-        /// 解析当前字符串到指定类型的值
+        ///     解析当前字符串到指定类型的值
         /// </summary>
         /// <typeparam name="TResult"></typeparam>
         /// <param name="str"></param>
@@ -215,8 +215,8 @@ namespace Tup.Cobar4Net
         #region Trim/Empty/Fmt
 
         /// <summary>
-        /// 从当前 System.String 对象移除所有前导空白字符和尾部空白字符。
-        /// NULL 字符串不会抛出异常
+        ///     从当前 System.String 对象移除所有前导空白字符和尾部空白字符。
+        ///     NULL 字符串不会抛出异常
         /// </summary>
         /// <param name="strOri"></param>
         /// <returns></returns>
@@ -229,7 +229,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// Check that a string is not null or empty
+        ///     Check that a string is not null or empty
         /// </summary>
         /// <param name="input">String to check</param>
         /// <returns>bool</returns>
@@ -239,7 +239,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 指示指定的 System.String 对象是 null 还是 System.String.Empty 字符串。
+        ///     指示指定的 System.String 对象是 null 还是 System.String.Empty 字符串。
         /// </summary>
         /// <param name="input">String to check</param>
         /// <returns>bool</returns>
@@ -249,7 +249,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 将指定 System.String 中的格式项替换为指定数组中相应 System.Object 实例的值的文本等效项。
+        ///     将指定 System.String 中的格式项替换为指定数组中相应 System.Object 实例的值的文本等效项。
         /// </summary>
         /// <param name="format">复合格式字符串。</param>
         /// <param name="args">包含零个或多个要格式化的对象的 System.Object 数组。</param>

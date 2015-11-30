@@ -24,18 +24,18 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticIntegerDivideExpression : ArithmeticBinaryOperatorExpression
     {
-        public ArithmeticIntegerDivideExpression(Expression leftOprand,
-                                                 Expression rightOprand)
+        public ArithmeticIntegerDivideExpression(IExpression leftOprand,
+                                                 IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticFactorOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "DIV";
+            get { return "DIV"; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

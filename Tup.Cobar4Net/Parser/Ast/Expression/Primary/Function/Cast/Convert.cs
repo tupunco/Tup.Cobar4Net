@@ -20,40 +20,29 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Convert : FunctionExpression
     {
-        /// <summary>
-        /// Either
-        /// <see cref="transcodeName"/>
-        /// or
-        /// <see cref="typeName"/>
-        /// is null
-        /// </summary>
-        private readonly string transcodeName;
-
-        public Convert(Expression arg, string transcodeName
-            )
+        public Convert(IExpression arg, string transcodeName)
             : base("CONVERT", WrapList(arg))
         {
             if (null == transcodeName)
             {
                 throw new ArgumentException("transcodeName is null");
             }
-            this.transcodeName = transcodeName;
+            TranscodeName = transcodeName;
         }
 
-        public virtual string GetTranscodeName()
-        {
-            return transcodeName;
-        }
+        public virtual string TranscodeName { get; }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -17,7 +17,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
-
+using Sharpen;
 using Tup.Cobar4Net.Parser.Ast.Stmt;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql;
@@ -26,9 +26,14 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 
 namespace Tup.Cobar4Net.Parser.Recognizer
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class SQLParserDelegate
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class SqlParserDelegate
     {
+        /// <summary>
+        ///  SqlParserDelegate SpecialIdentifier
+        /// </summary>
         private enum SpecialIdentifier
         {
             None = 0,
@@ -39,150 +44,146 @@ namespace Tup.Cobar4Net.Parser.Recognizer
         }
 
         private static readonly IDictionary<string, SpecialIdentifier>
-            specialIdentifiers = new Dictionary<string, SpecialIdentifier>();
+            SpecialIdentifiers = new Dictionary<string, SpecialIdentifier>();
 
-        static SQLParserDelegate()
+        static SqlParserDelegate()
         {
-            specialIdentifiers["TRUNCATE"] = SpecialIdentifier.Truncate;
-            specialIdentifiers["SAVEPOINT"] = SpecialIdentifier.Savepoint;
-            specialIdentifiers["ROLLBACK"] = SpecialIdentifier.Rollback;
+            SpecialIdentifiers["TRUNCATE"] = SpecialIdentifier.Truncate;
+            SpecialIdentifiers["SAVEPOINT"] = SpecialIdentifier.Savepoint;
+            SpecialIdentifiers["ROLLBACK"] = SpecialIdentifier.Rollback;
         }
 
-        private static bool IsEOFedDDL(SQLStatement stmt)
+        private static bool IsEOFedDdl(ISqlStatement stmt)
         {
-            if (stmt is DDLStatement)
-            {
-                if (stmt is DDLCreateIndexStatement)
-                {
-                    return false;
-                }
-            }
+            if (stmt is IDdlStatement && stmt is DdlCreateIndexStatement)
+                return false;
+
             return true;
         }
 
-        private static string BuildErrorMsg(Exception e, MySQLLexer lexer, string sql)
+        private static string BuildErrorMsg(Exception e, MySqlLexer lexer, string sql)
         {
-            var sb = new StringBuilder("You have an error in your SQL syntax; Error occurs around this fragment: ");
-            int ch = lexer.GetCurrentIndex();
-            int from = ch - 16;
+            var sb = new StringBuilder("You have an error in your Sql syntax; Error occurs around this fragment: ");
+            var ch = lexer.CurrentIndex;
+            var from = ch - 16;
             if (from < 0)
             {
                 from = 0;
             }
-            int to = ch + 9;
+            var to = ch + 9;
             if (to >= sql.Length)
             {
                 to = sql.Length - 1;
             }
-            string fragment = Sharpen.Runtime.Substring(sql, from, to + 1);
+            var fragment = Runtime.Substring(sql, from, to + 1);
             sb.Append('{').Append(fragment).Append('}').Append(". Error cause: " + e.Message);
             return sb.ToString();
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public static SQLStatement Parse(string sql, MySQLLexer lexer, string charset)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public static ISqlStatement Parse(string sql, MySqlLexer lexer, string charset)
         {
             try
             {
-                SQLStatement stmt = null;
-                bool isEOF = true;
-                var exprParser = new MySQLExprParser(lexer, charset);
+                ISqlStatement stmt = null;
+                var isEof = true;
+                var exprParser = new MySqlExprParser(lexer, charset);
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwDesc:
-                    case MySQLToken.KwDescribe:
+                    case MySqlToken.KwDesc:
+                    case MySqlToken.KwDescribe:
                         {
-                            stmt = new MySQLDALParser(lexer, exprParser).Desc();
+                            stmt = new MySqlDalParser(lexer, exprParser).Desc();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwSelect:
-                    case MySQLToken.PuncLeftParen:
+                    case MySqlToken.KwSelect:
+                    case MySqlToken.PuncLeftParen:
                         {
-                            stmt = new MySQLDMLSelectParser(lexer, exprParser).SelectUnion();
+                            stmt = new MySqlDmlSelectParser(lexer, exprParser).SelectUnion();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwDelete:
+                    case MySqlToken.KwDelete:
                         {
-                            stmt = new MySQLDMLDeleteParser(lexer, exprParser).Delete();
+                            stmt = new MySqlDmlDeleteParser(lexer, exprParser).Delete();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwInsert:
+                    case MySqlToken.KwInsert:
                         {
-                            stmt = new MySQLDMLInsertParser(lexer, exprParser).Insert();
+                            stmt = new MySqlDmlInsertParser(lexer, exprParser).Insert();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwReplace:
+                    case MySqlToken.KwReplace:
                         {
-                            stmt = new MySQLDMLReplaceParser(lexer, exprParser).Replace();
+                            stmt = new MySqlDmlReplaceParser(lexer, exprParser).Replace();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwUpdate:
+                    case MySqlToken.KwUpdate:
                         {
-                            stmt = new MySQLDMLUpdateParser(lexer, exprParser).Update();
+                            stmt = new MySqlDmlUpdateParser(lexer, exprParser).Update();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwCall:
+                    case MySqlToken.KwCall:
                         {
-                            stmt = new MySQLDMLCallParser(lexer, exprParser).Call();
+                            stmt = new MySqlDmlCallParser(lexer, exprParser).Call();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwSet:
+                    case MySqlToken.KwSet:
                         {
-                            stmt = new MySQLDALParser(lexer, exprParser).Set();
+                            stmt = new MySqlDalParser(lexer, exprParser).Set();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwShow:
+                    case MySqlToken.KwShow:
                         {
-                            stmt = new MySQLDALParser(lexer, exprParser).Show();
+                            stmt = new MySqlDalParser(lexer, exprParser).Show();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwAlter:
-                    case MySQLToken.KwCreate:
-                    case MySQLToken.KwDrop:
-                    case MySQLToken.KwRename:
+                    case MySqlToken.KwAlter:
+                    case MySqlToken.KwCreate:
+                    case MySqlToken.KwDrop:
+                    case MySqlToken.KwRename:
                         {
-                            stmt = new MySQLDDLParser(lexer, exprParser).DdlStmt();
-                            isEOF = IsEOFedDDL(stmt);
+                            stmt = new MySqlDdlParser(lexer, exprParser).DdlStmt();
+                            isEof = IsEOFedDdl(stmt);
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.KwRelease:
+                    case MySqlToken.KwRelease:
                         {
-                            stmt = new MySQLMTSParser(lexer).Release();
+                            stmt = new MySqlMtsParser(lexer).Release();
                             goto stmtSwitch_break;
                         }
 
-                    case MySQLToken.Identifier:
+                    case MySqlToken.Identifier:
                         {
-                            SpecialIdentifier si = SpecialIdentifier.None;
-                            if ((si = specialIdentifiers[lexer.StringValueUppercase()]) != SpecialIdentifier.None)
+                            var si = SpecialIdentifier.None;
+                            if ((si = SpecialIdentifiers[lexer.GetStringValueUppercase()]) != SpecialIdentifier.None)
                             {
                                 switch (si)
                                 {
                                     case SpecialIdentifier.Truncate:
                                         {
-                                            stmt = new MySQLDDLParser(lexer, exprParser).Truncate();
+                                            stmt = new MySqlDdlParser(lexer, exprParser).Truncate();
                                             goto stmtSwitch_break;
                                         }
 
                                     case SpecialIdentifier.Savepoint:
                                         {
-                                            stmt = new MySQLMTSParser(lexer).Savepoint();
+                                            stmt = new MySqlMtsParser(lexer).Savepoint();
                                             goto stmtSwitch_break;
                                         }
 
                                     case SpecialIdentifier.Rollback:
                                         {
-                                            stmt = new MySQLMTSParser(lexer).Rollback();
+                                            stmt = new MySqlMtsParser(lexer).Rollback();
                                             goto stmtSwitch_break;
                                         }
                                 }
@@ -192,39 +193,39 @@ namespace Tup.Cobar4Net.Parser.Recognizer
 
                     default:
                         {
-                            throw new SQLSyntaxErrorException("sql is not a supported statement");
+                            throw new SqlSyntaxErrorException("sql is not a supported statement");
                         }
                 }
             stmtSwitch_break:;
-                if (isEOF)
+                if (isEof)
                 {
-                    while (lexer.Token() == MySQLToken.PuncSemicolon)
+                    while (lexer.Token() == MySqlToken.PuncSemicolon)
                     {
                         lexer.NextToken();
                     }
-                    if (lexer.Token() != MySQLToken.Eof)
+                    if (lexer.Token() != MySqlToken.Eof)
                     {
-                        throw new SQLSyntaxErrorException("SQL syntax error!");
+                        throw new SqlSyntaxErrorException("Sql syntax error!");
                     }
                 }
                 return stmt;
             }
             catch (Exception e)
             {
-                throw new SQLSyntaxErrorException(BuildErrorMsg(e, lexer, sql), e);
+                throw new SqlSyntaxErrorException(BuildErrorMsg(e, lexer, sql), e);
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public static SQLStatement Parse(string sql, string charset)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public static ISqlStatement Parse(string sql, string charset)
         {
-            return Parse(sql, new MySQLLexer(sql), charset);
+            return Parse(sql, new MySqlLexer(sql), charset);
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public static SQLStatement Parse(string sql)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public static ISqlStatement Parse(string sql)
         {
-            return Parse(sql, MySQLParser.DefaultCharset);
+            return Parse(sql, MySqlParser.DefaultCharset);
         }
     }
 }

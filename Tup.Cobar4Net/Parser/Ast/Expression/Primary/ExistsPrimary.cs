@@ -20,28 +20,27 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <summary><code>'EXISTS' '(' subquery ')'</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'EXISTS' '(' subquery ')'</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ExistsPrimary : PrimaryExpression
     {
-        private readonly QueryExpression subquery;
-
-        public ExistsPrimary(QueryExpression subquery)
+        public ExistsPrimary(IQueryExpression subquery)
         {
             if (subquery == null)
             {
                 throw new ArgumentException("subquery is null for EXISTS expression");
             }
-            this.subquery = subquery;
+            Subquery = subquery;
         }
 
-        /// <returns>never null</returns>
-        public virtual QueryExpression GetSubquery()
-        {
-            return subquery;
-        }
+        /// <value>never null</value>
+        public virtual IQueryExpression Subquery { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

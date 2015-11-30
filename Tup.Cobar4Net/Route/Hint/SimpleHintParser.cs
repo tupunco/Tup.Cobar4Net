@@ -15,32 +15,33 @@
 */
 
 using System;
-using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Route.Hint
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class SimpleHintParser : HintParser
     {
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public override void Process(CobarHint hint, string hintName, string sql)
         {
-            object value = ParsePrimary(hint, sql);
+            var value = ParsePrimary(hint, sql);
             if (value is long)
             {
-                value = ((long)value);
+                value = (long)value;
             }
-            var properties = new Dictionary<string, object>(1);
-            properties[hintName] = value;
+            //var properties = new Dictionary<string, object>(1);
+            //properties[hintName] = value;
             try
             {
                 switch (hintName)
                 {
                     case "table":
-                        hint.SetTable(value as string);
+                        hint.Table = value as string;
                         break;
                     case "replica":
-                        hint.SetReplica(Convert.ToInt32(value));
+                        hint.Replica = Convert.ToInt32(value);
                         break;
                     default:
                         throw new NotSupportedException(string.Format("hintName:{0},value:{1}", hintName, value));
@@ -50,7 +51,7 @@ namespace Tup.Cobar4Net.Route.Hint
             }
             catch (Exception t)
             {
-                throw new SQLSyntaxErrorException(t);
+                throw new SqlSyntaxErrorException(t);
             }
         }
     }

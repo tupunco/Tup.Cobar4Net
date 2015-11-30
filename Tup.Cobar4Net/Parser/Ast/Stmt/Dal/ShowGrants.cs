@@ -14,31 +14,29 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowGrants : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowGrants : DalShowStatement
     {
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression user;
-
-        public ShowGrants(Tup.Cobar4Net.Parser.Ast.Expression.Expression user)
+        public ShowGrants(IExpression user)
         {
-            this.user = user;
+            User = user;
         }
 
         public ShowGrants()
         {
-            this.user = null;
+            User = null;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetUser()
-        {
-            return user;
-        }
+        public virtual IExpression User { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

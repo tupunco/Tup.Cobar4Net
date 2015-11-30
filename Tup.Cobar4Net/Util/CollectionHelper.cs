@@ -4,14 +4,14 @@ using System.Collections.ObjectModel;
 namespace Tup.Cobar4Net
 {
     /// <summary>
-    /// 集合处理 工具类
+    ///     集合处理 工具类
     /// </summary>
     public static class CollectionHelper
     {
         #region AsReadOnly
 
         /// <summary>
-        /// IDictionary As ReadOnly
+        ///     IDictionary As ReadOnly
         /// </summary>
         /// <typeparam name="TKey"></typeparam>
         /// <typeparam name="TValue"></typeparam>
@@ -28,7 +28,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// ICollection As ReadOnly
+        ///     ICollection As ReadOnly
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="input"></param>
@@ -42,8 +42,7 @@ namespace Tup.Cobar4Net
 
             if (input is IList<T>)
                 return new ReadOnlyCollection<T>(input as IList<T>);
-            else
-                return new ReadOnlyCollection<T>(new List<T>(input));
+            return new ReadOnlyCollection<T>(new List<T>(input));
         }
 
         #endregion
@@ -51,7 +50,7 @@ namespace Tup.Cobar4Net
         #region IsEmpty
 
         /// <summary>
-        /// 指示指定类型的 数组对象是 null 或者 Length = 0。
+        ///     指示指定类型的 数组对象是 null 或者 Length = 0。
         /// </summary>
         /// <param name="input">array to check</param>
         /// <returns>bool</returns>
@@ -61,7 +60,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 指示指定类型的 数组对象是 null 或者 Length = 0。
+        ///     指示指定类型的 数组对象是 null 或者 Length = 0。
         /// </summary>
         /// <param name="input">array to check</param>
         /// <returns>bool</returns>
@@ -75,7 +74,7 @@ namespace Tup.Cobar4Net
         #region AddRange
 
         /// <summary>
-        /// AddRange ICollection
+        ///     AddRange ICollection
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="addCollection"></param>
@@ -91,11 +90,12 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// AddRange IDictionary
+        ///     AddRange IDictionary
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="addCollection"></param>
-        public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> collection, IDictionary<TKey, TValue> addCollection)
+        public static void AddRange<TKey, TValue>(this IDictionary<TKey, TValue> collection,
+                                                  IDictionary<TKey, TValue> addCollection)
         {
             if (collection == null || addCollection == null)
                 return;
@@ -107,15 +107,15 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// AddRange ICollection
+        ///     AddRange ICollection
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="addCollection"></param>
         /// <param name="startIndex"></param>
         /// <param name="count"></param>
         public static void AddRange<TInput>(this ICollection<TInput> collection,
-                                                IEnumerable<TInput> addCollection,
-                                                int startIndex, int count)
+                                            IEnumerable<TInput> addCollection,
+                                            int startIndex, int count)
         {
             if (collection == null || addCollection == null || count <= 0)
                 return;
@@ -137,7 +137,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// AddRange To Queue
+        ///     AddRange To Queue
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="collection"></param>
@@ -153,7 +153,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// AddRange To Stack
+        ///     AddRange To Stack
         /// </summary>
         /// <param name="collection"></param>
         /// <param name="collection"></param>
@@ -173,27 +173,27 @@ namespace Tup.Cobar4Net
         #region Dictionary GetValue
 
         /// <summary>
-        /// GetValue From Dictionary
+        ///     GetValue From Dictionary
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> obj, TKey key)
         {
-            return GetValue<TKey, TValue>(obj, key, default(TValue));
+            return GetValue(obj, key, default(TValue));
         }
 
         /// <summary>
-        /// GetValue From Dictionary
+        ///     GetValue From Dictionary
         /// </summary>
         /// <param name="key"></param>
         /// <returns></returns>
         public static TValue GetValue<TKey, TValue>(this IDictionary<TKey, TValue> obj,
-                                                          TKey key, TValue defaultValue)
+                                                    TKey key, TValue defaultValue)
         {
             if (obj == null)
                 return defaultValue;
 
-            TValue tObj = default(TValue);
+            var tObj = default(TValue);
             if (obj.TryGetValue(key, out tObj))
                 return tObj;
 

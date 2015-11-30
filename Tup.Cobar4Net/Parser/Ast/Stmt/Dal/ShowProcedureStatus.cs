@@ -14,46 +14,39 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowProcedureStatus : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowProcedureStatus : DalShowStatement
     {
-        private readonly string pattern;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
-
         public ShowProcedureStatus(string pattern)
         {
-            this.pattern = pattern;
-            this.where = null;
+            Pattern = pattern;
+            Where = null;
         }
 
-        public ShowProcedureStatus(Tup.Cobar4Net.Parser.Ast.Expression.Expression where)
+        public ShowProcedureStatus(IExpression where)
         {
-            this.pattern = null;
-            this.where = where;
+            Pattern = null;
+            Where = where;
         }
 
         public ShowProcedureStatus()
         {
-            this.pattern = null;
-            this.where = null;
+            Pattern = null;
+            Where = null;
         }
 
-        public virtual string GetPattern()
-        {
-            return pattern;
-        }
+        public virtual string Pattern { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
-        {
-            return where;
-        }
+        public virtual IExpression Where { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

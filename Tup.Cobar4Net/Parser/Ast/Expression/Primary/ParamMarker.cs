@@ -19,8 +19,12 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <summary><code>'?'</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'?'</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ParamMarker : PrimaryExpression
     {
         private readonly int paramIndex;
@@ -31,10 +35,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             this.paramIndex = paramIndex;
         }
 
-        /// <returns>start from 1</returns>
-        public virtual int GetParamIndex()
+        /// <value>start from 1</value>
+        public virtual int ParamIndex
         {
-            return paramIndex;
+            get { return paramIndex; }
         }
 
         public override int GetHashCode()
@@ -50,8 +54,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             }
             if (obj is ParamMarker)
             {
-                ParamMarker that = (ParamMarker)obj;
-                return this.paramIndex == that.paramIndex;
+                var that = (ParamMarker)obj;
+                return paramIndex == that.paramIndex;
             }
             return false;
         }
@@ -61,7 +65,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return parameters.GetValue(paramIndex);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

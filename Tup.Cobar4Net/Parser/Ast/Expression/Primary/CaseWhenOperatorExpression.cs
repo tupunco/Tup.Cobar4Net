@@ -20,56 +20,43 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <summary><code>'CASE' value? ('WHEN' condition 'THEN' result)+ ('ELSE' result)? 'END' </code>
-    /// 	</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'CASE' value? ('WHEN' condition 'THEN' result)+ ('ELSE' result)? 'END' </code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class CaseWhenOperatorExpression : PrimaryExpression
     {
-        private readonly Expression comparee;
-
-        private readonly IList<Pair<Expression, Expression>> whenList;
-
-        private readonly Expression elseResult;
-
         /// <param name="whenList">never null or empry; no pair contains null key or value</param>
         /// <param name="comparee">
-        /// null for format of <code>CASE WHEN ...</code>, otherwise,
-        /// <code>CASE comparee WHEN ...</code>
+        ///     null for format of <code>CASE WHEN ...</code>, otherwise,
+        ///     <code>CASE comparee WHEN ...</code>
         /// </param>
-        public CaseWhenOperatorExpression(Expression comparee,
-            IList<Pair<Expression, Expression>> whenList,
-            Expression elseResult)
+        public CaseWhenOperatorExpression(IExpression comparee,
+                                          IList<Pair<IExpression, IExpression>> whenList,
+                                          IExpression elseResult)
         {
-            this.comparee = comparee;
-            if (whenList is List<Pair<Expression, Expression>>)
+            Comparee = comparee;
+            if (whenList is List<Pair<IExpression, IExpression>>)
             {
-                this.whenList = whenList;
+                WhenList = whenList;
             }
             else
             {
-                this.whenList = new List<Pair<Expression, Expression>>(whenList);
+                WhenList = new List<Pair<IExpression, IExpression>>(whenList);
             }
-            this.elseResult = elseResult;
+            ElseResult = elseResult;
         }
 
-        public virtual Expression GetComparee()
-        {
-            return comparee;
-        }
+        public virtual IExpression Comparee { get; }
 
-        /// <returns>never null or empty; no pair contains null key or value</returns>
-        public virtual IList<Pair<Expression, Expression
-            >> GetWhenList()
-        {
-            return whenList;
-        }
+        /// <value>never null or empty; no pair contains null key or value</value>
+        public virtual IList<Pair<IExpression, IExpression>> WhenList { get; }
 
-        public virtual Expression GetElseResult()
-        {
-            return elseResult;
-        }
+        public virtual IExpression ElseResult { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

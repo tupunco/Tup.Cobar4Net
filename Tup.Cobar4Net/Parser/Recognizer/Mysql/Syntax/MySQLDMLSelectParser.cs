@@ -15,167 +15,162 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 using Tup.Cobar4Net.Parser.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLSelectParser : MySQLDMLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlSelectParser : MySqlDmlParser
     {
-        public MySQLDMLSelectParser(MySQLLexer lexer, MySQLExprParser exprParser)
-            : base(lexer, exprParser)
-        {
-            this.exprParser.SetSelectParser(this);
-        }
+        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers =
+            new Dictionary<string, SpecialIdentifier>();
 
-        private enum SpecialIdentifier
-        {
-            None = 0,
-
-            SqlBufferResult,
-            SqlCache,
-            SqlNoCache
-        }
-
-        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers = new Dictionary<string, SpecialIdentifier>();
-
-        static MySQLDMLSelectParser()
+        static MySqlDmlSelectParser()
         {
             specialIdentifiers["SQL_BUFFER_RESULT"] = SpecialIdentifier.SqlBufferResult;
             specialIdentifiers["SQL_CACHE"] = SpecialIdentifier.SqlCache;
             specialIdentifiers["SQL_NO_CACHE"] = SpecialIdentifier.SqlNoCache;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        private DMLSelectStatement.SelectOption SelectOption()
+        public MySqlDmlSelectParser(MySqlLexer lexer, MySqlExprParser exprParser)
+            : base(lexer, exprParser)
         {
-            for (DMLSelectStatement.SelectOption option = new DMLSelectStatement.SelectOption
-                (); ; lexer.NextToken())
+            this.exprParser.SetSelectParser(this);
+        }
+
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        private DmlSelectStatement.SelectOption SelectOption()
+        {
+            for (var option = new DmlSelectStatement.SelectOption();;
+                lexer.NextToken())
             {
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwAll:
-                        {
-                            option.resultDup = DMLSelectStatement.SelectDuplicationStrategy.All;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwAll:
+                    {
+                        option.resultDup = SelectDuplicationStrategy.All;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwDistinct:
-                        {
-                            option.resultDup = DMLSelectStatement.SelectDuplicationStrategy.Distinct;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwDistinct:
+                    {
+                        option.resultDup = SelectDuplicationStrategy.Distinct;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwDistinctrow:
-                        {
-                            option.resultDup = DMLSelectStatement.SelectDuplicationStrategy.Distinctrow;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwDistinctrow:
+                    {
+                        option.resultDup = SelectDuplicationStrategy.Distinctrow;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwHighPriority:
-                        {
-                            option.highPriority = true;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwHighPriority:
+                    {
+                        option.highPriority = true;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwStraightJoin:
-                        {
-                            option.straightJoin = true;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwStraightJoin:
+                    {
+                        option.straightJoin = true;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwSqlSmallResult:
-                        {
-                            option.resultSize = DMLSelectStatement.SmallOrBigResult.SqlSmallResult;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwSqlSmallResult:
+                    {
+                        option.resultSize = SelectSmallOrBigResult.SqlSmallResult;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwSqlBigResult:
-                        {
-                            option.resultSize = DMLSelectStatement.SmallOrBigResult.SqlBigResult;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwSqlBigResult:
+                    {
+                        option.resultSize = SelectSmallOrBigResult.SqlBigResult;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.KwSqlCalcFoundRows:
-                        {
-                            option.sqlCalcFoundRows = true;
-                            goto outer_break;
-                        }
+                    case MySqlToken.KwSqlCalcFoundRows:
+                    {
+                        option.sqlCalcFoundRows = true;
+                        goto outer_break;
+                    }
 
-                    case MySQLToken.Identifier:
+                    case MySqlToken.Identifier:
+                    {
+                        var optionStringUp = lexer.GetStringValueUppercase();
+                        var specialId = specialIdentifiers.GetValue(optionStringUp);
+                        if (specialId != SpecialIdentifier.None)
                         {
-                            string optionStringUp = lexer.StringValueUppercase();
-                            var specialId = specialIdentifiers.GetValue(optionStringUp);
-                            if (specialId != SpecialIdentifier.None)
+                            switch (specialId)
                             {
-                                switch (specialId)
+                                case SpecialIdentifier.SqlBufferResult:
                                 {
-                                    case SpecialIdentifier.SqlBufferResult:
-                                        {
-                                            if (option.sqlBufferResult)
-                                            {
-                                                return option;
-                                            }
-                                            option.sqlBufferResult = true;
-                                            goto outer_break;
-                                        }
+                                    if (option.sqlBufferResult)
+                                    {
+                                        return option;
+                                    }
+                                    option.sqlBufferResult = true;
+                                    goto outer_break;
+                                }
 
-                                    case SpecialIdentifier.SqlCache:
-                                        {
-                                            if (option.queryCache != DMLSelectStatement.QueryCacheStrategy.Undef)
-                                            {
-                                                return option;
-                                            }
-                                            option.queryCache = DMLSelectStatement.QueryCacheStrategy.SqlCache;
-                                            goto outer_break;
-                                        }
+                                case SpecialIdentifier.SqlCache:
+                                {
+                                    if (option.SelectQueryCache != SelectQueryCacheStrategy.Undef)
+                                    {
+                                        return option;
+                                    }
+                                    option.SelectQueryCache = SelectQueryCacheStrategy.SqlCache;
+                                    goto outer_break;
+                                }
 
-                                    case SpecialIdentifier.SqlNoCache:
-                                        {
-                                            if (option.queryCache != DMLSelectStatement.QueryCacheStrategy.Undef)
-                                            {
-                                                return option;
-                                            }
-                                            option.queryCache = DMLSelectStatement.QueryCacheStrategy.SqlNoCache;
-                                            goto outer_break;
-                                        }
+                                case SpecialIdentifier.SqlNoCache:
+                                {
+                                    if (option.SelectQueryCache != SelectQueryCacheStrategy.Undef)
+                                    {
+                                        return option;
+                                    }
+                                    option.SelectQueryCache = SelectQueryCacheStrategy.SqlNoCache;
+                                    goto outer_break;
                                 }
                             }
-                            goto default;
                         }
+                        goto default;
+                    }
 
                     default:
-                        {
-                            return option;
-                        }
+                    {
+                        return option;
+                    }
                 }
-            outer_break:;
+                outer_break:
+                ;
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        private IList<Pair<Expr, string>> SelectExprList()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        private IList<Pair<IExpression, string>> SelectExprList()
         {
-            Expr expr = exprParser.Expression();
-            string alias = As();
-            IList<Pair<Expr, string>> list;
-            if (lexer.Token() == MySQLToken.PuncComma)
+            var expr = exprParser.Expression();
+            var alias = As();
+            IList<Pair<IExpression, string>> list;
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
-                list = new List<Pair<Expr, string>>();
-                list.Add(new Pair<Expr, string>(expr, alias));
+                list = new List<Pair<IExpression, string>>();
+                list.Add(new Pair<IExpression, string>(expr, alias));
             }
             else
             {
-                list = new List<Pair<Expr, string>>(1);
-                list.Add(new Pair<Expr, string>(expr, alias));
+                list = new List<Pair<IExpression, string>>(1);
+                list.Add(new Pair<IExpression, string>(expr, alias));
                 return list;
             }
-            for (; lexer.Token() == MySQLToken.PuncComma; list.Add(new Pair<Expr, string>(expr, alias)))
+            for (; lexer.Token() == MySqlToken.PuncComma; list.Add(new Pair<IExpression, string>(expr, alias)))
             {
                 lexer.NextToken();
                 expr = exprParser.Expression();
@@ -184,22 +179,22 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             return list;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public override DMLSelectStatement Select()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public override DmlSelectStatement Select()
         {
-            Match(MySQLToken.KwSelect);
-            DMLSelectStatement.SelectOption option = SelectOption();
-            IList<Pair<Expr, string>> exprList = SelectExprList();
+            Match(MySqlToken.KwSelect);
+            var option = SelectOption();
+            var exprList = SelectExprList();
             TableReferences tables = null;
-            Expr where = null;
+            IExpression where = null;
             GroupBy group = null;
-            Expr having = null;
+            IExpression having = null;
             OrderBy order = null;
             Limit limit = null;
-            bool dual = false;
-            if (lexer.Token() == MySQLToken.KwFrom)
+            var dual = false;
+            if (lexer.Token() == MySqlToken.KwFrom)
             {
-                if (lexer.NextToken() == MySQLToken.KwDual)
+                if (lexer.NextToken() == MySqlToken.KwDual)
                 {
                     lexer.NextToken();
                     dual = true;
@@ -212,7 +207,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                     tables = TableRefs();
                 }
             }
-            if (lexer.Token() == MySQLToken.KwWhere)
+            if (lexer.Token() == MySqlToken.KwWhere)
             {
                 lexer.NextToken();
                 where = exprParser.Expression();
@@ -220,7 +215,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             if (!dual)
             {
                 group = GroupBy();
-                if (lexer.Token() == MySQLToken.KwHaving)
+                if (lexer.Token() == MySqlToken.KwHaving)
                 {
                     lexer.NextToken();
                     having = exprParser.Expression();
@@ -232,48 +227,56 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             {
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwFor:
-                        {
-                            lexer.NextToken();
-                            Match(MySQLToken.KwUpdate);
-                            option.lockMode = DMLSelectStatement.LockMode.ForUpdate;
-                            break;
-                        }
+                    case MySqlToken.KwFor:
+                    {
+                        lexer.NextToken();
+                        Match(MySqlToken.KwUpdate);
+                        option.lockMode = LockMode.ForUpdate;
+                        break;
+                    }
 
-                    case MySQLToken.KwLock:
-                        {
-                            lexer.NextToken();
-                            Match(MySQLToken.KwIn);
-                            MatchIdentifier("SHARE");
-                            MatchIdentifier("MODE");
-                            option.lockMode = DMLSelectStatement.LockMode.LockInShareMode;
-                            break;
-                        }
+                    case MySqlToken.KwLock:
+                    {
+                        lexer.NextToken();
+                        Match(MySqlToken.KwIn);
+                        MatchIdentifier("SHARE");
+                        MatchIdentifier("MODE");
+                        option.lockMode = LockMode.LockInShareMode;
+                        break;
+                    }
                 }
             }
-            return new DMLSelectStatement(option, exprList, tables, where, group, having, order, limit);
+            return new DmlSelectStatement(option, exprList, tables, where, group, having, order, limit);
         }
 
         /// <summary>
-        /// first token is either
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.KwSelect"/>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.PuncLeftParen"/>
-        /// which has been scanned but not yet
-        /// consumed
+        ///     first token is either
+        ///     <see cref="MySqlToken.KwSelect" />
+        ///     or
+        ///     <see cref="MySqlToken.PuncLeftParen" />
+        ///     which has been scanned but not yet
+        ///     consumed
         /// </summary>
         /// <returns>
-        ///
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Stmt.Dml.DMLSelectStatement"/>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Stmt.Dml.DMLSelectUnionStatement"/>
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Stmt.Dml.DmlSelectStatement" />
+        ///     or
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Stmt.Dml.DmlSelectUnionStatement" />
         /// </returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLQueryStatement SelectUnion()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlQueryStatement SelectUnion()
         {
-            DMLSelectStatement select = SelectPrimary();
-            DMLQueryStatement query = BuildUnionSelect(select);
+            var select = SelectPrimary();
+            var query = BuildUnionSelect(select);
             return query;
+        }
+
+        private enum SpecialIdentifier
+        {
+            None = 0,
+
+            SqlBufferResult,
+            SqlCache,
+            SqlNoCache
         }
     }
 }

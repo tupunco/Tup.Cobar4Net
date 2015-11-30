@@ -18,7 +18,9 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class CurrentUser : FunctionExpression
     {
         public CurrentUser()
@@ -26,9 +28,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info.CurrentUser();
+            return new CurrentUser();
         }
     }
 }

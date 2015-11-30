@@ -18,18 +18,19 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Xml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class Extractvalue : FunctionExpression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ExtractValue : FunctionExpression
     {
-        public Extractvalue(IList<Expression> arguments)
+        public ExtractValue(IList<IExpression> arguments)
             : base("EXTRACTVALUE", arguments)
         {
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return new Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Xml.Extractvalue(arguments
-                );
+            return new ExtractValue(arguments);
         }
     }
 }

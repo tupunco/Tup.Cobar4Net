@@ -15,35 +15,36 @@
 */
 
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface ConfigLoader
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IConfigLoader
     {
-        IDictionary<string, RuleAlgorithm> GetRuleFunction();
+        IDictionary<string, IRuleAlgorithm> RuleFunction { get; }
 
-        ICollection<RuleConfig> ListRuleConfig();
+        ICollection<RuleConfig> RuleConfigList { get; }
+
+        IDictionary<string, SchemaConfig> SchemaConfigs { get; }
+
+        IDictionary<string, DataNodeConfig> DataNodes { get; }
+
+        IDictionary<string, DataSourceConfig> DataSources { get; }
+
+        SystemConfig SystemConfig { get; }
+
+        IDictionary<string, UserConfig> UserConfigs { get; }
+
+        QuarantineConfig QuarantineConfig { get; }
+
+        ClusterConfig ClusterConfig { get; }
 
         SchemaConfig GetSchemaConfig(string schema);
 
-        IDictionary<string, SchemaConfig> GetSchemaConfigs();
-
-        IDictionary<string, DataNodeConfig> GetDataNodes();
-
-        IDictionary<string, DataSourceConfig> GetDataSources();
-
-        SystemConfig GetSystemConfig();
-
         UserConfig GetUserConfig(string user);
-
-        IDictionary<string, UserConfig> GetUserConfigs();
-
-        QuarantineConfig GetQuarantineConfig();
-
-        ClusterConfig GetClusterConfig();
     }
 }

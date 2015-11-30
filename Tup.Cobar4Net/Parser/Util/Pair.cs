@@ -14,62 +14,53 @@
 * limitations under the License.
 */
 
-using System.Text;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Tup.Cobar4Net.Parser.Util
 {
     /// <summary>(created at 2010-7-21)</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class Pair<K, V>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class Pair<TKey, TValue>
     {
-        private readonly K key;
+        private const int HashConst = 37;
 
-        private readonly V value;
-
-        public Pair(K key, V value)
+        public Pair(TKey key, TValue value)
         {
-            this.key = key;
-            this.value = value;
+            Key = key;
+            Value = value;
         }
 
-        public K GetKey()
-        {
-            return key;
-        }
+        public TKey Key { get; }
 
-        public V GetValue()
-        {
-            return value;
-        }
+        public TValue Value { get; }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            sb.Append("(").Append(key).Append(", ").Append(value).Append(")");
-            return sb.ToString();
+            return string.Format("[Pair Key={0}, Value={1}]", Key, Value);
         }
 
-        private const int HashConst = 37;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0017:Possible compare of value type with 'null'", Justification = "<¹ÒÆð>")]
+        [SuppressMessage("Potential Code Quality Issues", "RECS0017:Possible compare of value type with 'null'",
+            Justification = "<¹ÒÆð>")]
         public override int GetHashCode()
         {
-            int hash = 17;
-            if (key == null)
+            var hash = 17;
+            if (Key == null)
             {
                 hash += HashConst;
             }
             else
             {
-                hash = hash << 5 + hash << 1 + hash + key.GetHashCode();
+                hash = hash << 5 + hash << 1 + hash + Key.GetHashCode();
             }
-            if (value == null)
+            if (Value == null)
             {
                 hash += HashConst;
             }
             else
             {
-                hash = hash << 5 + hash << 1 + hash + value.GetHashCode();
+                hash = hash << 5 + hash << 1 + hash + Value.GetHashCode();
             }
             return hash;
         }
@@ -80,15 +71,15 @@ namespace Tup.Cobar4Net.Parser.Util
             {
                 return true;
             }
-            if (!(obj is Pair<K, V>))
+            if (!(obj is Pair<TKey, TValue>))
             {
                 return false;
             }
-            var that = (Pair<K, V>)obj;
-            return IsEquals(this.key, that.key) && IsEquals(this.value, that.value);
+            var that = (Pair<TKey, TValue>) obj;
+            return IsEquals(Key, that.Key) && IsEquals(Value, that.Value);
         }
 
-        private bool IsEquals(object o1, object o2)
+        private static bool IsEquals(object o1, object o2)
         {
             if (o1 == o2)
             {

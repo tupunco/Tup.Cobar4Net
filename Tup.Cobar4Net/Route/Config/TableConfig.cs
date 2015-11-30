@@ -20,76 +20,56 @@ using Tup.Cobar4Net.Util;
 
 namespace Tup.Cobar4Net.Route.Config
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     /// <author>xianmao.hexm</author>
     public sealed class TableConfig
     {
-        private readonly string name;
-
-        private readonly string[] dataNodes;
-
-        private readonly TableRuleConfig rule;
-
-        private readonly ICollection<string> columnIndex;
-
-        private readonly bool ruleRequired;
+        private readonly ICollection<string> _columnIndex;
 
         public TableConfig(string name, string dataNode, TableRuleConfig rule, bool ruleRequired)
         {
-            this.name = name;
-            this.dataNodes = SplitUtil.Split(dataNode, ',', '$', '-', '[', ']');
-            if (this.dataNodes == null || this.dataNodes.Length <= 0)
+            Name = name;
+            DataNodes = SplitUtil.Split(dataNode, ',', '$', '-', '[', ']');
+            if (DataNodes == null || DataNodes.Length <= 0)
             {
-                throw new ArgumentException("invalid table dataNodes: " + dataNode);
+                throw new ArgumentException("invalid table _dataNodes: " + dataNode);
             }
-            this.rule = rule;
-            this.columnIndex = BuildColumnIndex(rule);
-            this.ruleRequired = ruleRequired;
+            Rule = rule;
+            _columnIndex = BuildColumnIndex(rule);
+            IsRuleRequired = ruleRequired;
         }
+
+        public string Name { get; }
+
+        public string[] DataNodes { get; }
+
+        public bool IsRuleRequired { get; }
+
+        public TableRuleConfig Rule { get; }
 
         public bool ExistsColumn(string columnNameUp)
         {
-            return columnIndex.Contains(columnNameUp);
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-
-        public string[] GetDataNodes()
-        {
-            return dataNodes;
-        }
-
-        public bool IsRuleRequired()
-        {
-            return ruleRequired;
-        }
-
-        public TableRuleConfig GetRule()
-        {
-            return rule;
+            return _columnIndex.Contains(columnNameUp);
         }
 
         private static ICollection<string> BuildColumnIndex(TableRuleConfig rule)
         {
             if (rule == null)
-            {
                 return new HashSet<string>();
-            }
-            TableRuleConfig.RuleConfig[] rs = rule.GetRules();
+
+            var rs = rule.Rules;
             if (rs == null || rs.Length <= 0)
-            {
                 return new HashSet<string>();
-            }
+
             ICollection<string> columnIndex = new HashSet<string>();
-            foreach (TableRuleConfig.RuleConfig r in rs)
+            foreach (var r in rs)
             {
-                string[] columns = r.GetColumns();
+                var columns = r.Columns;
                 if (columns != null)
                 {
-                    foreach (string col in columns)
+                    foreach (var col in columns)
                     {
                         if (col != null)
                         {

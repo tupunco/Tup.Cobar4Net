@@ -19,7 +19,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
     /// <summary>stand for <code>*</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Wildcard : Identifier
     {
         public Wildcard(Identifier parent)
@@ -27,7 +29,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
         {
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

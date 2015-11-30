@@ -14,29 +14,30 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Sharpen;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LiteralHexadecimal : Literal
     {
-        private byte[] bytes = null;
+        private readonly string _charset;
 
-        private readonly string introducer;
+        private readonly string _introducer;
 
-        private readonly string charset;
+        private readonly int _offset;
 
-        private readonly char[] @string = null;
+        private readonly int _size;
 
-        private readonly int offset;
-
-        private readonly int size;
+        private readonly char[] _string;
+        private byte[] _bytes;
 
         /// <param name="introducer">e.g. "_latin1"</param>
         /// <param name="string">e.g. "select x'89df'"</param>
@@ -50,38 +51,39 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             }
             if (charset == null)
             {
-                throw new ArgumentException("charset is null");
+                throw new ArgumentException("_charset is null");
             }
-            this.introducer = introducer;
-            this.charset = charset;
-            this.@string = @string;
-            this.offset = offset;
-            this.size = size;
+            _introducer = introducer;
+            _charset = charset;
+            _string = @string;
+            _offset = offset;
+            _size = size;
         }
 
-        public virtual string GetText()
+        public virtual string Text
         {
-            return new string(@string, offset, size);
+            get { return new string(_string, _offset, _size); }
         }
 
-        public virtual string GetIntroducer()
+        public virtual string Introducer
         {
-            return introducer;
+            get { return _introducer; }
         }
 
         public virtual void AppendTo(StringBuilder sb)
         {
-            sb.Append(@string, offset, size);
+            sb.Append(_string, _offset, _size);
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            this.bytes = ParseString.HexString2Bytes(@string, offset, size);
-            return Runtime.GetStringForBytes(bytes, introducer == null ? charset :
-                                                Runtime.Substring(introducer, 1));
+            _bytes = ParseString.HexString2Bytes(_string, _offset, _size);
+            return Runtime.GetStringForBytes(_bytes, _introducer == null
+                ? _charset
+                : Runtime.Substring(_introducer, 1));
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

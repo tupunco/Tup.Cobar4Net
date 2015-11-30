@@ -20,22 +20,19 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Extension
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ExtDDLDropPolicy : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ExtDdlDropPolicy : IDdlStatement
     {
-        private readonly Identifier policyName;
-
-        public ExtDDLDropPolicy(Identifier policyName)
+        public ExtDdlDropPolicy(Identifier policyName)
         {
-            this.policyName = policyName;
+            PolicyName = policyName;
         }
 
-        public virtual Identifier GetPolicyName()
-        {
-            return policyName;
-        }
+        public virtual Identifier PolicyName { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

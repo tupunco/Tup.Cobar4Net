@@ -20,15 +20,17 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class Limit : ASTNode
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class Limit : IAstNode
     {
         /// <summary>when it is null, to sql generated must ignore this number</summary>
         private readonly Number offset;
 
-        private readonly Number size;
-
         private readonly ParamMarker offsetP;
+
+        private readonly Number size;
 
         private readonly ParamMarker sizeP;
 
@@ -44,8 +46,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
             }
             this.offset = offset;
             this.size = size;
-            this.offsetP = null;
-            this.sizeP = null;
+            offsetP = null;
+            sizeP = null;
         }
 
         public Limit(Number offset, ParamMarker sizeP)
@@ -59,8 +61,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
                 throw new ArgumentException();
             }
             this.offset = offset;
-            this.size = null;
-            this.offsetP = null;
+            size = null;
+            offsetP = null;
             this.sizeP = sizeP;
         }
 
@@ -74,10 +76,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
             {
                 throw new ArgumentException();
             }
-            this.offset = null;
+            offset = null;
             this.size = size;
             this.offsetP = offsetP;
-            this.sizeP = null;
+            sizeP = null;
         }
 
         public Limit(ParamMarker offsetP, ParamMarker sizeP)
@@ -90,35 +92,32 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
             {
                 throw new ArgumentException();
             }
-            this.offset = null;
-            this.size = null;
+            offset = null;
+            size = null;
             this.offsetP = offsetP;
             this.sizeP = sizeP;
         }
 
-        /// <returns>
-        ///
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Primary.ParamMarker"/>
-        /// or
-        /// <see cref="Sharpen.Number"/>
-        /// </returns>
-        public virtual object GetOffset()
+        /// <value>
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Primary.ParamMarker" />
+        ///     or
+        ///     <see cref="Sharpen.Number" />
+        /// </value>
+        public virtual object Offset
         {
-            return offset == null ? (object)offsetP : (object)(int)offset;
+            get { return offset == null ? offsetP : (object) (int) offset; }
         }
 
-        /// <returns>
-        ///
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Primary.ParamMarker"/>
-        /// or
-        /// <see cref="Sharpen.Number"/>
-        /// </returns>
-        public virtual object GetSize()
+        /// <value>
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Primary.ParamMarker" />
+        ///     or
+        /// </value>
+        public virtual object Size
         {
-            return size == null ? (object)sizeP : (object)(int)size;
+            get { return size == null ? sizeP : (object) (int) size; }
         }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

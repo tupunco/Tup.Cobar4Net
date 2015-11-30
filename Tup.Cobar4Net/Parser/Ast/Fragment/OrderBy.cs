@@ -16,42 +16,38 @@
 
 using System;
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class OrderBy : ASTNode
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class OrderBy : IAstNode
     {
         /// <summary>
-        /// might be
-        /// <see cref="System.Collections.ArrayList{E}"/>
-        ///
+        ///     might be
         /// </summary>
-        private readonly IList<Pair<Expr, SortOrder>> orderByList;
-
-        public virtual IList<Pair<Expr, SortOrder>>
-             GetOrderByList()
-        {
-            return orderByList;
-        }
+        private readonly IList<Pair<IExpression, SortOrder>> orderByList;
 
         /// <summary>performance tip: linked list is used</summary>
         public OrderBy()
         {
-            this.orderByList = new List<Pair<Expr, SortOrder>>();
+            orderByList = new List<Pair<IExpression, SortOrder>>();
         }
 
         /// <summary>performance tip: expect to have only 1 order item</summary>
-        public OrderBy(Tup.Cobar4Net.Parser.Ast.Expression.Expression expr, SortOrder order)
+        public OrderBy(IExpression expr, SortOrder order)
         {
-            this.orderByList = new List<Pair<Expr, SortOrder>>(1);
-            this.orderByList.Add(new Pair<Expr, SortOrder>(expr, order));
+            orderByList = new List<Pair<IExpression, SortOrder>>(1)
+            {
+                new Pair<IExpression, SortOrder>(expr, order)
+            };
         }
 
-        public OrderBy(IList<Pair<Expr, SortOrder>> orderByList)
+        public OrderBy(IList<Pair<IExpression, SortOrder>> orderByList)
         {
             if (orderByList == null)
             {
@@ -60,16 +56,20 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
             this.orderByList = orderByList;
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Fragment.OrderBy AddOrderByItem(Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             expr, SortOrder order)
+        public virtual IList<Pair<IExpression, SortOrder>> OrderByList
         {
-            orderByList.Add(new Pair<Expr, SortOrder>(expr, order));
-            return this;
+            get { return orderByList; }
         }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public virtual OrderBy AddOrderByItem(IExpression expr, SortOrder order)
+        {
+            orderByList.Add(new Pair<IExpression, SortOrder>(expr, order));
+            return this;
         }
     }
 }

@@ -15,55 +15,51 @@
 */
 
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class BetweenAndExpression : TernaryOperatorExpression, ReplacableExpression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class BetweenAndExpression : TernaryOperatorExpression, IReplacableExpression
     {
-        private readonly bool not;
+        private IExpression _replaceExpr;
 
         public BetweenAndExpression(bool not,
-            Expr comparee,
-            Expr notLessThan,
-            Expr notGreaterThan)
+            IExpression comparee,
+            IExpression notLessThan,
+            IExpression notGreaterThan)
             : base(comparee, notLessThan, notGreaterThan)
         {
-            this.not = not;
+            IsNot = not;
         }
 
-        public virtual bool IsNot()
+        public virtual bool IsNot { get; }
+
+        public override int Precedence
         {
-            return not;
+            get { return ExpressionConstants.PrecedenceBetweenAnd; }
         }
 
-        public override int GetPrecedence()
+        public virtual IExpression ReplaceExpr
         {
-            return ExpressionConstants.PrecedenceBetweenAnd;
-        }
-
-        private Expr replaceExpr;
-
-        public virtual void SetReplaceExpr(Expr replaceExpr)
-        {
-            this.replaceExpr = replaceExpr;
+            set { _replaceExpr = value; }
         }
 
         public virtual void ClearReplaceExpr()
         {
-            this.replaceExpr = null;
+            _replaceExpr = null;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
-            if (replaceExpr == null)
+            if (_replaceExpr == null)
             {
                 visitor.Visit(this);
             }
             else
             {
-                replaceExpr.Accept(visitor);
+                _replaceExpr.Accept(visitor);
             }
         }
     }

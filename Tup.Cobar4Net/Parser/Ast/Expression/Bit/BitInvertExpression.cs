@@ -16,18 +16,22 @@
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Bit
 {
-    /// <summary><code>'~' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'~' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class BitInvertExpression : UnaryOperatorExpression
     {
-        public BitInvertExpression(Expression operand)
+        public BitInvertExpression(IExpression operand)
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "~";
+            get { return "~"; }
         }
     }
 }

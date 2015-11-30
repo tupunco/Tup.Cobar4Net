@@ -16,79 +16,80 @@
 
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 {
-    /// <summary><code>higherPreExpr (NOT)? IN ( '(' expr (',' expr)* ')' | subquery )</code>
-    /// 	</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class InExpression : BinaryOperatorExpression, ReplacableExpression
+    /// <summary>
+    ///     <code>higherPreExpr (NOT)? IN ( '(' expr (',' expr)* ')' | subquery )</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class InExpression : BinaryOperatorExpression, IReplacableExpression
     {
-        private readonly bool not;
+        private readonly bool _not;
+
+        private IExpression _replaceExpr;
 
         /// <param name="rightOprand">
-        ///
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.QueryExpression"/>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.InExpressionList"/>
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.IQueryExpression" />
+        ///     or
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.InExpressionList" />
         /// </param>
-        public InExpression(bool not, Expr leftOprand, Expr rightOprand)
+        public InExpression(bool not, IExpression leftOprand, IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceComparision)
         {
-            this.not = not;
+            _not = not;
         }
 
-        public virtual bool IsNot()
+        public virtual bool IsNot
         {
-            return not;
+            get { return _not; }
+        }
+
+        public override string Operator
+        {
+            get { return _not ? "NOT IN" : "IN"; }
+        }
+
+        public virtual IExpression ReplaceExpr
+        {
+            set { _replaceExpr = value; }
+        }
+
+        public virtual void ClearReplaceExpr()
+        {
+            _replaceExpr = null;
+        }
+
+        public override void Accept(ISqlAstVisitor visitor)
+        {
+            if (_replaceExpr == null)
+            {
+                visitor.Visit(this);
+            }
+            else
+            {
+                _replaceExpr.Accept(visitor);
+            }
         }
 
         public virtual InExpressionList GetInExpressionList()
         {
             if (rightOprand is InExpressionList)
             {
-                return (InExpressionList)rightOprand;
+                return (InExpressionList) rightOprand;
             }
             return null;
         }
 
-        public virtual QueryExpression GetQueryExpression()
+        public virtual IQueryExpression GetQueryExpression()
         {
-            if (rightOprand is QueryExpression)
+            if (rightOprand is IQueryExpression)
             {
-                return (QueryExpression)rightOprand;
+                return (IQueryExpression) rightOprand;
             }
             return null;
-        }
-
-        public override string GetOperator()
-        {
-            return not ? "NOT IN" : "IN";
-        }
-
-        private Expr replaceExpr;
-
-        public virtual void SetReplaceExpr(Expr replaceExpr)
-        {
-            this.replaceExpr = replaceExpr;
-        }
-
-        public virtual void ClearReplaceExpr()
-        {
-            this.replaceExpr = null;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
-        {
-            if (replaceExpr == null)
-            {
-                visitor.Visit(this);
-            }
-            else
-            {
-                replaceExpr.Accept(visitor);
-            }
         }
     }
 }

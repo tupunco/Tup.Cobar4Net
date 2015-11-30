@@ -19,44 +19,41 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowIndex : DALShowStatement
+    /// <summary>
+    ///     ShowIndex IndexType
+    /// </summary>
+    public enum ShowIndexType
     {
-        public enum Type
+        None = 0,
+
+        Index,
+        Indexes,
+        Keys
+    }
+
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowIndex : DalShowStatement
+    {
+        public ShowIndex(ShowIndexType showIndexType, Identifier table, Identifier database)
         {
-            Index,
-            Indexes,
-            Keys
+            Table = table;
+            Table.Parent = database;
+            IndexType = showIndexType;
         }
 
-        private readonly ShowIndex.Type type;
-
-        private readonly Identifier table;
-
-        public ShowIndex(ShowIndex.Type type, Identifier table, Identifier database)
+        public ShowIndex(ShowIndexType showIndexType, Identifier table)
         {
-            this.table = table;
-            this.table.SetParent(database);
-            this.type = type;
+            Table = table;
+            IndexType = showIndexType;
         }
 
-        public ShowIndex(ShowIndex.Type type, Identifier table)
-        {
-            this.table = table;
-            this.type = type;
-        }
+        public virtual ShowIndexType IndexType { get; }
 
-        public virtual ShowIndex.Type GetIndexType()
-        {
-            return type;
-        }
+        public virtual Identifier Table { get; }
 
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

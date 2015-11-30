@@ -13,7 +13,7 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using System;
+
 using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Util
@@ -21,10 +21,10 @@ namespace Tup.Cobar4Net.Util
     public sealed class ObjectUtil
     {
         /// <summary>
-        /// 递归地比较两个数组是否相同，支持多维数组。
-        /// <p>
-        /// 如果比较的对象不是数组，则此方法的结果同<code>ObjectUtil.equals</code>。
-        /// </p>
+        ///     递归地比较两个数组是否相同，支持多维数组。
+        ///     <p>
+        ///         如果比较的对象不是数组，则此方法的结果同<code>ObjectUtil.equals</code>。
+        ///     </p>
         /// </summary>
         /// <param name="array1">数组1</param>
         /// <param name="array2">数组2</param>
@@ -41,7 +41,7 @@ namespace Tup.Cobar4Net.Util
             {
                 return false;
             }
-            for (int i = 0; i < array1.Count; i++)
+            for (var i = 0; i < array1.Count; i++)
             {
                 if (!array1[i].Equals(array2[i]))
                 {
@@ -50,6 +50,7 @@ namespace Tup.Cobar4Net.Util
             }
             return true;
         }
+
         /// <summary>
         /// 递归地比较两个数组是否相同，支持多维数组。
         /// <p>
@@ -69,7 +70,7 @@ namespace Tup.Cobar4Net.Util
         //    //{
         //    //    return false;
         //    //}
-        //    //Type clazz = array1.GetType();
+        //    //ProfileType clazz = array1.GetType();
         //    //if (!clazz.Equals(array2.GetType()))
         //    //{
         //    //    return false;

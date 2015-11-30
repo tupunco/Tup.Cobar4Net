@@ -20,57 +20,52 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Mts
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MTSRollbackStatement : SQLStatement
+    /// <summary>
+    ///     MTSRollbackStatement CompleteType
+    /// </summary>
+    public enum CompleteType
     {
-        public enum CompleteType
-        {
-            None = 0,
-            UnDef,
-            Chain,
-            NoChain,
-            Release,
-            NoRelease
-        }
+        None = 0,
+        UnDef,
+        Chain,
+        NoChain,
+        Release,
+        NoRelease
+    }
 
-        private readonly CompleteType completeType;
-
-        private readonly Identifier savepoint;
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MTSRollbackStatement : ISqlStatement
+    {
         public MTSRollbackStatement(CompleteType completeType)
         {
             if (completeType == CompleteType.None)
             {
                 throw new ArgumentException("complete type is null!");
             }
-            this.completeType = completeType;
-            this.savepoint = null;
+            CompleteType = completeType;
+            Savepoint = null;
         }
 
         public MTSRollbackStatement(Identifier savepoint)
         {
-            this.completeType = CompleteType.None;
+            CompleteType = CompleteType.None;
 
             if (savepoint == null)
             {
                 throw new ArgumentException("savepoint is null!");
             }
-            this.savepoint = savepoint;
+            Savepoint = savepoint;
         }
 
-        /// <returns>null if roll back to SAVEPOINT</returns>
-        public virtual CompleteType GetCompleteType()
-        {
-            return completeType;
-        }
+        /// <value>null if roll back to SAVEPOINT</value>
+        public virtual CompleteType CompleteType { get; }
 
-        /// <returns>null for roll back the whole transaction</returns>
-        public virtual Identifier GetSavepoint()
-        {
-            return savepoint;
-        }
+        /// <value>null for roll back the whole transaction</value>
+        public virtual Identifier Savepoint { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

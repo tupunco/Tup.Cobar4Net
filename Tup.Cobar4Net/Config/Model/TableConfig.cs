@@ -21,43 +21,12 @@ using Tup.Cobar4Net.Util;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class TableConfig
     {
-        private readonly string name;
-
-        private readonly string[] dataNodes;
-
-        private readonly TableRuleConfig rule;
-
         private readonly ICollection<string> columnIndex;
-
-        private readonly bool ruleRequired;
-
-        public bool RuleRequired
-        {
-            get { return ruleRequired; }
-        }
-
-        public ICollection<string> ColumnIndex
-        {
-            get { return columnIndex; }
-        }
-
-        public TableRuleConfig Rule
-        {
-            get { return rule; }
-        }
-
-        public string[] DataNodes
-        {
-            get { return dataNodes; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-        }
 
         public TableConfig(string name, string dataNode, TableRuleConfig rule, bool ruleRequired)
         {
@@ -65,41 +34,30 @@ namespace Tup.Cobar4Net.Config.Model
             {
                 throw new ArgumentException("table name is null");
             }
-            this.name = name.ToUpper();
-            this.dataNodes = SplitUtil.Split(dataNode, ',', '$', '-', '[', ']');
-            if (this.dataNodes == null || this.dataNodes.Length <= 0)
+            Name = name.ToUpper();
+            var dataNodes = SplitUtil.Split(dataNode, ',', '$', '-', '[', ']');
+            if (dataNodes == null || dataNodes.Length <= 0)
             {
                 throw new ArgumentException("invalid table dataNodes: " + dataNode);
             }
-            this.rule = rule;
-            this.columnIndex = BuildColumnIndex(rule);
-            this.ruleRequired = ruleRequired;
+            DataNodes = dataNodes;
+            Rule = rule;
+            columnIndex = BuildColumnIndex(rule);
+            IsRuleRequired = ruleRequired;
         }
 
-        public virtual bool ExistsColumn(string columnNameUp)
-        {
-            return ColumnIndex.Contains(columnNameUp);
-        }
+        /// <value>upper-case</value>
+        public string Name { get; }
 
-        /// <returns>upper-case</returns>
-        public virtual string GetName()
-        {
-            return name;
-        }
+        public string[] DataNodes { get; }
 
-        public virtual string[] GetDataNodes()
-        {
-            return dataNodes;
-        }
+        public bool IsRuleRequired { get; }
 
-        public virtual bool IsRuleRequired()
-        {
-            return ruleRequired;
-        }
+        public TableRuleConfig Rule { get; }
 
-        public virtual TableRuleConfig GetRule()
+        public bool ExistsColumn(string columnNameUp)
         {
-            return rule;
+            return columnIndex.Contains(columnNameUp);
         }
 
         private static ICollection<string> BuildColumnIndex(TableRuleConfig rule)
@@ -108,18 +66,18 @@ namespace Tup.Cobar4Net.Config.Model
             {
                 return new HashSet<string>();
             }
-            IList<RuleConfig> rs = rule.GetRules();
+            var rs = rule.Rules;
             if (rs == null || rs.IsEmpty())
             {
                 return new HashSet<string>();
             }
             var columnIndex = new HashSet<string>();
-            foreach (RuleConfig r in rs)
+            foreach (var r in rs)
             {
-                IList<string> columns = r.GetColumns();
+                var columns = r.Columns;
                 if (columns != null)
                 {
-                    foreach (string col in columns)
+                    foreach (var col in columns)
                     {
                         if (col != null)
                         {
@@ -132,15 +90,14 @@ namespace Tup.Cobar4Net.Config.Model
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[TableConfig Name={0}, DataNodes={1}, Rule={2}, ColumnIndex={3}, RuleRequired={4}]",
-                                        name, string.Join(",", dataNodes ?? new string[0]),
-                                        rule, string.Format(",", columnIndex ?? new string[0]),
-                                        ruleRequired);
+                Name, string.Join(",", DataNodes ?? new string[0]),
+                Rule, string.Format(",", columnIndex ?? new string[0]),
+                IsRuleRequired);
         }
     }
 }

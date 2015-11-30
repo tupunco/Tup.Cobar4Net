@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,16 +13,15 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System;
 
 namespace Tup.Cobar4Net.Config.Util
 {
     /// <author>xianmao.hexm 2011-1-10 下午07:07:46</author>
-    [System.Serializable]
+    [Serializable]
     public class ConfigException : Exception
     {
-        private const long serialVersionUID = -180146385688342818L;
-
         public ConfigException()
         {
         }

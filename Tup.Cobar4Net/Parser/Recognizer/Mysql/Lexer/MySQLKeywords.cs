@@ -18,32 +18,39 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    internal class MySQLKeywords
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    internal class MySqlKeywords
     {
-        public static readonly MySQLKeywords DefaultKeywords = new MySQLKeywords();
+        public static readonly MySqlKeywords DefaultKeywords = new MySqlKeywords();
 
-        private readonly IDictionary<string, MySQLToken> keywords = InitTokenMap();
+        private readonly IDictionary<string, MySqlToken> keywords = InitTokenMap();
 
-        private static IDictionary<string, MySQLToken> InitTokenMap()
+        private MySqlKeywords()
         {
-            var cKeywords= SystemUtils.GetEnumNameMapping<MySQLToken>("Kw");
-            cKeywords.Add("NULL", MySQLToken.LiteralNull);
-            cKeywords.Add("FALSE", MySQLToken.LiteralBoolFalse);
-            cKeywords.Add("TRUE", MySQLToken.LiteralBoolTrue);
+        }
+
+        private static IDictionary<string, MySqlToken> InitTokenMap()
+        {
+            var cKeywords = SystemUtils.GetEnumNameMapping<MySqlToken>("Kw");
+            cKeywords.Add("NULL", MySqlToken.LiteralNull);
+            cKeywords.Add("FALSE", MySqlToken.LiteralBoolFalse);
+            cKeywords.Add("TRUE", MySqlToken.LiteralBoolTrue);
 
             return cKeywords;
         }
+
         /// <param name="keyUpperCase">must be uppercase</param>
         /// <returns>
-        /// <code>KeyWord</code> or
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralNull">NULL</see>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralBoolFalse">FALSE</see>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralBoolTrue">TRUE</see>
+        ///     <code>KeyWord</code> or
+        ///     <see cref="MySqlToken.LiteralNull">NULL</see>
+        ///     or
+        ///     <see cref="MySqlToken.LiteralBoolFalse">FALSE</see>
+        ///     or
+        ///     <see cref="MySqlToken.LiteralBoolTrue">TRUE</see>
         /// </returns>
-        public virtual MySQLToken GetKeyword(string keyUpperCase)
+        public virtual MySqlToken GetKeyword(string keyUpperCase)
         {
             return keywords.GetValue(keyUpperCase);
         }

@@ -14,23 +14,35 @@
 * limitations under the License.
 */
 
+using Sharpen;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class AliasableTableReference : TableReference
     {
         protected readonly string alias;
 
         protected string aliasUpEscape;
 
-        public AliasableTableReference(string alias)
+        protected AliasableTableReference(string alias)
         {
             this.alias = alias;
         }
+
+        public virtual string Alias
+        {
+            get { return alias; }
+        }
+
+        public abstract override int Precedence { get; }
+
+        public abstract override bool IsSingleTable { get; }
 
         /// <returns>upper-case, empty is possible</returns>
         public virtual string GetAliasUnescapeUppercase()
@@ -46,54 +58,46 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             switch (alias[0])
             {
                 case '`':
-                    {
-                        return aliasUpEscape = Identifier.UnescapeName(alias, true);
-                    }
+                {
+                    return aliasUpEscape = Identifier.UnescapeName(alias, true);
+                }
 
                 case '\'':
-                    {
-                        return aliasUpEscape = LiteralString.GetUnescapedString(Sharpen.Runtime.Substring
-                            (alias, 1, alias.Length - 1), true);
-                    }
+                {
+                    return
+                        aliasUpEscape =
+                            LiteralString.GetUnescapedString(Runtime.Substring(alias, 1, alias.Length - 1), true);
+                }
 
                 case '_':
+                {
+                    var ind = -1;
+                    for (var i = 1; i < alias.Length; ++i)
                     {
-                        int ind = -1;
-                        for (int i = 1; i < alias.Length; ++i)
+                        if (alias[i] == '\'')
                         {
-                            if (alias[i] == '\'')
-                            {
-                                ind = i;
-                                break;
-                            }
+                            ind = i;
+                            break;
                         }
-                        if (ind >= 0)
-                        {
-                            LiteralString st = new LiteralString(Sharpen.Runtime.Substring(alias, 0, ind), Sharpen.Runtime.Substring
-                                (alias, ind + 1, alias.Length - 1), false);
-                            return aliasUpEscape = st.GetUnescapedString(true);
-                        }
-                        goto default;
                     }
+                    if (ind >= 0)
+                    {
+                        var st = new LiteralString(Runtime.Substring(alias, 0, ind),
+                            Runtime.Substring(alias, ind + 1, alias.Length - 1), false);
+                        return aliasUpEscape = st.GetUnescapedString(true);
+                    }
+                    goto default;
+                }
 
                 default:
-                    {
-                        return aliasUpEscape = alias.ToUpper();
-                    }
+                {
+                    return aliasUpEscape = alias.ToUpper();
+                }
             }
         }
 
-        public virtual string GetAlias()
-        {
-            return alias;
-        }
+        public abstract override void Accept(ISqlAstVisitor visitor);
 
-        public override abstract void Accept(SQLASTVisitor visitor);
-
-        public override abstract int GetPrecedence();
-
-        public override abstract bool IsSingleTable();
-
-        public override abstract object RemoveLastConditionElement();
+        public abstract override object RemoveLastConditionElement();
     }
 }

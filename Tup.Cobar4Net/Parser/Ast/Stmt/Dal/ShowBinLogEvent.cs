@@ -14,44 +14,33 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowBinLogEvent : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowBinLogEvent : DalShowStatement
     {
-        private readonly string logName;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression pos;
-
-        private readonly Limit limit;
-
-        public ShowBinLogEvent(string logName, Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             pos, Limit limit)
+        public ShowBinLogEvent(string logName,
+            IExpression pos,
+            Limit limit)
         {
-            this.logName = logName;
-            this.pos = pos;
-            this.limit = limit;
+            LogName = logName;
+            Pos = pos;
+            Limit = limit;
         }
 
-        public virtual string GetLogName()
-        {
-            return logName;
-        }
+        public virtual string LogName { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetPos()
-        {
-            return pos;
-        }
+        public virtual IExpression Pos { get; }
 
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
+        public virtual Limit Limit { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

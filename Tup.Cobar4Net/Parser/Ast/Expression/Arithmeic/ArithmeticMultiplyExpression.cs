@@ -24,18 +24,18 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticMultiplyExpression : ArithmeticBinaryOperatorExpression
     {
-        public ArithmeticMultiplyExpression(Expression leftOprand,
-                                            Expression rightOprand)
+        public ArithmeticMultiplyExpression(IExpression leftOprand,
+                                            IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticFactorOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "*";
+            get { return "*"; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

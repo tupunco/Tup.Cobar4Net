@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Contracts;
+using System.Threading;
 
 namespace System.Collections.Generic
 {
@@ -13,14 +14,14 @@ namespace System.Collections.Generic
     {
         int Count { get; }
     }
+
     public interface IReadOnlyDictionary<TKey, TValue> : IReadOnlyCollection<KeyValuePair<TKey, TValue>>
     {
-        bool ContainsKey(TKey key);
-        bool TryGetValue(TKey key, out TValue value);
-
         TValue this[TKey key] { get; }
         IEnumerable<TKey> Keys { get; }
         IEnumerable<TValue> Values { get; }
+        bool ContainsKey(TKey key);
+        bool TryGetValue(TKey key, out TValue value);
     }
 }
 
@@ -30,19 +31,28 @@ namespace System.Collections.ObjectModel
     internal static class SR
     {
         public static readonly string NotSupported_ReadOnlyCollection = "Collection is read-only.";
-        public static readonly string Arg_RankMultiDimNotSupported = "Only single dimensional arrays are supported for the requested action.";
-        public static readonly string Argument_InvalidArrayType = "Target array type is not compatible with the type of items in the collection.";
+
+        public static readonly string Arg_RankMultiDimNotSupported =
+            "Only single dimensional arrays are supported for the requested _hintAction.";
+
+        public static readonly string Argument_InvalidArrayType =
+            "Target array type is not compatible with the type of items in the collection.";
+
         public static readonly string Arg_NonZeroLowerBound = "The lower bound of target array must be zero.";
-        public static readonly string Arg_ArrayPlusOffTooSmall = "Destination array is not long enough to copy all the items in the collection.Check array index and length.";
+
+        public static readonly string Arg_ArrayPlusOffTooSmall =
+            "Destination array is not long enough to copy all the items in the collection.Check array index and length.";
+
         public static readonly string ArgumentOutOfRange_NeedNonNegNum = " Non - negative number required.";
     }
+
     //[DebuggerTypeProxy(typeof(DictionaryDebugView<,>))]
     [DebuggerDisplay("Count = {Count}")]
-    public class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary, IReadOnlyDictionary<TKey, TValue>
+    public class ReadOnlyDictionary<TKey, TValue> : IDictionary<TKey, TValue>, IDictionary,
+        IReadOnlyDictionary<TKey, TValue>
     {
-        private readonly IDictionary<TKey, TValue> _dictionary;
-        private Object _syncRoot;
         private KeyCollection _keys;
+        private object _syncRoot;
         private ValueCollection _values;
 
         public ReadOnlyDictionary(IDictionary<TKey, TValue> dictionary)
@@ -52,13 +62,10 @@ namespace System.Collections.ObjectModel
                 throw new ArgumentNullException("dictionary");
             }
             Contract.EndContractBlock();
-            _dictionary = dictionary;
+            Dictionary = dictionary;
         }
 
-        protected IDictionary<TKey, TValue> Dictionary
-        {
-            get { return _dictionary; }
-        }
+        protected IDictionary<TKey, TValue> Dictionary { get; }
 
         public KeyCollection Keys
         {
@@ -67,7 +74,7 @@ namespace System.Collections.ObjectModel
                 Contract.Ensures(Contract.Result<KeyCollection>() != null);
                 if (_keys == null)
                 {
-                    _keys = new KeyCollection(_dictionary.Keys);
+                    _keys = new KeyCollection(Dictionary.Keys);
                 }
                 return _keys;
             }
@@ -80,46 +87,271 @@ namespace System.Collections.ObjectModel
                 Contract.Ensures(Contract.Result<ValueCollection>() != null);
                 if (_values == null)
                 {
-                    _values = new ValueCollection(_dictionary.Values);
+                    _values = new ValueCollection(Dictionary.Values);
                 }
                 return _values;
             }
+        }
+
+        #region IEnumerable<KeyValuePair<TKey, TValue>> Members
+
+        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
+        {
+            return Dictionary.GetEnumerator();
+        }
+
+        #endregion
+
+        #region IEnumerable Members
+
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return ((IEnumerable) Dictionary).GetEnumerator();
+        }
+
+        #endregion
+
+        //[DebuggerTypeProxy(typeof(CollectionDebugView<>))]
+        [DebuggerDisplay("Count = {Count}")]
+        public sealed class KeyCollection : ICollection<TKey>, ICollection //, IReadOnlyCollection<TKey>
+        {
+            private readonly ICollection<TKey> _collection;
+            private object _syncRoot;
+
+            internal KeyCollection(ICollection<TKey> collection)
+            {
+                if (collection == null)
+                {
+                    throw new ArgumentNullException("collection");
+                }
+                _collection = collection;
+            }
+
+            #region IEnumerable<T> Members
+
+            public IEnumerator<TKey> GetEnumerator()
+            {
+                return _collection.GetEnumerator();
+            }
+
+            #endregion
+
+            #region IEnumerable Members
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable) _collection).GetEnumerator();
+            }
+
+            #endregion
+
+            #region ICollection<T> Members
+
+            void ICollection<TKey>.Add(TKey item)
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            void ICollection<TKey>.Clear()
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            bool ICollection<TKey>.Contains(TKey item)
+            {
+                return _collection.Contains(item);
+            }
+
+            public void CopyTo(TKey[] array, int arrayIndex)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
+
+            public int Count
+            {
+                get { return _collection.Count; }
+            }
+
+            bool ICollection<TKey>.IsReadOnly
+            {
+                get { return true; }
+            }
+
+            bool ICollection<TKey>.Remove(TKey item)
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            #endregion
+
+            #region ICollection Members
+
+            void ICollection.CopyTo(Array array, int index)
+            {
+                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper(_collection, array, index);
+            }
+
+            bool ICollection.IsSynchronized
+            {
+                get { return false; }
+            }
+
+            object ICollection.SyncRoot
+            {
+                get
+                {
+                    if (_syncRoot == null)
+                    {
+                        var c = _collection as ICollection;
+                        if (c != null)
+                        {
+                            _syncRoot = c.SyncRoot;
+                        }
+                        else
+                        {
+                            Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                        }
+                    }
+                    return _syncRoot;
+                }
+            }
+
+            #endregion
+        }
+
+        //[DebuggerTypeProxy(typeof(CollectionDebugView<>))]
+        [DebuggerDisplay("Count = {Count}")]
+        public sealed class ValueCollection : ICollection<TValue>, ICollection //, IReadOnlyCollection<TValue>
+        {
+            private readonly ICollection<TValue> _collection;
+            private object _syncRoot;
+
+            internal ValueCollection(ICollection<TValue> collection)
+            {
+                if (collection == null)
+                {
+                    throw new ArgumentNullException("collection");
+                }
+                _collection = collection;
+            }
+
+            #region IEnumerable<T> Members
+
+            public IEnumerator<TValue> GetEnumerator()
+            {
+                return _collection.GetEnumerator();
+            }
+
+            #endregion
+
+            #region IEnumerable Members
+
+            IEnumerator IEnumerable.GetEnumerator()
+            {
+                return ((IEnumerable) _collection).GetEnumerator();
+            }
+
+            #endregion
+
+            #region ICollection<T> Members
+
+            void ICollection<TValue>.Add(TValue item)
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            void ICollection<TValue>.Clear()
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            bool ICollection<TValue>.Contains(TValue item)
+            {
+                return _collection.Contains(item);
+            }
+
+            public void CopyTo(TValue[] array, int arrayIndex)
+            {
+                _collection.CopyTo(array, arrayIndex);
+            }
+
+            public int Count
+            {
+                get { return _collection.Count; }
+            }
+
+            bool ICollection<TValue>.IsReadOnly
+            {
+                get { return true; }
+            }
+
+            bool ICollection<TValue>.Remove(TValue item)
+            {
+                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
+            }
+
+            #endregion
+
+            #region ICollection Members
+
+            void ICollection.CopyTo(Array array, int index)
+            {
+                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper(_collection, array, index);
+            }
+
+            bool ICollection.IsSynchronized
+            {
+                get { return false; }
+            }
+
+            object ICollection.SyncRoot
+            {
+                get
+                {
+                    if (_syncRoot == null)
+                    {
+                        var c = _collection as ICollection;
+                        if (c != null)
+                        {
+                            _syncRoot = c.SyncRoot;
+                        }
+                        else
+                        {
+                            Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
+                        }
+                    }
+                    return _syncRoot;
+                }
+            }
+
+            #endregion ICollection Members
         }
 
         #region IDictionary<TKey, TValue> Members
 
         public bool ContainsKey(TKey key)
         {
-            return _dictionary.ContainsKey(key);
+            return Dictionary.ContainsKey(key);
         }
 
         ICollection<TKey> IDictionary<TKey, TValue>.Keys
         {
-            get
-            {
-                return Keys;
-            }
+            get { return Keys; }
         }
 
         public bool TryGetValue(TKey key, out TValue value)
         {
-            return _dictionary.TryGetValue(key, out value);
+            return Dictionary.TryGetValue(key, out value);
         }
 
         ICollection<TValue> IDictionary<TKey, TValue>.Values
         {
-            get
-            {
-                return Values;
-            }
+            get { return Values; }
         }
 
         public TValue this[TKey key]
         {
-            get
-            {
-                return _dictionary[key];
-            }
+            get { return Dictionary[key]; }
         }
 
         void IDictionary<TKey, TValue>.Add(TKey key, TValue value)
@@ -134,14 +366,8 @@ namespace System.Collections.ObjectModel
 
         TValue IDictionary<TKey, TValue>.this[TKey key]
         {
-            get
-            {
-                return _dictionary[key];
-            }
-            set
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
+            get { return Dictionary[key]; }
+            set { throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection); }
         }
 
         #endregion
@@ -150,17 +376,17 @@ namespace System.Collections.ObjectModel
 
         public int Count
         {
-            get { return _dictionary.Count; }
+            get { return Dictionary.Count; }
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.Contains(KeyValuePair<TKey, TValue> item)
         {
-            return _dictionary.Contains(item);
+            return Dictionary.Contains(item);
         }
 
         void ICollection<KeyValuePair<TKey, TValue>>.CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex)
         {
-            _dictionary.CopyTo(array, arrayIndex);
+            Dictionary.CopyTo(array, arrayIndex);
         }
 
         bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly
@@ -181,24 +407,6 @@ namespace System.Collections.ObjectModel
         bool ICollection<KeyValuePair<TKey, TValue>>.Remove(KeyValuePair<TKey, TValue> item)
         {
             throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-        }
-
-        #endregion
-
-        #region IEnumerable<KeyValuePair<TKey, TValue>> Members
-
-        public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
-        {
-            return _dictionary.GetEnumerator();
-        }
-
-        #endregion
-
-        #region IEnumerable Members
-
-        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-        {
-            return ((IEnumerable)_dictionary).GetEnumerator();
         }
 
         #endregion
@@ -226,17 +434,17 @@ namespace System.Collections.ObjectModel
 
         bool IDictionary.Contains(object key)
         {
-            return IsCompatibleKey(key) && ContainsKey((TKey)key);
+            return IsCompatibleKey(key) && ContainsKey((TKey) key);
         }
 
         IDictionaryEnumerator IDictionary.GetEnumerator()
         {
-            IDictionary d = _dictionary as IDictionary;
+            var d = Dictionary as IDictionary;
             if (d != null)
             {
                 return d.GetEnumerator();
             }
-            return new DictionaryEnumerator(_dictionary);
+            return new DictionaryEnumerator(Dictionary);
         }
 
         bool IDictionary.IsFixedSize
@@ -251,10 +459,7 @@ namespace System.Collections.ObjectModel
 
         ICollection IDictionary.Keys
         {
-            get
-            {
-                return Keys;
-            }
+            get { return Keys; }
         }
 
         void IDictionary.Remove(object key)
@@ -264,10 +469,7 @@ namespace System.Collections.ObjectModel
 
         ICollection IDictionary.Values
         {
-            get
-            {
-                return Values;
-            }
+            get { return Values; }
         }
 
         object IDictionary.this[object key]
@@ -276,14 +478,11 @@ namespace System.Collections.ObjectModel
             {
                 if (IsCompatibleKey(key))
                 {
-                    return this[(TKey)key];
+                    return this[(TKey) key];
                 }
                 return null;
             }
-            set
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
+            set { throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection); }
         }
 
         void ICollection.CopyTo(Array array, int index)
@@ -313,24 +512,24 @@ namespace System.Collections.ObjectModel
                 throw new ArgumentException(SR.Arg_ArrayPlusOffTooSmall);
             }
 
-            KeyValuePair<TKey, TValue>[] pairs = array as KeyValuePair<TKey, TValue>[];
+            var pairs = array as KeyValuePair<TKey, TValue>[];
             if (pairs != null)
             {
-                _dictionary.CopyTo(pairs, index);
+                Dictionary.CopyTo(pairs, index);
             }
             else
             {
-                DictionaryEntry[] dictEntryArray = array as DictionaryEntry[];
+                var dictEntryArray = array as DictionaryEntry[];
                 if (dictEntryArray != null)
                 {
-                    foreach (var item in _dictionary)
+                    foreach (var item in Dictionary)
                     {
                         dictEntryArray[index++] = new DictionaryEntry(item.Key, item.Value);
                     }
                 }
                 else
                 {
-                    object[] objects = array as object[];
+                    var objects = array as object[];
                     if (objects == null)
                     {
                         throw new ArgumentException(SR.Argument_InvalidArrayType);
@@ -338,7 +537,7 @@ namespace System.Collections.ObjectModel
 
                     try
                     {
-                        foreach (var item in _dictionary)
+                        foreach (var item in Dictionary)
                         {
                             objects[index++] = new KeyValuePair<TKey, TValue>(item.Key, item.Value);
                         }
@@ -362,14 +561,14 @@ namespace System.Collections.ObjectModel
             {
                 if (_syncRoot == null)
                 {
-                    ICollection c = _dictionary as ICollection;
+                    var c = Dictionary as ICollection;
                     if (c != null)
                     {
                         _syncRoot = c.SyncRoot;
                     }
                     else
                     {
-                        System.Threading.Interlocked.CompareExchange<Object>(ref _syncRoot, new Object(), null);
+                        Interlocked.CompareExchange<object>(ref _syncRoot, new object(), null);
                     }
                 }
                 return _syncRoot;
@@ -379,7 +578,7 @@ namespace System.Collections.ObjectModel
         private struct DictionaryEnumerator : IDictionaryEnumerator
         {
             private readonly IDictionary<TKey, TValue> _dictionary;
-            private IEnumerator<KeyValuePair<TKey, TValue>> _enumerator;
+            private readonly IEnumerator<KeyValuePair<TKey, TValue>> _enumerator;
 
             public DictionaryEnumerator(IDictionary<TKey, TValue> dictionary)
             {
@@ -424,235 +623,15 @@ namespace System.Collections.ObjectModel
 
         IEnumerable<TKey> IReadOnlyDictionary<TKey, TValue>.Keys
         {
-            get
-            {
-                return Keys;
-            }
+            get { return Keys; }
         }
 
         IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values
         {
-            get
-            {
-                return Values;
-            }
+            get { return Values; }
         }
 
         #endregion IReadOnlyDictionary members
-
-        //[DebuggerTypeProxy(typeof(CollectionDebugView<>))]
-        [DebuggerDisplay("Count = {Count}")]
-        public sealed class KeyCollection : ICollection<TKey>, ICollection//, IReadOnlyCollection<TKey>
-        {
-            private readonly ICollection<TKey> _collection;
-            private Object _syncRoot;
-
-            internal KeyCollection(ICollection<TKey> collection)
-            {
-                if (collection == null)
-                {
-                    throw new ArgumentNullException("collection");
-                }
-                _collection = collection;
-            }
-
-            #region ICollection<T> Members
-
-            void ICollection<TKey>.Add(TKey item)
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            void ICollection<TKey>.Clear()
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            bool ICollection<TKey>.Contains(TKey item)
-            {
-                return _collection.Contains(item);
-            }
-
-            public void CopyTo(TKey[] array, int arrayIndex)
-            {
-                _collection.CopyTo(array, arrayIndex);
-            }
-
-            public int Count
-            {
-                get { return _collection.Count; }
-            }
-
-            bool ICollection<TKey>.IsReadOnly
-            {
-                get { return true; }
-            }
-
-            bool ICollection<TKey>.Remove(TKey item)
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            #endregion
-
-            #region IEnumerable<T> Members
-
-            public IEnumerator<TKey> GetEnumerator()
-            {
-                return _collection.GetEnumerator();
-            }
-
-            #endregion
-
-            #region IEnumerable Members
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable)_collection).GetEnumerator();
-            }
-
-            #endregion
-
-            #region ICollection Members
-
-            void ICollection.CopyTo(Array array, int index)
-            {
-                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper<TKey>(_collection, array, index);
-            }
-
-            bool ICollection.IsSynchronized
-            {
-                get { return false; }
-            }
-
-            object ICollection.SyncRoot
-            {
-                get
-                {
-                    if (_syncRoot == null)
-                    {
-                        ICollection c = _collection as ICollection;
-                        if (c != null)
-                        {
-                            _syncRoot = c.SyncRoot;
-                        }
-                        else
-                        {
-                            System.Threading.Interlocked.CompareExchange<Object>(ref _syncRoot, new Object(), null);
-                        }
-                    }
-                    return _syncRoot;
-                }
-            }
-            #endregion
-        }
-
-        //[DebuggerTypeProxy(typeof(CollectionDebugView<>))]
-        [DebuggerDisplay("Count = {Count}")]
-        public sealed class ValueCollection : ICollection<TValue>, ICollection//, IReadOnlyCollection<TValue>
-        {
-            private readonly ICollection<TValue> _collection;
-            private Object _syncRoot;
-
-            internal ValueCollection(ICollection<TValue> collection)
-            {
-                if (collection == null)
-                {
-                    throw new ArgumentNullException("collection");
-                }
-                _collection = collection;
-            }
-
-            #region ICollection<T> Members
-
-            void ICollection<TValue>.Add(TValue item)
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            void ICollection<TValue>.Clear()
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            bool ICollection<TValue>.Contains(TValue item)
-            {
-                return _collection.Contains(item);
-            }
-
-            public void CopyTo(TValue[] array, int arrayIndex)
-            {
-                _collection.CopyTo(array, arrayIndex);
-            }
-
-            public int Count
-            {
-                get { return _collection.Count; }
-            }
-
-            bool ICollection<TValue>.IsReadOnly
-            {
-                get { return true; }
-            }
-
-            bool ICollection<TValue>.Remove(TValue item)
-            {
-                throw new NotSupportedException(SR.NotSupported_ReadOnlyCollection);
-            }
-
-            #endregion
-
-            #region IEnumerable<T> Members
-
-            public IEnumerator<TValue> GetEnumerator()
-            {
-                return _collection.GetEnumerator();
-            }
-
-            #endregion
-
-            #region IEnumerable Members
-
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
-            {
-                return ((IEnumerable)_collection).GetEnumerator();
-            }
-
-            #endregion
-
-            #region ICollection Members
-
-            void ICollection.CopyTo(Array array, int index)
-            {
-                ReadOnlyDictionaryHelpers.CopyToNonGenericICollectionHelper<TValue>(_collection, array, index);
-            }
-
-            bool ICollection.IsSynchronized
-            {
-                get { return false; }
-            }
-
-            object ICollection.SyncRoot
-            {
-                get
-                {
-                    if (_syncRoot == null)
-                    {
-                        ICollection c = _collection as ICollection;
-                        if (c != null)
-                        {
-                            _syncRoot = c.SyncRoot;
-                        }
-                        else
-                        {
-                            System.Threading.Interlocked.CompareExchange<Object>(ref _syncRoot, new Object(), null);
-                        }
-                    }
-                    return _syncRoot;
-                }
-            }
-            #endregion ICollection Members
-        }
     }
 
     // To share code when possible, use a non-generic class to get rid of irrelevant type parameters.
@@ -689,14 +668,14 @@ namespace System.Collections.ObjectModel
             }
 
             // Easy out if the ICollection<T> implements the non-generic ICollection
-            ICollection nonGenericCollection = collection as ICollection;
+            var nonGenericCollection = collection as ICollection;
             if (nonGenericCollection != null)
             {
                 nonGenericCollection.CopyTo(array, index);
                 return;
             }
 
-            T[] items = array as T[];
+            var items = array as T[];
             if (items != null)
             {
                 collection.CopyTo(items, index);
@@ -704,7 +683,7 @@ namespace System.Collections.ObjectModel
             else
             {
                 /*
-                    FxOverRh: Type.IsAssignableNot() not an api on that platform.
+                    FxOverRh: ProfileType.IsAssignableNot() not an api on that platform.
 
                 //
                 // Catch the obvious case assignment will fail.
@@ -712,8 +691,8 @@ namespace System.Collections.ObjectModel
                 // For example, if the element type of the Array is derived from T,
                 // we can't figure out if we can successfully copy the element beforehand.
                 //
-                Type targetType = array.GetType().GetElementType();
-                Type sourceType = typeof(T);
+                ProfileType targetType = array.GetType().GetElementType();
+                ProfileType sourceType = typeof(T);
                 if (!(targetType.IsAssignableFrom(sourceType) || sourceType.IsAssignableFrom(targetType))) {
                     throw new ArgumentException(SR.Argument_InvalidArrayType);
                 }
@@ -723,7 +702,7 @@ namespace System.Collections.ObjectModel
                 // We can't cast array of value type to object[], so we don't support 
                 // widening of primitive types here.
                 //
-                object[] objects = array as object[];
+                var objects = array as object[];
                 if (objects == null)
                 {
                     throw new ArgumentException(SR.Argument_InvalidArrayType);
@@ -742,6 +721,7 @@ namespace System.Collections.ObjectModel
                 }
             }
         }
+
         #endregion Helper method for our KeyCollection and ValueCollection
     }
 }

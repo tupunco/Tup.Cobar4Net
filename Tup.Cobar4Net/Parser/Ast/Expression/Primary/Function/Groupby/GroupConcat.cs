@@ -20,78 +20,55 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class GroupConcat : FunctionExpression
     {
-        private readonly bool distinct;
-
-        private readonly Expression orderBy;
-
-        private readonly bool isDesc;
-
-        private readonly IList<Expression> appendedColumnNames;
-
-        private readonly string separator;
-
-        public GroupConcat(bool distinct, IList<Expression> exprList, Expression orderBy, bool isDesc, IList
-            <Tup.Cobar4Net.Parser.Ast.Expression.Expression> appendedColumnNames, string separator
-            )
+        public GroupConcat(bool distinct,
+                           IList<IExpression> exprList,
+                           IExpression orderBy,
+                           bool isDesc,
+                           IList<IExpression> appendedColumnNames,
+                           string separator)
             : base("GROUP_CONCAT", exprList)
         {
-            this.distinct = distinct;
-            this.orderBy = orderBy;
-            this.isDesc = isDesc;
+            IsDistinct = distinct;
+            OrderBy = orderBy;
+            IsDesc = isDesc;
             if (appendedColumnNames == null || appendedColumnNames.IsEmpty())
             {
-                this.appendedColumnNames = new List<Expression>(0);
+                AppendedColumnNames = new List<IExpression>(0);
+            }
+            else if (appendedColumnNames is List<IExpression>)
+            {
+                AppendedColumnNames = appendedColumnNames;
             }
             else
             {
-                if (appendedColumnNames is List<Expression>)
-                {
-                    this.appendedColumnNames = appendedColumnNames;
-                }
-                else
-                {
-                    this.appendedColumnNames = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>(
-                        appendedColumnNames);
-                }
+                AppendedColumnNames = new List<IExpression>(
+                    appendedColumnNames);
             }
-            this.separator = separator == null ? "," : separator;
+
+            Separator = separator ?? ",";
         }
 
-        public virtual bool IsDistinct()
-        {
-            return distinct;
-        }
+        public virtual bool IsDistinct { get; }
 
-        public virtual Expression GetOrderBy()
-        {
-            return orderBy;
-        }
+        public virtual IExpression OrderBy { get; }
 
-        public virtual bool IsDesc()
-        {
-            return isDesc;
-        }
+        public virtual bool IsDesc { get; }
 
-        public virtual IList<Expression> GetAppendedColumnNames
-            ()
-        {
-            return appendedColumnNames;
-        }
+        public virtual IList<IExpression> AppendedColumnNames { get; }
 
-        public virtual string GetSeparator()
-        {
-            return separator;
-        }
+        public virtual string Separator { get; }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -16,7 +16,9 @@
 
 namespace Tup.Cobar4Net.Parser.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     /// <author>shaojin.wensj</author>
     public class CharTypes
     {
@@ -26,7 +28,7 @@ namespace Tup.Cobar4Net.Parser.Util
 
         static CharTypes()
         {
-            for (char c = (char)0; c < hexFlags.Length; ++c)
+            for (var c = (char) 0; c < hexFlags.Length; ++c)
             {
                 if (c >= 'A' && c <= 'F')
                 {
@@ -48,7 +50,7 @@ namespace Tup.Cobar4Net.Parser.Util
                 }
             }
 
-            for (char c = (char)0; c < identifierFlags.Length; ++c)
+            for (var c = (char) 0; c < identifierFlags.Length; ++c)
             {
                 if (c >= 'A' && c <= 'Z')
                 {
@@ -97,8 +99,8 @@ namespace Tup.Cobar4Net.Parser.Util
         }
 
         /// <returns>
-        /// false if
-        /// <see cref="MySQLLexer#EOI"/>
+        ///     false if
+        ///     <see cref="MySqlLexer#EOI" />
         /// </returns>
         public static bool IsWhitespace(char c)
         {

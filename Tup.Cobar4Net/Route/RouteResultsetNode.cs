@@ -23,12 +23,6 @@ namespace Tup.Cobar4Net.Route
     {
         public static readonly int DefaultReplicaIndex = -1;
 
-        private readonly string name;
-
-        private readonly int replicaIndex;
-
-        private readonly string statement;
-
         public RouteResultsetNode(string name, string statement)
             : this(name, DefaultReplicaIndex, statement)
         {
@@ -39,29 +33,20 @@ namespace Tup.Cobar4Net.Route
             // 数据节点名称
             // 数据源编号
             // 执行的语句
-            this.name = name;
-            this.replicaIndex = index;
-            this.statement = statement;
+            Name = name;
+            ReplicaIndex = index;
+            Statement = statement;
         }
 
-        public string GetName()
-        {
-            return name;
-        }
+        public string Name { get; }
 
-        public int GetReplicaIndex()
-        {
-            return replicaIndex;
-        }
+        public int ReplicaIndex { get; }
 
-        public string GetStatement()
-        {
-            return statement;
-        }
+        public string Statement { get; }
 
         public override int GetHashCode()
         {
-            return name.GetHashCode();
+            return Name.GetHashCode();
         }
 
         public override bool Equals(object obj)
@@ -72,8 +57,8 @@ namespace Tup.Cobar4Net.Route
             }
             if (obj is RouteResultsetNode)
             {
-                RouteResultsetNode rrn = (RouteResultsetNode)obj;
-                if (replicaIndex == rrn.GetReplicaIndex() && Equals(name, rrn.GetName()))
+                var rrn = (RouteResultsetNode)obj;
+                if (ReplicaIndex == rrn.ReplicaIndex && Equals(Name, rrn.Name))
                 {
                     return true;
                 }
@@ -83,26 +68,25 @@ namespace Tup.Cobar4Net.Route
 
         public override string ToString()
         {
-            StringBuilder s = new StringBuilder();
-            s.Append(name).Append('.');
-            if (replicaIndex < 0)
+            var s = new StringBuilder();
+            s.Append(Name).Append('.');
+            if (ReplicaIndex < 0)
             {
                 s.Append("default");
             }
             else
             {
-                s.Append(replicaIndex);
+                s.Append(ReplicaIndex);
             }
-            s.Append('{').Append(statement).Append('}');
+            s.Append('{').Append(Statement).Append('}');
             return s.ToString();
         }
 
         private static bool Equals(string str1, string str2)
         {
             if (str1 == null)
-            {
                 return str2 == null;
-            }
+
             return str1.Equals(str2);
         }
     }

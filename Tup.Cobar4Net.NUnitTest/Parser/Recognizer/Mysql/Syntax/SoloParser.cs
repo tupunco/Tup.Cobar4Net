@@ -13,32 +13,34 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
+using System;
 using System.Collections.Generic;
 using System.Text;
+using Sharpen;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    internal class SoloParser : MySQLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    internal class SoloParser : MySqlParser
     {
-        public SoloParser(MySQLLexer lexer)
+        public SoloParser(MySqlLexer lexer)
             : base(lexer)
         {
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs Refs()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual Refs Refs()
         {
-            Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs refs = new Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs
-                ();
+            var refs = new Refs();
             for (;;)
             {
-                Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref @ref = Ref();
+                var @ref = Ref();
                 refs.AddRef(@ref);
-                if (lexer.Token() == MySQLToken.PuncComma)
+                if (lexer.Token() == MySqlToken.PuncComma)
                 {
                     lexer.NextToken();
                 }
@@ -49,138 +51,138 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref BuildRef(Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref
-             first)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual Ref BuildRef(Ref
+                                        first)
         {
-            for (; lexer.Token() == MySQLToken.KwJoin;)
+            for (; lexer.Token() == MySqlToken.KwJoin;)
             {
                 lexer.NextToken();
-                Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref temp = Factor();
+                var temp = Factor();
                 first = new Join(first, temp);
             }
             return first;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref Ref()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual Ref Ref()
         {
             return BuildRef(Factor());
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref Factor()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual Ref Factor()
         {
             string alias;
-            if (lexer.Token() == MySQLToken.PuncLeftParen)
+            if (lexer.Token() == MySqlToken.PuncLeftParen)
             {
                 lexer.NextToken();
-                Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref queryRefs = RefsOrQuery();
-                Match(MySQLToken.PuncRightParen);
+                var queryRefs = RefsOrQuery();
+                Match(MySqlToken.PuncRightParen);
                 if (queryRefs is Query)
                 {
-                    Match(MySQLToken.KwAs);
-                    alias = lexer.StringValue();
+                    Match(MySqlToken.KwAs);
+                    alias = lexer.GetStringValue();
                     lexer.NextToken();
                     return new SubQuery((Query)queryRefs, alias);
                 }
                 return queryRefs;
             }
-            string tableName = lexer.StringValue();
+            var tableName = lexer.GetStringValue();
             lexer.NextToken();
-            if (lexer.Token() == MySQLToken.KwAs)
+            if (lexer.Token() == MySqlToken.KwAs)
             {
                 lexer.NextToken();
-                alias = lexer.StringValue();
+                alias = lexer.GetStringValue();
                 lexer.NextToken();
-                return new Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Factor(tableName, alias);
+                return new Factor(tableName, alias);
             }
-            return new Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Factor(tableName, null);
+            return new Factor(tableName, null);
         }
 
         /// <summary>first <code>(</code> has been consumed</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref RefsOrQuery()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual Ref RefsOrQuery()
         {
-            Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Ref temp;
-            Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs rst;
+            Ref temp;
+            Refs rst;
             Union u;
             switch (lexer.Token())
             {
-                case MySQLToken.KwSelect:
+                case MySqlToken.KwSelect:
+                {
+                    u = new Union();
+                    for (;;)
                     {
-                        u = new Union();
-                        for (;;)
+                        var s = SelectPrimary();
+                        u.AddSelect(s);
+                        if (lexer.Token() == MySqlToken.KwUnion)
                         {
-                            Select s = SelectPrimary();
-                            u.AddSelect(s);
-                            if (lexer.Token() == MySQLToken.KwUnion)
-                            {
-                                lexer.NextToken();
-                            }
-                            else
-                            {
-                                break;
-                            }
+                            lexer.NextToken();
                         }
-                        if (u.selects.Count == 1)
+                        else
                         {
-                            return u.selects[0];
+                            break;
                         }
-                        return u;
                     }
+                    if (u.selects.Count == 1)
+                    {
+                        return u.selects[0];
+                    }
+                    return u;
+                }
 
-                case MySQLToken.PuncLeftParen:
+                case MySqlToken.PuncLeftParen:
+                {
+                    lexer.NextToken();
+                    temp = RefsOrQuery();
+                    Match(MySqlToken.PuncRightParen);
+                    if (temp is Query)
                     {
-                        lexer.NextToken();
-                        temp = RefsOrQuery();
-                        Match(MySQLToken.PuncRightParen);
-                        if (temp is Query)
+                        if (temp is Select)
                         {
-                            if (temp is Select)
+                            if (lexer.Token() == MySqlToken.KwUnion)
                             {
-                                if (lexer.Token() == MySQLToken.KwUnion)
+                                u = new Union();
+                                u.AddSelect((Select)temp);
+                                while (lexer.Token() == MySqlToken.KwUnion)
                                 {
-                                    u = new Union();
+                                    lexer.NextToken();
+                                    temp = SelectPrimary();
                                     u.AddSelect((Select)temp);
-                                    while (lexer.Token() == MySQLToken.KwUnion)
-                                    {
-                                        lexer.NextToken();
-                                        temp = SelectPrimary();
-                                        u.AddSelect((Select)temp);
-                                    }
-                                    return u;
                                 }
-                            }
-                            if (lexer.Token() == MySQLToken.KwAs)
-                            {
-                                lexer.NextToken();
-                                string alias = lexer.StringValue();
-                                temp = new SubQuery((Query)temp, alias);
-                                lexer.NextToken();
-                            }
-                            else
-                            {
-                                return temp;
+                                return u;
                             }
                         }
-                        // ---- build factor complete---------------
-                        temp = BuildRef(temp);
-                        // ---- build ref complete---------------
-                        break;
+                        if (lexer.Token() == MySqlToken.KwAs)
+                        {
+                            lexer.NextToken();
+                            var alias = lexer.GetStringValue();
+                            temp = new SubQuery((Query)temp, alias);
+                            lexer.NextToken();
+                        }
+                        else
+                        {
+                            return temp;
+                        }
                     }
+                    // ---- build factor complete---------------
+                    temp = BuildRef(temp);
+                    // ---- build ref complete---------------
+                    break;
+                }
 
                 default:
-                    {
-                        temp = Ref();
-                        break;
-                    }
+                {
+                    temp = Ref();
+                    break;
+                }
             }
-            if (lexer.Token() == MySQLToken.PuncComma)
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
-                rst = new Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs();
+                rst = new Refs();
                 rst.AddRef(temp);
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     temp = Ref();
@@ -192,36 +194,36 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         }
 
         /// <summary>first <code>SELECT</code> or <code>(</code> has not been consumed</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private Select SelectPrimary()
         {
             Select s = null;
-            if (lexer.Token() == MySQLToken.PuncLeftParen)
+            if (lexer.Token() == MySqlToken.PuncLeftParen)
             {
                 lexer.NextToken();
                 s = SelectPrimary();
-                Match(MySQLToken.PuncRightParen);
+                Match(MySqlToken.PuncRightParen);
                 return s;
             }
-            Match(MySQLToken.KwSelect);
+            Match(MySqlToken.KwSelect);
             return new Select();
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public static void Main(string[] args)
         {
-            string sql = "   ( ( select union select union select)  as j join    (((select union (select)) as t    )   join t2 ) ,(select)as d), t3)";
+            var sql =
+                "   ( ( select union select union select)  as j join    (((select union (select)) as t    )   join t2 ) ,(select)as d), t3)";
             // String sql =
             // "((select) as s1, ((((   select  union select          ) as t2)) join (((t2),t4 as t))) ), t1 aS T1";
             // String sql =
             // "  (( select union select union select)  as j  ,(select)as d), t3";
-            System.Console.Out.WriteLine(sql);
-            MySQLLexer lexer = new MySQLLexer(sql);
+            Console.Out.WriteLine(sql);
+            var lexer = new MySqlLexer(sql);
             lexer.NextToken();
-            Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.SoloParser p = new Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.SoloParser
-                (lexer);
-            Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax.Refs refs = p.Refs();
-            System.Console.Out.WriteLine(refs);
+            var p = new SoloParser(lexer);
+            var refs = p.Refs();
+            Console.Out.WriteLine(refs);
         }
     }
 
@@ -231,9 +233,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
     internal class Factor : Ref
     {
-        internal string tableName;
-
         internal string alias;
+        internal string tableName;
 
         public Factor(string tableName, string alias)
         {
@@ -243,7 +244,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(tableName);
             sb.Append(" AS ");
             sb.Append(alias);
@@ -253,9 +254,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
     internal class SubQuery : Ref
     {
-        internal Query u;
-
         internal string alias;
+        internal Query u;
 
         public SubQuery(Query u, string alias)
         {
@@ -265,7 +265,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("(");
             sb.Append(u);
             sb.Append(") AS ");
@@ -288,11 +288,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("<");
-            sb.Append(left.ToString());
+            sb.Append(left);
             sb.Append(" JOIN ");
-            sb.Append(right.ToString());
+            sb.Append(right);
             sb.Append(">");
             return sb.ToString();
         }
@@ -309,15 +309,15 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append("[");
-            for (int i = 0; i < refs.Count; ++i)
+            for (var i = 0; i < refs.Count; ++i)
             {
                 if (i > 0)
                 {
                     sb.Append(", ");
                 }
-                sb.Append(refs[i].ToString());
+                sb.Append(refs[i]);
             }
             sb.Append("]");
             return sb.ToString();
@@ -339,16 +339,16 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
-            foreach (Select s in selects)
+            var sb = new StringBuilder();
+            foreach (var s in selects)
             {
                 sb.Append(" UNION SELECT");
             }
-            string rst = sb.ToString();
-            int i = rst.IndexOf("UNION", System.StringComparison.Ordinal);
+            var rst = sb.ToString();
+            var i = rst.IndexOf("UNION", StringComparison.Ordinal);
             if (i >= 0)
             {
-                rst = Sharpen.Runtime.Substring(rst, i + "UNION".Length);
+                rst = Runtime.Substring(rst, i + "UNION".Length);
             }
             return rst;
         }

@@ -14,10 +14,14 @@
 * limitations under the License.
 */
 
-namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
+namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface QueryExpression : Expression
+    /// <summary>NOT FULL AST</summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IDdlStatement : ISqlStatement
     {
+        // QS_TODO ddl regenerate sql by router
     }
 }

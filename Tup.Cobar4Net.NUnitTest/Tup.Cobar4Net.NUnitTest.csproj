@@ -29,6 +29,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DebugSymbols>true</DebugSymbols>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Deveel.Math">
@@ -45,19 +46,19 @@
     <Compile Include="Parser\Ast\Stmt\StubDMLSelectStatementCreater.cs" />
     <Compile Include="Parser\Performance.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Lexer\MySQLLexerTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Lexer\MySqlLexerTest.cs" />
     <Compile Include="Parser\Recognizer\Mysql\Syntax\AbstractSyntaxTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDALParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDDLParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLCallParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLDeleteParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLInsertParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLReplaceParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLSelectParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLDMLUpdateParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLExprParserTest.cs" />
-    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySQLMTSParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDALParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDDLParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLCallParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLDeleteParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLInsertParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLReplaceParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLSelectParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlDMLUpdateParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlExprParserTest.cs" />
+    <Compile Include="Parser\Recognizer\Mysql\Syntax\MySqlMTSParserTest.cs" />
     <Compile Include="Parser\Recognizer\Mysql\Syntax\SoloParser.cs" />
     <Compile Include="Parser\Recognizer\Mysql\Syntax\SoloParserTest.cs" />
     <Compile Include="Parser\Recognizer\SQLParserDelegateTest.cs" />

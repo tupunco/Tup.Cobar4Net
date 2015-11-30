@@ -18,21 +18,23 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class AssignmentExpression : BinaryOperatorExpression
     {
-        public AssignmentExpression(Expression left, Expression right)
+        public AssignmentExpression(IExpression left, IExpression right)
             : base(left, right, ExpressionConstants.PrecedenceAssignment
                 , false)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return ":=";
+            get { return ":="; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

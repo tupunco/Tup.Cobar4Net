@@ -24,14 +24,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticAddExpression : ArithmeticBinaryOperatorExpression
     {
-        public ArithmeticAddExpression(Expression leftOprand, Expression rightOprand)
+        public ArithmeticAddExpression(IExpression leftOprand, IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticTermOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "+";
+            get { return "+"; }
         }
 
         public override Number Calculate(int integer1, int integer2)
@@ -110,7 +110,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             return bigDecimal1.Add(bigDecimal2);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

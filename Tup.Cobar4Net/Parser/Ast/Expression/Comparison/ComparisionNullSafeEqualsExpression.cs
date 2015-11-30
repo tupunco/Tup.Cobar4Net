@@ -19,28 +19,55 @@ using System.Collections.Generic;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 {
-    /// <summary><code>higherPreExpr '<=>' higherPreExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ComparisionNullSafeEqualsExpression : BinaryOperatorExpression, ReplacableExpression
+    /// <summary>
+    ///     <code>higherPreExpr '<=>' higherPreExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ComparisionNullSafeEqualsExpression : BinaryOperatorExpression, IReplacableExpression
     {
-        public ComparisionNullSafeEqualsExpression(Expr leftOprand, Expr rightOprand)
+        private IExpression _replaceExpr;
+
+        public ComparisionNullSafeEqualsExpression(IExpression leftOprand, IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceComparision)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "<=>";
+            get { return "<=>"; }
+        }
+
+        public virtual IExpression ReplaceExpr
+        {
+            set { _replaceExpr = value; }
+        }
+
+        public virtual void ClearReplaceExpr()
+        {
+            _replaceExpr = null;
+        }
+
+        public override void Accept(ISqlAstVisitor visitor)
+        {
+            if (_replaceExpr == null)
+            {
+                visitor.Visit(this);
+            }
+            else
+            {
+                _replaceExpr.Accept(visitor);
+            }
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object left = leftOprand.Evaluation(parameters);
-            object right = rightOprand.Evaluation(parameters);
+            var left = LeftOprand.Evaluation(parameters);
+            var right = rightOprand.Evaluation(parameters);
             if (left == ExpressionConstants.Unevaluatable || right == ExpressionConstants.Unevaluatable)
             {
                 return ExpressionConstants.Unevaluatable;
@@ -56,34 +83,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
             if (left is Number || right is Number)
             {
                 var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
-                left = pair.GetKey();
-                right = pair.GetValue();
+                left = pair.Key;
+                right = pair.Value;
             }
             return left.Equals(right) ? LiteralBoolean.True : LiteralBoolean.False;
-        }
-
-        private Expr replaceExpr;
-
-        public virtual void SetReplaceExpr(Expr replaceExpr)
-        {
-            this.replaceExpr = replaceExpr;
-        }
-
-        public virtual void ClearReplaceExpr()
-        {
-            this.replaceExpr = null;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
-        {
-            if (replaceExpr == null)
-            {
-                visitor.Visit(this);
-            }
-            else
-            {
-                replaceExpr.Accept(visitor);
-            }
         }
     }
 }

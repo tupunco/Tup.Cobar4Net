@@ -20,45 +20,39 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Type
 {
-    /// <summary><code>higherExpr 'COLLATE' collateName</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherExpr 'COLLATE' _collateName</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class CollateExpression : AbstractExpression
     {
-        private readonly string collateName;
-
-        private readonly Expression @string;
-
-        public CollateExpression(Expression @string, string collateName)
+        public CollateExpression(IExpression @string, string collateName)
         {
             if (collateName == null)
             {
-                throw new ArgumentException("collateName is null");
+                throw new ArgumentException("_collateName is null");
             }
-            this.@string = @string;
-            this.collateName = collateName;
+            StringValue = @string;
+            CollateName = collateName;
         }
 
-        public virtual string GetCollateName()
-        {
-            return collateName;
-        }
+        public virtual string CollateName { get; }
 
-        public virtual Expression GetString()
-        {
-            return @string;
-        }
+        public virtual IExpression StringValue { get; }
 
-        public override int GetPrecedence()
+        public override int Precedence
         {
-            return ExpressionConstants.PrecedenceCollate;
+            get { return ExpressionConstants.PrecedenceCollate; }
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            return @string.Evaluation(parameters);
+            return StringValue.Evaluation(parameters);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

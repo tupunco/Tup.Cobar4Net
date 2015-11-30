@@ -14,19 +14,10 @@
 * limitations under the License.
 */
 
-using System;
-using System.Collections.Generic;
-
-namespace Tup.Cobar4Net.Config.Model.Rule
+namespace Tup.Cobar4Net.Config.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface RuleAlgorithm
+    public interface IInitializable
     {
-        RuleAlgorithm ConstructMe(params object[] objects);
-
-        void Initialize();
-
-        /// <returns>never null</returns>
-        Number[] Calculate(IDictionary<object, object> parameters);
+        void Init();
     }
 }

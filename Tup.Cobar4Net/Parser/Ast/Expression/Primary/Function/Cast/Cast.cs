@@ -20,56 +20,43 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Cast : FunctionExpression
     {
-        private readonly string typeName;
-
-        private readonly Expression typeInfo1;
-
-        private readonly Expression typeInfo2;
-
         /// <param name="expr">never null</param>
-        public Cast(Expression expr, string typeName, Expression typeInfo1, Expression typeInfo2)
+        public Cast(IExpression expr, string typeName, IExpression typeInfo1, IExpression typeInfo2)
             : base("CAST", WrapList(expr))
         {
             if (null == typeName)
             {
                 throw new ArgumentException("typeName is null");
             }
-            this.typeName = typeName;
-            this.typeInfo1 = typeInfo1;
-            this.typeInfo2 = typeInfo2;
+            TypeName = typeName;
+            TypeInfo1 = typeInfo1;
+            TypeInfo2 = typeInfo2;
         }
 
-        /// <returns>never null</returns>
-        public virtual Expression GetExpr()
+        /// <value>never null</value>
+        public virtual IExpression Expr
         {
-            return GetArguments()[0];
+            get { return Arguments[0]; }
         }
 
-        /// <returns>never null</returns>
-        public virtual string GetTypeName()
-        {
-            return typeName;
-        }
+        /// <value>never null</value>
+        public virtual string TypeName { get; }
 
-        public virtual Expression GetTypeInfo1()
-        {
-            return typeInfo1;
-        }
+        public virtual IExpression TypeInfo1 { get; }
 
-        public virtual Expression GetTypeInfo2()
-        {
-            return typeInfo2;
-        }
+        public virtual IExpression TypeInfo2 { get; }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

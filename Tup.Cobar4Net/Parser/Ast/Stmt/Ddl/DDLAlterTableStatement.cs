@@ -15,509 +15,25 @@
 */
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
     /// <summary>NOT FULL AST: partition options, foreign key, ORDER BY not supported</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLAlterTableStatement : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlAlterTableStatement : IDdlStatement
     {
-        public interface AlterSpecification : ASTNode
-        {
-        }
-
-        public class AddColumn : AlterSpecification
-        {
-            private readonly Identifier columnName;
-
-            private readonly ColumnDefinition columnDefine;
-
-            private readonly bool first;
-
-            private readonly Identifier afterColumn;
-
-            /// <param name="columnName"/>
-            /// <param name="columnDefine"/>
-            /// <param name="afterColumn">null means fisrt</param>
-            public AddColumn(Identifier columnName,
-                ColumnDefinition columnDefine,
-                Identifier afterColumn)
-            {
-                // | ADD [COLUMN] col_name column_definition [FIRST | AFTER col_name ]
-                this.columnName = columnName;
-                this.columnDefine = columnDefine;
-                this.afterColumn = afterColumn;
-                this.first = afterColumn == null;
-            }
-
-            /// <param name="columnName"/>
-            /// <param name="columnDefine"/>
-            /// <param name="afterColumn">null means fisrt</param>
-            public AddColumn(Identifier columnName,
-                ColumnDefinition columnDefine)
-            {
-                this.columnName = columnName;
-                this.columnDefine = columnDefine;
-                this.afterColumn = null;
-                this.first = false;
-            }
-
-            public virtual Identifier GetColumnName()
-            {
-                return columnName;
-            }
-
-            public virtual ColumnDefinition GetColumnDefine()
-            {
-                return columnDefine;
-            }
-
-            public virtual bool IsFirst()
-            {
-                return first;
-            }
-
-            public virtual Identifier GetAfterColumn()
-            {
-                return afterColumn;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddColumns : AlterSpecification
-        {
-            private readonly IList<Pair<Identifier, ColumnDefinition>> columns;
-
-            public AddColumns()
-            {
-                // | ADD [COLUMN] (col_name column_definition,...)
-                this.columns = new List<Pair<Identifier, ColumnDefinition>>(2);
-            }
-
-            public virtual DDLAlterTableStatement.AddColumns AddColumn(Identifier name, ColumnDefinition
-                 colDef)
-            {
-                this.columns.Add(new Pair<Identifier, ColumnDefinition>(name, colDef));
-                return this;
-            }
-
-            public virtual IList<Pair<Identifier, ColumnDefinition>> GetColumns()
-            {
-                return columns;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddIndex : AlterSpecification
-        {
-            private readonly Identifier indexName;
-
-            private readonly IndexDefinition indexDef;
-
-            /// <param name="indexName"/>
-            /// <param name="indexType"/>
-            public AddIndex(Identifier indexName,
-                IndexDefinition indexDef)
-            {
-                // | ADD {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
-                // [index_option] ...
-                this.indexName = indexName;
-                this.indexDef = indexDef;
-            }
-
-            public virtual Identifier GetIndexName()
-            {
-                return indexName;
-            }
-
-            public virtual IndexDefinition GetIndexDef()
-            {
-                return indexDef;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddPrimaryKey : AlterSpecification
-        {
-            private readonly IndexDefinition indexDef;
-
-            public AddPrimaryKey(IndexDefinition indexDef)
-            {
-                // | ADD [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
-                // [index_option] ...
-                this.indexDef = indexDef;
-            }
-
-            public virtual IndexDefinition GetIndexDef()
-            {
-                return indexDef;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddUniqueKey : AlterSpecification
-        {
-            private readonly Identifier indexName;
-
-            private readonly IndexDefinition indexDef;
-
-            public AddUniqueKey(Identifier indexName,
-                IndexDefinition indexDef)
-            {
-                // | ADD [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY] [index_name] [index_type]
-                // (index_col_name,...) [index_option] ...
-                this.indexDef = indexDef;
-                this.indexName = indexName;
-            }
-
-            public virtual Identifier GetIndexName()
-            {
-                return indexName;
-            }
-
-            public virtual IndexDefinition GetIndexDef()
-            {
-                return indexDef;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddFullTextIndex : AlterSpecification
-        {
-            private readonly Identifier indexName;
-
-            private readonly IndexDefinition indexDef;
-
-            public AddFullTextIndex(Identifier indexName,
-                IndexDefinition indexDef)
-            {
-                // | ADD FULLTEXT [INDEX|KEY] [index_name] (index_col_name,...)
-                // [index_option] ...
-                this.indexDef = indexDef;
-                this.indexName = indexName;
-            }
-
-            public virtual Identifier GetIndexName()
-            {
-                return indexName;
-            }
-
-            public virtual IndexDefinition GetIndexDef()
-            {
-                return indexDef;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AddSpatialIndex : AlterSpecification
-        {
-            private readonly Identifier indexName;
-
-            private readonly IndexDefinition indexDef;
-
-            public AddSpatialIndex(Identifier indexName,
-                IndexDefinition indexDef)
-            {
-                // | ADD SPATIAL [INDEX|KEY] [index_name] (index_col_name,...)
-                // [index_option] ...
-                this.indexDef = indexDef;
-                this.indexName = indexName;
-            }
-
-            public virtual Identifier GetIndexName()
-            {
-                return indexName;
-            }
-
-            public virtual IndexDefinition GetIndexDef()
-            {
-                return indexDef;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class AlterColumnDefaultVal : AlterSpecification
-        {
-            private readonly Identifier columnName;
-
-            private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression defaultValue;
-
-            private readonly bool dropDefault;
-
-            /// <param name="columnName"/>
-            /// <param name="defaultValue"/>
-            public AlterColumnDefaultVal(Identifier columnName,
-                Tup.Cobar4Net.Parser.Ast.Expression.Expression defaultValue)
-            {
-                // | ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
-                this.columnName = columnName;
-                this.defaultValue = defaultValue;
-                this.dropDefault = false;
-            }
-
-            /// <summary>DROP DEFAULT</summary>
-            /// <param name="columnName"/>
-            public AlterColumnDefaultVal(Identifier columnName)
-            {
-                this.columnName = columnName;
-                this.defaultValue = null;
-                this.dropDefault = true;
-            }
-
-            public virtual Identifier GetColumnName()
-            {
-                return columnName;
-            }
-
-            public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetDefaultValue()
-            {
-                return defaultValue;
-            }
-
-            public virtual bool IsDropDefault()
-            {
-                return dropDefault;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class ChangeColumn : AlterSpecification
-        {
-            private readonly Identifier oldName;
-
-            private readonly Identifier newName;
-
-            private readonly ColumnDefinition colDef;
-
-            private readonly bool first;
-
-            private readonly Identifier afterColumn;
-
-            public ChangeColumn(Identifier oldName,
-                Identifier newName,
-                ColumnDefinition colDef,
-                Identifier afterColumn)
-            {
-                // | CHANGE [COLUMN] old_col_name new_col_name column_definition
-                // [FIRST|AFTER col_name]
-                this.oldName = oldName;
-                this.newName = newName;
-                this.colDef = colDef;
-                this.first = afterColumn == null;
-                this.afterColumn = afterColumn;
-            }
-
-            /// <summary>without column position specification</summary>
-            public ChangeColumn(Identifier oldName,
-                Identifier newName,
-                ColumnDefinition colDef)
-            {
-                this.oldName = oldName;
-                this.newName = newName;
-                this.colDef = colDef;
-                this.first = false;
-                this.afterColumn = null;
-            }
-
-            public virtual Identifier GetOldName()
-            {
-                return oldName;
-            }
-
-            public virtual Identifier GetNewName()
-            {
-                return newName;
-            }
-
-            public virtual ColumnDefinition GetColDef()
-            {
-                return colDef;
-            }
-
-            public virtual bool IsFirst()
-            {
-                return first;
-            }
-
-            public virtual Identifier GetAfterColumn()
-            {
-                return afterColumn;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class ModifyColumn : AlterSpecification
-        {
-            private readonly Identifier colName;
-
-            private readonly ColumnDefinition colDef;
-
-            private readonly bool first;
-
-            private readonly Identifier afterColumn;
-
-            public ModifyColumn(Identifier colName,
-                ColumnDefinition colDef,
-                Identifier afterColumn)
-            {
-                // | MODIFY [COLUMN] col_name column_definition [FIRST | AFTER col_name]
-                this.colName = colName;
-                this.colDef = colDef;
-                this.first = afterColumn == null;
-                this.afterColumn = afterColumn;
-            }
-
-            /// <summary>without column position specification</summary>
-            public ModifyColumn(Identifier colName,
-                ColumnDefinition colDef)
-            {
-                this.colName = colName;
-                this.colDef = colDef;
-                this.first = false;
-                this.afterColumn = null;
-            }
-
-            public virtual Identifier GetColName()
-            {
-                return colName;
-            }
-
-            public virtual ColumnDefinition GetColDef()
-            {
-                return colDef;
-            }
-
-            public virtual bool IsFirst()
-            {
-                return first;
-            }
-
-            public virtual Identifier GetAfterColumn()
-            {
-                return afterColumn;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class DropColumn : AlterSpecification
-        {
-            private readonly Identifier colName;
-
-            public DropColumn(Identifier colName)
-            {
-                // | DROP [COLUMN] col_name
-                this.colName = colName;
-            }
-
-            public virtual Identifier GetColName()
-            {
-                return colName;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class DropPrimaryKey : AlterSpecification
-        {
-            // | DROP PRIMARY KEY
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        public class DropIndex : AlterSpecification
-        {
-            private readonly Identifier indexName;
-
-            public DropIndex(Identifier indexName)
-            {
-                // | DROP {INDEX|KEY} index_name
-                this.indexName = indexName;
-            }
-
-            public virtual Identifier GetIndexName()
-            {
-                return indexName;
-            }
-
-            public virtual void Accept(SQLASTVisitor visitor)
-            {
-                visitor.Visit(this);
-            }
-        }
-
-        private readonly bool ignore;
-
-        private readonly Identifier table;
-
-        private TableOptions tableOptions;
-
-        private readonly IList<AlterSpecification> alters;
-
-        private bool disableKeys;
-
-        private bool enableKeys;
-
-        private bool discardTableSpace;
-
-        private bool importTableSpace;
-
-        private Identifier renameTo;
-
-        /// <summary>charsetName -&gt; collate</summary>
-        private Pair<Identifier, Identifier> convertCharset;
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0021:Warns about calls to virtual member functions occuring in the constructor", Justification = "<¹ÒÆð>")]
-        public DDLAlterTableStatement(bool ignore, Identifier table)
+        [SuppressMessage("Potential Code Quality Issues", "RECS0021:Warns about calls to virtual member functions occuring in the constructor",
+            Justification = "<¹ÒÆð>")]
+        public DdlAlterTableStatement(bool ignore, Identifier table)
         {
             // | DISABLE KEYS
             // | ENABLE KEYS
@@ -541,105 +57,372 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
             // /// | REPAIR PARTITION {partition_names | ALL }
             // /// | REMOVE PARTITIONING
             // ADD, ALTER, DROP, and CHANGE can be multiple
-            this.ignore = ignore;
-            this.table = table;
-            this.alters = new List<AlterSpecification>(1);
+            IsIgnore = ignore;
+            Table = table;
+            Alters = new List<AlterSpecification>(1);
         }
 
-        public virtual DDLAlterTableStatement AddAlterSpecification(AlterSpecification alter)
+        public virtual bool DisableKeys { get; set; }
+
+        public virtual bool EnableKeys { get; set; }
+
+        public virtual bool DiscardTableSpace { get; set; }
+
+        public virtual bool IsImportTableSpace { get; set; }
+
+        public virtual Identifier RenameTo { get; set; }
+
+        public virtual Pair<Identifier, Identifier> ConvertCharset { get; set; }
+
+        public virtual IList<AlterSpecification> Alters { get; }
+
+        public virtual TableOptions TableOptions { set; get; }
+
+        public virtual bool IsIgnore { get; }
+
+        public virtual Identifier Table { get; }
+
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
-            alters.Add(alter);
+            visitor.Visit(this);
+        }
+
+        public virtual DdlAlterTableStatement AddAlterSpecification(AlterSpecification alter)
+        {
+            Alters.Add(alter);
             return this;
         }
 
-        public virtual bool IsDisableKeys()
+        public interface AlterSpecification : IAstNode
         {
-            return disableKeys;
         }
 
-        public virtual void SetDisableKeys(bool disableKeys)
+        public class AddColumn : AlterSpecification
         {
-            this.disableKeys = disableKeys;
+            /// <param name="columnName" />
+            /// <param name="columnDefine" />
+            /// <param name="afterColumn">null means fisrt</param>
+            public AddColumn(Identifier columnName,
+                ColumnDefinition columnDefine,
+                Identifier afterColumn)
+            {
+                // | ADD [COLUMN] col_name column_definition [FIRST | AFTER col_name ]
+                ColumnName = columnName;
+                ColumnDefine = columnDefine;
+                AfterColumn = afterColumn;
+                IsFirst = afterColumn == null;
+            }
+
+            /// <param name="columnName" />
+            /// <param name="columnDefine" />
+            /// <param name="afterColumn">null means fisrt</param>
+            public AddColumn(Identifier columnName,
+                ColumnDefinition columnDefine)
+            {
+                ColumnName = columnName;
+                ColumnDefine = columnDefine;
+                AfterColumn = null;
+                IsFirst = false;
+            }
+
+            public virtual Identifier ColumnName { get; }
+
+            public virtual ColumnDefinition ColumnDefine { get; }
+
+            public virtual bool IsFirst { get; }
+
+            public virtual Identifier AfterColumn { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual bool IsEnableKeys()
+        public class AddColumns : AlterSpecification
         {
-            return enableKeys;
+            private readonly IList<Pair<Identifier, ColumnDefinition>> columns;
+
+            public AddColumns()
+            {
+                // | ADD [COLUMN] (col_name column_definition,...)
+                columns = new List<Pair<Identifier, ColumnDefinition>>(2);
+            }
+
+            public virtual IList<Pair<Identifier, ColumnDefinition>> Columns
+            {
+                get { return columns; }
+            }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
+
+            public virtual AddColumns AddColumn(Identifier name, ColumnDefinition colDef)
+            {
+                columns.Add(new Pair<Identifier, ColumnDefinition>(name, colDef));
+                return this;
+            }
         }
 
-        public virtual void SetEnableKeys(bool enableKeys)
+        public class AddIndex : AlterSpecification
         {
-            this.enableKeys = enableKeys;
+            /// <param name="indexName" />
+            /// <param name="indexType" />
+            public AddIndex(Identifier indexName,
+                IndexDefinition indexDef)
+            {
+                // | ADD {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
+                // [index_option] ...
+                IndexName = indexName;
+                IndexDef = indexDef;
+            }
+
+            public virtual Identifier IndexName { get; }
+
+            public virtual IndexDefinition IndexDef { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual bool IsDiscardTableSpace()
+        public class AddPrimaryKey : AlterSpecification
         {
-            return discardTableSpace;
+            public AddPrimaryKey(IndexDefinition indexDef)
+            {
+                // | ADD [CONSTRAINT [symbol]] PRIMARY KEY [index_type] (index_col_name,...)
+                // [index_option] ...
+                IndexDef = indexDef;
+            }
+
+            public virtual IndexDefinition IndexDef { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual void SetDiscardTableSpace(bool discardTableSpace)
+        public class AddUniqueKey : AlterSpecification
         {
-            this.discardTableSpace = discardTableSpace;
+            public AddUniqueKey(Identifier indexName,
+                IndexDefinition indexDef)
+            {
+                // | ADD [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY] [index_name] [index_type]
+                // (index_col_name,...) [index_option] ...
+                IndexDef = indexDef;
+                IndexName = indexName;
+            }
+
+            public virtual Identifier IndexName { get; }
+
+            public virtual IndexDefinition IndexDef { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual bool IsImportTableSpace()
+        public class AddFullTextIndex : AlterSpecification
         {
-            return importTableSpace;
+            public AddFullTextIndex(Identifier indexName,
+                IndexDefinition indexDef)
+            {
+                // | ADD FULLTEXT [INDEX|KEY] [index_name] (index_col_name,...)
+                // [index_option] ...
+                IndexDef = indexDef;
+                IndexName = indexName;
+            }
+
+            public virtual Identifier IndexName { get; }
+
+            public virtual IndexDefinition IndexDef { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual void SetImportTableSpace(bool importTableSpace)
+        public class AddSpatialIndex : AlterSpecification
         {
-            this.importTableSpace = importTableSpace;
+            public AddSpatialIndex(Identifier indexName,
+                IndexDefinition indexDef)
+            {
+                // | ADD SPATIAL [INDEX|KEY] [index_name] (index_col_name,...)
+                // [index_option] ...
+                IndexDef = indexDef;
+                IndexName = indexName;
+            }
+
+            public virtual Identifier IndexName { get; }
+
+            public virtual IndexDefinition IndexDef { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual Identifier GetRenameTo()
+        public class AlterColumnDefaultVal : AlterSpecification
         {
-            return renameTo;
+            /// <param name="columnName" />
+            /// <param name="defaultValue" />
+            public AlterColumnDefaultVal(Identifier columnName,
+                IExpression defaultValue)
+            {
+                // | ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
+                ColumnName = columnName;
+                DefaultValue = defaultValue;
+                IsDropDefault = false;
+            }
+
+            /// <summary>DROP DEFAULT</summary>
+            /// <param name="columnName" />
+            public AlterColumnDefaultVal(Identifier columnName)
+            {
+                ColumnName = columnName;
+                DefaultValue = null;
+                IsDropDefault = true;
+            }
+
+            public virtual Identifier ColumnName { get; }
+
+            public virtual IExpression DefaultValue { get; }
+
+            public virtual bool IsDropDefault { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual void SetRenameTo(Identifier renameTo)
+        public class ChangeColumn : AlterSpecification
         {
-            this.renameTo = renameTo;
+            public ChangeColumn(Identifier oldName,
+                Identifier newName,
+                ColumnDefinition colDef,
+                Identifier afterColumn)
+            {
+                // | CHANGE [COLUMN] old_col_name new_col_name column_definition
+                // [FIRST|AFTER col_name]
+                OldName = oldName;
+                NewName = newName;
+                ColDef = colDef;
+                IsFirst = afterColumn == null;
+                AfterColumn = afterColumn;
+            }
+
+            /// <summary>without column position specification</summary>
+            public ChangeColumn(Identifier oldName,
+                Identifier newName,
+                ColumnDefinition colDef)
+            {
+                OldName = oldName;
+                NewName = newName;
+                ColDef = colDef;
+                IsFirst = false;
+                AfterColumn = null;
+            }
+
+            public virtual Identifier OldName { get; }
+
+            public virtual Identifier NewName { get; }
+
+            public virtual ColumnDefinition ColDef { get; }
+
+            public virtual bool IsFirst { get; }
+
+            public virtual Identifier AfterColumn { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual Pair<Identifier, Identifier> GetConvertCharset()
+        public class ModifyColumn : AlterSpecification
         {
-            return convertCharset;
+            public ModifyColumn(Identifier colName,
+                ColumnDefinition colDef,
+                Identifier afterColumn)
+            {
+                // | MODIFY [COLUMN] col_name column_definition [FIRST | AFTER col_name]
+                ColName = colName;
+                ColDef = colDef;
+                IsFirst = afterColumn == null;
+                AfterColumn = afterColumn;
+            }
+
+            /// <summary>without column position specification</summary>
+            public ModifyColumn(Identifier colName,
+                ColumnDefinition colDef)
+            {
+                ColName = colName;
+                ColDef = colDef;
+                IsFirst = false;
+                AfterColumn = null;
+            }
+
+            public virtual Identifier ColName { get; }
+
+            public virtual ColumnDefinition ColDef { get; }
+
+            public virtual bool IsFirst { get; }
+
+            public virtual Identifier AfterColumn { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual void SetConvertCharset(Pair<Identifier, Identifier> convertCharset)
+        public class DropColumn : AlterSpecification
         {
-            this.convertCharset = convertCharset;
+            public DropColumn(Identifier colName)
+            {
+                // | DROP [COLUMN] col_name
+                ColName = colName;
+            }
+
+            public virtual Identifier ColName { get; }
+
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual IList<AlterSpecification> GetAlters()
+        public class DropPrimaryKey : AlterSpecification
         {
-            return alters;
+            // | DROP PRIMARY KEY
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
 
-        public virtual void SetTableOptions(TableOptions tableOptions)
+        public class DropIndex : AlterSpecification
         {
-            this.tableOptions = tableOptions;
-        }
+            public DropIndex(Identifier indexName)
+            {
+                // | DROP {INDEX|KEY} index_name
+                IndexName = indexName;
+            }
 
-        public virtual TableOptions GetTableOptions()
-        {
-            return tableOptions;
-        }
+            public virtual Identifier IndexName { get; }
 
-        public virtual bool IsIgnore()
-        {
-            return ignore;
-        }
-
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
-
-        public virtual void Accept(SQLASTVisitor visitor)
-        {
-            visitor.Visit(this);
+            public virtual void Accept(ISqlAstVisitor visitor)
+            {
+                visitor.Visit(this);
+            }
         }
     }
 }

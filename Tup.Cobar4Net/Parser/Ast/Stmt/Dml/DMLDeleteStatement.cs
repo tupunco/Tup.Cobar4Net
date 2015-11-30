@@ -16,36 +16,24 @@
 
 using System;
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLDeleteStatement : DMLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlDeleteStatement : DmlStatement
     {
-        private readonly bool lowPriority;
-
-        private readonly bool quick;
-
-        private readonly bool ignore;
-
         /// <summary>tableName[.*]</summary>
         private readonly IList<Identifier> tableNames;
 
-        private readonly TableReferences tableRefs;
-
-        private readonly Expr whereCondition;
-
-        private readonly OrderBy orderBy;
-
-        private readonly Limit limit;
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLDeleteStatement(bool lowPriority,
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlDeleteStatement(bool lowPriority,
             bool quick,
             bool ignore,
             Identifier tableName)
@@ -53,39 +41,39 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         {
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLDeleteStatement(bool lowPriority,
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlDeleteStatement(bool lowPriority,
             bool quick,
             bool ignore,
             Identifier tableName,
-            Expr where)
+            IExpression where)
             : this(lowPriority, quick, ignore, tableName, where, null, null)
         {
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLDeleteStatement(bool lowPriority,
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlDeleteStatement(bool lowPriority,
             bool quick,
             bool ignore,
             Identifier tableName,
-            Expr where,
+            IExpression where,
             OrderBy orderBy,
             Limit limit)
         {
             // ------- single-row delete------------
-            this.lowPriority = lowPriority;
-            this.quick = quick;
-            this.ignore = ignore;
-            this.tableNames = new List<Identifier>(1);
-            this.tableNames.Add(tableName);
-            this.tableRefs = null;
-            this.whereCondition = where;
-            this.orderBy = orderBy;
-            this.limit = limit;
+            IsLowPriority = lowPriority;
+            IsQuick = quick;
+            IsIgnore = ignore;
+            tableNames = new List<Identifier>(1);
+            tableNames.Add(tableName);
+            TableRefs = null;
+            WhereCondition = where;
+            OrderBy = orderBy;
+            Limit = limit;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLDeleteStatement(bool lowPriority,
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlDeleteStatement(bool lowPriority,
             bool quick,
             bool ignore,
             IList<Identifier> tableNameList,
@@ -94,83 +82,59 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         {
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLDeleteStatement(bool lowPriority,
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlDeleteStatement(bool lowPriority,
             bool quick,
             bool ignore,
             IList<Identifier> tableNameList,
-            TableReferences tableRefs, Expr whereCondition)
+            TableReferences tableRefs, IExpression whereCondition)
         {
             // ------- multi-row delete------------
-            this.lowPriority = lowPriority;
-            this.quick = quick;
-            this.ignore = ignore;
+            IsLowPriority = lowPriority;
+            IsQuick = quick;
+            IsIgnore = ignore;
             if (tableNameList == null || tableNameList.IsEmpty())
             {
                 throw new ArgumentException("argument 'tableNameList' is empty");
             }
+            if (tableNameList is List<Identifier>)
+            {
+                tableNames = tableNameList;
+            }
             else
             {
-                if (tableNameList is List<Identifier>)
-                {
-                    this.tableNames = tableNameList;
-                }
-                else
-                {
-                    this.tableNames = new List<Identifier>(tableNameList);
-                }
+                tableNames = new List<Identifier>(tableNameList);
             }
             if (tableRefs == null)
             {
                 throw new ArgumentException("argument 'tableRefs' is null");
             }
-            this.tableRefs = tableRefs;
-            this.whereCondition = whereCondition;
-            this.orderBy = null;
-            this.limit = null;
+            TableRefs = tableRefs;
+            WhereCondition = whereCondition;
+            OrderBy = null;
+            Limit = null;
         }
 
-        public virtual IList<Identifier> GetTableNames()
+        public virtual IList<Identifier> TableNames
         {
-            return tableNames;
+            get { return tableNames; }
         }
 
-        public virtual TableReferences GetTableRefs()
-        {
-            return tableRefs;
-        }
+        public virtual TableReferences TableRefs { get; }
 
-        public virtual Expr GetWhereCondition()
-        {
-            return whereCondition;
-        }
+        public virtual IExpression WhereCondition { get; }
 
-        public virtual OrderBy GetOrderBy()
-        {
-            return orderBy;
-        }
+        public virtual OrderBy OrderBy { get; }
 
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
+        public virtual Limit Limit { get; }
 
-        public virtual bool IsLowPriority()
-        {
-            return lowPriority;
-        }
+        public virtual bool IsLowPriority { get; }
 
-        public virtual bool IsQuick()
-        {
-            return quick;
-        }
+        public virtual bool IsQuick { get; }
 
-        public virtual bool IsIgnore()
-        {
-            return ignore;
-        }
+        public virtual bool IsIgnore { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

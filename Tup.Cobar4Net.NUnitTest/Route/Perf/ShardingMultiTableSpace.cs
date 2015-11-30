@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -13,31 +13,29 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
+using System;
 using Sharpen;
 using Tup.Cobar4Net.Config.Model;
 
 namespace Tup.Cobar4Net.Route.Perf
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ShardingMultiTableSpace
     {
         private SchemaConfig schema;
 
-        public ShardingMultiTableSpace()
-        {
-        }
-
         // schema =
         // CobarServer.getInstance().getConfig().getSchemas().get("cndb");
-        /// <summary>路由到tableSpace的�?�能测试</summary>
-        /// <exception cref="System.Data.Sql.SQLNonTransientException"/>
+        /// <summary>路由到tableSpace的�?�能测试</summary>
+        /// <exception cref="System.Data.Sql.SQLNonTransientException" />
         public virtual void TestTableSpace()
         {
-            SchemaConfig schema = GetSchema();
-            string sql = "select id,member_id,gmt_create from offer where member_id in ('1','22','333','1124','4525')";
-            for (int i = 0; i < 100000; i++)
+            var schema = GetSchema();
+            var sql = "select id,member_id,gmt_create from offer where member_id in ('1','22','333','1124','4525')";
+            for (var i = 0; i < 100000; i++)
             {
                 ServerRouter.Route(schema, sql, null, null);
             }
@@ -48,16 +46,15 @@ namespace Tup.Cobar4Net.Route.Perf
             return schema;
         }
 
-        /// <exception cref="System.Exception"/>
+        /// <exception cref="System.Exception" />
         public static void Main(string[] args)
         {
-            Tup.Cobar4Net.Route.Perf.ShardingMultiTableSpace test = new Tup.Cobar4Net.Route.Perf.ShardingMultiTableSpace
-                ();
+            var test = new ShardingMultiTableSpace();
             Runtime.CurrentTimeMillis();
-            long start = Runtime.CurrentTimeMillis();
+            var start = Runtime.CurrentTimeMillis();
             test.TestTableSpace();
-            long end = Runtime.CurrentTimeMillis();
-            System.Console.Out.WriteLine("take " + (end - start) + " ms.");
+            var end = Runtime.CurrentTimeMillis();
+            Console.Out.WriteLine("take " + (end - start) + " ms.");
         }
     }
 }

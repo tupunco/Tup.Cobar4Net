@@ -14,73 +14,50 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowTables : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowTables : DalShowStatement
     {
-        private readonly bool full;
-
-        private Identifier schema;
-
-        private readonly string pattern;
-
-        private readonly Tup.Cobar4Net.Parser.Ast.Expression.Expression where;
-
         public ShowTables(bool full, Identifier schema, string pattern)
         {
-            this.full = full;
-            this.schema = schema;
-            this.pattern = pattern;
-            this.where = null;
+            IsFull = full;
+            Schema = schema;
+            Pattern = pattern;
+            Where = null;
         }
 
-        public ShowTables(bool full, Identifier schema, Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             where)
+        public ShowTables(bool full, Identifier schema, IExpression where)
         {
-            this.full = full;
-            this.schema = schema;
-            this.pattern = null;
-            this.where = where;
+            IsFull = full;
+            Schema = schema;
+            Pattern = null;
+            Where = where;
         }
 
         public ShowTables(bool full, Identifier schema)
         {
-            this.full = full;
-            this.schema = schema;
-            this.pattern = null;
-            this.where = null;
+            IsFull = full;
+            Schema = schema;
+            Pattern = null;
+            Where = null;
         }
 
-        public virtual bool IsFull()
-        {
-            return full;
-        }
+        public virtual bool IsFull { get; }
 
-        public virtual void SetSchema(Identifier schema)
-        {
-            this.schema = schema;
-        }
+        public virtual Identifier Schema { set; get; }
 
-        public virtual Identifier GetSchema()
-        {
-            return schema;
-        }
+        public virtual string Pattern { get; }
 
-        public virtual string GetPattern()
-        {
-            return pattern;
-        }
+        public virtual IExpression Where { get; }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Expression.Expression GetWhere()
-        {
-            return where;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

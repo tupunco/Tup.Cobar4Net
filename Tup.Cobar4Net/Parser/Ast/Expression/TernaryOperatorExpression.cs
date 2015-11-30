@@ -15,41 +15,27 @@
 */
 
 using System.Collections.Generic;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
     /// <summary>an operator with arity of 3</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class TernaryOperatorExpression : AbstractExpression
     {
-        private readonly Expr first;
-
-        private readonly Expr second;
-
-        private readonly Expr third;
-
-        public TernaryOperatorExpression(Expr first, Expr second, Expr third)
+        protected TernaryOperatorExpression(IExpression first, IExpression second, IExpression third)
         {
-            this.first = first;
-            this.second = second;
-            this.third = third;
+            First = first;
+            Second = second;
+            Third = third;
         }
 
-        public virtual Expr GetFirst()
-        {
-            return first;
-        }
+        public virtual IExpression First { get; }
 
-        public virtual Expr GetSecond()
-        {
-            return second;
-        }
+        public virtual IExpression Second { get; }
 
-        public virtual Expr GetThird()
-        {
-            return third;
-        }
+        public virtual IExpression Third { get; }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {

@@ -15,25 +15,28 @@
 */
 
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
 {
-    /// <summary><code>higherPreExpr '<=' higherPreExpr&lt;/code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherPreExpr '<=' higherPreExpr&lt;/code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ComparisionLessThanOrEqualsExpression : BinaryOperatorExpression
     {
-        public ComparisionLessThanOrEqualsExpression(Expr leftOprand, Expr rightOprand)
+        public ComparisionLessThanOrEqualsExpression(IExpression leftOprand, IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceComparision)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "<=";
+            get { return "<="; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -13,12 +13,14 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using System.Collections.Generic;
-using Sharpen;
 
 namespace Tup.Cobar4Net.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public static class CollectionUtil
     {
         /// <param name="orig">if null, return intersect</param>
@@ -34,7 +36,7 @@ namespace Tup.Cobar4Net.Util
             }
 
             var set = new HashSet<TItem>();
-            foreach (TItem p in orig)
+            foreach (var p in orig)
             {
                 if (intersect.Contains(p))
                 {

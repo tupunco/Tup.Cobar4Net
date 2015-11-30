@@ -1,4 +1,4 @@
-/*
+ï»¿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,185 +19,106 @@ using System.Linq;
 
 namespace Tup.Cobar4Net.Config.Model
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class SchemaConfig
     {
-        private readonly string name;
-
-        private readonly string dataNode;
-
-        private readonly string group;
-
-        private readonly IDictionary<string, TableConfig> tables = null;
-
-        private readonly bool noSharding;
-
-        private readonly string[] metaDataNodes;
-
-        private readonly bool keepSqlSchema;
-
-        private readonly ICollection<string> allDataNodes;
-
-        public ICollection<string> AllDataNodes
-        {
-            get { return allDataNodes; }
-        }
-
-        public bool KeepSqlSchema
-        {
-            get { return keepSqlSchema; }
-        }
-
-        public string[] MetaDataNodes
-        {
-            get { return metaDataNodes; }
-        }
-
-        public bool NoSharding
-        {
-            get { return noSharding; }
-        }
-
-        public IDictionary<string, TableConfig> Tables
-        {
-            get { return tables; }
-        }
-
-        public string Group
-        {
-            get { return group; }
-        }
-
-        public string DataNode
-        {
-            get { return dataNode; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-        }
-
         public SchemaConfig(string name,
-            string dataNode,
-            string group,
-            bool keepSqlSchema,
-            IDictionary<string, TableConfig> tables)
+                            string dataNode,
+                            string group,
+                            bool keepSqlSchema,
+                            IDictionary<string, TableConfig> tables)
         {
-            this.name = name;
-            this.dataNode = dataNode;
-            this.group = group;
-            this.tables = tables;
-            this.noSharding = tables == null || tables.IsEmpty();
-            this.metaDataNodes = BuildMetaDataNodes();
-            this.allDataNodes = BuildAllDataNodes();
-            this.keepSqlSchema = keepSqlSchema;
+            Name = name;
+            DataNode = dataNode;
+            Group = group;
+            Tables = tables;
+            IsNoSharding = tables == null || tables.IsEmpty();
+            MetaDataNodes = BuildMetaDataNodes();
+            AllDataNodes = BuildAllDataNodes();
+            IsKeepSqlSchema = keepSqlSchema;
         }
 
-        public virtual bool IsKeepSqlSchema()
-        {
-            return keepSqlSchema;
-        }
+        public bool IsKeepSqlSchema { get; }
 
-        public virtual string GetName()
-        {
-            return name;
-        }
+        public string Name { get; }
 
-        public virtual string GetDataNode()
-        {
-            return dataNode;
-        }
+        public string DataNode { get; }
 
-        public virtual string GetGroup()
-        {
-            return group;
-        }
+        public string Group { get; }
 
-        public virtual IDictionary<string, TableConfig> GetTables()
-        {
-            return tables;
-        }
+        public IDictionary<string, TableConfig> Tables { get; }
 
-        public virtual bool IsNoSharding()
-        {
-            return noSharding;
-        }
+        public bool IsNoSharding { get; }
 
-        public virtual string[] GetMetaDataNodes()
-        {
-            return metaDataNodes;
-        }
+        public string[] MetaDataNodes { get; }
 
-        public virtual ICollection<string> GetAllDataNodes()
-        {
-            return allDataNodes;
-        }
+        public ICollection<string> AllDataNodes { get; }
 
-        public virtual string GetRandomDataNode()
+        public string RandomDataNode
         {
-            if (allDataNodes == null || allDataNodes.IsEmpty())
+            get
             {
-                return null;
+                if (AllDataNodes == null || AllDataNodes.IsEmpty())
+                {
+                    return null;
+                }
+                return AllDataNodes.FirstOrDefault();
+                //return allDataNodes.GetEnumerator().Current;
             }
-            return allDataNodes.FirstOrDefault();
-            //return allDataNodes.GetEnumerator().Current;
         }
 
-        /// <summary>È¡µÃº¬ÓÐ²»Í¬MetaÐÅÏ¢µÄÊý¾Ý½Úµã,±ÈÈç±íºÍ±í½á¹¹¡£</summary>
+        /// <summary>È¡ï¿½Ãºï¿½ï¿½Ð²ï¿½Í¬Metaï¿½ï¿½Ï¢ï¿½ï¿½ï¿½ï¿½ï¿½Ý½Úµï¿½,ï¿½ï¿½ï¿½ï¿½ï¿½Í±ï¿½á¹¹ï¿½ï¿½</summary>
         private string[] BuildMetaDataNodes()
         {
             var set = new HashSet<string>();
-            if (!IsEmpty(dataNode))
+            if (!DataNode.IsEmpty())
             {
-                set.Add(dataNode);
+                set.Add(DataNode);
             }
-            if (!noSharding)
+            if (!IsNoSharding)
             {
-                foreach (TableConfig tc in tables.Values)
+                foreach (var tc in Tables.Values)
                 {
-                    set.Add(tc.GetDataNodes()[0]);
+                    set.Add(tc.DataNodes[0]);
                 }
             }
             return set.ToArray();
         }
 
-        /// <summary>È¡µÃ¸ÃschemaµÄËùÓÐÊý¾Ý½Úµã</summary>
+        /// <summary>È¡ï¿½Ã¸ï¿½schemaï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý½Úµï¿½</summary>
         private ICollection<string> BuildAllDataNodes()
         {
             var set = new HashSet<string>();
-            if (!IsEmpty(dataNode))
+            if (!DataNode.IsEmpty())
             {
-                set.Add(dataNode);
+                set.Add(DataNode);
             }
-            if (!noSharding)
+            if (!IsNoSharding)
             {
-                foreach (var tc in tables.Values)
+                foreach (var tc in Tables.Values)
                 {
-                    set.AddRange(tc.GetDataNodes());
+                    set.AddRange(tc.DataNodes);
                 }
             }
             return set;
         }
 
-        private static bool IsEmpty(string str)
-        {
-            return ((str == null) || (str.Length == 0));
-        }
-
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
-            return string.Format("[SchemaConfig Name={0}, DataNode={1}, Group={2}, Tables={3}, NoSharding={4}, MetaDataNodes={5}, KeepSqlSchema={6}, AllDataNodes={7}]",
-                                    name, dataNode, group,
-                                    string.Join(",", tables ?? new Dictionary<string, TableConfig>(0)),
-                                    noSharding,
-                                    string.Join(",", metaDataNodes ?? new string[0]),
-                                    keepSqlSchema,
-                                    string.Join(",", allDataNodes ?? new string[0]));
+            return
+                string.Format(
+                    "[SchemaConfig Name={0}, DataNode={1}, Group={2}, Tables={3}, NoSharding={4}, MetaDataNodes={5}, KeepSqlSchema={6}, AllDataNodes={7}]",
+                    Name, DataNode, Group,
+                    string.Join(",", Tables ?? new Dictionary<string, TableConfig>(0)),
+                    IsNoSharding,
+                    string.Join(",", MetaDataNodes ?? new string[0]),
+                    IsKeepSqlSchema,
+                    string.Join(",", AllDataNodes ?? new string[0]));
         }
     }
 }

@@ -15,7 +15,6 @@
 */
 
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Config.Loader;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Config.Util;
@@ -24,43 +23,45 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax;
 using Tup.Cobar4Net.Route.Function;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Config
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class RouteRuleInitializer
     {
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public static void InitRouteRule(SchemaLoader loader)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public static void InitRouteRule(ISchemaLoader loader)
         {
-            var functions = loader.GetFunctions();
-            var functionManager = new MySQLFunctionManager(true);
+            var functions = loader.Functions;
+            var functionManager = new MySqlFunctionManager(true);
             BuildFuncManager(functionManager, functions);
-            foreach (var conf in loader.ListRuleConfig())
+            foreach (var conf in loader.RuleConfigList)
             {
-                string algorithmString = conf.GetAlgorithm();
-                var lexer = new MySQLLexer(algorithmString);
-                var parser = new MySQLExprParser(lexer, functionManager, false, MySQLParser.DefaultCharset);
-                Expr expression = parser.Expression();
-                if (lexer.Token() != MySQLToken.Eof)
+                var algorithmString = conf.Algorithm;
+                var lexer = new MySqlLexer(algorithmString);
+                var parser = new MySqlExprParser(lexer, functionManager, false, MySqlParser.DefaultCharset);
+                var expression = parser.Expression();
+                if (lexer.Token() != MySqlToken.Eof)
                 {
                     throw new ConfigException("route algorithm not end with EOF: " + algorithmString);
                 }
-                RuleAlgorithm algorithm;
-                if (expression is RuleAlgorithm)
+                IRuleAlgorithm algorithm;
+                if (expression is IRuleAlgorithm)
                 {
-                    algorithm = (RuleAlgorithm)expression;
+                    algorithm = (IRuleAlgorithm)expression;
                 }
                 else
                 {
                     algorithm = new ExpressionAdapter(expression);
                 }
-                conf.SetRuleAlgorithm(algorithm);
+                conf.RuleAlgorithm = algorithm;
             }
         }
 
-        private static void BuildFuncManager(MySQLFunctionManager functionManager, IDictionary<string, RuleAlgorithm> functions)
+        private static void BuildFuncManager(MySqlFunctionManager functionManager,
+            IDictionary<string, IRuleAlgorithm> functions)
         {
             var extFuncPrototypeMap = new Dictionary<string, FunctionExpression>(functions.Count);
             foreach (var en in functions)

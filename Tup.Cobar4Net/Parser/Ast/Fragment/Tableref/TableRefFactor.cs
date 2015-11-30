@@ -20,14 +20,14 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class TableRefFactor : AliasableTableReference
     {
         /// <summary>e.g.</summary>
         /// <remarks>e.g. <code>"`db2`.`tb1`"</code> is possible</remarks>
         private readonly Identifier table;
-
-        private readonly IList<IndexHint> hintList;
 
         public TableRefFactor(Identifier table, string alias, IList<IndexHint> hintList)
             : base(alias)
@@ -35,18 +35,15 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             this.table = table;
             if (hintList == null || hintList.IsEmpty())
             {
-                this.hintList = new List<IndexHint>(0);
+                HintList = new List<IndexHint>(0);
+            }
+            else if (hintList is List<IndexHint>)
+            {
+                HintList = hintList;
             }
             else
             {
-                if (hintList is List<IndexHint>)
-                {
-                    this.hintList = hintList;
-                }
-                else
-                {
-                    this.hintList = new List<IndexHint>(hintList);
-                }
+                HintList = new List<IndexHint>(hintList);
             }
         }
 
@@ -55,14 +52,21 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
         {
         }
 
-        public virtual Identifier GetTable()
+        public virtual Identifier Table
         {
-            return table;
+            get { return table; }
         }
 
-        public virtual IList<IndexHint> GetHintList()
+        public virtual IList<IndexHint> HintList { get; }
+
+        public override bool IsSingleTable
         {
-            return hintList;
+            get { return true; }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceFactor; }
         }
 
         public override object RemoveLastConditionElement()
@@ -70,17 +74,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return null;
         }
 
-        public override bool IsSingleTable()
-        {
-            return true;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceFactor;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

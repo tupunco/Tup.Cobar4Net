@@ -18,17 +18,26 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Bit
 {
-    /// <summary><code>higherExpr ( ('&lt;&lt;'|'&gt;&gt;') higherExpr )+</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherExpr ( ('&lt;&lt;'|'&gt;&gt;') higherExpr )+</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class BitShiftExpression : BinaryOperatorExpression
     {
         private readonly bool negative;
 
         /// <param name="negative">true if right shift</param>
-        public BitShiftExpression(bool negative, Expression leftOprand, Expression rightOprand)
+        public BitShiftExpression(bool negative, IExpression leftOprand, IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceBitShift)
         {
             this.negative = negative;
+        }
+
+        public override string Operator
+        {
+            get { return negative ? ">>" : "<<"; }
         }
 
         public virtual bool IsRightShift()
@@ -36,12 +45,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Bit
             return negative;
         }
 
-        public override string GetOperator()
-        {
-            return negative ? ">>" : "<<";
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

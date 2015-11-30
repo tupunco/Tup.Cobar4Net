@@ -21,29 +21,25 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Timestampdiff : FunctionExpression
     {
-        private IntervalPrimary.Unit unit;
-
-        public Timestampdiff(IntervalPrimary.Unit unit, IList<Expression> arguments)
+        public Timestampdiff(Unit unit, IList<IExpression> arguments)
             : base("TIMESTAMPDIFF", arguments)
         {
-            this.unit = unit;
+            Unit = unit;
         }
 
-        public virtual IntervalPrimary.Unit GetUnit()
+        public virtual Unit Unit { get; }
+
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
-            return unit;
+            throw new NotSupportedException("function of Timestampdiff has special arguments");
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
-        {
-            throw new NotSupportedException("function of Timestampdiff has special arguments"
-                );
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

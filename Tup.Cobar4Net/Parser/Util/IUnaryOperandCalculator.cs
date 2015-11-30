@@ -14,20 +14,22 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
+using Deveel.Math;
 
 namespace Tup.Cobar4Net.Parser.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface BinaryOperandCalculator
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IUnaryOperandCalculator
     {
-        Number Calculate(int integer1, int integer2);
+        Number Calculate(int num);
 
-        Number Calculate(long long1, long long2);
+        Number Calculate(long num);
 
-        Number Calculate(BigInteger bigint1, BigInteger bigint2);
+        Number Calculate(BigInteger num);
 
-        Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
+        Number Calculate(BigDecimal num);
     }
 }

@@ -15,222 +15,224 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 using Tup.Cobar4Net.Parser.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLInsertParser : MySQLDMLInsertReplaceParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlInsertParser : MySqlDmlInsertReplaceParser
     {
-        public MySQLDMLInsertParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        public MySqlDmlInsertParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer, exprParser)
         {
         }
 
         /// <summary>
-        /// nothing has been pre-consumed <code><pre>
-        /// 'INSERT' ('LOW_PRIORITY'|'DELAYED'|'HIGH_PRIORITY')? 'IGNORE'? 'INTO'? tbname
-        /// (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
-        /// | '(' (  colName (',' colName)* ')' ( ('VALUES'|'VALUE') value (',' value)
-        /// | '(' 'SELECT' ...
+        ///     nothing has been pre-consumed
+        ///     <code><pre>
+        ///         'INSERT' ('LOW_PRIORITY'|'DELAYED'|'HIGH_PRIORITY')? 'IGNORE'? 'INTO'? tbname
+        ///         (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
+        ///         | '(' (  colName (',' colName)* ')' ( ('VALUES'|'VALUE') value (',' value)
+        ///         | '(' 'SELECT' ...
         /// </summary>
         /// <remarks>
-        /// nothing has been pre-consumed <code><pre>
-        /// 'INSERT' ('LOW_PRIORITY'|'DELAYED'|'HIGH_PRIORITY')? 'IGNORE'? 'INTO'? tbname
-        /// (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
-        /// | '(' (  colName (',' colName)* ')' ( ('VALUES'|'VALUE') value (',' value)
-        /// | '(' 'SELECT' ... ')'
-        /// | 'SELECT' ...
-        /// )
-        /// | 'SELECT' ... ')'
-        /// )
-        /// |('VALUES'|'VALUE') value  ( ',' value )
-        /// | 'SELECT' ...
-        /// )
-        /// ( 'ON' 'DUPLICATE' 'KEY' 'UPDATE' colName ('='|':=') expr ( ',' colName ('='|':=') expr)* )?
-        /// value := '(' (expr|'DEFAULT') ( ',' (expr|'DEFAULT'))* ')'
-        /// </pre></code>
+        ///     nothing has been pre-consumed
+        ///     <code><pre>
+        ///         'INSERT' ('LOW_PRIORITY'|'DELAYED'|'HIGH_PRIORITY')? 'IGNORE'? 'INTO'? tbname
+        ///         (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
+        ///         | '(' (  colName (',' colName)* ')' ( ('VALUES'|'VALUE') value (',' value)
+        ///         | '(' 'SELECT' ... ')'
+        ///         | 'SELECT' ...
+        ///         )
+        ///         | 'SELECT' ... ')'
+        ///         )
+        ///         |('VALUES'|'VALUE') value  ( ',' value )
+        ///         | 'SELECT' ...
+        ///         )
+        ///         ( 'ON' 'DUPLICATE' 'KEY' 'UPDATE' colName ('='|':=') expr ( ',' colName ('='|':=') expr)* )?
+        ///         value := '(' (expr|'DEFAULT') ( ',' (expr|'DEFAULT'))* ')'
+        ///     </pre></code>
         /// </remarks>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLInsertStatement Insert()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlInsertStatement Insert()
         {
-            Match(MySQLToken.KwInsert);
-            DMLInsertStatement.InsertMode mode = DMLInsertStatement.InsertMode.Undef;
-            bool ignore = false;
+            Match(MySqlToken.KwInsert);
+            var mode = InsertMode.Undef;
+            var ignore = false;
             switch (lexer.Token())
             {
-                case MySQLToken.KwLowPriority:
-                    {
-                        lexer.NextToken();
-                        mode = DMLInsertStatement.InsertMode.Low;
-                        break;
-                    }
+                case MySqlToken.KwLowPriority:
+                {
+                    lexer.NextToken();
+                    mode = InsertMode.Low;
+                    break;
+                }
 
-                case MySQLToken.KwDelayed:
-                    {
-                        lexer.NextToken();
-                        mode = DMLInsertStatement.InsertMode.Delay;
-                        break;
-                    }
+                case MySqlToken.KwDelayed:
+                {
+                    lexer.NextToken();
+                    mode = InsertMode.Delay;
+                    break;
+                }
 
-                case MySQLToken.KwHighPriority:
-                    {
-                        lexer.NextToken();
-                        mode = DMLInsertStatement.InsertMode.High;
-                        break;
-                    }
+                case MySqlToken.KwHighPriority:
+                {
+                    lexer.NextToken();
+                    mode = InsertMode.High;
+                    break;
+                }
             }
-            if (lexer.Token() == MySQLToken.KwIgnore)
+            if (lexer.Token() == MySqlToken.KwIgnore)
             {
                 ignore = true;
                 lexer.NextToken();
             }
-            if (lexer.Token() == MySQLToken.KwInto)
+            if (lexer.Token() == MySqlToken.KwInto)
             {
                 lexer.NextToken();
             }
-            Identifier table = Identifier();
-            IList<Pair<Identifier, Expr>> dupUpdate;
+            var table = Identifier();
+            IList<Pair<Identifier, IExpression>> dupUpdate;
             IList<Identifier> columnNameList;
             IList<RowExpression> rowList;
-            QueryExpression select;
-            IList<Expr> tempRowValue;
+            IQueryExpression select;
+            IList<IExpression> tempRowValue;
             switch (lexer.Token())
             {
-                case MySQLToken.KwSet:
+                case MySqlToken.KwSet:
+                {
+                    lexer.NextToken();
+                    columnNameList = new List<Identifier>();
+                    tempRowValue = new List<IExpression>();
+                    for (;; lexer.NextToken())
                     {
-                        lexer.NextToken();
-                        columnNameList = new List<Identifier>();
-                        tempRowValue = new List<Expr>();
-                        for (; ; lexer.NextToken())
-                        {
-                            Identifier id = Identifier();
-                            Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
-                            Expr expr = exprParser.Expression();
-                            columnNameList.Add(id);
-                            tempRowValue.Add(expr);
-                            if (lexer.Token() != MySQLToken.PuncComma)
-                            {
-                                break;
-                            }
-                        }
-                        rowList = new List<RowExpression>(1);
-                        rowList.Add(new RowExpression(tempRowValue));
-                        dupUpdate = OnDuplicateUpdate();
-                        return new DMLInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
-                    }
-
-                case MySQLToken.Identifier:
-                    {
-                        if (!"VALUE".Equals(lexer.StringValueUppercase()))
+                        var id = Identifier();
+                        Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
+                        var expr = exprParser.Expression();
+                        columnNameList.Add(id);
+                        tempRowValue.Add(expr);
+                        if (lexer.Token() != MySqlToken.PuncComma)
                         {
                             break;
                         }
-                        goto case MySQLToken.KwValues;
                     }
+                    rowList = new List<RowExpression>(1);
+                    rowList.Add(new RowExpression(tempRowValue));
+                    dupUpdate = OnDuplicateUpdate();
+                    return new DmlInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
+                }
 
-                case MySQLToken.KwValues:
+                case MySqlToken.Identifier:
+                {
+                    if (!"VALUE".Equals(lexer.GetStringValueUppercase()))
                     {
-                        lexer.NextToken();
-                        columnNameList = null;
-                        rowList = RowList();
-                        dupUpdate = OnDuplicateUpdate();
-                        return new DMLInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
+                        break;
                     }
+                    goto case MySqlToken.KwValues;
+                }
 
-                case MySQLToken.KwSelect:
-                    {
-                        columnNameList = null;
-                        select = Select();
-                        dupUpdate = OnDuplicateUpdate();
-                        return new DMLInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
-                    }
+                case MySqlToken.KwValues:
+                {
+                    lexer.NextToken();
+                    columnNameList = null;
+                    rowList = RowList();
+                    dupUpdate = OnDuplicateUpdate();
+                    return new DmlInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
+                }
 
-                case MySQLToken.PuncLeftParen:
+                case MySqlToken.KwSelect:
+                {
+                    columnNameList = null;
+                    select = Select();
+                    dupUpdate = OnDuplicateUpdate();
+                    return new DmlInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
+                }
+
+                case MySqlToken.PuncLeftParen:
+                {
+                    switch (lexer.NextToken())
                     {
-                        switch (lexer.NextToken())
+                        case MySqlToken.PuncLeftParen:
+                        case MySqlToken.KwSelect:
                         {
-                            case MySQLToken.PuncLeftParen:
-                            case MySQLToken.KwSelect:
-                                {
-                                    columnNameList = null;
-                                    select = SelectPrimary();
-                                    Match(MySQLToken.PuncRightParen);
-                                    dupUpdate = OnDuplicateUpdate();
-                                    return new DMLInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
-                                }
+                            columnNameList = null;
+                            select = SelectPrimary();
+                            Match(MySqlToken.PuncRightParen);
+                            dupUpdate = OnDuplicateUpdate();
+                            return new DmlInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
                         }
-                        columnNameList = IdList();
-                        Match(MySQLToken.PuncRightParen);
-                        switch (lexer.Token())
-                        {
-                            case MySQLToken.PuncLeftParen:
-                            case MySQLToken.KwSelect:
-                                {
-                                    select = SelectPrimary();
-                                    dupUpdate = OnDuplicateUpdate();
-                                    return new DMLInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
-                                }
-
-                            case MySQLToken.KwValues:
-                                {
-                                    lexer.NextToken();
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    MatchIdentifier("VALUE");
-                                    break;
-                                }
-                        }
-                        rowList = RowList();
-                        dupUpdate = OnDuplicateUpdate();
-                        return new DMLInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
                     }
+                    columnNameList = IdList();
+                    Match(MySqlToken.PuncRightParen);
+                    switch (lexer.Token())
+                    {
+                        case MySqlToken.PuncLeftParen:
+                        case MySqlToken.KwSelect:
+                        {
+                            select = SelectPrimary();
+                            dupUpdate = OnDuplicateUpdate();
+                            return new DmlInsertStatement(mode, ignore, table, columnNameList, select, dupUpdate);
+                        }
+
+                        case MySqlToken.KwValues:
+                        {
+                            lexer.NextToken();
+                            break;
+                        }
+
+                        default:
+                        {
+                            MatchIdentifier("VALUE");
+                            break;
+                        }
+                    }
+                    rowList = RowList();
+                    dupUpdate = OnDuplicateUpdate();
+                    return new DmlInsertStatement(mode, ignore, table, columnNameList, rowList, dupUpdate);
+                }
             }
             throw Err("unexpected token for insert: " + lexer.Token());
         }
 
         /// <returns>null for not exist</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        private IList<Pair<Identifier, Expr>> OnDuplicateUpdate()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        private IList<Pair<Identifier, IExpression>> OnDuplicateUpdate()
         {
-            if (lexer.Token() != MySQLToken.KwOn)
+            if (lexer.Token() != MySqlToken.KwOn)
             {
                 return null;
             }
             lexer.NextToken();
             MatchIdentifier("DUPLICATE");
-            Match(MySQLToken.KwKey);
-            Match(MySQLToken.KwUpdate);
-            IList<Pair<Identifier, Expr>> list;
-            Identifier col = Identifier();
-            Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
-            Expr expr = exprParser.Expression();
-            if (lexer.Token() == MySQLToken.PuncComma)
+            Match(MySqlToken.KwKey);
+            Match(MySqlToken.KwUpdate);
+            IList<Pair<Identifier, IExpression>> list;
+            var col = Identifier();
+            Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
+            var expr = exprParser.Expression();
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
-                list = new List<Pair<Identifier, Expr>>();
-                list.Add(new Pair<Identifier, Expr>(col
-                    , expr));
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                list = new List<Pair<Identifier, IExpression>>();
+                list.Add(new Pair<Identifier, IExpression>(col, expr));
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     col = Identifier();
-                    Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
+                    Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
                     expr = exprParser.Expression();
-                    list.Add(new Pair<Identifier, Expr>(col
-                        , expr));
+                    list.Add(new Pair<Identifier, IExpression>(col, expr));
                 }
                 return list;
             }
-            list = new List<Pair<Identifier, Expr>>(1);
-            list.Add(new Pair<Identifier, Expr>(col, expr));
+            list = new List<Pair<Identifier, IExpression>>(1);
+            list.Add(new Pair<Identifier, IExpression>(col, expr));
             return list;
         }
     }

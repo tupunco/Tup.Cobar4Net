@@ -19,42 +19,34 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowCreate : DALShowStatement
+    /// <summary>enum name must equals to real sql string</summary>
+    public enum CreateType
     {
-        /// <summary>enum name must equals to real sql string</summary>
-        public enum CreateType
-        {
-            Database,
-            Event,
-            Function,
-            Procedure,
-            Table,
-            Trigger,
-            View
-        }
+        Database,
+        Event,
+        Function,
+        Procedure,
+        Table,
+        Trigger,
+        View
+    }
 
-        private readonly CreateType type;
-
-        private readonly Identifier id;
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowCreate : DalShowStatement
+    {
         public ShowCreate(CreateType type, Identifier id)
         {
-            this.type = type;
-            this.id = id;
+            CreateType = type;
+            Id = id;
         }
 
-        public virtual CreateType GetCreateType()
-        {
-            return type;
-        }
+        public virtual CreateType CreateType { get; }
 
-        public virtual Identifier GetId()
-        {
-            return id;
-        }
+        public virtual Identifier Id { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
@@ -23,150 +24,157 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLDeleteParser : MySQLDMLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlDeleteParser : MySqlDmlParser
     {
-        public MySQLDMLDeleteParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers =
+            new Dictionary<string, SpecialIdentifier>();
+
+        static MySqlDmlDeleteParser()
+        {
+            specialIdentifiers["QUICK"] = SpecialIdentifier.Quick;
+        }
+
+        public MySqlDmlDeleteParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer, exprParser)
         {
         }
 
+        /// <summary>
+        ///     first token is
+        ///     <see cref="MySqlToken.KwDelete" />
+        ///     <code><pre>
+        ///         'DELETE' 'LOW_PRIORITY'? 'QUICK'? 'IGNORE'? (
+        ///         'FROM' tid ( (',' tid)* 'USING' table_refs ('WHERE' cond)?
+        ///         | ('WHERE' cond)? ('ORDER' 'BY' ids)? ('LIMIT' Count)?  )  // single table
+        ///         | tid (',' tid)* 'FROM' table_refs ('WHERE' cond)? )
+        ///     </pre></code>
+        /// </summary>
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlDeleteStatement Delete()
+        {
+            Match(MySqlToken.KwDelete);
+            var lowPriority = false;
+            var quick = false;
+            var ignore = false;
+            for (;; lexer.NextToken())
+            {
+                switch (lexer.Token())
+                {
+                    case MySqlToken.KwLowPriority:
+                    {
+                        lowPriority = true;
+                        break;
+                    }
+
+                    case MySqlToken.KwIgnore:
+                    {
+                        ignore = true;
+                        break;
+                    }
+
+                    case MySqlToken.Identifier:
+                    {
+                        var si = specialIdentifiers.GetValue(lexer.GetStringValueUppercase());
+                        if (SpecialIdentifier.Quick == si)
+                        {
+                            quick = true;
+                            break;
+                        }
+                        goto default;
+                    }
+
+                    default:
+                    {
+                        goto loopOpt_break;
+                    }
+                }
+                //loopOpt_continue:;
+            }
+            loopOpt_break:
+            ;
+            IList<Identifier> tempList;
+            TableReferences tempRefs;
+            IExpression tempWhere;
+            if (lexer.Token() == MySqlToken.KwFrom)
+            {
+                lexer.NextToken();
+                var id = Identifier();
+                tempList = new List<Identifier>(1);
+                tempList.Add(id);
+                switch (lexer.Token())
+                {
+                    case MySqlToken.PuncComma:
+                    {
+                        tempList = BuildIdList(id);
+                        goto case MySqlToken.KwUsing;
+                    }
+
+                    case MySqlToken.KwUsing:
+                    {
+                        lexer.NextToken();
+                        tempRefs = TableRefs();
+                        if (lexer.Token() == MySqlToken.KwWhere)
+                        {
+                            lexer.NextToken();
+                            tempWhere = exprParser.Expression();
+                            return new DmlDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs, tempWhere);
+                        }
+                        return new DmlDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs);
+                    }
+
+                    case MySqlToken.KwWhere:
+                    case MySqlToken.KwOrder:
+                    case MySqlToken.KwLimit:
+                    {
+                        break;
+                    }
+
+                    default:
+                    {
+                        return new DmlDeleteStatement(lowPriority, quick, ignore, id);
+                    }
+                }
+                tempWhere = null;
+                OrderBy orderBy = null;
+                Limit limit = null;
+                if (lexer.Token() == MySqlToken.KwWhere)
+                {
+                    lexer.NextToken();
+                    tempWhere = exprParser.Expression();
+                }
+                if (lexer.Token() == MySqlToken.KwOrder)
+                {
+                    orderBy = OrderBy();
+                }
+                if (lexer.Token() == MySqlToken.KwLimit)
+                {
+                    limit = Limit();
+                }
+                return new DmlDeleteStatement(lowPriority, quick, ignore, id, tempWhere, orderBy, limit);
+            }
+            tempList = IdList();
+            Match(MySqlToken.KwFrom);
+            tempRefs = TableRefs();
+            if (lexer.Token() == MySqlToken.KwWhere)
+            {
+                lexer.NextToken();
+                tempWhere = exprParser.Expression();
+                return new DmlDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs, tempWhere);
+            }
+            return new DmlDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs);
+        }
+
+        /// <summary>
+        ///     MySqlDmlDeleteParser SpecialIdentifier
+        /// </summary>
         private enum SpecialIdentifier
         {
             None = 0,
 
             Quick
-        }
-
-        private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers = new Dictionary<string, SpecialIdentifier>();
-
-        static MySQLDMLDeleteParser()
-        {
-            specialIdentifiers["QUICK"] = SpecialIdentifier.Quick;
-        }
-
-        /// <summary>
-        /// first token is
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.KwDelete"/>
-        /// <code><pre>
-        /// 'DELETE' 'LOW_PRIORITY'? 'QUICK'? 'IGNORE'? (
-        /// 'FROM' tid ( (',' tid)* 'USING' table_refs ('WHERE' cond)?
-        /// | ('WHERE' cond)? ('ORDER' 'BY' ids)? ('LIMIT' count)?  )  // single table
-        /// | tid (',' tid)* 'FROM' table_refs ('WHERE' cond)? )
-        /// </pre></code>
-        /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLDeleteStatement Delete()
-        {
-            Match(MySQLToken.KwDelete);
-            bool lowPriority = false;
-            bool quick = false;
-            bool ignore = false;
-            for (; ; lexer.NextToken())
-            {
-                switch (lexer.Token())
-                {
-                    case MySQLToken.KwLowPriority:
-                        {
-                            lowPriority = true;
-                            break;
-                        }
-
-                    case MySQLToken.KwIgnore:
-                        {
-                            ignore = true;
-                            break;
-                        }
-
-                    case MySQLToken.Identifier:
-                        {
-                            SpecialIdentifier si = specialIdentifiers.GetValue(lexer.StringValueUppercase());
-                            if (SpecialIdentifier.Quick == si)
-                            {
-                                quick = true;
-                                break;
-                            }
-                            goto default;
-                        }
-
-                    default:
-                        {
-                            goto loopOpt_break;
-                        }
-                }
-                //loopOpt_continue:;
-            }
-        loopOpt_break:;
-            IList<Identifier> tempList;
-            TableReferences tempRefs;
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression tempWhere;
-            if (lexer.Token() == MySQLToken.KwFrom)
-            {
-                lexer.NextToken();
-                Identifier id = Identifier();
-                tempList = new List<Identifier>(1);
-                tempList.Add(id);
-                switch (lexer.Token())
-                {
-                    case MySQLToken.PuncComma:
-                        {
-                            tempList = BuildIdList(id);
-                            goto case MySQLToken.KwUsing;
-                        }
-
-                    case MySQLToken.KwUsing:
-                        {
-                            lexer.NextToken();
-                            tempRefs = TableRefs();
-                            if (lexer.Token() == MySQLToken.KwWhere)
-                            {
-                                lexer.NextToken();
-                                tempWhere = exprParser.Expression();
-                                return new DMLDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs, tempWhere);
-                            }
-                            return new DMLDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs);
-                        }
-
-                    case MySQLToken.KwWhere:
-                    case MySQLToken.KwOrder:
-                    case MySQLToken.KwLimit:
-                        {
-                            break;
-                        }
-
-                    default:
-                        {
-                            return new DMLDeleteStatement(lowPriority, quick, ignore, id);
-                        }
-                }
-                tempWhere = null;
-                OrderBy orderBy = null;
-                Limit limit = null;
-                if (lexer.Token() == MySQLToken.KwWhere)
-                {
-                    lexer.NextToken();
-                    tempWhere = exprParser.Expression();
-                }
-                if (lexer.Token() == MySQLToken.KwOrder)
-                {
-                    orderBy = OrderBy();
-                }
-                if (lexer.Token() == MySQLToken.KwLimit)
-                {
-                    limit = Limit();
-                }
-                return new DMLDeleteStatement(lowPriority, quick, ignore, id, tempWhere, orderBy, limit);
-            }
-            tempList = IdList();
-            Match(MySQLToken.KwFrom);
-            tempRefs = TableRefs();
-            if (lexer.Token() == MySQLToken.KwWhere)
-            {
-                lexer.NextToken();
-                tempWhere = exprParser.Expression();
-                return new DMLDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs, tempWhere);
-            }
-            return new DMLDeleteStatement(lowPriority, quick, ignore, tempList, tempRefs);
         }
     }
 }

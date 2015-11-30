@@ -18,8 +18,10 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class TableReference : ASTNode
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class TableReference : IAstNode
     {
         public const int PrecedenceRefs = 0;
 
@@ -27,28 +29,27 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 
         public const int PrecedenceFactor = 2;
 
+        /// <value>
+        ///     true if and only if there is one table (not subquery) in table
+        ///     reference
+        /// </value>
+        public abstract bool IsSingleTable { get; }
+
+        /// <value>
+        ///     precedences are defined in
+        ///     <see cref="TableReference" />
+        /// </value>
+        public abstract int Precedence { get; }
+
+        public abstract void Accept(ISqlAstVisitor visitor);
+
         /// <summary>remove last condition element is success</summary>
         /// <returns>
-        ///
-        /// <see cref="System.Collections.IList{E}">List&lt;String&gt;</see>
-        /// or
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Expression">Expression</see>
-        /// . null if last condition element cannot be removed.
+        ///     <see cref="System.Collections.IList{E}">ExprList&lt;String&gt;</see>
+        ///     or
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.IExpression">Expression</see>
+        ///     . null if last condition element cannot be removed.
         /// </returns>
         public abstract object RemoveLastConditionElement();
-
-        /// <returns>
-        /// true if and only if there is one table (not subquery) in table
-        /// reference
-        /// </returns>
-        public abstract bool IsSingleTable();
-
-        /// <returns>
-        /// precedences are defined in
-        /// <see cref="TableReference"/>
-        /// </returns>
-        public abstract int GetPrecedence();
-
-        public abstract void Accept(SQLASTVisitor visitor);
     }
 }

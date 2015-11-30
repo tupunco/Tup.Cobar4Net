@@ -13,10 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
-using Sharpen;
 using System;
+using Sharpen;
 
 namespace Tup.Cobar4Net.Route.Util
 {
@@ -34,10 +33,10 @@ namespace Tup.Cobar4Net.Route.Util
 
         /// <param name="count">表示定义的分区数</param>
         /// <param name="length">
-        /// 表示对应每个分区的取值长度
-        /// <p>
-        /// 注意：其中count,length两个数组的长度必须是一致的。
-        /// </p>
+        ///     表示对应每个分区的取值长度
+        ///     <p>
+        ///         注意：其中count,length两个数组的长度必须是一致的。
+        ///     </p>
         /// </param>
         public PartitionForSingle(int[] count, int[] length)
         {
@@ -46,18 +45,18 @@ namespace Tup.Cobar4Net.Route.Util
             // 分区线段
             if (count == null || length == null || (count.Length != length.Length))
             {
-                throw new Exception("error,check your scope & scopeLength definition.");
+                throw new Exception("error,check your _hintScope & scopeLength definition.");
             }
-            int segmentLength = 0;
-            for (int i = 0; i < count.Length; i++)
+            var segmentLength = 0;
+            for (var i = 0; i < count.Length; i++)
             {
                 segmentLength += count[i];
             }
-            int[] scopeSegment = new int[segmentLength + 1];
-            int index = 0;
-            for (int i_1 = 0; i_1 < count.Length; i_1++)
+            var scopeSegment = new int[segmentLength + 1];
+            var index = 0;
+            for (var i_1 = 0; i_1 < count.Length; i_1++)
             {
-                for (int j = 0; j < count[i_1]; j++)
+                for (var j = 0; j < count[i_1]; j++)
                 {
                     scopeSegment[++index] = scopeSegment[index - 1] + length[i_1];
                 }
@@ -67,11 +66,11 @@ namespace Tup.Cobar4Net.Route.Util
                 throw new Exception("error,check your partitionScope definition.");
             }
             // 数据映射操作
-            for (int i_2 = 1; i_2 < scopeSegment.Length; i_2++)
+            for (var i_2 = 1; i_2 < scopeSegment.Length; i_2++)
             {
-                for (int j = scopeSegment[i_2 - 1]; j < scopeSegment[i_2]; j++)
+                for (var j = scopeSegment[i_2 - 1]; j < scopeSegment[i_2]; j++)
                 {
-                    segment[j] = (i_2 - 1);
+                    segment[j] = i_2 - 1;
                 }
             }
         }
@@ -89,8 +88,8 @@ namespace Tup.Cobar4Net.Route.Util
         private static long Hash(string s)
         {
             long h = 0;
-            int len = s.Length;
-            for (int i = 0; (i < DefaultHashLength && i < len); i++)
+            var len = s.Length;
+            for (var i = 0; i < DefaultHashLength && i < len; i++)
             {
                 h = (h << 5) - h + s[i];
             }
@@ -102,22 +101,21 @@ namespace Tup.Cobar4Net.Route.Util
         {
             //TODO PartitionForSingle Main
             // 拆分为16份，每份长度均为：64。
-            // Scope scope = new Scope(new int[] { 16 }, new int[] { 64 });
+            // _hintScope _hintScope = new _hintScope(new int[] { 16 }, new int[] { 64 });
             // // 拆分为23份，前8份长度为：8，后15份长度为：64。
-            // Scope scope = new Scope(new int[] { 8, 15 }, new int[] { 8, 64 });
+            // _hintScope _hintScope = new _hintScope(new int[] { 8, 15 }, new int[] { 8, 64 });
             // // 拆分为128份，每份长度均为：8。
-            // Scope scope = new Scope(new int[] { 128 }, new int[] { 8 });
-            Tup.Cobar4Net.Route.Util.PartitionForSingle p = new Tup.Cobar4Net.Route.Util.PartitionForSingle
-                (new int[] { 8, 15 }, new int[] { 8, 64 });
-            string memberId = "xianmao.hexm";
-            int value = 0;
-            long st = Runtime.CurrentTimeMillis();
-            for (int i = 0; i < 10000000; i++)
+            // _hintScope _hintScope = new _hintScope(new int[] { 128 }, new int[] { 8 });
+            var p = new PartitionForSingle(new[] {8, 15}, new[] {8, 64});
+            var memberId = "xianmao.hexm";
+            var value = 0;
+            var st = Runtime.CurrentTimeMillis();
+            for (var i = 0; i < 10000000; i++)
             {
                 value = p.Partition(memberId);
             }
-            long et = Runtime.CurrentTimeMillis();
-            System.Console.Out.WriteLine("value:" + value + ",take time:" + (et - st) + " ms.");
+            var et = Runtime.CurrentTimeMillis();
+            Console.Out.WriteLine("value:" + value + ",take time:" + (et - st) + " ms.");
         }
     }
 }

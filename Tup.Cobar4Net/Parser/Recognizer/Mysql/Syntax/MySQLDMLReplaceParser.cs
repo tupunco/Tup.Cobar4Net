@@ -15,6 +15,7 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
@@ -22,153 +23,157 @@ using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLReplaceParser : MySQLDMLInsertReplaceParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlReplaceParser : MySqlDmlInsertReplaceParser
     {
-        public MySQLDMLReplaceParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        public MySqlDmlReplaceParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer, exprParser)
         {
         }
 
         /// <summary>
-        /// nothing has been pre-consumed <code><pre>
-        /// 'REPLACE' ('LOW_PRIORITY' | 'DELAYED')? ('INTO')? tableName
-        /// (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
-        /// | '(' (  colName (','colName)* ')' (  '(' 'SELECT' ...
+        ///     nothing has been pre-consumed
+        ///     <code><pre>
+        ///         'REPLACE' ('LOW_PRIORITY' | 'DELAYED')? ('INTO')? tableName
+        ///         (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
+        ///         | '(' (  colName (','colName)* ')' (  '(' 'SELECT' ...
         /// </summary>
         /// <remarks>
-        /// nothing has been pre-consumed <code><pre>
-        /// 'REPLACE' ('LOW_PRIORITY' | 'DELAYED')? ('INTO')? tableName
-        /// (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
-        /// | '(' (  colName (','colName)* ')' (  '(' 'SELECT' ... ')'
-        /// | 'SELECT' ...
-        /// |('VALUES'|'VALUE') value ( ',' value )
-        /// )
-        /// | 'SELECT' ... ')'
-        /// )
-        /// | 'SELECT' ...
-        /// |('VALUES'|'VALUE') value ( ',' value )
-        /// )
-        /// value := '(' (expr|'DEFAULT') ( ',' (expr|'DEFAULT'))* ')'
-        /// </pre></code>
+        ///     nothing has been pre-consumed
+        ///     <code><pre>
+        ///         'REPLACE' ('LOW_PRIORITY' | 'DELAYED')? ('INTO')? tableName
+        ///         (  'SET' colName ('='|':=') (expr|'DEFAULT') (',' colName ('='|':=') (expr|'DEFAULT'))
+        ///         | '(' (  colName (','colName)* ')' (  '(' 'SELECT' ... ')'
+        ///         | 'SELECT' ...
+        ///         |('VALUES'|'VALUE') value ( ',' value )
+        ///         )
+        ///         | 'SELECT' ... ')'
+        ///         )
+        ///         | 'SELECT' ...
+        ///         |('VALUES'|'VALUE') value ( ',' value )
+        ///         )
+        ///         value := '(' (expr|'DEFAULT') ( ',' (expr|'DEFAULT'))* ')'
+        ///     </pre></code>
         /// </remarks>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLReplaceStatement Replace()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlReplaceStatement Replace()
         {
-            Match(MySQLToken.KwReplace);
-            DMLReplaceStatement.ReplaceMode mode = DMLReplaceStatement.ReplaceMode.Undef;
+            Match(MySqlToken.KwReplace);
+            var mode = ReplaceMode.Undef;
             switch (lexer.Token())
             {
-                case MySQLToken.KwLowPriority:
-                    {
-                        lexer.NextToken();
-                        mode = DMLReplaceStatement.ReplaceMode.Low;
-                        break;
-                    }
+                case MySqlToken.KwLowPriority:
+                {
+                    lexer.NextToken();
+                    mode = ReplaceMode.Low;
+                    break;
+                }
 
-                case MySQLToken.KwDelayed:
-                    {
-                        lexer.NextToken();
-                        mode = DMLReplaceStatement.ReplaceMode.Delay;
-                        break;
-                    }
+                case MySqlToken.KwDelayed:
+                {
+                    lexer.NextToken();
+                    mode = ReplaceMode.Delay;
+                    break;
+                }
             }
-            if (lexer.Token() == MySQLToken.KwInto)
+            if (lexer.Token() == MySqlToken.KwInto)
             {
                 lexer.NextToken();
             }
-            Identifier table = Identifier();
+            var table = Identifier();
             IList<Identifier> columnNameList;
             IList<RowExpression> rowList;
-            QueryExpression select;
-            IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression> tempRowValue;
+            IQueryExpression select;
+            IList<IExpression> tempRowValue;
             switch (lexer.Token())
             {
-                case MySQLToken.KwSet:
+                case MySqlToken.KwSet:
+                {
+                    lexer.NextToken();
+                    columnNameList = new List<Identifier>();
+                    tempRowValue = new List<IExpression>();
+                    for (;; lexer.NextToken())
                     {
-                        lexer.NextToken();
-                        columnNameList = new List<Identifier>();
-                        tempRowValue = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>();
-                        for (; ; lexer.NextToken())
-                        {
-                            Identifier id = Identifier();
-                            Match(MySQLToken.OpEquals, MySQLToken.OpAssign);
-                            Tup.Cobar4Net.Parser.Ast.Expression.Expression expr = exprParser.Expression();
-                            columnNameList.Add(id);
-                            tempRowValue.Add(expr);
-                            if (lexer.Token() != MySQLToken.PuncComma)
-                            {
-                                break;
-                            }
-                        }
-                        rowList = new List<RowExpression>(1);
-                        rowList.Add(new RowExpression(tempRowValue));
-                        return new DMLReplaceStatement(mode, table, columnNameList, rowList);
-                    }
-
-                case MySQLToken.Identifier:
-                    {
-                        if (!"VALUE".Equals(lexer.StringValueUppercase()))
+                        var id = Identifier();
+                        Match(MySqlToken.OpEquals, MySqlToken.OpAssign);
+                        var expr = exprParser.Expression();
+                        columnNameList.Add(id);
+                        tempRowValue.Add(expr);
+                        if (lexer.Token() != MySqlToken.PuncComma)
                         {
                             break;
                         }
-                        goto case MySQLToken.KwValues;
                     }
+                    rowList = new List<RowExpression>(1);
+                    rowList.Add(new RowExpression(tempRowValue));
+                    return new DmlReplaceStatement(mode, table, columnNameList, rowList);
+                }
 
-                case MySQLToken.KwValues:
+                case MySqlToken.Identifier:
+                {
+                    if (!"VALUE".Equals(lexer.GetStringValueUppercase()))
                     {
-                        lexer.NextToken();
-                        columnNameList = null;
-                        rowList = RowList();
-                        return new DMLReplaceStatement(mode, table, columnNameList, rowList);
+                        break;
                     }
+                    goto case MySqlToken.KwValues;
+                }
 
-                case MySQLToken.KwSelect:
-                    {
-                        columnNameList = null;
-                        select = Select();
-                        return new DMLReplaceStatement(mode, table, columnNameList, select);
-                    }
+                case MySqlToken.KwValues:
+                {
+                    lexer.NextToken();
+                    columnNameList = null;
+                    rowList = RowList();
+                    return new DmlReplaceStatement(mode, table, columnNameList, rowList);
+                }
 
-                case MySQLToken.PuncLeftParen:
+                case MySqlToken.KwSelect:
+                {
+                    columnNameList = null;
+                    select = Select();
+                    return new DmlReplaceStatement(mode, table, columnNameList, select);
+                }
+
+                case MySqlToken.PuncLeftParen:
+                {
+                    switch (lexer.NextToken())
                     {
-                        switch (lexer.NextToken())
+                        case MySqlToken.PuncLeftParen:
+                        case MySqlToken.KwSelect:
                         {
-                            case MySQLToken.PuncLeftParen:
-                            case MySQLToken.KwSelect:
-                                {
-                                    columnNameList = null;
-                                    select = SelectPrimary();
-                                    Match(MySQLToken.PuncRightParen);
-                                    return new DMLReplaceStatement(mode, table, columnNameList, select);
-                                }
+                            columnNameList = null;
+                            select = SelectPrimary();
+                            Match(MySqlToken.PuncRightParen);
+                            return new DmlReplaceStatement(mode, table, columnNameList, select);
                         }
-                        columnNameList = IdList();
-                        Match(MySQLToken.PuncRightParen);
-                        switch (lexer.Token())
-                        {
-                            case MySQLToken.PuncLeftParen:
-                            case MySQLToken.KwSelect:
-                                {
-                                    select = SelectPrimary();
-                                    return new DMLReplaceStatement(mode, table, columnNameList, select);
-                                }
-
-                            case MySQLToken.KwValues:
-                                {
-                                    lexer.NextToken();
-                                    break;
-                                }
-
-                            default:
-                                {
-                                    MatchIdentifier("VALUE");
-                                    break;
-                                }
-                        }
-                        rowList = RowList();
-                        return new DMLReplaceStatement(mode, table, columnNameList, rowList);
                     }
+                    columnNameList = IdList();
+                    Match(MySqlToken.PuncRightParen);
+                    switch (lexer.Token())
+                    {
+                        case MySqlToken.PuncLeftParen:
+                        case MySqlToken.KwSelect:
+                        {
+                            select = SelectPrimary();
+                            return new DmlReplaceStatement(mode, table, columnNameList, select);
+                        }
+
+                        case MySqlToken.KwValues:
+                        {
+                            lexer.NextToken();
+                            break;
+                        }
+
+                        default:
+                        {
+                            MatchIdentifier("VALUE");
+                            break;
+                        }
+                    }
+                    rowList = RowList();
+                    return new DmlReplaceStatement(mode, table, columnNameList, rowList);
+                }
             }
             throw Err("unexpected token for replace: " + lexer.Token());
         }

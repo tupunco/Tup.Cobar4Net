@@ -19,10 +19,12 @@ using Tup.Cobar4Net.Parser.Visitor;
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
     /// <summary>used as right oprand for assignment of INSERT and REPLACE</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class DefaultValue : PrimaryExpression
     {
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

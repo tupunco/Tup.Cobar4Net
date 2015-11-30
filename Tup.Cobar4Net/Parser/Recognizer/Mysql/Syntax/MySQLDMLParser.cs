@@ -17,22 +17,24 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public abstract class MySQLDMLParser : MySQLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public abstract class MySqlDmlParser : MySqlParser
     {
-        protected MySQLExprParser exprParser;
+        protected MySqlExprParser exprParser;
 
-        public MySQLDMLParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        public MySqlDmlParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer)
         {
             this.exprParser = exprParser;
@@ -40,83 +42,83 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected internal virtual GroupBy GroupBy()
         {
-            if (lexer.Token() != MySQLToken.KwGroup)
+            if (lexer.Token() != MySqlToken.KwGroup)
             {
                 return null;
             }
             lexer.NextToken();
-            Match(MySQLToken.KwBy);
-            Expr expr = exprParser.Expression();
-            SortOrder order = SortOrder.Asc;
+            Match(MySqlToken.KwBy);
+            var expr = exprParser.Expression();
+            var order = SortOrder.Asc;
             GroupBy groupBy;
             switch (lexer.Token())
             {
-                case MySQLToken.KwDesc:
-                    {
-                        order = SortOrder.Desc;
-                        goto case MySQLToken.KwAsc;
-                    }
+                case MySqlToken.KwDesc:
+                {
+                    order = SortOrder.Desc;
+                    goto case MySqlToken.KwAsc;
+                }
 
-                case MySQLToken.KwAsc:
-                    {
-                        lexer.NextToken();
-                        goto default;
-                    }
+                case MySqlToken.KwAsc:
+                {
+                    lexer.NextToken();
+                    goto default;
+                }
 
                 default:
-                    {
-                        break;
-                    }
+                {
+                    break;
+                }
             }
             switch (lexer.Token())
             {
-                case MySQLToken.KwWith:
-                    {
-                        lexer.NextToken();
-                        MatchIdentifier("ROLLUP");
-                        return new GroupBy(expr, order, true);
-                    }
+                case MySqlToken.KwWith:
+                {
+                    lexer.NextToken();
+                    MatchIdentifier("ROLLUP");
+                    return new GroupBy(expr, order, true);
+                }
 
-                case MySQLToken.PuncComma:
-                    {
-                        break;
-                    }
+                case MySqlToken.PuncComma:
+                {
+                    break;
+                }
 
                 default:
-                    {
-                        return new GroupBy(expr, order, false);
-                    }
+                {
+                    return new GroupBy(expr, order, false);
+                }
             }
-            for (groupBy = new GroupBy().AddOrderByItem(expr, order
-                ); lexer.Token() == MySQLToken.PuncComma;)
+            for (groupBy = new GroupBy().AddOrderByItem(expr, order);
+                lexer.Token() == MySqlToken.PuncComma;)
             {
                 lexer.NextToken();
                 order = SortOrder.Asc;
                 expr = exprParser.Expression();
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwDesc:
-                        {
-                            order = SortOrder.Desc;
-                            goto case MySQLToken.KwAsc;
-                        }
+                    case MySqlToken.KwDesc:
+                    {
+                        order = SortOrder.Desc;
+                        goto case MySqlToken.KwAsc;
+                    }
 
-                    case MySQLToken.KwAsc:
-                        {
-                            lexer.NextToken();
-                            goto default;
-                        }
+                    case MySqlToken.KwAsc:
+                    {
+                        lexer.NextToken();
+                        goto default;
+                    }
 
                     default:
-                        {
-                            break;
-                        }
+                    {
+                        break;
+                    }
                 }
                 groupBy.AddOrderByItem(expr, order);
-                if (lexer.Token() == MySQLToken.KwWith)
+                if (lexer.Token() == MySqlToken.KwWith)
                 {
                     lexer.NextToken();
                     MatchIdentifier("ROLLUP");
@@ -128,65 +130,65 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <summary>nothing has been pre-consumed</summary>
         /// <returns>null if there is no order by</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected internal virtual OrderBy OrderBy()
         {
-            if (lexer.Token() != MySQLToken.KwOrder)
+            if (lexer.Token() != MySqlToken.KwOrder)
             {
                 return null;
             }
             lexer.NextToken();
-            Match(MySQLToken.KwBy);
-            Expr expr = exprParser.Expression();
-            SortOrder order = SortOrder.Asc;
+            Match(MySqlToken.KwBy);
+            var expr = exprParser.Expression();
+            var order = SortOrder.Asc;
             OrderBy orderBy;
             switch (lexer.Token())
             {
-                case MySQLToken.KwDesc:
-                    {
-                        order = SortOrder.Desc;
-                        goto case MySQLToken.KwAsc;
-                    }
+                case MySqlToken.KwDesc:
+                {
+                    order = SortOrder.Desc;
+                    goto case MySqlToken.KwAsc;
+                }
 
-                case MySQLToken.KwAsc:
-                    {
-                        if (lexer.NextToken() != MySQLToken.PuncComma)
-                        {
-                            return new OrderBy(expr, order);
-                        }
-                        goto case MySQLToken.PuncComma;
-                    }
-
-                case MySQLToken.PuncComma:
-                    {
-                        orderBy = new OrderBy();
-                        orderBy.AddOrderByItem(expr, order);
-                        break;
-                    }
-
-                default:
+                case MySqlToken.KwAsc:
+                {
+                    if (lexer.NextToken() != MySqlToken.PuncComma)
                     {
                         return new OrderBy(expr, order);
                     }
+                    goto case MySqlToken.PuncComma;
+                }
+
+                case MySqlToken.PuncComma:
+                {
+                    orderBy = new OrderBy();
+                    orderBy.AddOrderByItem(expr, order);
+                    break;
+                }
+
+                default:
+                {
+                    return new OrderBy(expr, order);
+                }
             }
-            for (; lexer.Token() == MySQLToken.PuncComma;)
+            for (; lexer.Token() == MySqlToken.PuncComma;)
             {
                 lexer.NextToken();
                 order = SortOrder.Asc;
                 expr = exprParser.Expression();
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwDesc:
-                        {
-                            order = SortOrder.Desc;
-                            goto case MySQLToken.KwAsc;
-                        }
+                    case MySqlToken.KwDesc:
+                    {
+                        order = SortOrder.Desc;
+                        goto case MySqlToken.KwAsc;
+                    }
 
-                    case MySQLToken.KwAsc:
-                        {
-                            lexer.NextToken();
-                            break;
-                        }
+                    case MySqlToken.KwAsc:
+                    {
+                        lexer.NextToken();
+                        break;
+                    }
                 }
                 orderBy.AddOrderByItem(expr, order);
             }
@@ -194,10 +196,10 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         }
 
         /// <param name="id">never null</param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual IList<Identifier> BuildIdList(Identifier id)
         {
-            if (lexer.Token() != MySQLToken.PuncComma)
+            if (lexer.Token() != MySqlToken.PuncComma)
             {
                 IList<Identifier> list = new List<Identifier>(1);
                 list.Add(id);
@@ -205,7 +207,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             }
             IList<Identifier> list_1 = new List<Identifier>();
             list_1.Add(id);
-            for (; lexer.Token() == MySQLToken.PuncComma;)
+            for (; lexer.Token() == MySqlToken.PuncComma;)
             {
                 lexer.NextToken();
                 id = Identifier();
@@ -214,39 +216,43 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             return list_1;
         }
 
-        /// <summary><code>(id (',' id)*)?</code></summary>
+        /// <summary>
+        ///     <code>(id (',' id)*)?</code>
+        /// </summary>
         /// <returns>
-        /// never null or empty.
-        /// <see cref="System.Collections.ArrayList{E}"/>
-        /// is possible
+        ///     never null or empty.
+        ///     <see cref="System.Collections.ArrayList{E}" />
+        ///     is possible
         /// </returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual IList<Identifier> IdList()
         {
             return BuildIdList(Identifier());
         }
 
-        /// <summary><code>( idName (',' idName)*)? ')'</code></summary>
+        /// <summary>
+        ///     <code>( idName (',' idName)*)? ')'</code>
+        /// </summary>
         /// <returns>empty list if emtpy id list</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual IList<string> IdNameList()
         {
-            if (lexer.Token() != MySQLToken.Identifier)
+            if (lexer.Token() != MySqlToken.Identifier)
             {
-                Match(MySQLToken.PuncRightParen);
+                Match(MySqlToken.PuncRightParen);
                 return new List<string>(0);
             }
             IList<string> list;
-            string str = lexer.StringValue();
-            if (lexer.NextToken() == MySQLToken.PuncComma)
+            var str = lexer.GetStringValue();
+            if (lexer.NextToken() == MySqlToken.PuncComma)
             {
                 list = new List<string>();
                 list.Add(str);
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
-                    list.Add(lexer.StringValue());
-                    Match(MySQLToken.Identifier);
+                    list.Add(lexer.GetStringValue());
+                    Match(MySqlToken.Identifier);
                 }
             }
             else
@@ -254,27 +260,27 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                 list = new List<string>(1);
                 list.Add(str);
             }
-            Match(MySQLToken.PuncRightParen);
+            Match(MySqlToken.PuncRightParen);
             return list;
         }
 
         /// <returns>never null</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected internal virtual TableReferences TableRefs()
         {
-            TableReference @ref = TableReference();
+            var @ref = TableReference();
             return BuildTableReferences(@ref);
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private TableReferences BuildTableReferences(TableReference @ref)
         {
             IList<TableReference> list;
-            if (lexer.Token() == MySQLToken.PuncComma)
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
                 list = new List<TableReference>();
                 list.Add(@ref);
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     @ref = TableReference();
@@ -289,250 +295,249 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             return new TableReferences(list);
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private TableReference TableReference()
         {
-            TableReference @ref = TableFactor();
+            var @ref = TableFactor();
             return BuildTableReference(@ref);
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private TableReference BuildTableReference(TableReference @ref)
         {
             for (;;)
             {
-                Expr on;
+                IExpression on;
                 IList<string> @using;
                 TableReference temp;
-                bool isOut = false;
-                bool isLeft = true;
+                var isOut = false;
+                var isLeft = true;
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwInner:
-                    case MySQLToken.KwCross:
+                    case MySqlToken.KwInner:
+                    case MySqlToken.KwCross:
+                    {
+                        lexer.NextToken();
+                        goto case MySqlToken.KwJoin;
+                    }
+
+                    case MySqlToken.KwJoin:
+                    {
+                        lexer.NextToken();
+                        temp = TableFactor();
+                        switch (lexer.Token())
                         {
-                            lexer.NextToken();
-                            goto case MySQLToken.KwJoin;
-                        }
-
-                    case MySQLToken.KwJoin:
-                        {
-                            lexer.NextToken();
-                            temp = TableFactor();
-                            switch (lexer.Token())
-                            {
-                                case MySQLToken.KwOn:
-                                    {
-                                        lexer.NextToken();
-                                        on = exprParser.Expression();
-                                        @ref = new InnerJoin(@ref, temp, on);
-                                        break;
-                                    }
-
-                                case MySQLToken.KwUsing:
-                                    {
-                                        lexer.NextToken();
-                                        Match(MySQLToken.PuncLeftParen);
-                                        @using = IdNameList();
-                                        @ref = new InnerJoin(@ref, temp, @using);
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        @ref = new InnerJoin(@ref, temp);
-                                        break;
-                                    }
-                            }
-                            break;
-                        }
-
-                    case MySQLToken.KwStraightJoin:
-                        {
-                            lexer.NextToken();
-                            temp = TableFactor();
-                            switch (lexer.Token())
-                            {
-                                case MySQLToken.KwOn:
-                                    {
-                                        lexer.NextToken();
-                                        on = exprParser.Expression();
-                                        @ref = new StraightJoin(@ref, temp, on);
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        @ref = new StraightJoin(@ref, temp);
-                                        break;
-                                    }
-                            }
-                            break;
-                        }
-
-                    case MySQLToken.KwRight:
-                        {
-                            isLeft = false;
-                            goto case MySQLToken.KwLeft;
-                        }
-
-                    case MySQLToken.KwLeft:
-                        {
-                            lexer.NextToken();
-                            if (lexer.Token() == MySQLToken.KwOuter)
+                            case MySqlToken.KwOn:
                             {
                                 lexer.NextToken();
+                                on = exprParser.Expression();
+                                @ref = new InnerJoin(@ref, temp, on);
+                                break;
                             }
-                            Match(MySQLToken.KwJoin);
-                            temp = TableReference();
-                            switch (lexer.Token())
+
+                            case MySqlToken.KwUsing:
                             {
-                                case MySQLToken.KwOn:
-                                    {
-                                        lexer.NextToken();
-                                        on = exprParser.Expression();
-                                        @ref = new OuterJoin(isLeft, @ref, temp, on);
-                                        break;
-                                    }
-
-                                case MySQLToken.KwUsing:
-                                    {
-                                        lexer.NextToken();
-                                        Match(MySQLToken.PuncLeftParen);
-                                        @using = IdNameList();
-                                        @ref = new OuterJoin(isLeft, @ref, temp, @using);
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        object condition = temp.RemoveLastConditionElement();
-                                        if (condition is Expr)
-                                        {
-                                            @ref = new OuterJoin(isLeft, @ref, temp, (Expr
-                                                )condition);
-                                        }
-                                        else
-                                        {
-                                            if (condition is IList)
-                                            {
-                                                @ref = new OuterJoin(isLeft, @ref, temp, (IList<string>)condition);
-                                            }
-                                            else
-                                            {
-                                                throw Err("conditionExpr cannot be null for outer join");
-                                            }
-                                        }
-                                        break;
-                                    }
+                                lexer.NextToken();
+                                Match(MySqlToken.PuncLeftParen);
+                                @using = IdNameList();
+                                @ref = new InnerJoin(@ref, temp, @using);
+                                break;
                             }
-                            break;
-                        }
 
-                    case MySQLToken.KwNatural:
+                            default:
+                            {
+                                @ref = new InnerJoin(@ref, temp);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                    case MySqlToken.KwStraightJoin:
+                    {
+                        lexer.NextToken();
+                        temp = TableFactor();
+                        switch (lexer.Token())
+                        {
+                            case MySqlToken.KwOn:
+                            {
+                                lexer.NextToken();
+                                on = exprParser.Expression();
+                                @ref = new StraightJoin(@ref, temp, on);
+                                break;
+                            }
+
+                            default:
+                            {
+                                @ref = new StraightJoin(@ref, temp);
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                    case MySqlToken.KwRight:
+                    {
+                        isLeft = false;
+                        goto case MySqlToken.KwLeft;
+                    }
+
+                    case MySqlToken.KwLeft:
+                    {
+                        lexer.NextToken();
+                        if (lexer.Token() == MySqlToken.KwOuter)
                         {
                             lexer.NextToken();
-                            switch (lexer.Token())
-                            {
-                                case MySQLToken.KwRight:
-                                    {
-                                        isLeft = false;
-                                        goto case MySQLToken.KwLeft;
-                                    }
-
-                                case MySQLToken.KwLeft:
-                                    {
-                                        lexer.NextToken();
-                                        if (lexer.Token() == MySQLToken.KwOuter)
-                                        {
-                                            lexer.NextToken();
-                                        }
-                                        isOut = true;
-                                        goto case MySQLToken.KwJoin;
-                                    }
-
-                                case MySQLToken.KwJoin:
-                                    {
-                                        lexer.NextToken();
-                                        temp = TableFactor();
-                                        @ref = new NaturalJoin(isOut, isLeft, @ref, temp);
-                                        break;
-                                    }
-
-                                default:
-                                    {
-                                        throw Err("unexpected token after NATURAL for natural join:" + lexer.Token());
-                                    }
-                            }
-                            break;
                         }
+                        Match(MySqlToken.KwJoin);
+                        temp = TableReference();
+                        switch (lexer.Token())
+                        {
+                            case MySqlToken.KwOn:
+                            {
+                                lexer.NextToken();
+                                on = exprParser.Expression();
+                                @ref = new OuterJoin(isLeft, @ref, temp, on);
+                                break;
+                            }
+
+                            case MySqlToken.KwUsing:
+                            {
+                                lexer.NextToken();
+                                Match(MySqlToken.PuncLeftParen);
+                                @using = IdNameList();
+                                @ref = new OuterJoin(isLeft, @ref, temp, @using);
+                                break;
+                            }
+
+                            default:
+                            {
+                                var condition = temp.RemoveLastConditionElement();
+                                if (condition is IExpression)
+                                {
+                                    @ref = new OuterJoin(isLeft, @ref, temp, (IExpression) condition);
+                                }
+                                else
+                                {
+                                    if (condition is IList)
+                                    {
+                                        @ref = new OuterJoin(isLeft, @ref, temp, (IList<string>) condition);
+                                    }
+                                    else
+                                    {
+                                        throw Err("conditionExpr cannot be null for outer join");
+                                    }
+                                }
+                                break;
+                            }
+                        }
+                        break;
+                    }
+
+                    case MySqlToken.KwNatural:
+                    {
+                        lexer.NextToken();
+                        switch (lexer.Token())
+                        {
+                            case MySqlToken.KwRight:
+                            {
+                                isLeft = false;
+                                goto case MySqlToken.KwLeft;
+                            }
+
+                            case MySqlToken.KwLeft:
+                            {
+                                lexer.NextToken();
+                                if (lexer.Token() == MySqlToken.KwOuter)
+                                {
+                                    lexer.NextToken();
+                                }
+                                isOut = true;
+                                goto case MySqlToken.KwJoin;
+                            }
+
+                            case MySqlToken.KwJoin:
+                            {
+                                lexer.NextToken();
+                                temp = TableFactor();
+                                @ref = new NaturalJoin(isOut, isLeft, @ref, temp);
+                                break;
+                            }
+
+                            default:
+                            {
+                                throw Err("unexpected token after NATURAL for natural join:" + lexer.Token());
+                            }
+                        }
+                        break;
+                    }
 
                     default:
-                        {
-                            return @ref;
-                        }
+                    {
+                        return @ref;
+                    }
                 }
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private TableReference TableFactor()
         {
             string alias = null;
             switch (lexer.Token())
             {
-                case MySQLToken.PuncLeftParen:
+                case MySqlToken.PuncLeftParen:
+                {
+                    lexer.NextToken();
+                    var @ref = TrsOrQuery();
+                    Match(MySqlToken.PuncRightParen);
+                    if (@ref is IQueryExpression)
                     {
-                        lexer.NextToken();
-                        object @ref = TrsOrQuery();
-                        Match(MySQLToken.PuncRightParen);
-                        if (@ref is QueryExpression)
-                        {
-                            alias = As();
-                            return new SubqueryFactor((QueryExpression)@ref, alias);
-                        }
-                        return (TableReferences)@ref;
-                    }
-
-                case MySQLToken.Identifier:
-                    {
-                        Identifier table = Identifier();
                         alias = As();
-                        IList<IndexHint> hintList = HintList();
-                        return new TableRefFactor(table, alias, hintList);
+                        return new SubqueryFactor((IQueryExpression) @ref, alias);
                     }
+                    return (TableReferences) @ref;
+                }
+
+                case MySqlToken.Identifier:
+                {
+                    var table = Identifier();
+                    alias = As();
+                    var hintList = HintList();
+                    return new TableRefFactor(table, alias, hintList);
+                }
 
                 default:
-                    {
-                        throw Err("unexpected token for tableFactor: " + lexer.Token());
-                    }
+                {
+                    throw Err("unexpected token for tableFactor: " + lexer.Token());
+                }
             }
         }
 
         /// <returns>
-        /// never empty. upper-case if id format.
-        /// <code>"alias1" |"`al`ias1`" | "'alias1'" | "_latin1'alias1'"</code>
+        ///     never empty. upper-case if id format.
+        ///     <code>"alias1" |"`al`ias1`" | "'alias1'" | "_latin1'alias1'"</code>
         /// </returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual string As()
         {
-            if (lexer.Token() == MySQLToken.KwAs)
+            if (lexer.Token() == MySqlToken.KwAs)
             {
                 lexer.NextToken();
             }
-            StringBuilder alias = new StringBuilder();
-            bool id = false;
-            if (lexer.Token() == MySQLToken.Identifier)
+            var alias = new StringBuilder();
+            var id = false;
+            if (lexer.Token() == MySqlToken.Identifier)
             {
-                alias.Append(lexer.StringValueUppercase());
+                alias.Append(lexer.GetStringValueUppercase());
                 id = true;
                 lexer.NextToken();
             }
-            if (lexer.Token() == MySQLToken.LiteralChars)
+            if (lexer.Token() == MySqlToken.LiteralChars)
             {
                 if (!id || id && alias[0] == '_')
                 {
-                    alias.Append(lexer.StringValue());
+                    alias.Append(lexer.GetStringValue());
                     lexer.NextToken();
                 }
             }
@@ -540,89 +545,89 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         }
 
         /// <returns>
-        /// type of
-        /// <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.QueryExpression"/>
-        /// or
-        /// <see cref="TableReferences"/>
+        ///     type of
+        ///     <see cref="Tup.Cobar4Net.Parser.Ast.Expression.Misc.IQueryExpression" />
+        ///     or
+        ///     <see cref="TableReferences" />
         /// </returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private object TrsOrQuery()
         {
             object @ref;
             switch (lexer.Token())
             {
-                case MySQLToken.KwSelect:
-                    {
-                        DMLSelectStatement select = SelectPrimary();
-                        return BuildUnionSelect(select);
-                    }
+                case MySqlToken.KwSelect:
+                {
+                    var select = SelectPrimary();
+                    return BuildUnionSelect(select);
+                }
 
-                case MySQLToken.PuncLeftParen:
+                case MySqlToken.PuncLeftParen:
+                {
+                    lexer.NextToken();
+                    @ref = TrsOrQuery();
+                    Match(MySqlToken.PuncRightParen);
+                    if (@ref is IQueryExpression)
                     {
-                        lexer.NextToken();
-                        @ref = TrsOrQuery();
-                        Match(MySQLToken.PuncRightParen);
-                        if (@ref is QueryExpression)
+                        if (@ref is DmlSelectStatement)
                         {
-                            if (@ref is DMLSelectStatement)
+                            IQueryExpression rst = BuildUnionSelect((DmlSelectStatement) @ref);
+                            if (rst != @ref)
                             {
-                                QueryExpression rst = BuildUnionSelect((DMLSelectStatement)@ref);
-                                if (rst != @ref)
-                                {
-                                    return rst;
-                                }
-                            }
-                            string alias = As();
-                            if (alias != null)
-                            {
-                                @ref = new SubqueryFactor((QueryExpression)@ref, alias);
-                            }
-                            else
-                            {
-                                return @ref;
+                                return rst;
                             }
                         }
-                        // ---- build factor complete---------------
-                        @ref = BuildTableReference((TableReference)@ref);
-                        // ---- build ref complete---------------
-                        break;
+                        var alias = As();
+                        if (alias != null)
+                        {
+                            @ref = new SubqueryFactor((IQueryExpression) @ref, alias);
+                        }
+                        else
+                        {
+                            return @ref;
+                        }
                     }
+                    // ---- build factor complete---------------
+                    @ref = BuildTableReference((TableReference) @ref);
+                    // ---- build ref complete---------------
+                    break;
+                }
 
                 default:
-                    {
-                        @ref = TableReference();
-                        break;
-                    }
+                {
+                    @ref = TableReference();
+                    break;
+                }
             }
             IList<TableReference> list;
-            if (lexer.Token() == MySQLToken.PuncComma)
+            if (lexer.Token() == MySqlToken.PuncComma)
             {
                 list = new List<TableReference>();
-                list.Add((TableReference)@ref);
-                for (; lexer.Token() == MySQLToken.PuncComma;)
+                list.Add((TableReference) @ref);
+                for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     @ref = TableReference();
-                    list.Add((TableReference)@ref);
+                    list.Add((TableReference) @ref);
                 }
                 return new TableReferences(list);
             }
             list = new List<TableReference>(1);
-            list.Add((TableReference)@ref);
+            list.Add((TableReference) @ref);
             return new TableReferences(list);
         }
 
         /// <returns>null if there is no hint</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private IList<IndexHint> HintList()
         {
-            IndexHint hint = Hint();
+            var hint = Hint();
             if (hint == null)
             {
                 return null;
             }
             IList<IndexHint> list;
-            IndexHint hint2 = Hint();
+            var hint2 = Hint();
             if (hint2 == null)
             {
                 list = new List<IndexHint>(1);
@@ -639,120 +644,120 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         }
 
         /// <returns>null if there is no hint</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private IndexHint Hint()
         {
-            IndexHint.IndexAction action;
+            IndexHintAction _hintAction;
             switch (lexer.Token())
             {
-                case MySQLToken.KwUse:
-                    {
-                        action = IndexHint.IndexAction.Use;
-                        break;
-                    }
+                case MySqlToken.KwUse:
+                {
+                    _hintAction = IndexHintAction.Use;
+                    break;
+                }
 
-                case MySQLToken.KwIgnore:
-                    {
-                        action = IndexHint.IndexAction.Ignore;
-                        break;
-                    }
+                case MySqlToken.KwIgnore:
+                {
+                    _hintAction = IndexHintAction.Ignore;
+                    break;
+                }
 
-                case MySQLToken.KwForce:
-                    {
-                        action = IndexHint.IndexAction.Force;
-                        break;
-                    }
+                case MySqlToken.KwForce:
+                {
+                    _hintAction = IndexHintAction.Force;
+                    break;
+                }
 
                 default:
-                    {
-                        return null;
-                    }
+                {
+                    return null;
+                }
             }
-            IndexHint.IndexType type;
+            IndexHintType _hintType;
             switch (lexer.NextToken())
             {
-                case MySQLToken.KwIndex:
-                    {
-                        type = IndexHint.IndexType.Index;
-                        break;
-                    }
+                case MySqlToken.KwIndex:
+                {
+                    _hintType = IndexHintType.Index;
+                    break;
+                }
 
-                case MySQLToken.KwKey:
-                    {
-                        type = IndexHint.IndexType.Key;
-                        break;
-                    }
+                case MySqlToken.KwKey:
+                {
+                    _hintType = IndexHintType.Key;
+                    break;
+                }
 
                 default:
-                    {
-                        throw Err("must be INDEX or KEY for hint type, not " + lexer.Token());
-                    }
+                {
+                    throw Err("must be INDEX or KEY for hint _hintType, not " + lexer.Token());
+                }
             }
-            IndexHint.IndexScope scope = IndexHint.IndexScope.All;
-            if (lexer.NextToken() == MySQLToken.KwFor)
+            var scope = IndexHintScope.All;
+            if (lexer.NextToken() == MySqlToken.KwFor)
             {
                 switch (lexer.NextToken())
                 {
-                    case MySQLToken.KwJoin:
-                        {
-                            lexer.NextToken();
-                            scope = IndexHint.IndexScope.Join;
-                            break;
-                        }
+                    case MySqlToken.KwJoin:
+                    {
+                        lexer.NextToken();
+                        scope = IndexHintScope.Join;
+                        break;
+                    }
 
-                    case MySQLToken.KwOrder:
-                        {
-                            lexer.NextToken();
-                            Match(MySQLToken.KwBy);
-                            scope = IndexHint.IndexScope.OrderBy;
-                            break;
-                        }
+                    case MySqlToken.KwOrder:
+                    {
+                        lexer.NextToken();
+                        Match(MySqlToken.KwBy);
+                        scope = IndexHintScope.OrderBy;
+                        break;
+                    }
 
-                    case MySQLToken.KwGroup:
-                        {
-                            lexer.NextToken();
-                            Match(MySQLToken.KwBy);
-                            scope = IndexHint.IndexScope.GroupBy;
-                            break;
-                        }
+                    case MySqlToken.KwGroup:
+                    {
+                        lexer.NextToken();
+                        Match(MySqlToken.KwBy);
+                        scope = IndexHintScope.GroupBy;
+                        break;
+                    }
 
                     default:
-                        {
-                            throw Err("must be JOIN or ORDER or GROUP for hint scope, not " + lexer.Token());
-                        }
+                    {
+                        throw Err("must be JOIN or ORDER or GROUP for hint _hintScope, not " + lexer.Token());
+                    }
                 }
             }
-            Match(MySQLToken.PuncLeftParen);
-            IList<string> indexList = IdNameList();
-            return new IndexHint(action, type, scope, indexList);
+            Match(MySqlToken.PuncLeftParen);
+            var indexList = IdNameList();
+            return new IndexHint(_hintAction, _hintType, scope, indexList);
         }
 
         /// <returns>argument itself if there is no union</returns>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual DMLQueryStatement BuildUnionSelect(DMLSelectStatement select)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        protected virtual DmlQueryStatement BuildUnionSelect(DmlSelectStatement select)
         {
-            if (lexer.Token() != MySQLToken.KwUnion)
+            if (lexer.Token() != MySqlToken.KwUnion)
             {
                 return select;
             }
-            DMLSelectUnionStatement union = new DMLSelectUnionStatement(select);
-            for (; lexer.Token() == MySQLToken.KwUnion;)
+            var union = new DmlSelectUnionStatement(select);
+            for (; lexer.Token() == MySqlToken.KwUnion;)
             {
                 lexer.NextToken();
-                bool isAll = false;
+                var isAll = false;
                 switch (lexer.Token())
                 {
-                    case MySQLToken.KwAll:
-                        {
-                            isAll = true;
-                            goto case MySQLToken.KwDistinct;
-                        }
+                    case MySqlToken.KwAll:
+                    {
+                        isAll = true;
+                        goto case MySqlToken.KwDistinct;
+                    }
 
-                    case MySQLToken.KwDistinct:
-                        {
-                            lexer.NextToken();
-                            break;
-                        }
+                    case MySqlToken.KwDistinct:
+                    {
+                        lexer.NextToken();
+                        break;
+                    }
                 }
                 select = SelectPrimary();
                 union.AddSelect(select, isAll);
@@ -761,41 +766,41 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             return union;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual DMLSelectStatement SelectPrimary()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        protected virtual DmlSelectStatement SelectPrimary()
         {
             switch (lexer.Token())
             {
-                case MySQLToken.KwSelect:
-                    {
-                        return Select();
-                    }
+                case MySqlToken.KwSelect:
+                {
+                    return Select();
+                }
 
-                case MySQLToken.PuncLeftParen:
-                    {
-                        lexer.NextToken();
-                        DMLSelectStatement select = SelectPrimary();
-                        Match(MySQLToken.PuncRightParen);
-                        return select;
-                    }
+                case MySqlToken.PuncLeftParen:
+                {
+                    lexer.NextToken();
+                    var select = SelectPrimary();
+                    Match(MySqlToken.PuncRightParen);
+                    return select;
+                }
 
                 default:
-                    {
-                        throw Err("unexpected token: " + lexer.Token());
-                    }
+                {
+                    throw Err("unexpected token: " + lexer.Token());
+                }
             }
         }
 
         /// <summary>
-        /// first token is
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.KwSelect">SELECT</see>
-        /// which has been scanned
-        /// but not yet consumed
+        ///     first token is
+        ///     <see cref="MySqlToken.KwSelect">SELECT</see>
+        ///     which has been scanned
+        ///     but not yet consumed
         /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLSelectStatement Select()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlSelectStatement Select()
         {
-            return new MySQLDMLSelectParser(lexer, exprParser).Select();
+            return new MySqlDmlSelectParser(lexer, exprParser).Select();
         }
     }
 }

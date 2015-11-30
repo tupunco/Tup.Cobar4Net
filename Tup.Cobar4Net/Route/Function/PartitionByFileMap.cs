@@ -17,82 +17,52 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-
+using System.Linq;
+using Sharpen;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class PartitionByFileMap : FunctionExpression, RuleAlgorithm
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class PartitionByFileMap : FunctionExpression, IRuleAlgorithm
     {
+        private readonly IDictionary<string, int> _app2Partition = null;
+
         public PartitionByFileMap(string functionName)
             : this(functionName, null)
         {
         }
 
-        public PartitionByFileMap(string functionName, IList<Expr> arguments)
+        public PartitionByFileMap(string functionName, IList<IExpression> arguments)
             : base(functionName, arguments)
         {
         }
 
-        private int defaultNode;
+        public int DefaultNode { get; set; }
 
-        private string fileMapPath;
-
-        public int DefaultNode
-        {
-            get { return defaultNode; }
-            set { defaultNode = value; }
-        }
-
-        public string FileMapPath
-        {
-            get { return fileMapPath; }
-            set { fileMapPath = value; }
-        }
-
-        public virtual void SetDefaultNode(int defaultNode)
-        {
-            this.defaultNode = defaultNode;
-        }
-
-        public virtual void SetFileMapPath(string fileMapPath)
-        {
-            this.fileMapPath = fileMapPath;
-        }
-
-        private IDictionary<string, int> app2Partition = null;
-
-        public override void Init()
-        {
-            Initialize();
-        }
-
-        protected override object EvaluationInternal(IDictionary<object, object> parameters)
-        {
-            return Calculate(parameters)[0];
-        }
+        public string FileMapPath { get; set; }
 
         public Number[] Calculate(IDictionary<object, object> parameters)
         {
-            int[] rst = new int[1];
-            object arg = arguments[0].Evaluation(parameters);
+            var rst = new int[1];
+            var arg = arguments[0].Evaluation(parameters);
             if (arg == null)
             {
                 throw new ArgumentException("partition key is null ");
             }
-            else if (arg == ExpressionConstants.Unevaluatable)
+            if (arg == ExpressionConstants.Unevaluatable)
             {
                 throw new ArgumentException("argument is UNEVALUATABLE");
             }
 
-            int pid = app2Partition.GetValue(arg.ToString(), int.MinValue);
+            var pid = _app2Partition.GetValue(arg.ToString(), int.MinValue);
             if (pid == int.MinValue)
             {
-                rst[0] = defaultNode;
+                rst[0] = DefaultNode;
             }
             else
             {
@@ -101,32 +71,14 @@ namespace Tup.Cobar4Net.Route.Function
             return Number.ValueOf(rst);
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expr> arguments)
+        public virtual IRuleAlgorithm ConstructMe(params object[] objects)
         {
-            if (arguments == null || arguments.Count != 1)
+            var args = objects.Select(x => (IExpression)x).ToList();
+            var rst = new PartitionByFileMap(functionName, args)
             {
-                throw new ArgumentException("function " + GetFunctionName() + " must have 1 arguments but is "
-                     + arguments);
-            }
-            object[] args = new object[arguments.Count];
-            int i = -1;
-            foreach (Expr arg in arguments)
-            {
-                args[++i] = arg;
-            }
-            return (FunctionExpression)ConstructMe(args);
-        }
-
-        public virtual RuleAlgorithm ConstructMe(params object[] objects)
-        {
-            var args = new List<Expr>(objects.Length);
-            foreach (object obj in objects)
-            {
-                args.Add((Expr)obj);
-            }
-            var rst = new PartitionByFileMap(functionName, args);
-            rst.fileMapPath = fileMapPath;
-            rst.defaultNode = defaultNode;
+                FileMapPath = FileMapPath,
+                DefaultNode = DefaultNode
+            };
             return rst;
         }
 
@@ -134,7 +86,7 @@ namespace Tup.Cobar4Net.Route.Function
         {
             try
             {
-                using (var fin = new FileStream(fileMapPath, FileMode.Open))
+                using (var fin = new FileStream(FileMapPath, FileMode.Open))
                 {
                     using (var @in = new StreamReader(fin))
                     {
@@ -147,7 +99,7 @@ namespace Tup.Cobar4Net.Route.Function
                                 continue;
                             }
 
-                            int ind = line.IndexOf('=');
+                            var ind = line.IndexOf('=');
                             if (ind < 0)
                             {
                                 continue;
@@ -155,9 +107,9 @@ namespace Tup.Cobar4Net.Route.Function
 
                             try
                             {
-                                string key = Sharpen.Runtime.Substring(line, 0, ind).Trim();
-                                int pid = System.Convert.ToInt32(Sharpen.Runtime.Substring(line, ind + 1).Trim());
-                                app2Partition[key] = pid;
+                                var key = Runtime.Substring(line, 0, ind).Trim();
+                                var pid = Convert.ToInt32(Runtime.Substring(line, ind + 1).Trim());
+                                _app2Partition[key] = pid;
                             }
                             catch (Exception ex)
                             {
@@ -171,6 +123,32 @@ namespace Tup.Cobar4Net.Route.Function
             {
                 throw ex;
             }
+        }
+
+        public override void Init()
+        {
+            Initialize();
+        }
+
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
+        {
+            return Calculate(parameters)[0];
+        }
+
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
+        {
+            if (arguments == null || arguments.Count != 1)
+            {
+                throw new ArgumentException(string.Format("function {0} must have 1 arguments but is {1}", FunctionName,
+                    arguments));
+            }
+            var args = new object[arguments.Count];
+            var i = -1;
+            foreach (var arg in arguments)
+            {
+                args[++i] = arg;
+            }
+            return (FunctionExpression)ConstructMe(args);
         }
     }
 }

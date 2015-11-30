@@ -16,38 +16,32 @@
 
 using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class PartitionByLong : PartitionFunction, RuleAlgorithm
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class PartitionByLong : PartitionFunction, IRuleAlgorithm
     {
         public PartitionByLong(string functionName)
             : this(functionName, null)
         {
         }
 
-        public PartitionByLong(string functionName, IList<Expr> arguments)
+        public PartitionByLong(string functionName, IList<IExpression> arguments)
             : base(functionName, arguments)
         {
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters)
-        {
-            return Calculate(parameters)[0];
-        }
-
         public Number[] Calculate(IDictionary<object, object> parameters)
         {
-            int[] rst = new int[1];
-            object arg = arguments[0].Evaluation(parameters);
-            if (arg == null)
-                arg = 0L;
+            var rst = new int[1];
+            var arg = arguments[0].Evaluation(parameters) ?? 0L;
 
             //if (arg == null)
             //{
@@ -74,38 +68,42 @@ namespace Tup.Cobar4Net.Route.Function
             return Number.ValueOf(rst);
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expr> arguments)
+        public IRuleAlgorithm ConstructMe(params object[] objects)
         {
-            if (arguments == null || arguments.Count != 1)
-            {
-                throw new ArgumentException("function " + GetFunctionName() + " must have 1 argument but is "
-                     + arguments);
-            }
-            object[] args = new object[arguments.Count];
-            int i = -1;
-            foreach (Expr arg in arguments)
-            {
-                args[++i] = arg;
-            }
-            return (FunctionExpression)ConstructMe(args);
-        }
+            var args = objects.Select(x => (IExpression)x).ToList();
 
-        public RuleAlgorithm ConstructMe(params object[] objects)
-        {
-            IList<Expr> args = new List<Expr>(objects.Length);
-            foreach (object obj in objects)
+            var partitionFunc = new PartitionByLong(functionName, args)
             {
-                args.Add((Expr)obj);
-            }
-            var partitionFunc = new PartitionByLong(functionName, args);
-            partitionFunc.count = count;
-            partitionFunc.length = length;
+                Count = Count,
+                Length = Length
+            };
             return partitionFunc;
         }
 
         public void Initialize()
         {
             Init();
+        }
+
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
+        {
+            return Calculate(parameters)[0];
+        }
+
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
+        {
+            if (arguments == null || arguments.Count != 1)
+            {
+                throw new ArgumentException("function " + FunctionName + " must have 1 argument but is "
+                                            + arguments);
+            }
+            var args = new object[arguments.Count];
+            var i = -1;
+            foreach (var arg in arguments)
+            {
+                args[++i] = arg;
+            }
+            return (FunctionExpression)ConstructMe(args);
         }
     }
 }

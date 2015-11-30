@@ -15,38 +15,44 @@
 */
 
 using System.Collections.Generic;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
     /// <summary>
-    /// an operator with arity of 3<br/>
-    /// left conbine in default
+    ///     an operator with arity of 3<br />
+    ///     left conbine in default
     /// </summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class BinaryOperatorExpression : AbstractExpression
     {
-        protected readonly Expr leftOprand;
+        protected readonly bool leftCombine;
 
-        protected readonly Expr rightOprand;
+        protected readonly IExpression leftOprand;
 
         protected readonly int precedence;
 
-        protected readonly bool leftCombine;
+        protected readonly IExpression rightOprand;
 
         /// <summary>
-        /// <see cref="leftCombine"/>
-        /// is true
+        ///     <see cref="leftCombine" />
+        ///     is true
         /// </summary>
-        protected BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence)
+        protected BinaryOperatorExpression(IExpression leftOprand,
+            IExpression rightOprand,
+            int precedence)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
             this.precedence = precedence;
-            this.leftCombine = true;
+            leftCombine = true;
         }
 
-        protected BinaryOperatorExpression(Expr leftOprand, Expr rightOprand, int precedence, bool leftCombine)
+        protected BinaryOperatorExpression(IExpression leftOprand,
+            IExpression rightOprand,
+            int precedence,
+            bool leftCombine)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
@@ -54,27 +60,27 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
             this.leftCombine = leftCombine;
         }
 
-        public virtual Expr GetLeftOprand()
+        public virtual IExpression LeftOprand
         {
-            return leftOprand;
+            get { return leftOprand; }
         }
 
-        public virtual Expr GetRightOprand()
+        public virtual IExpression RightOprand
         {
-            return rightOprand;
+            get { return rightOprand; }
         }
 
-        public override int GetPrecedence()
+        public override int Precedence
         {
-            return precedence;
+            get { return precedence; }
         }
 
-        public virtual bool IsLeftCombine()
+        public virtual bool IsLeftCombine
         {
-            return leftCombine;
+            get { return leftCombine; }
         }
 
-        public abstract string GetOperator();
+        public abstract string Operator { get; }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {

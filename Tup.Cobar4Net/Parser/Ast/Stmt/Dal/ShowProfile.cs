@@ -15,75 +15,59 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowProfile : DALShowStatement
+    /// <summary>enum name must equals to real sql while ' ' is replaced with '_'</summary>
+    public enum ProfileType
     {
-        /// <summary>enum name must equals to real sql while ' ' is replaced with '_'</summary>
-        public enum Type
-        {
-            None = 0,
-            All,
-            BlockIo,
-            ContextSwitches,
-            Cpu,
-            Ipc,
-            Memory,
-            PageFaults,
-            Source,
-            Swaps
-        }
+        None = 0,
+        All,
+        BlockIo,
+        ContextSwitches,
+        Cpu,
+        Ipc,
+        Memory,
+        PageFaults,
+        Source,
+        Swaps
+    }
 
-        private readonly IList<ShowProfile.Type> types;
-
-        private readonly Expr forQuery;
-
-        private readonly Limit limit;
-
-        public ShowProfile(IList<ShowProfile.Type> types, Expr
-             forQuery, Limit limit)
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowProfile : DalShowStatement
+    {
+        public ShowProfile(IList<ProfileType> types, IExpression forQuery, Limit limit)
         {
             if (types == null || types.IsEmpty())
             {
-                this.types = new List<ShowProfile.Type>(0);
+                ProfileTypes = new List<ProfileType>(0);
+            }
+            else if (types is List<ProfileType>)
+            {
+                ProfileTypes = types;
             }
             else
             {
-                if (types is List<ShowProfile.Type>)
-                {
-                    this.types = types;
-                }
-                else
-                {
-                    this.types = new List<ShowProfile.Type>(types);
-                }
+                ProfileTypes = new List<ProfileType>(types);
             }
-            this.forQuery = forQuery;
-            this.limit = limit;
+
+            ForQuery = forQuery;
+            Limit = limit;
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<ShowProfile.Type> GetTypes()
-        {
-            return types;
-        }
+        /// <value>never null</value>
+        public virtual IList<ProfileType> ProfileTypes { get; }
 
-        public virtual Expr GetForQuery()
-        {
-            return forQuery;
-        }
+        public virtual IExpression ForQuery { get; }
 
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
+        public virtual Limit Limit { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

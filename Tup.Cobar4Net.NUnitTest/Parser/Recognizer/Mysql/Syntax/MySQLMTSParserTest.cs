@@ -13,175 +13,165 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
+using NUnit.Framework;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Mts;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [TestFixture(Category = "MySQLMTSParserTest")]
-    public class MySQLMTSParserTest : AbstractSyntaxTest
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    [TestFixture(Category = "MySqlMtsParserTest")]
+    public class MySqlMtsParserTest : AbstractSyntaxTest
     {
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        [Test]
-        public virtual void TestSavepint()
-        {
-            string sql = "  savepoint 123e123e";
-            MySQLMTSParser parser = new MySQLMTSParser(new MySQLLexer(sql));
-            MTSSavepointStatement savepoint = parser.Savepoint();
-            string output = Output2MySQL(savepoint, sql);
-            Assert.AreEqual("SAVEPOINT 123e123e", output);
-            Assert.AreEqual("123e123e", savepoint.GetSavepoint().GetIdText());
-            sql = "  savepoint SAVEPOINT";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
-            savepoint = parser.Savepoint();
-            output = Output2MySQL(savepoint, sql);
-            Assert.AreEqual("SAVEPOINT SAVEPOINT", output);
-            Assert.AreEqual("SAVEPOINT", savepoint.GetSavepoint().GetIdText()
-                );
-            sql = "  savepoInt `select`";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
-            savepoint = parser.Savepoint();
-            output = Output2MySQL(savepoint, sql);
-            Assert.AreEqual("SAVEPOINT `select`", output);
-            Assert.AreEqual("`select`", savepoint.GetSavepoint().GetIdText());
-        }
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         [Test]
         public virtual void TestRelease()
         {
-            string sql = "Release sAVEPOINT 1234e   ";
-            MySQLMTSParser parser = new MySQLMTSParser(new MySQLLexer(sql));
-            MTSReleaseStatement savepoint = parser.Release();
-            string output = Output2MySQL(savepoint, sql);
+            var sql = "Release sAVEPOINT 1234e   ";
+            var parser = new MySqlMtsParser(new MySqlLexer(sql));
+            var savepoint = parser.Release();
+            var output = Output2MySql(savepoint, sql);
             Assert.AreEqual("RELEASE SAVEPOINT 1234e", output);
-            Assert.AreEqual("1234e", savepoint.GetSavepoint().GetIdText());
+            Assert.AreEqual("1234e", savepoint.Savepoint.IdText);
             sql = "Release SAVEPOINT sAVEPOINT";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             savepoint = parser.Release();
-            output = Output2MySQL(savepoint, sql);
+            output = Output2MySql(savepoint, sql);
             Assert.AreEqual("RELEASE SAVEPOINT sAVEPOINT", output);
-            Assert.AreEqual("sAVEPOINT", savepoint.GetSavepoint().GetIdText()
-                );
+            Assert.AreEqual("sAVEPOINT", savepoint.Savepoint.IdText);
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         [Test]
         public virtual void TestRollback()
         {
             // ROLLBACK [WORK] TO [SAVEPOINT] identifier
             // ROLLBACK [WORK] [AND [NO] CHAIN | [NO] RELEASE]
-            string sql = "rollBack work  ";
-            MySQLMTSParser parser = new MySQLMTSParser(new MySQLLexer(sql));
-            MTSRollbackStatement rollback = parser.Rollback();
-            string output = Output2MySQL(rollback, sql);
+            var sql = "rollBack work  ";
+            var parser = new MySqlMtsParser(new MySqlLexer(sql));
+            var rollback = parser.Rollback();
+            var output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.UnDef, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.UnDef, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack  ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.UnDef, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.UnDef, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack work TO savepoint 123e ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK TO SAVEPOINT 123e", output);
-            Assert.AreEqual("123e", rollback.GetSavepoint().GetIdText());
-            Assert.IsTrue(rollback.GetCompleteType() == MTSRollbackStatement.CompleteType.None);
+            Assert.AreEqual("123e", rollback.Savepoint.IdText);
+            Assert.IsTrue(rollback.CompleteType == CompleteType.None);
             sql = "rollBack to savePOINT savepoint ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK TO SAVEPOINT savepoint", output);
-            Assert.AreEqual("savepoint", rollback.GetSavepoint().GetIdText());
-            Assert.IsTrue(rollback.GetCompleteType() == MTSRollbackStatement.CompleteType.None);
+            Assert.AreEqual("savepoint", rollback.Savepoint.IdText);
+            Assert.IsTrue(rollback.CompleteType == CompleteType.None);
             sql = "rollBack to `select` ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK TO SAVEPOINT `select`", output);
-            Assert.AreEqual("`select`", rollback.GetSavepoint().GetIdText());
-            Assert.IsTrue(rollback.GetCompleteType() == MTSRollbackStatement.CompleteType.None);
+            Assert.AreEqual("`select`", rollback.Savepoint.IdText);
+            Assert.IsTrue(rollback.CompleteType == CompleteType.None);
             sql = "rollBack work to  `select` ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK TO SAVEPOINT `select`", output);
-            Assert.AreEqual("`select`", rollback.GetSavepoint().GetIdText());
-            Assert.IsTrue(rollback.GetCompleteType() == MTSRollbackStatement.CompleteType.None);
+            Assert.AreEqual("`select`", rollback.Savepoint.IdText);
+            Assert.IsTrue(rollback.CompleteType == CompleteType.None);
             sql = "rollBack work and no chaiN ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK AND NO CHAIN", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.NoChain, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.NoChain, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack work and  chaiN ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK AND CHAIN", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.Chain, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.Chain, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack work NO release ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK NO RELEASE", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.NoRelease, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.NoRelease, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack work  release ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK RELEASE", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.Release, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.Release, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack  and no chaiN ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK AND NO CHAIN", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.NoChain, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.NoChain, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack  and  chaiN ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK AND CHAIN", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.Chain, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.Chain, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack  NO release ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK NO RELEASE", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.NoRelease, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.NoRelease, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
             sql = "rollBack   release ";
-            parser = new MySQLMTSParser(new MySQLLexer(sql));
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
             rollback = parser.Rollback();
-            output = Output2MySQL(rollback, sql);
+            output = Output2MySql(rollback, sql);
             Assert.AreEqual("ROLLBACK RELEASE", output);
-            Assert.AreEqual(MTSRollbackStatement.CompleteType.Release, rollback
-                .GetCompleteType());
-            Assert.IsNull(rollback.GetSavepoint());
+            Assert.AreEqual(CompleteType.Release, rollback.CompleteType);
+            Assert.IsNull(rollback.Savepoint);
+        }
+
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        [Test]
+        public virtual void TestSavepint()
+        {
+            var sql = "  savepoint 123e123e";
+            var parser = new MySqlMtsParser(new MySqlLexer(sql));
+            var savepoint = parser.Savepoint();
+            var output = Output2MySql(savepoint, sql);
+            Assert.AreEqual("SAVEPOINT 123e123e", output);
+            Assert.AreEqual("123e123e", savepoint.Savepoint.IdText);
+            sql = "  savepoint SAVEPOINT";
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
+            savepoint = parser.Savepoint();
+            output = Output2MySql(savepoint, sql);
+            Assert.AreEqual("SAVEPOINT SAVEPOINT", output);
+            Assert.AreEqual("SAVEPOINT", savepoint.Savepoint.IdText);
+            sql = "  savepoInt `select`";
+            parser = new MySqlMtsParser(new MySqlLexer(sql));
+            savepoint = parser.Savepoint();
+            output = Output2MySql(savepoint, sql);
+            Assert.AreEqual("SAVEPOINT `select`", output);
+            Assert.AreEqual("`select`", savepoint.Savepoint.IdText);
         }
     }
 }

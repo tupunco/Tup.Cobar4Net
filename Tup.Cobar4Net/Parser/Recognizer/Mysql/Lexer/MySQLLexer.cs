@@ -14,112 +14,152 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
 using System.Text;
 using System.Threading;
-
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
 {
-    /// <summary>support MySQL 5.5 token</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLLexer
+    /// <summary>support MySql 5.5 token</summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlLexer
     {
-        private static int CStyleCommentVersion = 50599;
-
-        /// <returns>previous value</returns>
-        public static int SetCStyleCommentVersion(int version)
-        {
-            int v = CStyleCommentVersion;
-            CStyleCommentVersion = version;
-            return v;
-        }
-
         /// <summary>End of input character.</summary>
         /// <remarks>
-        /// End of input character. Used as a sentinel to denote the character one
-        /// beyond the last defined character in a source file.
+        ///     End of input character. Used as a sentinel to denote the character one
+        ///     beyond the last defined character in a source file.
         /// </remarks>
-        private const byte Eoi = unchecked((int)(0x1A));
+        private const byte Eoi = 0x1A;
 
-        protected internal readonly char[] sql;
-        /// <summary>
-        /// always be
-        /// <see cref="sql"/>
-        /// .length - 1
-        /// </summary>
-        protected internal readonly int eofIndex;
-        /// <summary>
-        /// current index of
-        /// <see cref="sql"/>
-        ///
-        /// </summary>
-        protected internal int curIndex = -1;
-        /// <summary>
-        /// always be
-        /// <see cref="sql"/>
-        /// [
-        /// <see cref="curIndex"/>
-        /// ]
-        /// </summary>
-        protected internal char ch;
-
-        private MySQLToken token;
-
-        /// <summary>keyword only</summary>
-        private MySQLToken tokenCache;
-
-        private MySQLToken tokenCache2;
-
-        /// <summary>1 represents first parameter</summary>
-        private int paramIndex = 0;
+        private static int CStyleCommentVersion = 50599;
 
         /// <summary>A character buffer for literals.</summary>
         protected internal static readonly ThreadLocal<char[]> sbufRef = new ThreadLocal<char[]>();
 
+        /// <summary>
+        ///     always be
+        ///     <see cref="sql" />
+        ///     .length - 1
+        /// </summary>
+        protected internal readonly int eofIndex;
+
+        protected internal readonly char[] sql;
+
+        /// <summary>
+        ///     always be
+        ///     <see cref="sql" />
+        ///     [
+        ///     <see cref="curIndex" />
+        ///     ]
+        /// </summary>
+        protected internal char ch;
+
+        /// <summary>
+        ///     current index of
+        ///     <see cref="sql" />
+        /// </summary>
+        protected internal int curIndex = -1;
+
+        protected bool inCStyleComment;
+
+        protected bool inCStyleCommentIgnore;
+
+        private readonly MySqlKeywords keywods = MySqlKeywords.DefaultKeywords;
+
+        protected int offsetCache;
+
+        /// <summary>1 represents first parameter</summary>
+        private int paramIndex;
+
         protected internal char[] sbuf;
+
+        protected int sizeCache;
 
         private string stringValue;
 
         /// <summary>
-        /// make sense only for
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.Identifier"/>
-        ///
+        ///     make sense only for
+        ///     <see cref="MySqlToken.Identifier" />
         /// </summary>
         private string stringValueUppercase;
+
+        private MySqlToken token;
+
+        /// <summary>keyword only</summary>
+        private MySqlToken tokenCache;
+
+        private MySqlToken tokenCache2;
+
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public MySqlLexer(char[] sql)
+        {
+            if ((sbuf = sbufRef.Value) == null)
+            {
+                sbuf = new char[1024];
+                sbufRef.Value = sbuf;
+            }
+            if (CharTypes.IsWhitespace(sql[sql.Length - 1]))
+            {
+                this.sql = sql;
+            }
+            else
+            {
+                this.sql = new char[sql.Length + 1];
+                Array.Copy(sql, 0, this.sql, 0, sql.Length);
+            }
+            eofIndex = this.sql.Length - 1;
+            this.sql[eofIndex] = (char)Eoi;
+            ScanChar();
+            NextToken();
+        }
+
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public MySqlLexer(string sql)
+            : this(FromSQL2Chars(sql))
+        {
+        }
+
+        /// <returns>previous value</returns>
+        public static int SetCStyleCommentVersion(int version)
+        {
+            var v = CStyleCommentVersion;
+            CStyleCommentVersion = version;
+            return v;
+        }
 
         // /** current token, set by {@link #nextToken()} */
         // private int tokenPos = 0;
         /// <summary>
-        /// update
-        /// <see cref="stringValue"/>
-        /// and
-        /// <see cref="stringValueUppercase"/>
-        /// . It is possible that
-        /// <see cref="sbuf"/>
-        /// be changed
+        ///     update
+        ///     <see cref="stringValue" />
+        ///     and
+        ///     <see cref="stringValueUppercase" />
+        ///     . It is possible that
+        ///     <see cref="sbuf" />
+        ///     be changed
         /// </summary>
-        protected virtual void UpdateStringValue(char[] src, int srcOffset, int
-            len)
+        protected virtual void UpdateStringValue(char[] src, int srcOffset, int len)
         {
             // QS_TODO [performance enhance]: use String constant for special
             // identifier, so that parser can use '==' rather than 'equals'
             stringValue = new string(src, srcOffset, len);
-            int end = srcOffset + len;
-            bool lowerCase = false;
-            int srcIndex = srcOffset;
-            int hash = 0;
+            var end = srcOffset + len;
+            var lowerCase = false;
+            var srcIndex = srcOffset;
+            var hash = 0;
             for (; srcIndex < end; ++srcIndex)
             {
-                char c = src[srcIndex];
+                var c = src[srcIndex];
                 if (c >= 'a' && c <= 'z')
                 {
                     lowerCase = true;
                     if (srcIndex > srcOffset)
                     {
-                        System.Array.Copy(src, srcOffset, sbuf, 0, srcIndex - srcOffset);
+                        Array.Copy(src, srcOffset, sbuf, 0, srcIndex - srcOffset);
                     }
                     break;
                 }
@@ -127,9 +167,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
             if (lowerCase)
             {
-                for (int destIndex = srcIndex - srcOffset; destIndex < len; ++destIndex)
+                for (var destIndex = srcIndex - srcOffset; destIndex < len; ++destIndex)
                 {
-                    char c = src[srcIndex++];
+                    var c = src[srcIndex++];
                     hash = 31 * hash + c;
                     if (c >= 'a' && c <= 'z')
                     {
@@ -149,42 +189,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public MySQLLexer(char[] sql)
-        {
-            if ((this.sbuf = sbufRef.Value) == null)
-            {
-                this.sbuf = new char[1024];
-                sbufRef.Value = this.sbuf;
-            }
-            if (CharTypes.IsWhitespace(sql[sql.Length - 1]))
-            {
-                this.sql = sql;
-            }
-            else
-            {
-                this.sql = new char[sql.Length + 1];
-                System.Array.Copy(sql, 0, this.sql, 0, sql.Length);
-            }
-            this.eofIndex = this.sql.Length - 1;
-            this.sql[this.eofIndex] = (char)MySQLLexer.Eoi;
-            ScanChar();
-            NextToken();
-        }
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public MySQLLexer(string sql)
-            : this(FromSQL2Chars(sql))
-        {
-        }
-
         private static char[] FromSQL2Chars(string sql)
         {
             if (CharTypes.IsWhitespace(sql[sql.Length - 1]))
             {
                 return sql.ToCharArray();
             }
-            char[] chars = new char[sql.Length + 1];
+            var chars = new char[sql.Length + 1];
             //Sharpen.Runtime.GetCharsForString(sql, 0, sql.Length, chars, 0);
             Array.Copy(sql.ToCharArray(), 0, chars, 0, sql.Length);
 
@@ -192,12 +203,10 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             return chars;
         }
 
-        private MySQLKeywords keywods = MySQLKeywords.DefaultKeywords;
-
         /// <param name="token">must be a keyword</param>
-        public void AddCacheToke(MySQLToken token)
+        public void AddCacheToke(MySqlToken token)
         {
-            if (tokenCache != MySQLToken.None)
+            if (tokenCache != MySqlToken.None)
             {
                 tokenCache2 = token;
             }
@@ -207,43 +216,43 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
         }
 
-        public MySQLToken Token()
+        public MySqlToken Token()
         {
-            if (tokenCache2 != MySQLToken.None)
+            if (tokenCache2 != MySqlToken.None)
             {
                 return tokenCache2;
             }
-            if (tokenCache != MySQLToken.None)
+            if (tokenCache != MySqlToken.None)
             {
                 return tokenCache;
             }
             return token;
         }
 
-        public int GetCurrentIndex()
+        public int CurrentIndex
         {
-            return this.curIndex;
+            get { return curIndex; }
         }
 
-        public char[] GetSQL()
+        public char[] Sql
         {
-            return sql;
+            get { return sql; }
         }
 
-        public virtual int GetOffsetCache()
+        public virtual int OffsetCache
         {
-            return offsetCache;
+            get { return offsetCache; }
         }
 
-        public virtual int GetSizeCache()
+        public virtual int SizeCache
         {
-            return sizeCache;
+            get { return sizeCache; }
         }
 
-        /// <returns>start from 1. When there is no parameter yet, return 0.</returns>
-        public virtual int ParamIndex()
+        /// <value>start from 1. When there is no parameter yet, return 0.</value>
+        public virtual int ParamIndex
         {
-            return paramIndex;
+            get { return paramIndex; }
         }
 
         protected char ScanChar()
@@ -252,8 +261,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <param name="skip">
-        /// if 1, then equals to
-        /// <see cref="ScanChar()"/>
+        ///     if 1, then equals to
+        ///     <see cref="ScanChar()" />
         /// </param>
         protected char ScanChar(int skip)
         {
@@ -270,8 +279,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             return curIndex >= eofIndex;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        private MySQLToken NextTokenInternal()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        private MySqlToken NextTokenInternal()
         {
             switch (ch)
             {
@@ -319,7 +328,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         else
                         {
                             ScanChar();
-                            token = MySQLToken.PuncDot;
+                            token = MySqlToken.PuncDot;
                         }
                         return token;
                     }
@@ -338,7 +347,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         {
                             ScanChar();
                             ScanString();
-                            token = MySQLToken.LiteralNchars;
+                            token = MySqlToken.LiteralNchars;
                             return token;
                         }
                         ScanIdentifier();
@@ -385,7 +394,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 case '?':
                     {
                         ScanChar();
-                        token = MySQLToken.QuestionMark;
+                        token = MySqlToken.QuestionMark;
                         ++paramIndex;
                         return token;
                     }
@@ -393,56 +402,56 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 case '(':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncLeftParen;
+                        token = MySqlToken.PuncLeftParen;
                         return token;
                     }
 
                 case ')':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncRightParen;
+                        token = MySqlToken.PuncRightParen;
                         return token;
                     }
 
                 case '[':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncLeftBracket;
+                        token = MySqlToken.PuncLeftBracket;
                         return token;
                     }
 
                 case ']':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncRightBracket;
+                        token = MySqlToken.PuncRightBracket;
                         return token;
                     }
 
                 case '{':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncLeftBrace;
+                        token = MySqlToken.PuncLeftBrace;
                         return token;
                     }
 
                 case '}':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncRightBrace;
+                        token = MySqlToken.PuncRightBrace;
                         return token;
                     }
 
                 case ',':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncComma;
+                        token = MySqlToken.PuncComma;
                         return token;
                     }
 
                 case ';':
                     {
                         ScanChar();
-                        token = MySQLToken.PuncSemicolon;
+                        token = MySqlToken.PuncSemicolon;
                         return token;
                     }
 
@@ -451,25 +460,25 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         if (sql[curIndex + 1] == '=')
                         {
                             ScanChar(2);
-                            token = MySQLToken.OpAssign;
+                            token = MySqlToken.OpAssign;
                             return token;
                         }
                         ScanChar();
-                        token = MySQLToken.PuncColon;
+                        token = MySqlToken.PuncColon;
                         return token;
                     }
 
                 case '=':
                     {
                         ScanChar();
-                        token = MySQLToken.OpEquals;
+                        token = MySqlToken.OpEquals;
                         return token;
                     }
 
                 case '~':
                     {
                         ScanChar();
-                        token = MySQLToken.OpTilde;
+                        token = MySqlToken.OpTilde;
                         return token;
                     }
 
@@ -480,46 +489,46 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                             inCStyleComment = false;
                             inCStyleCommentIgnore = false;
                             ScanChar(2);
-                            token = MySQLToken.PuncCStyleCommentEnd;
+                            token = MySqlToken.PuncCStyleCommentEnd;
                             return token;
                         }
                         ScanChar();
-                        token = MySQLToken.OpAsterisk;
+                        token = MySqlToken.OpAsterisk;
                         return token;
                     }
 
                 case '-':
                     {
                         ScanChar();
-                        token = MySQLToken.OpMinus;
+                        token = MySqlToken.OpMinus;
                         return token;
                     }
 
                 case '+':
                     {
                         ScanChar();
-                        token = MySQLToken.OpPlus;
+                        token = MySqlToken.OpPlus;
                         return token;
                     }
 
                 case '^':
                     {
                         ScanChar();
-                        token = MySQLToken.OpCaret;
+                        token = MySqlToken.OpCaret;
                         return token;
                     }
 
                 case '/':
                     {
                         ScanChar();
-                        token = MySQLToken.OpSlash;
+                        token = MySqlToken.OpSlash;
                         return token;
                     }
 
                 case '%':
                     {
                         ScanChar();
-                        token = MySQLToken.OpPercent;
+                        token = MySqlToken.OpPercent;
                         return token;
                     }
 
@@ -528,11 +537,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         if (sql[curIndex + 1] == '&')
                         {
                             ScanChar(2);
-                            token = MySQLToken.OpLogicalAnd;
+                            token = MySqlToken.OpLogicalAnd;
                             return token;
                         }
                         ScanChar();
-                        token = MySQLToken.OpAmpersand;
+                        token = MySqlToken.OpAmpersand;
                         return token;
                     }
 
@@ -541,11 +550,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         if (sql[curIndex + 1] == '|')
                         {
                             ScanChar(2);
-                            token = MySQLToken.OpLogicalOr;
+                            token = MySqlToken.OpLogicalOr;
                             return token;
                         }
                         ScanChar();
-                        token = MySQLToken.OpVerticalBar;
+                        token = MySqlToken.OpVerticalBar;
                         return token;
                     }
 
@@ -554,11 +563,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         if (sql[curIndex + 1] == '=')
                         {
                             ScanChar(2);
-                            token = MySQLToken.OpNotEquals;
+                            token = MySqlToken.OpNotEquals;
                             return token;
                         }
                         ScanChar();
-                        token = MySQLToken.OpExclamation;
+                        token = MySqlToken.OpExclamation;
                         return token;
                     }
 
@@ -569,21 +578,21 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                             case '=':
                                 {
                                     ScanChar(2);
-                                    token = MySQLToken.OpGreaterOrEquals;
+                                    token = MySqlToken.OpGreaterOrEquals;
                                     return token;
                                 }
 
                             case '>':
                                 {
                                     ScanChar(2);
-                                    token = MySQLToken.OpRightShift;
+                                    token = MySqlToken.OpRightShift;
                                     return token;
                                 }
 
                             default:
                                 {
                                     ScanChar();
-                                    token = MySQLToken.OpGreaterThan;
+                                    token = MySqlToken.OpGreaterThan;
                                     return token;
                                 }
                         }
@@ -599,32 +608,32 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                     if (sql[curIndex + 2] == '>')
                                     {
                                         ScanChar(3);
-                                        token = MySQLToken.OpNullSafeEquals;
+                                        token = MySqlToken.OpNullSafeEquals;
                                         return token;
                                     }
                                     ScanChar(2);
-                                    token = MySQLToken.OpLessOrEquals;
+                                    token = MySqlToken.OpLessOrEquals;
                                     return token;
                                 }
 
                             case '>':
                                 {
                                     ScanChar(2);
-                                    token = MySQLToken.OpLessOrGreater;
+                                    token = MySqlToken.OpLessOrGreater;
                                     return token;
                                 }
 
                             case '<':
                                 {
                                     ScanChar(2);
-                                    token = MySQLToken.OpLeftShift;
+                                    token = MySqlToken.OpLeftShift;
                                     return token;
                                 }
 
                             default:
                                 {
                                     ScanChar();
-                                    token = MySQLToken.OpLessThan;
+                                    token = MySqlToken.OpLessThan;
                                     return token;
                                 }
                         }
@@ -647,7 +656,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         {
                             if (Eof())
                             {
-                                token = MySQLToken.Eof;
+                                token = MySqlToken.Eof;
                                 curIndex = eofIndex;
                             }
                             else
@@ -661,45 +670,35 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public MySQLToken NextToken()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public MySqlToken NextToken()
         {
-            if (tokenCache2 != MySQLToken.None)
+            if (tokenCache2 != MySqlToken.None)
             {
-                tokenCache2 = MySQLToken.None;
+                tokenCache2 = MySqlToken.None;
                 return tokenCache;
             }
-            if (tokenCache != MySQLToken.None)
+            if (tokenCache != MySqlToken.None)
             {
-                tokenCache = MySQLToken.None;
+                tokenCache = MySqlToken.None;
                 return token;
             }
-            if (token == MySQLToken.Eof)
+            if (token == MySqlToken.Eof)
             {
-                throw new SQLSyntaxErrorException("eof for sql is already reached, cannot get new token"
-                    );
+                throw new SqlSyntaxErrorException("eof for sql is already reached, cannot get new token");
             }
-            MySQLToken t;
+            MySqlToken t;
             do
             {
                 SkipSeparator();
                 t = NextTokenInternal();
-            }
-            while (inCStyleComment && inCStyleCommentIgnore || MySQLToken.PuncCStyleCommentEnd
-                 == t);
+            } while (inCStyleComment && inCStyleCommentIgnore || MySqlToken.PuncCStyleCommentEnd
+                     == t);
             return t;
         }
 
-        protected bool inCStyleComment;
-
-        protected bool inCStyleCommentIgnore;
-
-        protected int offsetCache;
-
-        protected int sizeCache;
-
         /// <summary>first <code>@</code> is included</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanUserVariable()
         {
             if (ch != '@')
@@ -708,7 +707,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
             offsetCache = curIndex;
             sizeCache = 1;
-            bool dq = false;
+            var dq = false;
             switch (ScanChar())
             {
                 case '"':
@@ -760,7 +759,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                             }
                             //loop1_continue:;
                         }
-                    loop1_break:;
+                    loop1_break:
+                        ;
                         break;
                     }
 
@@ -782,7 +782,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                             }
                             //loop1_continue:;
                         }
-                    loop1_break:;
+                    loop1_break:
+                        ;
                         break;
                     }
 
@@ -796,11 +797,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     }
             }
             stringValue = new string(sql, offsetCache, sizeCache);
-            token = MySQLToken.UsrVar;
+            token = MySqlToken.UsrVar;
         }
 
         /// <summary>first <code>@@</code> is included</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanSystemVariable()
         {
             if (ch != '@' || sql[curIndex + 1] != '@')
@@ -832,13 +833,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 }
             }
             UpdateStringValue(sql, offsetCache, sizeCache);
-            token = MySQLToken.SysVar;
+            token = MySqlToken.SysVar;
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanString()
         {
-            bool dq = false;
+            var dq = false;
             if (ch == '\'')
             {
             }
@@ -854,7 +855,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 }
             }
             offsetCache = curIndex;
-            int size = 1;
+            var size = 1;
             sbuf[0] = '\'';
             if (dq)
             {
@@ -901,7 +902,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     }
                     // loop_continue:;
                 }
-            loop_break:;
+            loop_break:
+                ;
             }
             else
             {
@@ -941,11 +943,12 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     }
                     //loop_continue:;
                 }
-            loop_break:;
+            loop_break:
+                ;
             }
             sizeCache = size;
             stringValue = new string(sbuf, 0, size);
-            token = MySQLToken.LiteralChars;
+            token = MySqlToken.LiteralChars;
         }
 
         /// <summary>Append a character to sbuf.</summary>
@@ -953,18 +956,18 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         {
             if (index >= sbuf.Length)
             {
-                char[] newsbuf = new char[sbuf.Length * 2];
-                System.Array.Copy(sbuf, 0, newsbuf, 0, sbuf.Length);
+                var newsbuf = new char[sbuf.Length * 2];
+                Array.Copy(sbuf, 0, newsbuf, 0, sbuf.Length);
                 sbuf = newsbuf;
             }
             sbuf[index] = ch;
         }
 
         /// <param name="quoteMode">
-        /// if false: first <code>0x</code> has been skipped; if
-        /// true: first <code>x'</code> has been skipped
+        ///     if false: first <code>0x</code> has been skipped; if
+        ///     true: first <code>x'</code> has been skipped
         /// </param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanHexaDecimal(bool quoteMode)
         {
             offsetCache = curIndex;
@@ -991,14 +994,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     return;
                 }
             }
-            token = MySQLToken.LiteralHex;
+            token = MySqlToken.LiteralHex;
         }
 
         /// <param name="quoteMode">
-        /// if false: first <code>0b</code> has been skipped; if
-        /// true: first <code>b'</code> has been skipped
+        ///     if false: first <code>0b</code> has been skipped; if
+        ///     true: first <code>b'</code> has been skipped
         /// </param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanBitField(bool quoteMode)
         {
             offsetCache = curIndex;
@@ -1025,25 +1028,25 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     return;
                 }
             }
-            token = MySQLToken.LiteralBit;
+            token = MySqlToken.LiteralBit;
             stringValue = new string(sql, offsetCache, sizeCache);
         }
 
         /// <summary>
-        /// if first char is <code>.</code>, token may be
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.PuncDot"/>
-        /// if invalid char is presented after <code>.</code>
+        ///     if first char is <code>.</code>, token may be
+        ///     <see cref="MySqlToken.PuncDot" />
+        ///     if invalid char is presented after <code>.</code>
         /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanNumber()
         {
             offsetCache = curIndex;
             sizeCache = 1;
-            bool fstDot = ch == '.';
-            bool dot = fstDot;
-            bool sign = false;
-            int state = fstDot ? 1 : 0;
-            for (; ScanChar() != Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer.MySQLLexer.Eoi; ++sizeCache)
+            var fstDot = ch == '.';
+            var dot = fstDot;
+            var sign = false;
+            var state = fstDot ? 1 : 0;
+            for (; ScanChar() != Eoi; ++sizeCache)
             {
                 switch (state)
                 {
@@ -1072,11 +1075,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                             ScanIdentifierFromNumber(offsetCache, sizeCache);
                                             return;
                                         }
-                                        else
-                                        {
-                                            token = MySQLToken.LiteralNumPureDigit;
-                                            return;
-                                        }
+                                        token = MySqlToken.LiteralNumPureDigit;
+                                        return;
                                     }
                                 }
                             }
@@ -1101,14 +1101,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                     {
                                         sizeCache = 1;
                                         ch = sql[curIndex = offsetCache + 1];
-                                        token = MySQLToken.PuncDot;
+                                        token = MySqlToken.PuncDot;
                                         return;
                                     }
-                                    else
-                                    {
-                                        token = MySQLToken.LiteralNumMixDigit;
-                                        return;
-                                    }
+                                    token = MySqlToken.LiteralNumMixDigit;
+                                    return;
                                 }
                             }
                             break;
@@ -1131,14 +1128,11 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                     {
                                         sizeCache = 1;
                                         ch = sql[curIndex = offsetCache + 1];
-                                        token = MySQLToken.PuncDot;
+                                        token = MySqlToken.PuncDot;
                                         return;
                                     }
-                                    else
-                                    {
-                                        token = MySQLToken.LiteralNumMixDigit;
-                                        return;
-                                    }
+                                    token = MySqlToken.LiteralNumMixDigit;
+                                    return;
                                 }
                             }
                             break;
@@ -1163,30 +1157,24 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                     {
                                         sizeCache = 1;
                                         ch = sql[curIndex = offsetCache + 1];
-                                        token = MySQLToken.PuncDot;
+                                        token = MySqlToken.PuncDot;
                                         return;
                                     }
-                                    else
+                                    if (!dot)
                                     {
-                                        if (!dot)
+                                        if (CharTypes.IsIdentifierChar(ch))
                                         {
-                                            if (CharTypes.IsIdentifierChar(ch))
-                                            {
-                                                ScanIdentifierFromNumber(offsetCache, sizeCache);
-                                            }
-                                            else
-                                            {
-                                                UpdateStringValue(sql, offsetCache, sizeCache);
-                                                MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
-                                            }
-                                            return;
+                                            ScanIdentifierFromNumber(offsetCache, sizeCache);
                                         }
                                         else
                                         {
-                                            throw Err("invalid char after '.' and 'e' for as part of number: " + ch);
+                                            UpdateStringValue(sql, offsetCache, sizeCache);
+                                            var tok = keywods.GetKeyword(stringValueUppercase);
+                                            token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
                                         }
+                                        return;
                                     }
+                                    throw Err("invalid char after '.' and 'e' for as part of number: " + ch);
                                 }
                             }
                             break;
@@ -1199,28 +1187,25 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                 state = 5;
                                 break;
                             }
+                            if (fstDot)
+                            {
+                                sizeCache = 1;
+                                ch = sql[curIndex = offsetCache + 1];
+                                token = MySqlToken.PuncDot;
+                            }
                             else
                             {
-                                if (fstDot)
+                                if (!dot)
                                 {
-                                    sizeCache = 1;
-                                    ch = sql[curIndex = offsetCache + 1];
-                                    token = MySQLToken.PuncDot;
+                                    ch = sql[--curIndex];
+                                    --sizeCache;
+                                    UpdateStringValue(sql, offsetCache, sizeCache);
+                                    var tok = keywods.GetKeyword(stringValueUppercase);
+                                    token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
                                 }
                                 else
                                 {
-                                    if (!dot)
-                                    {
-                                        ch = sql[--curIndex];
-                                        --sizeCache;
-                                        UpdateStringValue(sql, offsetCache, sizeCache);
-                                        MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                        token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
-                                    }
-                                    else
-                                    {
-                                        throw Err("expect digit char after SIGN for 'e': " + ch);
-                                    }
+                                    throw Err("expect digit char after SIGN for 'e': " + ch);
                                 }
                             }
                             return;
@@ -1232,40 +1217,37 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                             {
                                 break;
                             }
-                            else
+                            if (CharTypes.IsIdentifierChar(ch))
                             {
-                                if (CharTypes.IsIdentifierChar(ch))
+                                if (fstDot)
                                 {
-                                    if (fstDot)
-                                    {
-                                        sizeCache = 1;
-                                        ch = sql[curIndex = offsetCache + 1];
-                                        token = MySQLToken.PuncDot;
-                                    }
-                                    else
-                                    {
-                                        if (!dot)
-                                        {
-                                            if (sign)
-                                            {
-                                                ch = sql[curIndex = offsetCache];
-                                                ScanIdentifierFromNumber(curIndex, 0);
-                                            }
-                                            else
-                                            {
-                                                ScanIdentifierFromNumber(offsetCache, sizeCache);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            token = MySQLToken.LiteralNumMixDigit;
-                                        }
-                                    }
+                                    sizeCache = 1;
+                                    ch = sql[curIndex = offsetCache + 1];
+                                    token = MySqlToken.PuncDot;
                                 }
                                 else
                                 {
-                                    token = MySQLToken.LiteralNumMixDigit;
+                                    if (!dot)
+                                    {
+                                        if (sign)
+                                        {
+                                            ch = sql[curIndex = offsetCache];
+                                            ScanIdentifierFromNumber(curIndex, 0);
+                                        }
+                                        else
+                                        {
+                                            ScanIdentifierFromNumber(offsetCache, sizeCache);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        token = MySqlToken.LiteralNumMixDigit;
+                                    }
                                 }
+                            }
+                            else
+                            {
+                                token = MySqlToken.LiteralNumMixDigit;
                             }
                             return;
                         }
@@ -1275,7 +1257,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             {
                 case 0:
                     {
-                        token = MySQLToken.LiteralNumPureDigit;
+                        token = MySqlToken.LiteralNumPureDigit;
                         return;
                     }
 
@@ -1283,7 +1265,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     {
                         if (fstDot)
                         {
-                            token = MySQLToken.PuncDot;
+                            token = MySqlToken.PuncDot;
                             return;
                         }
                         goto case 2;
@@ -1292,7 +1274,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 case 2:
                 case 5:
                     {
-                        token = MySQLToken.LiteralNumMixDigit;
+                        token = MySqlToken.LiteralNumMixDigit;
                         return;
                     }
 
@@ -1302,15 +1284,15 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         {
                             sizeCache = 1;
                             ch = sql[curIndex = offsetCache + 1];
-                            token = MySQLToken.PuncDot;
+                            token = MySqlToken.PuncDot;
                         }
                         else
                         {
                             if (!dot)
                             {
                                 UpdateStringValue(sql, offsetCache, sizeCache);
-                                MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
+                                var tok = keywods.GetKeyword(stringValueUppercase);
+                                token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
                             }
                             else
                             {
@@ -1326,7 +1308,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         {
                             sizeCache = 1;
                             ch = sql[curIndex = offsetCache + 1];
-                            token = MySQLToken.PuncDot;
+                            token = MySqlToken.PuncDot;
                         }
                         else
                         {
@@ -1335,8 +1317,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                 ch = sql[--curIndex];
                                 --sizeCache;
                                 UpdateStringValue(sql, offsetCache, sizeCache);
-                                MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-                                token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
+                                var tok = keywods.GetKeyword(stringValueUppercase);
+                                token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
                             }
                             else
                             {
@@ -1349,21 +1331,21 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <summary>
-        /// NOTE:
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.Identifier">id</see>
-        /// dosn't include <code>'.'</code>
-        /// for sake of performance issue (based on <i>shaojin.wensj</i>'s design).
-        /// However, it is not convenient for MySQL compatibility. e.g.
-        /// <code>".123f"</code> will be regarded as <code>".123"</code> and
-        /// <code>"f"</code> in MySQL, but in this
-        /// <see cref="MySQLLexer"/>
-        /// , it will be
-        /// <code>"."</code> and <code>"123f"</code> because <code>".123f"</code> may
-        /// be part of <code>"db1.123f"</code> and <code>"123f"</code> is the table
-        /// name.
+        ///     NOTE:
+        ///     <see cref="MySqlToken.Identifier">id</see>
+        ///     dosn't include <code>'.'</code>
+        ///     for sake of performance issue (based on <i>shaojin.wensj</i>'s design).
+        ///     However, it is not convenient for MySql compatibility. e.g.
+        ///     <code>".123f"</code> will be regarded as <code>".123"</code> and
+        ///     <code>"f"</code> in MySql, but in this
+        ///     <see cref="MySqlLexer" />
+        ///     , it will be
+        ///     <code>"."</code> and <code>"123f"</code> because <code>".123f"</code> may
+        ///     be part of <code>"db1.123f"</code> and <code>"123f"</code> is the table
+        ///     name.
         /// </summary>
         /// <param name="initSize">how many char has already been consumed</param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private void ScanIdentifierFromNumber(int initOffset, int initSize)
         {
             offsetCache = initOffset;
@@ -1373,12 +1355,12 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 ScanChar();
             }
             UpdateStringValue(sql, offsetCache, sizeCache);
-            MySQLToken tok = keywods.GetKeyword(stringValueUppercase);
-            token = tok == MySQLToken.None ? MySQLToken.Identifier : tok;
+            var tok = keywods.GetKeyword(stringValueUppercase);
+            token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
         }
 
         /// <summary>id is NOT included in <code>`</code>.</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanIdentifier()
         {
             if (ch == '$')
@@ -1398,8 +1380,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
         }
 
-        /// <summary>not SQL syntax</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <summary>not Sql syntax</summary>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanPlaceHolder()
         {
             offsetCache = curIndex + 1;
@@ -1413,16 +1395,16 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 ScanChar();
             }
             UpdateStringValue(sql, offsetCache, sizeCache);
-            token = MySQLToken.PlaceHolder;
+            token = MySqlToken.PlaceHolder;
         }
 
         /// <summary>id is included in <code>`</code>.</summary>
         /// <remarks>id is included in <code>`</code>. first <code>`</code> is included</remarks>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected virtual void ScanIdentifierWithAccent()
         {
             offsetCache = curIndex;
-            for (; ScanChar() != Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer.MySQLLexer.Eoi;)
+            for (; ScanChar() != Eoi;)
             {
                 if (ch == '`' && ScanChar() != '`')
                 {
@@ -1430,7 +1412,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 }
             }
             UpdateStringValue(sql, offsetCache, sizeCache = curIndex - offsetCache);
-            token = MySQLToken.Identifier;
+            token = MySqlToken.Identifier;
         }
 
         /// <summary>skip whitespace and comment</summary>
@@ -1445,7 +1427,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 {
                     case '#':
                         {
-                            // MySQL specified
+                            // MySql specified
                             for (; ScanChar() != '\n';)
                             {
                                 if (Eof())
@@ -1468,13 +1450,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                     inCStyleComment = true;
                                     inCStyleCommentIgnore = false;
                                     commentSkip = false;
-                                    // MySQL use 5 digits to indicate version. 50508 means
-                                    // MySQL 5.5.8
+                                    // MySql use 5 digits to indicate version. 50508 means
+                                    // MySql 5.5.8
                                     if (HasChars(5) && CharTypes.IsDigit(ch) && CharTypes.IsDigit(sql[curIndex + 1])
                                         && CharTypes.IsDigit(sql[curIndex + 2]) && CharTypes.IsDigit(sql[curIndex + 3])
                                         && CharTypes.IsDigit(sql[curIndex + 4]))
                                     {
-                                        int version = ch - '0';
+                                        var version = ch - '0';
                                         version *= 10;
                                         version += sql[curIndex + 1] - '0';
                                         version *= 10;
@@ -1498,7 +1480,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                 }
                                 if (commentSkip)
                                 {
-                                    for (int state = 0; !Eof(); ScanChar())
+                                    for (var state = 0; !Eof(); ScanChar())
                                     {
                                         if (state == 0)
                                         {
@@ -1514,12 +1496,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                                                 ScanChar();
                                                 break;
                                             }
-                                            else
+                                            if ('*' != ch)
                                             {
-                                                if ('*' != ch)
-                                                {
-                                                    state = 0;
-                                                }
+                                                state = 0;
                                             }
                                         }
                                     }
@@ -1532,7 +1511,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     case '-':
                         {
                             if (HasChars(3) && '-' == sql[curIndex + 1] && CharTypes.IsWhitespace(sql[curIndex
-                                 + 2]))
+                                                                                                      + 2]))
                             {
                                 ScanChar(3);
                                 for (; !Eof(); ScanChar())
@@ -1556,19 +1535,19 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             }
         }
 
-        /// <summary>always throw SQLSyntaxErrorException</summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        protected virtual SQLSyntaxErrorException Err(string msg)
+        /// <summary>always throw SqlSyntaxErrorException</summary>
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        protected virtual SqlSyntaxErrorException Err(string msg)
         {
-            string errMsg = msg + ". " + ToString();
-            throw new SQLSyntaxErrorException(errMsg);
+            var errMsg = msg + ". " + ToString();
+            throw new SqlSyntaxErrorException(errMsg);
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             sb.Append(GetType().Name).Append('@').Append(GetHashCode()).Append('{');
-            string sqlLeft = new string(sql, curIndex, sql.Length - curIndex);
+            var sqlLeft = new string(sql, curIndex, sql.Length - curIndex);
             sb.Append("curIndex=")
                 .Append(curIndex)
                 .Append(", ch=")
@@ -1584,56 +1563,49 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <summary>
-        /// <see cref="token"/>
-        /// must be
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralNumPureDigit"/>
+        ///     <see cref="token" />
+        ///     must be
+        ///     <see cref="MySqlToken.LiteralNumPureDigit" />
         /// </summary>
-        public virtual Number IntegerValue()
+        public virtual Number GetIntegerValue()
         {
             // 2147483647
             // 9223372036854775807
-            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache
-                ] == '2' && sql[offsetCache + 1] == '0'))
+            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache] == '2' && sql[offsetCache + 1] == '0'))
             {
-                int rst = 0;
-                int end = offsetCache + sizeCache;
-                for (int i = offsetCache; i < end; ++i)
+                var rst = 0;
+                var end = offsetCache + sizeCache;
+                for (var i = offsetCache; i < end; ++i)
                 {
                     rst = (rst << 3) + (rst << 1);
                     rst += sql[i] - '0';
                 }
                 return rst;
             }
-            else
+            if (sizeCache < 19 || sizeCache == 19 && sql[offsetCache] < '9')
             {
-                if (sizeCache < 19 || sizeCache == 19 && sql[offsetCache] < '9')
+                long rst = 0;
+                var end = offsetCache + sizeCache;
+                for (var i = offsetCache; i < end; ++i)
                 {
-                    long rst = 0;
-                    int end = offsetCache + sizeCache;
-                    for (int i = offsetCache; i < end; ++i)
-                    {
-                        rst = (rst << 3) + (rst << 1);
-                        rst += sql[i] - '0';
-                    }
-                    return rst;
+                    rst = (rst << 3) + (rst << 1);
+                    rst += sql[i] - '0';
                 }
-                else
-                {
-                    return BigInteger.Parse(new string(sql, offsetCache, sizeCache), 10);
-                }
+                return rst;
             }
+            return BigInteger.Parse(new string(sql, offsetCache, sizeCache), 10);
         }
 
-        public virtual BigDecimal DecimalValue()
+        public virtual BigDecimal GetDecimalValue()
         {
             // QS_TODO [performance enhance]: prevent BigDecimal's parser
             return BigDecimal.Parse(new string(sql, offsetCache, sizeCache));
         }
 
         /// <summary>
-        /// if
-        /// <see cref="StringValue()"/>
-        /// returns "'abc\\'d'", then "abc\\'d" is appended
+        ///     if
+        ///     <see cref="GetStringValue" />
+        ///     returns "'abc\\'d'", then "abc\\'d" is appended
         /// </summary>
         public virtual void AppendStringContent(StringBuilder sb)
         {
@@ -1641,32 +1613,32 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         }
 
         /// <summary>
-        /// make sense for those types of token:<br/>
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.UsrVar"/>
-        /// : e.g. "@var1", "@'mary''s'";<br/>
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.SysVar"/>
-        /// : e.g. "var2";<br/>
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralChars"/>
-        /// ,
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralNchars"/>
-        /// : e.g.
-        /// "'ab\\'c'";<br/>
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.LiteralBit"/>
-        /// : e.g. "0101" <br/>
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.Identifier"/>
+        ///     make sense for those types of token:<br />
+        ///     <see cref="MySqlToken.UsrVar" />
+        ///     : e.g. "@var1", "@'mary''s'";<br />
+        ///     <see cref="MySqlToken.SysVar" />
+        ///     : e.g. "var2";<br />
+        ///     <see cref="MySqlToken.LiteralChars" />
+        ///     ,
+        ///     <see cref="MySqlToken.LiteralNchars" />
+        ///     : e.g.
+        ///     "'ab\\'c'";<br />
+        ///     <see cref="MySqlToken.LiteralBit" />
+        ///     : e.g. "0101" <br />
+        ///     <see cref="MySqlToken.Identifier" />
         /// </summary>
-        public string StringValue()
+        public string GetStringValue()
         {
             return stringValue;
         }
 
         /// <summary>
-        /// for
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.Identifier"/>
-        /// ,
-        /// <see cref="Tup.Cobar4Net.Parser.Recognizer.Mysql.MySQLToken.SysVar"/>
+        ///     for
+        ///     <see cref="MySqlToken.Identifier" />
+        ///     ,
+        ///     <see cref="MySqlToken.SysVar" />
         /// </summary>
-        public string StringValueUppercase()
+        public string GetStringValueUppercase()
         {
             return stringValueUppercase;
         }

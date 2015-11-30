@@ -19,63 +19,54 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     MatchExpression Modifier
+    /// </summary>
+    public enum MatchModifier
+    {
+        Default = 0,
+
+        InBooleanMode,
+        InNaturalLanguageMode,
+        InNaturalLanguageModeWithQueryExpansion,
+        WithQueryExpansion
+    }
+
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class MatchExpression : PrimaryExpression
     {
-        public enum Modifier
-        {
-            Default,
-            InBooleanMode,
-            InNaturalLanguageMode,
-            InNaturalLanguageModeWithQueryExpansion,
-            WithQueryExpansion
-        }
-
-        private readonly IList<Expression> columns;
-
-        private readonly Expression pattern;
-
-        private readonly MatchExpression.Modifier modifier;
-
-        /// <param name="modifier">never null</param>
-        public MatchExpression(IList<Expression> columns, Expression pattern,
-            MatchExpression.Modifier modifier)
+        /// <param name="_matchModifier">never null</param>
+        public MatchExpression(IList<IExpression> columns, IExpression pattern,
+                               MatchModifier _matchModifier)
         {
             if (columns == null || columns.IsEmpty())
             {
-                this.columns = new List<Expression>(0);
+                Columns = new List<IExpression>(0);
             }
             else
             {
-                if (columns is List<Expression>)
+                if (columns is List<IExpression>)
                 {
-                    this.columns = columns;
+                    Columns = columns;
                 }
                 else
                 {
-                    this.columns = new List<Expression>(columns);
+                    Columns = new List<IExpression>(columns);
                 }
             }
-            this.pattern = pattern;
-            this.modifier = modifier;
+            Pattern = pattern;
+            Modifier = _matchModifier;
         }
 
-        public virtual IList<Expression> GetColumns()
-        {
-            return columns;
-        }
+        public virtual IList<IExpression> Columns { get; }
 
-        public virtual Expression GetPattern()
-        {
-            return pattern;
-        }
+        public virtual IExpression Pattern { get; }
 
-        public virtual MatchExpression.Modifier GetModifier()
-        {
-            return modifier;
-        }
+        public virtual MatchModifier Modifier { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

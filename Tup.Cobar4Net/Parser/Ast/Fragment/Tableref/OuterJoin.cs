@@ -15,15 +15,75 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
     /// <summary>left or right join</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class OuterJoin : TableReference
     {
+        /// <summary>
+        ///     for MySql, only <code>LEFT</code> and <code>RIGHT</code> outer join are
+        ///     supported
+        /// </summary>
+        private readonly bool isLeftJoin;
+
+        private OuterJoin(bool isLeftJoin,
+                          TableReference leftTableRef,
+                          TableReference rightTableRef,
+                          IExpression onCond,
+                          IList<string> @using)
+        {
+            this.isLeftJoin = isLeftJoin;
+            LeftTableRef = leftTableRef;
+            RightTableRef = rightTableRef;
+            OnCond = onCond;
+            Using = EnsureListType(@using);
+        }
+
+        public OuterJoin(bool isLeftJoin,
+                         TableReference leftTableRef,
+                         TableReference rightTableRef,
+                         IExpression onCond)
+            : this(isLeftJoin, leftTableRef, rightTableRef, onCond, null)
+        {
+        }
+
+        public OuterJoin(bool isLeftJoin,
+                         TableReference leftTableRef,
+                         TableReference rightTableRef,
+                         IList<string> @using)
+            : this(isLeftJoin, leftTableRef, rightTableRef, null, @using)
+        {
+        }
+
+        public virtual TableReference LeftTableRef { get; }
+
+        public virtual TableReference RightTableRef { get; }
+
+        public virtual IExpression OnCond { get; }
+
+        public virtual IList<string> Using { get; }
+
+        public override bool IsSingleTable
+        {
+            get { return false; }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceJoin; }
+        }
+
+        public virtual bool IsLeftJoin
+        {
+            get { return isLeftJoin; }
+        }
+
         private static IList<string> EnsureListType(IList<string> list)
         {
             if (list == null)
@@ -41,90 +101,12 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return new List<string>(list);
         }
 
-        /// <summary>
-        /// for MySQL, only <code>LEFT</code> and <code>RIGHT</code> outer join are
-        /// supported
-        /// </summary>
-        private readonly bool isLeftJoin;
-
-        private readonly TableReference leftTableRef;
-
-        private readonly TableReference rightTableRef;
-
-        private readonly Expr onCond;
-
-        private readonly IList<string> @using;
-
-        private OuterJoin(bool isLeftJoin,
-            TableReference leftTableRef,
-            TableReference rightTableRef,
-            Expr onCond,
-            IList<string> @using)
-        {
-            this.isLeftJoin = isLeftJoin;
-            this.leftTableRef = leftTableRef;
-            this.rightTableRef = rightTableRef;
-            this.onCond = onCond;
-            this.@using = EnsureListType(@using);
-        }
-
-        public OuterJoin(bool isLeftJoin,
-            TableReference leftTableRef,
-            TableReference rightTableRef,
-            Expr onCond)
-            : this(isLeftJoin, leftTableRef, rightTableRef, onCond, null)
-        {
-        }
-
-        public OuterJoin(bool isLeftJoin,
-            TableReference leftTableRef,
-            TableReference rightTableRef,
-            IList<string> @using)
-            : this(isLeftJoin, leftTableRef, rightTableRef, null, @using)
-        {
-        }
-
-        public virtual bool IsLeftJoin()
-        {
-            return isLeftJoin;
-        }
-
-        public virtual TableReference GetLeftTableRef()
-        {
-            return leftTableRef;
-        }
-
-        public virtual TableReference GetRightTableRef()
-        {
-            return rightTableRef;
-        }
-
-        public virtual Expr GetOnCond()
-        {
-            return onCond;
-        }
-
-        public virtual IList<string> GetUsing()
-        {
-            return @using;
-        }
-
         public override object RemoveLastConditionElement()
         {
             return null;
         }
 
-        public override bool IsSingleTable()
-        {
-            return false;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceJoin;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

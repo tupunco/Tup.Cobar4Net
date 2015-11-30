@@ -20,28 +20,35 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class SubqueryFactor : AliasableTableReference
     {
-        private readonly QueryExpression subquery;
-
-        public SubqueryFactor(QueryExpression subquery, string alias)
+        public SubqueryFactor(IQueryExpression subquery, string alias)
             : base(alias)
         {
             if (alias == null)
             {
-                throw new ArgumentException("alias is required for subquery factor");
+                throw new ArgumentException("alias is required for _subquery factor");
             }
             if (subquery == null)
             {
-                throw new ArgumentException("subquery is null");
+                throw new ArgumentException("_subquery is null");
             }
-            this.subquery = subquery;
+            Subquery = subquery;
         }
 
-        public virtual QueryExpression GetSubquery()
+        public virtual IQueryExpression Subquery { get; }
+
+        public override bool IsSingleTable
         {
-            return subquery;
+            get { return false; }
+        }
+
+        public override int Precedence
+        {
+            get { return PrecedenceFactor; }
         }
 
         public override object RemoveLastConditionElement()
@@ -49,17 +56,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
             return null;
         }
 
-        public override bool IsSingleTable()
-        {
-            return false;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceFactor;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -18,69 +18,45 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class NaturalJoin : TableReference
     {
-        private readonly bool isOuter;
-
-        /// <summary>
-        /// make sense only if
-        /// <see cref="isOuter"/>
-        /// is true. Eigher <code>LEFT</code> or
-        /// <code>RIGHT</code>
-        /// </summary>
-        private readonly bool isLeft;
-
-        private readonly TableReference leftTableRef;
-
-        private readonly TableReference rightTableRef;
-
         public NaturalJoin(bool isOuter, bool isLeft,
-            TableReference leftTableRef,
-            TableReference rightTableRef)
+                           TableReference leftTableRef,
+                           TableReference rightTableRef)
         {
-            this.isOuter = isOuter;
-            this.isLeft = isLeft;
-            this.leftTableRef = leftTableRef;
-            this.rightTableRef = rightTableRef;
+            IsOuter = isOuter;
+            IsLeft = isLeft;
+            LeftTableRef = leftTableRef;
+            RightTableRef = rightTableRef;
         }
 
-        public virtual bool IsOuter()
+        public virtual TableReference LeftTableRef { get; }
+
+        public virtual TableReference RightTableRef { get; }
+
+        public override bool IsSingleTable
         {
-            return isOuter;
+            get { return false; }
         }
 
-        public virtual bool IsLeft()
+        public override int Precedence
         {
-            return isLeft;
+            get { return PrecedenceJoin; }
         }
 
-        public virtual TableReference GetLeftTableRef()
-        {
-            return leftTableRef;
-        }
+        public virtual bool IsOuter { get; }
 
-        public virtual TableReference GetRightTableRef()
-        {
-            return rightTableRef;
-        }
+        public virtual bool IsLeft { get; }
 
         public override object RemoveLastConditionElement()
         {
             return null;
         }
 
-        public override bool IsSingleTable()
-        {
-            return false;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceJoin;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

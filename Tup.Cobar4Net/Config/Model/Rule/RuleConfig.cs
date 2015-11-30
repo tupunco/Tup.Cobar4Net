@@ -19,30 +19,15 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model.Rule
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class RuleConfig
     {
+        private readonly string algorithm;
         private readonly IList<string> columns;
 
-        private readonly string algorithm;
-
-        private RuleAlgorithm ruleAlgorithm;
-
-        public IList<string> Columns
-        {
-            get { return columns; }
-        }
-
-        public string Algorithm
-        {
-            get { return algorithm; }
-        }
-
-        public RuleAlgorithm RuleAlgorithm
-        {
-            get { return ruleAlgorithm; }
-            set { ruleAlgorithm = value; }
-        }
+        private IRuleAlgorithm ruleAlgorithm;
 
         public RuleConfig(string[] columns, string algorithm)
         {
@@ -56,7 +41,7 @@ namespace Tup.Cobar4Net.Config.Model.Rule
                 throw new ArgumentException("no rule column is found");
             }
             IList<string> list = new List<string>(columns.Length);
-            foreach (string column in columns)
+            foreach (var column in columns)
             {
                 if (column == null)
                 {
@@ -67,36 +52,31 @@ namespace Tup.Cobar4Net.Config.Model.Rule
             this.columns = new List<string>(list).AsReadOnly();
         }
 
-        public virtual RuleAlgorithm GetRuleAlgorithm()
+        public virtual IRuleAlgorithm RuleAlgorithm
         {
-            return ruleAlgorithm;
+            get { return ruleAlgorithm; }
+            set { ruleAlgorithm = value; }
         }
 
-        public virtual void SetRuleAlgorithm(RuleAlgorithm ruleAlgorithm)
+        /// <value>unmodifiable, upper-case</value>
+        public virtual IList<string> Columns
         {
-            this.ruleAlgorithm = ruleAlgorithm;
+            get { return columns; }
         }
 
-        /// <returns>unmodifiable, upper-case</returns>
-        public virtual IList<string> GetColumns()
+        /// <value>never null</value>
+        public virtual string Algorithm
         {
-            return columns;
-        }
-
-        /// <returns>never null</returns>
-        public virtual string GetAlgorithm()
-        {
-            return algorithm;
+            get { return algorithm; }
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[RuleConfig columns:[{0}], algorithm:{1}, ruleAlgorithm:{2}]",
-                                    string.Join(",", columns ?? new string[0]), algorithm, ruleAlgorithm);
+                string.Join(",", columns ?? new string[0]), algorithm, ruleAlgorithm);
         }
     }
 }

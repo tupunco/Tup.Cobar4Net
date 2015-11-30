@@ -16,7 +16,7 @@
 
 using System;
 using System.Collections.Generic;
-
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Arithmetic;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Bit;
@@ -29,49 +29,57 @@ using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Xml;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
+
+using Version = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info.Version;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLFunctionManager
+    /// <summary>
+    /// MySqlFunctionManager ParsingStrategy
+    /// </summary>
+    public enum FunctionParsingStrategy
     {
-        public enum FunctionParsingStrategy
-        {
-            None = 0,
+        None = 0,
 
-            Default,
-            Ordinary,
-            Cast,
-            Position,
-            Substring,
-            Trim,
-            Avg,
-            Count,
-            GroupConcat,
-            Max,
-            Min,
-            Sum,
-            Row,
-            Char,
-            Convert,
-            Extract,
-            Timestampadd,
-            Timestampdiff,
-            GetFormat
-        }
-
-        public static readonly MySQLFunctionManager InstanceMysqlDefault = new MySQLFunctionManager(false);
+        Default,
+        Ordinary,
+        Cast,
+        Position,
+        Substring,
+        Trim,
+        Avg,
+        Count,
+        GroupConcat,
+        Max,
+        Min,
+        Sum,
+        Row,
+        Char,
+        Convert,
+        Extract,
+        Timestampadd,
+        Timestampdiff,
+        GetFormat
+    }
+    
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlFunctionManager
+    {
+        public static readonly MySqlFunctionManager InstanceMysqlDefault = new MySqlFunctionManager(false);
 
         private readonly bool allowFuncDefChange;
 
-        /// <summary>non-reserved word named special syntax function</summary>
-        private readonly Dictionary<string, FunctionParsingStrategy> parsingStrateg = new Dictionary<string, FunctionParsingStrategy>();
-
         /// <summary>non-reserved word named ordinary syntax function</summary>
-        private readonly IDictionary<string, FunctionExpression> functionPrototype = new Dictionary<string, FunctionExpression>();
+        private readonly IDictionary<string, FunctionExpression> functionPrototype =
+            new Dictionary<string, FunctionExpression>();
 
-        public MySQLFunctionManager(bool allowFuncDefChange)
+        /// <summary>non-reserved word named special syntax function</summary>
+        private readonly Dictionary<string, FunctionParsingStrategy> parsingStrateg =
+            new Dictionary<string, FunctionParsingStrategy>();
+
+        public MySqlFunctionManager(bool allowFuncDefChange)
         {
             this.allowFuncDefChange = allowFuncDefChange;
             parsingStrateg["CAST"] = FunctionParsingStrategy.Cast;
@@ -108,7 +116,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["BIT_AND"] = new BitAnd(null);
             functionPrototype["BIT_COUNT"] = new BitCount(null);
             functionPrototype["BIT_LENGTH"] = new BitLength(null);
-            functionPrototype["BIT_OR"] = new BitOr(null);
+            functionPrototype["BIT_OR"] = new BitOR(null);
             functionPrototype["BIT_XOR"] = new BitXor(null);
             functionPrototype["CEIL"] = new Ceiling(null);
             functionPrototype["CEILING"] = new Ceiling(null);
@@ -156,7 +164,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["EXP"] = new Exp(null);
             functionPrototype["EXPORT_SET"] = new ExportSet(null);
             // functionPrototype.put("EXTRACT", new Extract(null));
-            functionPrototype["EXTRACTVALUE"] = new Extractvalue(null);
+            functionPrototype["EXTRACTVALUE"] = new ExtractValue(null);
             functionPrototype["FIELD"] = new Field(null);
             functionPrototype["FIND_IN_SET"] = new FindInSet(null);
             functionPrototype["FLOOR"] = new Floor(null);
@@ -170,7 +178,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["HEX"] = new Hex(null);
             functionPrototype["HOUR"] = new Hour(null);
             functionPrototype["IF"] = new IF(null);
-            functionPrototype["IFNULL"] = new Ifnull(null);
+            functionPrototype["IFNULL"] = new IFNull(null);
             functionPrototype["INET_ATON"] = new InetAton(null);
             functionPrototype["INET_NTOA"] = new InetNtoa(null);
             functionPrototype["INSERT"] = new Insert(null);
@@ -178,7 +186,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["INTERVAL"] = new Interval(null);
             functionPrototype["IS_FREE_LOCK"] = new IsFreeLock(null);
             functionPrototype["IS_USED_LOCK"] = new IsUsedLock(null);
-            functionPrototype["ISNULL"] = new Isnull(null);
+            functionPrototype["ISNULL"] = new IsNull(null);
             functionPrototype["LAST_DAY"] = new LastDay(null);
             functionPrototype["LAST_INSERT_ID"] = new LastInsertId(null);
             functionPrototype["LCASE"] = new Lower(null);
@@ -209,7 +217,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["MONTHNAME"] = new Monthname(null);
             functionPrototype["NAME_CONST"] = new NameConst(null);
             functionPrototype["NOW"] = new Now();
-            functionPrototype["NULLIF"] = new Nullif(null);
+            functionPrototype["NULLIF"] = new NullIF(null);
             functionPrototype["OCT"] = new Oct(null);
             functionPrototype["OCTET_LENGTH"] = new Length(null);
             functionPrototype["OLD_PASSWORD"] = new OldPassword(null);
@@ -247,9 +255,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["SPACE"] = new Space(null);
             functionPrototype["SQRT"] = new Sqrt(null);
             functionPrototype["STD"] = new Std(null);
-            functionPrototype["STDDEV_POP"] = new StddevPop(null);
-            functionPrototype["STDDEV_SAMP"] = new StddevSamp(null);
-            functionPrototype["STDDEV"] = new Stddev(null);
+            functionPrototype["STDDEV_POP"] = new StdDevPop(null);
+            functionPrototype["STDDEV_SAMP"] = new StdDevSamp(null);
+            functionPrototype["STDDEV"] = new StdDev(null);
             functionPrototype["STR_TO_DATE"] = new StrToDate(null);
             functionPrototype["STRCMP"] = new Strcmp(null);
             functionPrototype["SUBDATE"] = new Subdate(null);
@@ -273,7 +281,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["UNCOMPRESSED_LENGTH"] = new UncompressedLength(null);
             functionPrototype["UNHEX"] = new Unhex(null);
             functionPrototype["UNIX_TIMESTAMP"] = new UnixTimestamp(null);
-            functionPrototype["UPDATEXML"] = new Updatexml(null);
+            functionPrototype["UPDATEXML"] = new UpdateXml(null);
             functionPrototype["UPPER"] = new Upper(null);
             functionPrototype["USER"] = new User(null);
             functionPrototype["UTC_DATE"] = new UtcDate(null);
@@ -285,7 +293,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
             functionPrototype["VAR_POP"] = new VarPop(null);
             functionPrototype["VAR_SAMP"] = new VarSamp(null);
             functionPrototype["VARIANCE"] = new Variance(null);
-            functionPrototype["VERSION"] = new Ast.Expression.Primary.Function.Info.Version(null);
+            functionPrototype["VERSION"] = new Version(null);
             functionPrototype["WEEK"] = new Week(null);
             functionPrototype["WEEKDAY"] = new Weekday(null);
             functionPrototype["WEEKOFYEAR"] = new Weekofyear(null);
@@ -294,10 +302,10 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         }
 
         /// <param name="extFuncPrototypeMap">
-        /// funcName -&gt; extFunctionPrototype. funcName
-        /// MUST NOT be the same as predefined function of MySQL 5.5
+        ///     funcName -&gt; extFunctionPrototype. funcName
+        ///     MUST NOT be the same as predefined function of MySql 5.5
         /// </param>
-        /// <exception cref="System.ArgumentException"/>
+        /// <exception cref="System.ArgumentException" />
         public virtual void AddExtendFunction(IDictionary<string, FunctionExpression> extFuncPrototypeMap)
         {
             if (extFuncPrototypeMap == null || extFuncPrototypeMap.IsEmpty())
@@ -314,17 +322,17 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
                 // check extFuncPrototypeMap
                 foreach (var en in extFuncPrototypeMap)
                 {
-                    string funcName = en.Key;
+                    var funcName = en.Key;
                     if (funcName == null)
                     {
                         continue;
                     }
-                    string funcNameUp = funcName.ToUpper();
+                    var funcNameUp = funcName.ToUpper();
                     if (functionPrototype.ContainsKey(funcNameUp))
                     {
-                        throw new ArgumentException("ext-function '" + funcName + "' is MySQL's predefined function!");
+                        throw new ArgumentException("ext-function '" + funcName + "' is MySql's predefined function!");
                     }
-                    FunctionExpression func = en.Value;
+                    var func = en.Value;
                     if (func == null)
                     {
                         throw new ArgumentException("ext-function '" + funcName + "' is null!");
@@ -336,14 +344,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         }
 
         /// <returns>null if</returns>
-        public virtual FunctionExpression CreateFunctionExpression(string funcNameUpcase, IList<Expr> arguments)
+        public virtual FunctionExpression CreateFunctionExpression(string funcNameUpcase, IList<IExpression> arguments)
         {
             var prototype = functionPrototype.GetValue(funcNameUpcase);
             if (prototype == null)
             {
                 return null;
             }
-            FunctionExpression func = prototype.ConstructFunction(arguments);
+            var func = prototype.ConstructFunction(arguments);
             func.Init();
             return func;
         }

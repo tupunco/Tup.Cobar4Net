@@ -19,40 +19,32 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class SysVarPrimary : VariableExpression
     {
-        private readonly VariableScope scope;
-
         /// <summary>excluding starting "@@", '`' might be included</summary>
         private readonly string varText;
 
-        private readonly string varTextUp;
-
         public SysVarPrimary(VariableScope scope, string varText, string varTextUp)
         {
-            this.scope = scope;
+            Scope = scope;
             this.varText = varText;
-            this.varTextUp = varTextUp;
+            VarTextUp = varTextUp;
         }
 
-        /// <returns>never null</returns>
-        public virtual VariableScope GetScope()
+        /// <value>never null</value>
+        public virtual VariableScope Scope { get; }
+
+        public virtual string VarTextUp { get; }
+
+        public virtual string VarText
         {
-            return scope;
+            get { return varText; }
         }
 
-        public virtual string GetVarTextUp()
-        {
-            return varTextUp;
-        }
-
-        public virtual string GetVarText()
-        {
-            return varText;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

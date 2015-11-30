@@ -4,12 +4,15 @@ using System.Text.RegularExpressions;
 
 namespace Tup.Cobar4Net.Parser
 {
+    /// <summary>
+    /// SystemUtils
+    /// </summary>
     public static class SystemUtils
     {
         private static readonly Regex s_EnumNameMapping_Reg = new Regex(@"([a-z])([A-Z])");
 
         /// <summary>
-        /// Get Enum NameValueMapping
+        ///     Get Enum NameValueMapping
         /// </summary>
         /// <typeparam name="TEnum"></typeparam>
         /// <returns></returns>
@@ -17,20 +20,21 @@ namespace Tup.Cobar4Net.Parser
             where TEnum : struct
         {
             var keywords = new Dictionary<string, TEnum>();
-            var values = (TEnum[])Enum.GetValues(typeof(TEnum));
-            var names = Enum.GetNames(typeof(TEnum));
+            var values = (TEnum[]) Enum.GetValues(typeof (TEnum));
+            var names = Enum.GetNames(typeof (TEnum));
             var name = string.Empty;
 
             var prefixLen = (prefix ?? string.Empty).Length;
             var hasPrefix = prefixLen > 0;
-            for (int i = 0; i < names.Length; i++)
+            for (var i = 0; i < names.Length; i++)
             {
                 name = names[i];
                 if (hasPrefix)
                 {
                     if (name.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
                     {
-                        keywords.Add(s_EnumNameMapping_Reg.Replace(name.Substring(prefixLen), "$1_$2").ToUpper(), values[i]);
+                        keywords.Add(s_EnumNameMapping_Reg.Replace(name.Substring(prefixLen), "$1_$2").ToUpper(),
+                            values[i]);
                     }
                 }
                 else
@@ -41,8 +45,8 @@ namespace Tup.Cobar4Net.Parser
             keywords.Remove("NONE");
             return keywords;
         }
+
         /// <summary>
-        /// 
         /// </summary>
         /// <typeparam name="TEnum"></typeparam>
         /// <param name="value"></param>

@@ -16,6 +16,7 @@
 
 using System;
 using System.Text;
+using Sharpen;
 
 namespace Tup.Cobar4Net.Util
 {
@@ -26,17 +27,20 @@ namespace Tup.Cobar4Net.Util
 
         private static readonly Random Random = new Random();
 
-        private static readonly char[] Chars = new char[] { '1', '2', '3', '4', '5', '6',
+        private static readonly char[] Chars =
+        {
+            '1', '2', '3', '4', '5', '6',
             '7', '8', '9', '0', 'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's',
             'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', 'Q', 'W',
             'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P', 'A', 'S', 'D', 'F', 'G', 'H', 'J', 'K',
-            'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M' };
+            'L', 'Z', 'X', 'C', 'V', 'B', 'N', 'M'
+        };
 
         /// <summary>字符串hash算法：s[0]*31^(n-1) + s[1]*31^(n-2) + ...</summary>
         /// <remarks>
-        /// 字符串hash算法：s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1] <br />
-        /// 其中s[]为字符串的字符数组，换算成程序的表达式为：<br />
-        /// h = 31*h + s.charAt(i); =&gt; h = (h <&lt; 5) - h + s.charAt(i); &lt;br>
+        ///     字符串hash算法：s[0]*31^(n-1) + s[1]*31^(n-2) + ... + s[n-1] <br />
+        ///     其中s[]为字符串的字符数组，换算成程序的表达式为：<br />
+        ///     h = 31*h + s.charAt(i); =&gt; h = (h <&lt; 5) - h + s.charAt( i); & lt; br>
         /// </remarks>
         /// <param name="start">hash for s.substring(start, end)</param>
         /// <param name="end">hash for s.substring(start, end)</param>
@@ -51,7 +55,7 @@ namespace Tup.Cobar4Net.Util
                 end = s.Length;
             }
             long h = 0;
-            for (int i = start; i < end; ++i)
+            for (var i = start; i < end; ++i)
             {
                 h = (h << 5) - h + s[i];
             }
@@ -66,11 +70,11 @@ namespace Tup.Cobar4Net.Util
             }
             try
             {
-                return Sharpen.Runtime.GetBytesForString(src, charset);
+                return Runtime.GetBytesForString(src, charset);
             }
             catch (EncoderFallbackException)
             {
-                return Sharpen.Runtime.GetBytesForString(src);
+                return Runtime.GetBytesForString(src);
             }
         }
 
@@ -83,22 +87,22 @@ namespace Tup.Cobar4Net.Util
         {
             try
             {
-                return Sharpen.Runtime.GetStringForBytes(src, offset, length, charset);
+                return Runtime.GetStringForBytes(src, offset, length, charset);
             }
             catch (EncoderFallbackException)
             {
-                return Sharpen.Runtime.GetStringForBytes(src, offset, length);
+                return Runtime.GetStringForBytes(src, offset, length);
             }
         }
 
         public static string GetRandomString(int size)
         {
-            StringBuilder s = new StringBuilder(size);
-            int len = Chars.Length;
-            for (int i = 0; i < size; i++)
+            var s = new StringBuilder(size);
+            var len = Chars.Length;
+            for (var i = 0; i < size; i++)
             {
-                int x = Random.Next();
-                s.Append(Chars[(x < 0 ? -x : x) % len]);
+                var x = Random.Next();
+                s.Append(Chars[(x < 0 ? -x : x)%len]);
             }
             return s.ToString();
         }
@@ -117,7 +121,7 @@ namespace Tup.Cobar4Net.Util
 
         public static bool IsEmpty(string str)
         {
-            return ((str == null) || (str.Length == 0));
+            return (str == null) || (str.Length == 0);
         }
 
         public static byte[] HexString2Bytes(char[] hexString, int offset, int length)
@@ -130,8 +134,8 @@ namespace Tup.Cobar4Net.Util
             {
                 return EmptyByteArray;
             }
-            bool odd = length << 31 == int.MinValue;
-            byte[] bs = new byte[odd ? (length + 1) >> 1 : length >> 1];
+            var odd = length << 31 == int.MinValue;
+            var bs = new byte[odd ? (length + 1) >> 1 : length >> 1];
             for (int i = offset, limit = offset + length; i < limit; ++i)
             {
                 char high;
@@ -150,221 +154,221 @@ namespace Tup.Cobar4Net.Util
                 switch (high)
                 {
                     case '0':
-                        {
-                            b = 0;
-                            break;
-                        }
+                    {
+                        b = 0;
+                        break;
+                    }
 
                     case '1':
-                        {
-                            b = unchecked((int)(0x10));
-                            break;
-                        }
+                    {
+                        b = 0x10;
+                        break;
+                    }
 
                     case '2':
-                        {
-                            b = unchecked((int)(0x20));
-                            break;
-                        }
+                    {
+                        b = 0x20;
+                        break;
+                    }
 
                     case '3':
-                        {
-                            b = unchecked((int)(0x30));
-                            break;
-                        }
+                    {
+                        b = 0x30;
+                        break;
+                    }
 
                     case '4':
-                        {
-                            b = unchecked((int)(0x40));
-                            break;
-                        }
+                    {
+                        b = 0x40;
+                        break;
+                    }
 
                     case '5':
-                        {
-                            b = unchecked((int)(0x50));
-                            break;
-                        }
+                    {
+                        b = 0x50;
+                        break;
+                    }
 
                     case '6':
-                        {
-                            b = unchecked((int)(0x60));
-                            break;
-                        }
+                    {
+                        b = 0x60;
+                        break;
+                    }
 
                     case '7':
-                        {
-                            b = unchecked((int)(0x70));
-                            break;
-                        }
+                    {
+                        b = 0x70;
+                        break;
+                    }
 
                     case '8':
-                        {
-                            b = unchecked((int)(0x80));
-                            break;
-                        }
+                    {
+                        b = 0x80;
+                        break;
+                    }
 
                     case '9':
-                        {
-                            b = unchecked((int)(0x90));
-                            break;
-                        }
+                    {
+                        b = 0x90;
+                        break;
+                    }
 
                     case 'a':
                     case 'A':
-                        {
-                            b = unchecked((int)(0xa0));
-                            break;
-                        }
+                    {
+                        b = 0xa0;
+                        break;
+                    }
 
                     case 'b':
                     case 'B':
-                        {
-                            b = unchecked((int)(0xb0));
-                            break;
-                        }
+                    {
+                        b = 0xb0;
+                        break;
+                    }
 
                     case 'c':
                     case 'C':
-                        {
-                            b = unchecked((int)(0xc0));
-                            break;
-                        }
+                    {
+                        b = 0xc0;
+                        break;
+                    }
 
                     case 'd':
                     case 'D':
-                        {
-                            b = unchecked((int)(0xd0));
-                            break;
-                        }
+                    {
+                        b = 0xd0;
+                        break;
+                    }
 
                     case 'e':
                     case 'E':
-                        {
-                            b = unchecked((int)(0xe0));
-                            break;
-                        }
+                    {
+                        b = 0xe0;
+                        break;
+                    }
 
                     case 'f':
                     case 'F':
-                        {
-                            b = unchecked((int)(0xf0));
-                            break;
-                        }
+                    {
+                        b = 0xf0;
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
-                                , length));
-                        }
+                    {
+                        throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
+                            , length));
+                    }
                 }
                 switch (low)
                 {
                     case '0':
-                        {
-                            break;
-                        }
+                    {
+                        break;
+                    }
 
                     case '1':
-                        {
-                            b += 1;
-                            break;
-                        }
+                    {
+                        b += 1;
+                        break;
+                    }
 
                     case '2':
-                        {
-                            b += 2;
-                            break;
-                        }
+                    {
+                        b += 2;
+                        break;
+                    }
 
                     case '3':
-                        {
-                            b += 3;
-                            break;
-                        }
+                    {
+                        b += 3;
+                        break;
+                    }
 
                     case '4':
-                        {
-                            b += 4;
-                            break;
-                        }
+                    {
+                        b += 4;
+                        break;
+                    }
 
                     case '5':
-                        {
-                            b += 5;
-                            break;
-                        }
+                    {
+                        b += 5;
+                        break;
+                    }
 
                     case '6':
-                        {
-                            b += 6;
-                            break;
-                        }
+                    {
+                        b += 6;
+                        break;
+                    }
 
                     case '7':
-                        {
-                            b += 7;
-                            break;
-                        }
+                    {
+                        b += 7;
+                        break;
+                    }
 
                     case '8':
-                        {
-                            b += 8;
-                            break;
-                        }
+                    {
+                        b += 8;
+                        break;
+                    }
 
                     case '9':
-                        {
-                            b += 9;
-                            break;
-                        }
+                    {
+                        b += 9;
+                        break;
+                    }
 
                     case 'a':
                     case 'A':
-                        {
-                            b += 10;
-                            break;
-                        }
+                    {
+                        b += 10;
+                        break;
+                    }
 
                     case 'b':
                     case 'B':
-                        {
-                            b += 11;
-                            break;
-                        }
+                    {
+                        b += 11;
+                        break;
+                    }
 
                     case 'c':
                     case 'C':
-                        {
-                            b += 12;
-                            break;
-                        }
+                    {
+                        b += 12;
+                        break;
+                    }
 
                     case 'd':
                     case 'D':
-                        {
-                            b += 13;
-                            break;
-                        }
+                    {
+                        b += 13;
+                        break;
+                    }
 
                     case 'e':
                     case 'E':
-                        {
-                            b += 14;
-                            break;
-                        }
+                    {
+                        b += 14;
+                        break;
+                    }
 
                     case 'f':
                     case 'F':
-                        {
-                            b += 15;
-                            break;
-                        }
+                    {
+                        b += 15;
+                        break;
+                    }
 
                     default:
-                        {
-                            throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
-                                , length));
-                        }
+                    {
+                        throw new ArgumentException("illegal hex-string: " + new string(hexString, offset
+                            , length));
+                    }
                 }
                 bs[(i - offset) >> 1] = unchecked((byte)b);
             }
@@ -373,15 +377,15 @@ namespace Tup.Cobar4Net.Util
 
         public static string DumpAsHex(byte[] src, int length)
         {
-            StringBuilder @out = new StringBuilder(length * 4);
-            int p = 0;
-            int rows = length / 8;
-            for (int i = 0; (i < rows) && (p < length); i++)
+            var @out = new StringBuilder(length*4);
+            var p = 0;
+            var rows = length/8;
+            for (var i = 0; (i < rows) && (p < length); i++)
             {
-                int ptemp = p;
-                for (int j = 0; j < 8; j++)
+                var ptemp = p;
+                for (var j = 0; j < 8; j++)
                 {
-                    string hexVal = Sharpen.Extensions.ToHexString(src[ptemp] & unchecked((int)(0xff)));
+                    var hexVal = Extensions.ToHexString(src[ptemp] & 0xff);
                     if (hexVal.Length == 1)
                     {
                         @out.Append('0');
@@ -390,9 +394,9 @@ namespace Tup.Cobar4Net.Util
                     ptemp++;
                 }
                 @out.Append("    ");
-                for (int j_1 = 0; j_1 < 8; j_1++)
+                for (var j_1 = 0; j_1 < 8; j_1++)
                 {
-                    int b = unchecked((int)(0xff)) & src[p];
+                    var b = 0xff & src[p];
                     if (b > 32 && b < 127)
                     {
                         @out.Append((char)b).Append(' ');
@@ -405,10 +409,10 @@ namespace Tup.Cobar4Net.Util
                 }
                 @out.Append('\n');
             }
-            int n = 0;
-            for (int i_1 = p; i_1 < length; i_1++)
+            var n = 0;
+            for (var i_1 = p; i_1 < length; i_1++)
             {
-                string hexVal = Sharpen.Extensions.ToHexString(src[i_1] & unchecked((int)(0xff)));
+                var hexVal = Extensions.ToHexString(src[i_1] & 0xff);
                 if (hexVal.Length == 1)
                 {
                     @out.Append('0');
@@ -416,14 +420,14 @@ namespace Tup.Cobar4Net.Util
                 @out.Append(hexVal).Append(' ');
                 n++;
             }
-            for (int i_2 = n; i_2 < 8; i_2++)
+            for (var i_2 = n; i_2 < 8; i_2++)
             {
                 @out.Append("   ");
             }
             @out.Append("    ");
-            for (int i_3 = p; i_3 < length; i_3++)
+            for (var i_3 = p; i_3 < length; i_3++)
             {
-                int b = unchecked((int)(0xff)) & src[i_3];
+                var b = 0xff & src[i_3];
                 if (b > 32 && b < 127)
                 {
                     @out.Append((char)b).Append(' ');
@@ -529,7 +533,7 @@ namespace Tup.Cobar4Net.Util
                 return string.Empty;
             }
             var buffer = new StringBuilder();
-            foreach (byte byt in bytes)
+            foreach (var byt in bytes)
             {
                 buffer.Append((char)byt);
             }
@@ -542,7 +546,7 @@ namespace Tup.Cobar4Net.Util
             {
                 return str2 == null;
             }
-            return Sharpen.Runtime.EqualsIgnoreCase(str1, str2);
+            return Runtime.EqualsIgnoreCase(str1, str2);
         }
 
         public static int CountChar(string str, char c)
@@ -551,9 +555,9 @@ namespace Tup.Cobar4Net.Util
             {
                 return 0;
             }
-            int len = str.Length;
-            int cnt = 0;
-            for (int i = 0; i < len; ++i)
+            var len = str.Length;
+            var cnt = 0;
+            for (var i = 0; i < len; ++i)
             {
                 if (c == str[i])
                 {
@@ -581,18 +585,18 @@ namespace Tup.Cobar4Net.Util
                 return text;
             }
             var buf = new StringBuilder(text.Length);
-            int start = 0;
-            int end = 0;
+            var start = 0;
+            var end = 0;
             while ((end = text.IndexOf(repl, start, StringComparison.Ordinal)) != -1)
             {
-                buf.Append(Sharpen.Runtime.Substring(text, start, end)).Append(with);
+                buf.Append(Runtime.Substring(text, start, end)).Append(with);
                 start = end + repl.Length;
                 if (--max == 0)
                 {
                     break;
                 }
             }
-            buf.Append(Sharpen.Runtime.Substring(text, start));
+            buf.Append(Runtime.Substring(text, start));
             return buf.ToString();
         }
 
@@ -608,21 +612,21 @@ namespace Tup.Cobar4Net.Util
         public static string ReplaceChars(string str, string searchChars, string replaceChars)
         {
             if ((str == null) || (str.Length == 0) || (searchChars == null) || (searchChars.Length
-                 == 0))
+                                                                                == 0))
             {
                 return str;
             }
-            char[] chars = str.ToCharArray();
-            int len = chars.Length;
-            bool modified = false;
+            var chars = str.ToCharArray();
+            var len = chars.Length;
+            var modified = false;
             for (int i = 0, isize = searchChars.Length; i < isize; i++)
             {
-                char searchChar = searchChars[i];
+                var searchChar = searchChars[i];
                 if ((replaceChars == null) || (i >= replaceChars.Length))
                 {
                     // 删除
-                    int pos = 0;
-                    for (int j = 0; j < len; j++)
+                    var pos = 0;
+                    for (var j = 0; j < len; j++)
                     {
                         if (chars[j] != searchChar)
                         {
@@ -638,7 +642,7 @@ namespace Tup.Cobar4Net.Util
                 else
                 {
                     // 替换
-                    for (int j = 0; j < len; j++)
+                    for (var j = 0; j < len; j++)
                     {
                         if (chars[j] == searchChar)
                         {

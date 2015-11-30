@@ -18,32 +18,32 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.String
 {
-    /// <summary><code>higherPreExpr 'NOT'? 'LIKE' higherPreExpr ('ESCAPE' higherPreExpr)?</code>
-    /// 	</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherPreExpr 'NOT'? 'LIKE' higherPreExpr ('ESCAPE' higherPreExpr)?</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LikeExpression : TernaryOperatorExpression
     {
-        private readonly bool not;
-
         /// <param name="escape">null is no ESCAPE</param>
-        public LikeExpression(bool not, Expression comparee, Expression pattern, Expression
-             escape)
+        public LikeExpression(bool not,
+            IExpression comparee,
+            IExpression pattern,
+            IExpression escape)
             : base(comparee, pattern, escape)
         {
-            this.not = not;
+            IsNot = not;
         }
 
-        public virtual bool IsNot()
+        public virtual bool IsNot { get; }
+
+        public override int Precedence
         {
-            return not;
+            get { return ExpressionConstants.PrecedenceComparision; }
         }
 
-        public override int GetPrecedence()
-        {
-            return ExpressionConstants.PrecedenceComparision;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

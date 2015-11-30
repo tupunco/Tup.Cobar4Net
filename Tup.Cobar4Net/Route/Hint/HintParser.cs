@@ -14,14 +14,16 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
 using System.Text;
+using Sharpen;
 
 namespace Tup.Cobar4Net.Route.Hint
 {
     /// <summary>Stateless</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class HintParser
     {
         protected internal static bool IsDigit(char c)
@@ -38,29 +40,29 @@ namespace Tup.Cobar4Net.Route.Hint
                 case '7':
                 case '8':
                 case '9':
-                    {
-                        return true;
-                    }
+                {
+                    return true;
+                }
 
                 default:
-                    {
-                        return false;
-                    }
+                {
+                    return false;
+                }
             }
         }
 
         /// <summary>
-        /// hint's
-        /// <see cref="CobarHint.GetCurrentIndex()"/>
-        /// will be changed to index of
-        /// next char after process
+        ///     hint's
+        ///     <see cref="CobarHint.GetCurrentIndex()" />
+        ///     will be changed to index of
+        ///     next char after process
         /// </summary>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public abstract void Process(CobarHint hint, string hintName, string sql);
 
         private void SkipSpace(CobarHint hint, string sql)
         {
-            int ci = hint.GetCurrentIndex();
+            var ci = hint.CurrentIndex;
             for (;;)
             {
                 switch (sql[ci])
@@ -69,24 +71,25 @@ namespace Tup.Cobar4Net.Route.Hint
                     case '\t':
                     case '\n':
                     case '\r':
-                        {
-                            hint.IncreaseCurrentIndex();
-                            ++ci;
-                            break;
-                        }
+                    {
+                        hint.IncreaseCurrentIndex();
+                        ++ci;
+                        break;
+                    }
                     default:
-                        {
-                            goto skip_break;
-                        }
+                    {
+                        goto skip_break;
+                    }
                 }
             }
-        skip_break:;
+            skip_break:
+            ;
         }
 
         protected internal virtual char CurrentChar(CobarHint hint, string sql)
         {
             SkipSpace(hint, sql);
-            return sql[hint.GetCurrentIndex()];
+            return sql[hint.CurrentIndex];
         }
 
         /// <summary>current char is not separator</summary>
@@ -94,68 +97,68 @@ namespace Tup.Cobar4Net.Route.Hint
         {
             SkipSpace(hint, sql);
             SkipSpace(hint.IncreaseCurrentIndex(), sql);
-            return sql[hint.GetCurrentIndex()];
+            return sql[hint.CurrentIndex];
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         protected internal virtual object ParsePrimary(CobarHint hint, string sql)
         {
-            char c = CurrentChar(hint, sql);
-            int ci = hint.GetCurrentIndex();
+            var c = CurrentChar(hint, sql);
+            var ci = hint.CurrentIndex;
             switch (c)
             {
                 case '\'':
+                {
+                    var sb = new StringBuilder();
+                    for (++ci;; ++ci)
                     {
-                        var sb = new StringBuilder();
-                        for (++ci; ; ++ci)
+                        c = sql[ci];
+                        switch (c)
                         {
-                            c = sql[ci];
-                            switch (c)
+                            case '\'':
                             {
-                                case '\'':
-                                    {
-                                        hint.SetCurrentIndex(ci + 1);
-                                        return sb.ToString();
-                                    }
+                                hint.CurrentIndex = ci + 1;
+                                return sb.ToString();
+                            }
 
-                                case '\\':
-                                    {
-                                        c = sql[++ci];
-                                        goto default;
-                                    }
+                            case '\\':
+                            {
+                                c = sql[++ci];
+                                goto default;
+                            }
 
-                                default:
-                                    {
-                                        sb.Append(c);
-                                        break;
-                                    }
+                            default:
+                            {
+                                sb.Append(c);
+                                break;
                             }
                         }
-#pragma warning disable CS0162 // 检测到无法访问的代码
-                        goto case 'n';
-#pragma warning restore CS0162 // 检测到无法访问的代码
                     }
+#pragma warning disable CS0162 // 检测到无法访问的代码
+                    goto case 'n';
+#pragma warning restore CS0162 // 检测到无法访问的代码
+                }
 
                 case 'n':
                 case 'N':
-                    {
-                        hint.SetCurrentIndex(ci + "null".Length);
-                        return null;
-                    }
+                {
+                    hint.CurrentIndex = ci + "null".Length;
+                    return null;
+                }
 
                 default:
+                {
+                    if (IsDigit(c))
                     {
-                        if (IsDigit(c))
+                        var start = ci++;
+                        for (; IsDigit(sql[ci]); ++ci)
                         {
-                            int start = ci++;
-                            for (; IsDigit(sql[ci]); ++ci)
-                            {
-                            }
-                            hint.SetCurrentIndex(ci);
-                            return long.Parse(Runtime.Substring(sql, start, ci));
                         }
-                        throw new SQLSyntaxErrorException("unknown primary in hint: " + sql);
+                        hint.CurrentIndex = ci;
+                        return long.Parse(Runtime.Substring(sql, start, ci));
                     }
+                    throw new SqlSyntaxErrorException("unknown primary in hint: " + sql);
+                }
             }
         }
     }

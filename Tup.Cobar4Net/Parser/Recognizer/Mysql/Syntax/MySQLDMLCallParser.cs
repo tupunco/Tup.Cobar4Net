@@ -15,61 +15,63 @@
 */
 
 using System.Collections.Generic;
-using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dml;
 using Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MySQLDMLCallParser : MySQLDMLParser
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class MySqlDmlCallParser : MySqlDmlParser
     {
-        public MySQLDMLCallParser(MySQLLexer lexer, MySQLExprParser exprParser)
+        public MySqlDmlCallParser(MySqlLexer lexer, MySqlExprParser exprParser)
             : base(lexer, exprParser)
         {
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public virtual DMLCallStatement Call()
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public virtual DmlCallStatement Call()
         {
-            Match(MySQLToken.KwCall);
-            Identifier procedure = Identifier();
-            Match(MySQLToken.PuncLeftParen);
-            if (lexer.Token() == MySQLToken.PuncRightParen)
+            Match(MySqlToken.KwCall);
+            var procedure = Identifier();
+            Match(MySqlToken.PuncLeftParen);
+            if (lexer.Token() == MySqlToken.PuncRightParen)
             {
                 lexer.NextToken();
-                return new DMLCallStatement(procedure);
+                return new DmlCallStatement(procedure);
             }
-            IList<Tup.Cobar4Net.Parser.Ast.Expression.Expression> arguments;
-            Tup.Cobar4Net.Parser.Ast.Expression.Expression expr = exprParser.Expression();
+            IList<IExpression> arguments;
+            var expr = exprParser.Expression();
             switch (lexer.Token())
             {
-                case MySQLToken.PuncComma:
-                    {
-                        arguments = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>();
-                        arguments.Add(expr);
-                        for (; lexer.Token() == MySQLToken.PuncComma;)
-                        {
-                            lexer.NextToken();
-                            expr = exprParser.Expression();
-                            arguments.Add(expr);
-                        }
-                        Match(MySQLToken.PuncRightParen);
-                        return new DMLCallStatement(procedure, arguments);
-                    }
-
-                case MySQLToken.PuncRightParen:
+                case MySqlToken.PuncComma:
+                {
+                    arguments = new List<IExpression>();
+                    arguments.Add(expr);
+                    for (; lexer.Token() == MySqlToken.PuncComma;)
                     {
                         lexer.NextToken();
-                        arguments = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>(1);
+                        expr = exprParser.Expression();
                         arguments.Add(expr);
-                        return new DMLCallStatement(procedure, arguments);
                     }
+                    Match(MySqlToken.PuncRightParen);
+                    return new DmlCallStatement(procedure, arguments);
+                }
+
+                case MySqlToken.PuncRightParen:
+                {
+                    lexer.NextToken();
+                    arguments = new List<IExpression>(1);
+                    arguments.Add(expr);
+                    return new DmlCallStatement(procedure, arguments);
+                }
 
                 default:
-                    {
-                        throw Err("expect ',' or ')' after first argument of procedure");
-                    }
+                {
+                    throw Err("expect ',' or ')' after first argument of procedure");
+                }
             }
         }
     }

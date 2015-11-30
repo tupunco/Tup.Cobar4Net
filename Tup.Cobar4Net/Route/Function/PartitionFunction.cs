@@ -14,68 +14,62 @@
 * limitations under the License.
 */
 
+using System;
 using System.Collections.Generic;
-
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
 using Tup.Cobar4Net.Route.Util;
 using Tup.Cobar4Net.Util;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Route.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class PartitionFunction : FunctionExpression
     {
-        public PartitionFunction(string functionName, IList<Expr> arguments)
+        protected internal int[] Count;
+
+        protected internal int[] Length;
+
+        protected internal PartitionUtil PartitionUtil;
+
+        protected PartitionFunction(string functionName, IList<IExpression> arguments)
             : base(functionName, arguments)
         {
         }
 
-        protected internal int[] count;
-
-        protected internal int[] length;
-
-        protected internal PartitionUtil partitionUtil;
-
-        public string PartitionCount
+        public virtual string PartitionCount
         {
-            get { return string.Join(",", count); }
-            set { SetPartitionCount(value); }
-        }
-        public virtual void SetPartitionCount(string partitionCount)
-        {
-            this.count = ToIntArray(partitionCount);
+            get { return string.Join(",", Count); }
+            set { Count = ToIntArray(value); }
         }
 
-        public string PartitionLength
+        public virtual string PartitionLength
         {
-            get { return string.Join(",", length); }
-            set { SetPartitionLength(value); }
-        }
-        public virtual void SetPartitionLength(string partitionLength)
-        {
-            this.length = ToIntArray(partitionLength);
+            get { return string.Join(",", Length); }
+            set { Length = ToIntArray(value); }
         }
 
         private static int[] ToIntArray(string @string)
         {
-            string[] strs = SplitUtil.Split(@string, ',', true);
-            int[] ints = new int[strs.Length];
-            for (int i = 0; i < strs.Length; ++i)
+            var strs = SplitUtil.Split(@string, ',', true);
+            var ints = new int[strs.Length];
+            for (var i = 0; i < strs.Length; ++i)
             {
-                ints[i] = System.Convert.ToInt32(strs[i]);
+                ints[i] = Convert.ToInt32(strs[i]);
             }
             return ints;
         }
 
         public override void Init()
         {
-            partitionUtil = new PartitionUtil(count, length);
+            PartitionUtil = new PartitionUtil(Count, Length);
         }
 
         protected internal virtual int PartitionIndex(long hash)
         {
-            return partitionUtil.Partition(hash);
+            return PartitionUtil.Partition(hash);
         }
 
         protected abstract override object EvaluationInternal(IDictionary<object, object> parameters);

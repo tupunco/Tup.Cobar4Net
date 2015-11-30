@@ -15,14 +15,63 @@
 */
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Text;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Identifier : PrimaryExpression
     {
+        /// <summary>trim not happen because parent in given level is not exist</summary>
+        public const int ParentAbsent = 0;
+
+        /// <summary>trim happen</summary>
+        public const int ParentTrimed = 1;
+
+        /// <summary>trim not happen because parent in given not equals to given name</summary>
+        public const int ParentIgnored = 2;
+
+        /// <summary>e.g.</summary>
+        /// <remarks>e.g. "id1", "`id1`"</remarks>
+        protected readonly string idText;
+
+        protected readonly string idTextUpUnescape;
+
+        /// <summary>null if no parent</summary>
+        protected Identifier parent;
+
+        public Identifier(Identifier parent, string idText)
+            : this(parent, idText, idText.ToUpper())
+        {
+        }
+
+        public Identifier(Identifier parent, string idText, string idTextUp)
+        {
+            this.parent = parent;
+            this.idText = idText;
+            idTextUpUnescape = UnescapeName(idTextUp);
+        }
+
+        public virtual Identifier Parent
+        {
+            set { parent = value; }
+            get { return parent; }
+        }
+
+        public virtual string IdText
+        {
+            get { return idText; }
+        }
+
+        public virtual string IdTextUpUnescape
+        {
+            get { return idTextUpUnescape; }
+        }
+
         public static string UnescapeName(string name)
         {
             return UnescapeName(name, false);
@@ -40,15 +89,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             }
             if (name[name.Length - 1] != '`')
             {
-                throw new ArgumentException("id start with a '`' must end with a '`', id: " + name
-                    );
+                throw new ArgumentException("id start with a '`' must end with a '`', id: " + name);
             }
-            StringBuilder sb = new StringBuilder(name.Length - 2);
-            int endIndex = name.Length - 1;
-            bool hold = false;
-            for (int i = 1; i < endIndex; ++i)
+            var sb = new StringBuilder(name.Length - 2);
+            var endIndex = name.Length - 1;
+            var hold = false;
+            for (var i = 1; i < endIndex; ++i)
             {
-                char c = name[i];
+                var c = name[i];
                 if (c == '`' && !hold)
                 {
                     hold = true;
@@ -64,31 +112,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return sb.ToString();
         }
 
-        /// <summary>null if no parent</summary>
-        protected Identifier parent = null;
-
-        /// <summary>e.g.</summary>
-        /// <remarks>e.g. "id1", "`id1`"</remarks>
-        protected readonly string idText;
-
-        protected readonly string idTextUpUnescape;
-
-        public Identifier(Identifier parent, string idText)
-            : this(parent, idText, idText.ToUpper())
-        {
-        }
-
-        public Identifier(Identifier parent, string idText, string idTextUp)
-        {
-            this.parent = parent;
-            this.idText = idText;
-            this.idTextUpUnescape = UnescapeName(idTextUp);
-        }
-
         public virtual string GetLevelUnescapeUpName(int level)
         {
-            Identifier id = this;
-            for (int i = level; i > 1 && id != null; --i)
+            var id = this;
+            for (var i = level; i > 1 && id != null; --i)
             {
                 id = id.parent;
             }
@@ -99,35 +126,25 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return null;
         }
 
-        /// <summary>trim not happen because parent in given level is not exist</summary>
-        public const int ParentAbsent = 0;
-
-        /// <summary>trim happen</summary>
-        public const int ParentTrimed = 1;
-
-        /// <summary>trim not happen because parent in given not equals to given name</summary>
-        public const int ParentIgnored = 2;
-
         /// <param name="level">
-        /// At most how many levels left after trim, must be a positive
-        /// integer. e.g. level = 2 for "schema1.tb1.c1", "tb1.c1" is left
+        ///     At most how many levels left after trim, must be a positive
+        ///     integer. e.g. level = 2 for "schema1.tb1.c1", "tb1.c1" is left
         /// </param>
         /// <param name="trimSchema">
-        /// upper-case. Assumed that top trimmed parent is schema,
-        /// if that equals given schema, do not trim
+        ///     upper-case. Assumed that top trimmed parent is schema,
+        ///     if that equals given schema, do not trim
         /// </param>
         /// <returns>
-        ///
-        /// <see cref="ParentAbsent"/>
-        /// or
-        /// <see cref="ParentTrimed"/>
-        /// or
-        /// <see cref="ParentIgnored"/>
+        ///     <see cref="ParentAbsent" />
+        ///     or
+        ///     <see cref="ParentTrimed" />
+        ///     or
+        ///     <see cref="ParentIgnored" />
         /// </returns>
         public virtual int TrimParent(int level, string trimSchema)
         {
-            Identifier id = this;
-            for (int i = 1; i < level; ++i)
+            var id = this;
+            for (var i = 1; i < level; ++i)
             {
                 if (id.parent == null)
                 {
@@ -143,37 +160,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             {
                 return ParentIgnored;
             }
-            else
-            {
-                id.parent = null;
-                return ParentTrimed;
-            }
-        }
-
-        public virtual void SetParent(Identifier
-            parent)
-        {
-            this.parent = parent;
-        }
-
-        public virtual Identifier GetParent()
-        {
-            return parent;
-        }
-
-        public virtual string GetIdText()
-        {
-            return idText;
-        }
-
-        public virtual string GetIdTextUpUnescape()
-        {
-            return idTextUpUnescape;
+            id.parent = null;
+            return ParentTrimed;
         }
 
         public override string ToString()
         {
-            StringBuilder sb = new StringBuilder("ID:");
+            var sb = new StringBuilder("ID:");
             if (parent != null)
             {
                 sb.Append(parent).Append('.');
@@ -181,18 +174,18 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return sb.Append(idText).ToString();
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Potential Code Quality Issues", "RECS0025", Justification = "<¹ÒÆð>")]
+        [SuppressMessage("Potential Code Quality Issues", "RECS0025", Justification = "<¹ÒÆð>")]
         public override int GetHashCode()
         {
-            int constant = 37;
-            int hash = 17;
+            var constant = 37;
+            var hash = 17;
             if (parent == null)
             {
                 hash += constant;
             }
             else
             {
-                hash = hash * constant + parent.GetHashCode();
+                hash = hash*constant + parent.GetHashCode();
             }
             if (idText == null)
             {
@@ -200,7 +193,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             }
             else
             {
-                hash = hash * constant + idText.GetHashCode();
+                hash = hash*constant + idText.GetHashCode();
             }
             return hash;
         }
@@ -213,9 +206,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             }
             if (obj is Identifier)
             {
-                Identifier that = (Identifier
-                    )obj;
-                return ObjEquals(this.parent, that.parent) && ObjEquals(this.idText, that.idText);
+                var that = (Identifier)obj;
+                return ObjEquals(parent, that.parent) && ObjEquals(idText, that.idText);
             }
             return false;
         }
@@ -233,7 +225,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
             return obj.Equals(obj2);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

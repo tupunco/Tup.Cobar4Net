@@ -17,32 +17,33 @@
 using System;
 using System.Collections.Generic;
 using System.Xml;
-
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Config.Util;
 using Tup.Cobar4Net.Util;
 
 namespace Tup.Cobar4Net.Config.Loader.Xml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class XMLRuleLoader
     {
         private const string DefaultDtd = "/rule.dtd";
 
         private const string DefaultXml = "/rule.xml";
 
-        private readonly IDictionary<string, TableRuleConfig> tableRules;
+        private readonly IDictionary<string, IRuleAlgorithm> functions;
 
         private readonly ICollection<RuleConfig> rules;
 
-        private readonly IDictionary<string, RuleAlgorithm> functions;
+        private readonly IDictionary<string, TableRuleConfig> tableRules;
 
         public XMLRuleLoader(string ruleFile)
         {
-            this.rules = new HashSet<RuleConfig>();
-            this.tableRules = new Dictionary<string, TableRuleConfig>();
-            this.functions = new Dictionary<string, RuleAlgorithm>();
-            Load(DefaultDtd, ruleFile == null ? DefaultXml : ruleFile);
+            rules = new HashSet<RuleConfig>();
+            tableRules = new Dictionary<string, TableRuleConfig>();
+            functions = new Dictionary<string, IRuleAlgorithm>();
+            Load(DefaultDtd, ruleFile ?? DefaultXml);
         }
 
         public XMLRuleLoader()
@@ -50,19 +51,19 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
         {
         }
 
-        public virtual IDictionary<string, TableRuleConfig> GetTableRules()
+        public virtual IDictionary<string, TableRuleConfig> TableRules
         {
-            return tableRules.IsEmpty() ? new Dictionary<string, TableRuleConfig>(0) : tableRules.AsReadOnly();
+            get { return tableRules.IsEmpty() ? new Dictionary<string, TableRuleConfig>(0) : tableRules.AsReadOnly(); }
         }
 
-        public virtual ICollection<RuleConfig> ListRuleConfig()
+        public virtual ICollection<RuleConfig> RuleConfigList
         {
-            return rules.IsEmpty() ? new HashSet<RuleConfig>() : rules.AsReadOnly();
+            get { return rules.IsEmpty() ? new HashSet<RuleConfig>() : rules.AsReadOnly(); }
         }
 
-        public virtual IDictionary<string, RuleAlgorithm> GetFunctions()
+        public virtual IDictionary<string, IRuleAlgorithm> Functions
         {
-            return functions.IsEmpty() ? new Dictionary<string, RuleAlgorithm>(0) : functions.AsReadOnly();
+            get { return functions.IsEmpty() ? new Dictionary<string, IRuleAlgorithm>(0) : functions.AsReadOnly(); }
         }
 
         private void Load(string dtdFile, string xmlFile)
@@ -74,7 +75,11 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
 
                 var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 nsmgr.AddNamespace("cobar", "http://cobar.alibaba.com/");
-                var root = xmlDoc.SelectNodes("cobar:rule", nsmgr).Item(0) as XmlElement;
+                var xmlNodeList = xmlDoc.SelectNodes("cobar:rule", nsmgr);
+                if (xmlNodeList == null)
+                    return;
+
+                var root = xmlNodeList.Item(0) as XmlElement;
 
                 LoadFunctions(root);
                 LoadTableRules(root);
@@ -85,7 +90,6 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
         private void LoadTableRules(XmlElement root)
         {
             var list = root.GetElementsByTagName("tableRule");
@@ -97,7 +101,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                 if (node.NodeType == XmlNodeType.Element)
                 {
                     e = (XmlElement)node;
-                    string name = e.GetAttribute("name");
+                    var name = e.GetAttribute("name");
                     if (tableRules.ContainsKey(name))
                     {
                         throw new ConfigException("table rule " + name + " duplicated!");
@@ -106,7 +110,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     var ruleNodes = e.GetElementsByTagName("rule");
                     var length = ruleNodes.Count;
                     var ruleList = new List<RuleConfig>(length);
-                    for (int j = 0; j < length; ++j)
+                    for (var j = 0; j < length; ++j)
                     {
                         var rule = LoadRule((XmlElement)ruleNodes.Item(j));
                         ruleList.Add(rule);
@@ -117,12 +121,11 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             }
         }
 
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
         private RuleConfig LoadRule(XmlElement element)
         {
             var columnsEle = ConfigUtil.LoadElement(element, "columns");
             var columns = SplitUtil.Split(columnsEle.InnerText, ',', true);
-            for (int i = 0; i < columns.Length; ++i)
+            for (var i = 0; i < columns.Length; ++i)
             {
                 columns[i] = columns[i].ToUpper();
             }
@@ -131,10 +134,9 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             return new RuleConfig(columns, algorithm);
         }
 
-        /// <exception cref="System.TypeLoadException"/>
-        /// <exception cref="Sharpen.InstantiationException"/>
-        /// <exception cref="System.MemberAccessException"/>
-        /// <exception cref="System.Reflection.TargetInvocationException"/>
+        /// <exception cref="System.TypeLoadException" />
+        /// <exception cref="System.MemberAccessException" />
+        /// <exception cref="System.Reflection.TargetInvocationException" />
         private void LoadFunctions(XmlElement root)
         {
             var list = root.GetElementsByTagName("function");
@@ -146,7 +148,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                 if (node.NodeType == XmlNodeType.Element)
                 {
                     e = (XmlElement)node;
-                    string name = e.GetAttribute("name");
+                    var name = e.GetAttribute("name");
                     if (functions.ContainsKey(name))
                     {
                         throw new ConfigException("rule function " + name + " duplicated!");
@@ -161,25 +163,26 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             }
         }
 
-        /// <exception cref="ConfigException"/>
-        /// <exception cref="System.TypeLoadException"/>
-        /// <exception cref="System.MemberAccessException"/>
-        /// <exception cref="System.Reflection.TargetInvocationException"/>
-        private RuleAlgorithm CreateFunction(string name, string clazz)
+        /// <exception cref="ConfigException" />
+        /// <exception cref="System.TypeLoadException" />
+        /// <exception cref="System.MemberAccessException" />
+        /// <exception cref="System.Reflection.TargetInvocationException" />
+        private static IRuleAlgorithm CreateFunction(string name, string clazz)
         {
             var clz = Type.GetType(clazz);
-            if (!typeof(RuleAlgorithm).IsAssignableFrom(clz))
+            if (!typeof (IRuleAlgorithm).IsAssignableFrom(clz))
             {
                 throw new ArgumentException("rule function must implements "
-                                                + typeof(RuleAlgorithm).FullName + ", name=" + name);
+                                            + typeof (IRuleAlgorithm).FullName + ", name=" + name);
             }
 
-            var constructor = clz.GetConstructor(new Type[] { typeof(string) });
+            var constructor = clz.GetConstructor(new[] {typeof (string)});
             if (constructor == null)
             {
-                throw new ConfigException("function " + name + " with class of " + clazz + " must have a constructor with one parameter: String funcName");
+                throw new ConfigException("function " + name + " with class of " + clazz +
+                                          " must have a constructor with one parameter: String funcName");
             }
-            return (RuleAlgorithm)constructor.Invoke(new object[] { name });
+            return (IRuleAlgorithm)constructor.Invoke(new object[] {name});
         }
     }
 }

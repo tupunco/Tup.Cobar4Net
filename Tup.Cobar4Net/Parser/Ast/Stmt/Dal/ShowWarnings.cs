@@ -19,30 +19,22 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowWarnings : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowWarnings : DalShowStatement
     {
-        private readonly bool count;
-
-        private readonly Limit limit;
-
         public ShowWarnings(bool count, Limit limit)
         {
-            this.count = count;
-            this.limit = limit;
+            IsCount = count;
+            Limit = limit;
         }
 
-        public virtual bool IsCount()
-        {
-            return count;
-        }
+        public virtual bool IsCount { get; }
 
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
+        public virtual Limit Limit { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

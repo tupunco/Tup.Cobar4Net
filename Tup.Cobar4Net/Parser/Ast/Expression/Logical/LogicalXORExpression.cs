@@ -24,20 +24,19 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class LogicalXORExpression : BinaryOperatorExpression
     {
-        public LogicalXORExpression(Expression left, Expression right)
+        public LogicalXORExpression(IExpression left, IExpression right)
             : base(left, right, ExpressionConstants.PrecedenceLogicalXor)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "XOR";
+            get { return "XOR"; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object left = leftOprand.Evaluation(parameters);
+            object left = LeftOprand.Evaluation(parameters);
             object right = rightOprand.Evaluation(parameters);
             if (left == null || right == null)
             {
@@ -52,7 +51,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             return b1 != b2 ? LiteralBoolean.True : LiteralBoolean.False;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

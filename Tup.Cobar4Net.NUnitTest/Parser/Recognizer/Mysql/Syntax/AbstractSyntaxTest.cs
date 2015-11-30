@@ -13,9 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
 using System.Text;
+using NUnit.Framework;
 using Tup.Cobar4Net.Parser.Ast;
 using Tup.Cobar4Net.Parser.Visitor;
 
@@ -26,10 +26,10 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
     {
         private const bool debug = false;
 
-        protected internal virtual string Output2MySQL(ASTNode node, string sql)
+        protected internal virtual string Output2MySql(IAstNode node, string sql)
         {
-            StringBuilder sb = new StringBuilder(sql.Length);
-            node.Accept(new MySQLOutputASTVisitor(sb));
+            var sb = new StringBuilder(sql.Length);
+            node.Accept(new MySqlOutputAstVisitor(sb));
             return sb.ToString();
         }
     }

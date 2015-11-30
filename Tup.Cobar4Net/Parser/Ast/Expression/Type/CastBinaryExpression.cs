@@ -16,18 +16,22 @@
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Type
 {
-    /// <summary><code>'BINARY' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'BINARY' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class CastBinaryExpression : UnaryOperatorExpression
     {
-        public CastBinaryExpression(Expression operand)
+        public CastBinaryExpression(IExpression operand)
             : base(operand, ExpressionConstants.PrecedenceBinary)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "BINARY";
+            get { return "BINARY"; }
         }
     }
 }

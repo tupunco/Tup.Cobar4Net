@@ -18,29 +18,35 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.String
 {
-    /// <summary><code>higherPreExpr 'NOT'? ('REGEXP'|'RLIKE') higherPreExp</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherPreExpr 'NOT'? ('REGEXP'|'RLIKE') higherPreExp</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class RegexpExpression : BinaryOperatorExpression
     {
         private readonly bool not;
 
-        public RegexpExpression(bool not, Expression comparee, Expression pattern)
+        public RegexpExpression(bool not,
+            IExpression comparee,
+            IExpression pattern)
             : base(comparee, pattern, ExpressionConstants.PrecedenceComparision)
         {
             this.not = not;
         }
 
-        public virtual bool IsNot()
+        public virtual bool IsNot
         {
-            return not;
+            get { return not; }
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return not ? "NOT REGEXP" : "REGEXP";
+            get { return not ? "NOT REGEXP" : "REGEXP"; }
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

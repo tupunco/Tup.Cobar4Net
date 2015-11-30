@@ -4,15 +4,15 @@ using System.Linq;
 namespace Tup.Cobar4Net
 {
     /// <summary>
-    /// Helper methods to make it easier to throw exceptions.
+    ///     Helper methods to make it easier to throw exceptions.
     /// </summary>
     /// <remarks>
-    /// 原始代码FROM:   MoreLINQ - Extensions to LINQ to Objects
+    ///     原始代码FROM:   MoreLINQ - Extensions to LINQ to Objects
     /// </remarks>
     internal static class ThrowHelper
     {
         /// <summary>
-        /// 对象 null   判断
+        ///     对象 null   判断
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="argument"></param>
@@ -24,7 +24,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 对象 null   判断
+        ///     对象 null   判断
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="argument"></param>
@@ -36,7 +36,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 字符串对象 null,empty   判断
+        ///     字符串对象 null,empty   判断
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="argument"></param>
@@ -48,7 +48,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 逻辑对象 false   判断
+        ///     逻辑对象 false   判断
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="argument"></param>
@@ -60,7 +60,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 时间对象 MinValue  判断
+        ///     时间对象 MinValue  判断
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <param name="argument"></param>
@@ -72,7 +72,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 小于0   判断
+        ///     小于0   判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="name"></param>
@@ -83,7 +83,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 小于等于0   判断
+        ///     小于等于0   判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="name"></param>
@@ -94,7 +94,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 小于等于0   判断
+        ///     小于等于0   判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="name"></param>
@@ -105,7 +105,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 超界    判断
+        ///     超界    判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="lowerBound">下界(不包含)</param>
@@ -118,7 +118,7 @@ namespace Tup.Cobar4Net
         }
 
         /// <summary>
-        /// 超界    判断
+        ///     超界    判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="boundArray">需要匹配的枚举</param>
@@ -126,11 +126,12 @@ namespace Tup.Cobar4Net
         public static void ThrowIfOutOfRange(int argument, int[] boundArray, string name)
         {
             if (!boundArray.Any(x => x == argument))
-                throw new ArgumentOutOfRangeException(name, string.Format("[{0}]", string.Join("],[", Array.ConvertAll(boundArray, x => x.ToString()))));
+                throw new ArgumentOutOfRangeException(name,
+                    string.Format("[{0}]", string.Join("],[", Array.ConvertAll(boundArray, x => x.ToString()))));
         }
 
         /// <summary>
-        /// 超界    判断
+        ///     超界    判断
         /// </summary>
         /// <param name="argument"></param>
         /// <param name="boundArray">需要匹配的枚举</param>

@@ -13,12 +13,26 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using Sharpen;
 
-namespace Tup.Cobar4Net.Config.Util
+using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
+
+namespace Tup.Cobar4Net.Parser.Ast.Expression
 {
-	public interface Initializable
-	{
-		void Init();
-	}
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IReplacableExpression : IExpression
+    {
+        IExpression ReplaceExpr { set; }
+
+        void ClearReplaceExpr();
+    }
+
+    /// <summary>
+    ///     IReplacableExpression  Constants
+    /// </summary>
+    public static class ReplacableExpressionConstants
+    {
+        public static readonly LiteralBoolean BoolFalse = new LiteralBoolean(false);
+    }
 }

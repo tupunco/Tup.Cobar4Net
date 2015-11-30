@@ -21,42 +21,37 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLRenameTableStatement : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlRenameTableStatement : IDdlStatement
     {
-        private readonly IList<Pair<Identifier, Identifier>> list;
+        private readonly IList<Pair<Identifier, Identifier>> _list;
 
-        public DDLRenameTableStatement()
+        public DdlRenameTableStatement()
         {
-            this.list = new List<Pair<Identifier, Identifier>>();
+            _list = new List<Pair<Identifier, Identifier>>();
         }
 
-        public DDLRenameTableStatement(IList<Pair<Identifier, Identifier>> list)
+        public DdlRenameTableStatement(IList<Pair<Identifier, Identifier>> list)
         {
-            if (list == null)
-            {
-                this.list = new List<Pair<Identifier, Identifier>>(0);
-            }
-            else
-            {
-                this.list = list;
-            }
+            _list = list ?? new List<Pair<Identifier, Identifier>>(0);
         }
 
-        public virtual DDLRenameTableStatement AddRenamePair(Identifier from, Identifier to)
+        public virtual IList<Pair<Identifier, Identifier>> PairList
         {
-            list.Add(new Pair<Identifier, Identifier>(from, to));
-            return this;
+            get { return _list; }
         }
 
-        public virtual IList<Pair<Identifier, Identifier>> GetList()
-        {
-            return list;
-        }
-
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public virtual DdlRenameTableStatement AddRenamePair(Identifier from, Identifier to)
+        {
+            _list.Add(new Pair<Identifier, Identifier>(from, to));
+            return this;
         }
     }
 }

@@ -15,82 +15,51 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class TableOptions : ASTNode
+    /// <summary>
+    ///     TableOptions InsertMethod
+    /// </summary>
+    public enum InsertMethod
     {
-        public enum InsertMethod
-        {
-            No,
-            First,
-            Last
-        }
+        No,
+        First,
+        Last
+    }
 
-        public enum PackKeys
-        {
-            False,
-            True,
-            Default
-        }
+    /// <summary>
+    ///     TableOptions PackKeys
+    /// </summary>
+    public enum PackKeys
+    {
+        False,
+        True,
+        Default
+    }
 
-        public enum RowFormat
-        {
-            Default,
-            Dynamic,
-            Fixed,
-            Compressed,
-            Redundant,
-            Compact
-        }
+    /// <summary>
+    ///     TableOptions RowFormat
+    /// </summary>
+    public enum RowFormat
+    {
+        Default,
+        Dynamic,
+        Fixed,
+        Compressed,
+        Redundant,
+        Compact
+    }
 
-        private Identifier engine;
-
-        private Expr autoIncrement;
-
-        private Expr avgRowLength;
-
-        private Identifier charSet;
-
-        private Identifier collation;
-
-        private bool checkSum;
-
-        private LiteralString comment;
-
-        private LiteralString connection;
-
-        private LiteralString dataDir;
-
-        private LiteralString indexDir;
-
-        private bool delayKeyWrite;
-
-        private TableOptions.InsertMethod insertMethod;
-
-        private Expr keyBlockSize;
-
-        private Expr maxRows;
-
-        private Expr minRows;
-
-        private TableOptions.PackKeys packKeys;
-
-        private LiteralString password;
-
-        private TableOptions.RowFormat rowFormat;
-
-        private IList<Identifier> union;
-
-        public TableOptions()
-        {
-        }
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class TableOptions : IAstNode
+    {
         // table_option:
         // ENGINE [=] engine_name
         // | AUTO_INCREMENT [=] value
@@ -111,198 +80,46 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment.Ddl
         // | PASSWORD [=] 'string'
         // | ROW_FORMAT [=] {DEFAULT|DYNAMIC|FIXED|COMPRESSED|REDUNDANT|COMPACT}
         // | UNION [=] (tbl_name[,tbl_name]...)
-        public virtual Identifier GetEngine()
-        {
-            return engine;
-        }
 
-        public virtual void SetEngine(Identifier engine)
-        {
-            this.engine = engine;
-        }
+        public virtual Identifier Engine { get; set; }
 
-        public virtual Expr GetAutoIncrement()
-        {
-            return autoIncrement;
-        }
+        public virtual IExpression AutoIncrement { get; set; }
 
-        public virtual void SetAutoIncrement(Expr autoIncrement)
-        {
-            this.autoIncrement = autoIncrement;
-        }
+        public virtual IExpression AvgRowLength { get; set; }
 
-        public virtual Expr GetAvgRowLength()
-        {
-            return avgRowLength;
-        }
+        public virtual Identifier CharSet { get; set; }
 
-        public virtual void SetAvgRowLength(Expr avgRowLength)
-        {
-            this.avgRowLength = avgRowLength;
-        }
+        public virtual Identifier Collation { get; set; }
 
-        public virtual Identifier GetCharSet()
-        {
-            return charSet;
-        }
+        public virtual bool CheckSum { get; set; }
 
-        public virtual void SetCharSet(Identifier charSet)
-        {
-            this.charSet = charSet;
-        }
+        public virtual LiteralString Comment { get; set; }
 
-        public virtual Identifier GetCollation()
-        {
-            return collation;
-        }
+        public virtual LiteralString Connection { get; set; }
 
-        public virtual void SetCollation(Identifier collation)
-        {
-            this.collation = collation;
-        }
+        public virtual LiteralString DataDir { get; set; }
 
-        public virtual bool GetCheckSum()
-        {
-            return checkSum;
-        }
+        public virtual LiteralString IndexDir { get; set; }
 
-        public virtual void SetCheckSum(bool checkSum)
-        {
-            this.checkSum = checkSum;
-        }
+        public virtual bool DelayKeyWrite { set; get; }
 
-        public virtual LiteralString GetComment()
-        {
-            return comment;
-        }
+        public virtual InsertMethod InsertMethod { get; set; }
 
-        public virtual void SetComment(LiteralString comment)
-        {
-            this.comment = comment;
-        }
+        public virtual IExpression KeyBlockSize { get; set; }
 
-        public virtual LiteralString GetConnection()
-        {
-            return connection;
-        }
+        public virtual IExpression MaxRows { get; set; }
 
-        public virtual void SetConnection(LiteralString connection)
-        {
-            this.connection = connection;
-        }
+        public virtual IExpression MinRows { get; set; }
 
-        public virtual LiteralString GetDataDir()
-        {
-            return dataDir;
-        }
+        public virtual PackKeys PackKeys { get; set; }
 
-        public virtual void SetDataDir(LiteralString dataDir)
-        {
-            this.dataDir = dataDir;
-        }
+        public virtual LiteralString Password { get; set; }
 
-        public virtual LiteralString GetIndexDir()
-        {
-            return indexDir;
-        }
+        public virtual RowFormat RowFormat { get; set; }
 
-        public virtual void SetIndexDir(LiteralString indexDir)
-        {
-            this.indexDir = indexDir;
-        }
+        public virtual IList<Identifier> Union { get; set; }
 
-        public virtual bool GetDelayKeyWrite()
-        {
-            return delayKeyWrite;
-        }
-
-        public virtual void SetDelayKeyWrite(bool delayKeyWrite)
-        {
-            this.delayKeyWrite = delayKeyWrite;
-        }
-
-        public virtual TableOptions.InsertMethod GetInsertMethod()
-        {
-            return insertMethod;
-        }
-
-        public virtual void SetInsertMethod(TableOptions.InsertMethod insertMethod)
-        {
-            this.insertMethod = insertMethod;
-        }
-
-        public virtual Expr GetKeyBlockSize()
-        {
-            return keyBlockSize;
-        }
-
-        public virtual void SetKeyBlockSize(Expr keyBlockSize
-            )
-        {
-            this.keyBlockSize = keyBlockSize;
-        }
-
-        public virtual Expr GetMaxRows()
-        {
-            return maxRows;
-        }
-
-        public virtual void SetMaxRows(Expr maxRows)
-        {
-            this.maxRows = maxRows;
-        }
-
-        public virtual Expr GetMinRows()
-        {
-            return minRows;
-        }
-
-        public virtual void SetMinRows(Expr minRows)
-        {
-            this.minRows = minRows;
-        }
-
-        public virtual TableOptions.PackKeys GetPackKeys()
-        {
-            return packKeys;
-        }
-
-        public virtual void SetPackKeys(TableOptions.PackKeys packKeys)
-        {
-            this.packKeys = packKeys;
-        }
-
-        public virtual LiteralString GetPassword()
-        {
-            return password;
-        }
-
-        public virtual void SetPassword(LiteralString password)
-        {
-            this.password = password;
-        }
-
-        public virtual TableOptions.RowFormat GetRowFormat()
-        {
-            return rowFormat;
-        }
-
-        public virtual void SetRowFormat(TableOptions.RowFormat rowFormat)
-        {
-            this.rowFormat = rowFormat;
-        }
-
-        public virtual IList<Identifier> GetUnion()
-        {
-            return union;
-        }
-
-        public virtual void SetUnion(IList<Identifier> union)
-        {
-            this.union = union;
-        }
-
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

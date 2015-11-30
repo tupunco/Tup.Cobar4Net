@@ -15,25 +15,26 @@
 */
 
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface SchemaLoader
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface ISchemaLoader
     {
-        IDictionary<string, TableRuleConfig> GetTableRules();
+        IDictionary<string, TableRuleConfig> TableRules { get; }
 
-        IDictionary<string, RuleAlgorithm> GetFunctions();
+        IDictionary<string, IRuleAlgorithm> Functions { get; }
 
-        IDictionary<string, DataSourceConfig> GetDataSources();
+        IDictionary<string, DataSourceConfig> DataSources { get; }
 
-        IDictionary<string, DataNodeConfig> GetDataNodes();
+        IDictionary<string, DataNodeConfig> DataNodes { get; }
 
-        IDictionary<string, SchemaConfig> GetSchemas();
+        IDictionary<string, SchemaConfig> Schemas { get; }
 
-        ICollection<RuleConfig> ListRuleConfig();
+        ICollection<RuleConfig> RuleConfigList { get; }
     }
 }

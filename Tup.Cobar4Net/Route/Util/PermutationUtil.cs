@@ -19,20 +19,21 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Route.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class PermutationUtil
     {
         public static ICollection<string> PermutateSQL(string delimiter, params string[] frag)
         {
-            return new PermutationUtil.PermutationGenerator(frag)
-                                      .SetDelimiter(delimiter).PermutateSQL();
+            return new PermutationGenerator(frag)
+                .SetDelimiter(delimiter).PermutateSql();
         }
 
         public sealed class PermutationGenerator
         {
-            private string delimiter = ", ";
-
-            private IList<string> fragments;
+            private readonly IList<string> _fragments;
+            private string _delimiter = ", ";
 
             public PermutationGenerator(params string[] frag)
             {
@@ -41,22 +42,22 @@ namespace Tup.Cobar4Net.Route.Util
                     throw new ArgumentException();
                 }
                 IList<string> list = new List<string>(frag.Length);
-                foreach (string f in frag)
+                foreach (var f in frag)
                 {
                     list.Add(f);
                 }
-                this.fragments = list;
+                _fragments = list;
             }
 
-            public PermutationUtil.PermutationGenerator SetDelimiter(string delimiter)
+            public PermutationGenerator SetDelimiter(string delimiter)
             {
-                this.delimiter = delimiter;
+                _delimiter = delimiter;
                 return this;
             }
 
-            public ICollection<string> PermutateSQL()
+            public ICollection<string> PermutateSql()
             {
-                return Gen(fragments);
+                return Gen(_fragments);
             }
 
             private ICollection<string> Gen(IList<string> frag)
@@ -66,19 +67,19 @@ namespace Tup.Cobar4Net.Route.Util
                     return new HashSet<string>(frag);
                 }
                 ICollection<string> rst = new HashSet<string>();
-                for (int i = 0; i < frag.Count; ++i)
+                for (var i = 0; i < frag.Count; ++i)
                 {
-                    string prefix = frag[i] + delimiter;
+                    var prefix = frag[i] + _delimiter;
                     IList<string> fragnew = new List<string>();
-                    for (int j = 0; j < frag.Count; ++j)
+                    for (var j = 0; j < frag.Count; ++j)
                     {
                         if (j != i)
                         {
                             fragnew.Add(frag[j]);
                         }
                     }
-                    ICollection<string> smallP = Gen(fragnew);
-                    foreach (string s in smallP)
+                    var smallP = Gen(fragnew);
+                    foreach (var s in smallP)
                     {
                         rst.Add(prefix + s);
                     }

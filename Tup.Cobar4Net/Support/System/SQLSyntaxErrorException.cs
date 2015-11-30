@@ -1,34 +1,32 @@
 ﻿namespace System
 {
     /// <summary>
-    /// SQL Syntax Error Exception
+    ///     Sql Syntax Error Exception
     /// </summary>
-    public class SQLSyntaxErrorException : Exception
+    public class SqlSyntaxErrorException : Exception
     {
         /// <summary>
-        ///
         /// </summary>
         /// <param name="message"></param>
-        public SQLSyntaxErrorException(string message)
+        public SqlSyntaxErrorException(string message)
             : base(message)
         {
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public SQLSyntaxErrorException(string message, Exception innerException)
+        public SqlSyntaxErrorException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
+
         /// <summary>
-        ///
+        /// 
         /// </summary>
-        /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public SQLSyntaxErrorException(Exception innerException)
+        public SqlSyntaxErrorException(Exception innerException)
             : base("Exception", innerException)
         {
         }

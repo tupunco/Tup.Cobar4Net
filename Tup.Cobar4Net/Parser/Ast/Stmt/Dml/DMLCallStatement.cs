@@ -15,43 +15,44 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLCallStatement : DMLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlCallStatement : DmlStatement
     {
+        private readonly IList<IExpression> arguments;
         private readonly Identifier procedure;
 
-        private readonly IList<Expr> arguments;
-
-        public DMLCallStatement(Identifier procedure, IList<Expr> arguments)
+        public DmlCallStatement(Identifier procedure, IList<IExpression> arguments)
         {
             this.procedure = procedure;
             if (arguments == null || arguments.IsEmpty())
             {
-                this.arguments = new List<Expr>(0);
+                this.arguments = new List<IExpression>(0);
             }
             else
             {
-                if (arguments is List<Expr>)
+                if (arguments is List<IExpression>)
                 {
                     this.arguments = arguments;
                 }
                 else
                 {
-                    this.arguments = new List<Expr>(arguments);
+                    this.arguments = new List<IExpression>(arguments);
                 }
             }
         }
 
-        public DMLCallStatement(Identifier procedure)
+        public DmlCallStatement(Identifier procedure)
         {
             this.procedure = procedure;
-            this.arguments = new List<Expr>(0);
+            arguments = new List<IExpression>(0);
         }
 
         public virtual Identifier GetProcedure()
@@ -60,12 +61,12 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         }
 
         /// <returns>never null</returns>
-        public virtual IList<Expr> GetArguments()
+        public virtual IList<IExpression> GetArguments()
         {
             return arguments;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

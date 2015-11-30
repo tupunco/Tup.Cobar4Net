@@ -14,23 +14,21 @@
 * limitations under the License.
 */
 
-using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal;
+using System;
+using System.Collections.Generic;
 
-namespace Tup.Cobar4Net.Parser.Ast.Expression
+namespace Tup.Cobar4Net.Config.Model.Rule
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public interface ReplacableExpression : Expression
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public interface IRuleAlgorithm
     {
-        void SetReplaceExpr(Expression replaceExpr);
+        IRuleAlgorithm ConstructMe(params object[] objects);
 
-        void ClearReplaceExpr();
-    }
+        void Initialize();
 
-    /// <summary>
-    /// ReplacableExpression  Constants
-    /// </summary>
-    public static class ReplacableExpressionConstants
-    {
-        public static readonly LiteralBoolean BoolFalse = new LiteralBoolean(false);
+        /// <returns>never null</returns>
+        Number[] Calculate(IDictionary<object, object> parameters);
     }
 }

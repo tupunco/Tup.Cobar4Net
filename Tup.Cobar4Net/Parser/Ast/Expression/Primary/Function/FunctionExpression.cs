@@ -19,64 +19,56 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class FunctionExpression : PrimaryExpression
     {
-        protected static IList<Expression> WrapList(Expression expr)
-        {
-            var list = new List<Expression>(1);
-            list.Add(expr);
-            return list;
-        }
-
-        /// <summary><code>this</code> function object being called is a prototype</summary>
-        public abstract FunctionExpression ConstructFunction(IList<Expression> arguments);
+        protected readonly IList<IExpression> arguments;
 
         protected readonly string functionName;
 
-        protected readonly IList<Expression> arguments;
-
-        public FunctionExpression(string functionName, IList<Expression> arguments)
+        public FunctionExpression(string functionName, IList<IExpression> arguments)
         {
             this.functionName = functionName;
             if (arguments == null || arguments.IsEmpty())
             {
-                this.arguments = new List<Expression>(0);
+                this.arguments = new List<IExpression>(0);
+            }
+            else if (arguments is List<IExpression>)
+            {
+                this.arguments = arguments;
             }
             else
             {
-                if (arguments is List<Expression>)
-                {
-                    this.arguments = arguments;
-                }
-                else
-                {
-                    this.arguments = new List<Expression>(arguments);
-                }
+                this.arguments = new List<IExpression>(arguments);
             }
         }
+
+        /// <value>never null</value>
+        public virtual IList<IExpression> Arguments
+        {
+            get { return arguments; }
+        }
+
+        public virtual string FunctionName
+        {
+            get { return functionName; }
+        }
+
+        protected static IList<IExpression> WrapList(IExpression expr)
+        {
+            return new List<IExpression>(1) {expr};
+        }
+
+        /// <summary><code>this</code> function object being called is a prototype</summary>
+        public abstract FunctionExpression ConstructFunction(IList<IExpression> arguments);
 
         public virtual void Init()
         {
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<Expression> GetArguments()
-        {
-            return arguments;
-        }
-
-        public virtual string GetFunctionName()
-        {
-            return functionName;
-        }
-
-        public override Expression SetCacheEvalRst(bool cacheEvalRst)
-        {
-            return base.SetCacheEvalRst(cacheEvalRst);
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -23,21 +23,21 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
     /// <summary><code>'-' higherExpr</code></summary>
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class MinusExpression : UnaryOperatorExpression, UnaryOperandCalculator
+    public class MinusExpression : UnaryOperatorExpression, IUnaryOperandCalculator
     {
-        public MinusExpression(Expression operand)
+        public MinusExpression(IExpression operand)
             : base(operand, ExpressionConstants.PrecedenceUnaryOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "-";
+            get { return "-"; }
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object operand = GetOperand().Evaluation(parameters);
+            object operand = Operand.Evaluation(parameters);
             if (operand == null)
             {
                 return 0;

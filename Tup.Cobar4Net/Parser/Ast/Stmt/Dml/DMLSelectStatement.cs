@@ -17,190 +17,168 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLSelectStatement : DMLQueryStatement
+    /// <summary>
+    ///     DmlSelectStatement LockMode
+    /// </summary>
+    public enum LockMode
     {
-        public enum SelectDuplicationStrategy
-        {
-            All,
-            Distinct,
-            Distinctrow
-        }
+        Undef,
+        ForUpdate,
+        LockInShareMode
+    }
 
-        public enum QueryCacheStrategy
-        {
-            Undef,
-            SqlCache,
-            SqlNoCache
-        }
+    /// <summary>
+    ///     DmlSelectStatement SelectQueryCacheStrategy
+    /// </summary>
+    public enum SelectQueryCacheStrategy
+    {
+        Undef,
+        SqlCache,
+        SqlNoCache
+    }
 
-        public enum SmallOrBigResult
-        {
-            Undef,
-            SqlSmallResult,
-            SqlBigResult
-        }
+    /// <summary>
+    ///     DmlSelectStatement SelectDuplicationStrategy
+    /// </summary>
+    public enum SelectDuplicationStrategy
+    {
+        All,
+        Distinct,
+        Distinctrow
+    }
 
-        public enum LockMode
-        {
-            Undef,
-            ForUpdate,
-            LockInShareMode
-        }
+    /// <summary>
+    ///     DmlSelectStatement SelectSmallOrBigResult
+    /// </summary>
+    public enum SelectSmallOrBigResult
+    {
+        Undef,
+        SqlSmallResult,
+        SqlBigResult
+    }
 
-        public sealed class SelectOption
-        {
-            public SelectDuplicationStrategy resultDup = SelectDuplicationStrategy.All;
-
-            public bool highPriority = false;
-
-            public bool straightJoin = false;
-
-            public SmallOrBigResult resultSize = SmallOrBigResult.Undef;
-
-            public bool sqlBufferResult = false;
-
-            public QueryCacheStrategy queryCache = QueryCacheStrategy.Undef;
-
-            public bool sqlCalcFoundRows = false;
-
-            public LockMode lockMode = LockMode.Undef;
-
-            public override string ToString()
-            {
-                StringBuilder sb = new StringBuilder();
-                sb.Append(GetType().Name).Append('{');
-                sb.Append("resultDup").Append('=').Append(resultDup.ToString());
-                sb.Append(", ").Append("highPriority").Append('=').Append(highPriority);
-                sb.Append(", ").Append("straightJoin").Append('=').Append(straightJoin);
-                sb.Append(", ").Append("resultSize").Append('=').Append(resultSize.ToString());
-                sb.Append(", ").Append("sqlBufferResult").Append('=').Append(sqlBufferResult);
-                sb.Append(", ").Append("queryCache").Append('=').Append(queryCache.ToString());
-                sb.Append(", ").Append("sqlCalcFoundRows").Append('=').Append(sqlCalcFoundRows);
-                sb.Append(", ").Append("lockMode").Append('=').Append(lockMode.ToString());
-                sb.Append('}');
-                return sb.ToString();
-            }
-        }
-
-        private readonly SelectOption option;
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlSelectStatement : DmlQueryStatement
+    {
         /// <summary>string: id | `id` | 'id'</summary>
-        private readonly IList<Pair<Expr, string>> selectExprList;
+        private readonly IList<Pair<IExpression, string>> selectExprList;
 
-        private readonly TableReferences tables;
-
-        private readonly Expr where;
-
-        private readonly GroupBy group;
-
-        private readonly Expr having;
-
-        private readonly OrderBy order;
-
-        private readonly Limit limit;
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
-        public DMLSelectStatement(SelectOption option,
-                                    IList<Pair<Expr, string>> selectExprList,
-                                    TableReferences tables,
-                                    Expr where,
-                                    GroupBy group,
-                                    Expr having,
-                                    OrderBy order,
-                                    Limit limit)
+        /// <exception cref="System.SqlSyntaxErrorException" />
+        public DmlSelectStatement(SelectOption option,
+            IList<Pair<IExpression, string>> selectExprList,
+            TableReferences tables,
+            IExpression where,
+            GroupBy group,
+            IExpression having,
+            OrderBy order,
+            Limit limit)
         {
             if (option == null)
             {
                 throw new ArgumentException("argument 'option' is null");
             }
-            this.option = option;
+            Option = option;
             if (selectExprList == null || selectExprList.IsEmpty())
             {
-                this.selectExprList = new List<Pair<Expr, string>>(0);
+                this.selectExprList = new List<Pair<IExpression, string>>(0);
             }
             else
             {
                 this.selectExprList = EnsureListType(selectExprList);
             }
-            this.tables = tables;
-            this.where = where;
-            this.group = group;
-            this.having = having;
-            this.order = order;
-            this.limit = limit;
+            Tables = tables;
+            Where = where;
+            Group = group;
+            Having = having;
+            Order = order;
+            Limit = limit;
         }
 
-        public virtual DMLSelectStatement.SelectOption GetOption()
+        public virtual SelectOption Option { get; }
+
+        /// <value>never null</value>
+        public virtual IList<Pair<IExpression, string>> SelectExprList
         {
-            return option;
+            get { return selectExprList; }
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<Pair<Expr, string>> GetSelectExprList()
-        {
-            return selectExprList;
-        }
+        public virtual TableReferences Tables { get; }
+
+        public virtual IExpression Where { get; }
+
+        public virtual GroupBy Group { get; }
+
+        public virtual IExpression Having { get; }
+
+        public virtual OrderBy Order { get; }
+
+        public virtual Limit Limit { get; }
 
         /// <performance>slow</performance>
-        public virtual IList<Expr> GetSelectExprListWithoutAlias()
+        public virtual IList<IExpression> GetSelectExprListWithoutAlias()
         {
             if (selectExprList == null || selectExprList.IsEmpty())
             {
-                return new List<Expr>(0);
+                return new List<IExpression>(0);
             }
-            IList<Expr> list = new List<Expr>(selectExprList.Count);
-            foreach (Pair<Expr, string> p in selectExprList)
+            IList<IExpression> list = new List<IExpression>(selectExprList.Count);
+            foreach (var p in selectExprList)
             {
-                if (p != null && p.GetKey() != null)
+                if (p != null && p.Key != null)
                 {
-                    list.Add(p.GetKey());
+                    list.Add(p.Key);
                 }
             }
             return list;
         }
 
-        public virtual TableReferences GetTables()
-        {
-            return tables;
-        }
-
-        public virtual Expr GetWhere()
-        {
-            return where;
-        }
-
-        public virtual GroupBy GetGroup()
-        {
-            return group;
-        }
-
-        public virtual Expr GetHaving()
-        {
-            return having;
-        }
-
-        public virtual OrderBy GetOrder()
-        {
-            return order;
-        }
-
-        public virtual Limit GetLimit()
-        {
-            return limit;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public sealed class SelectOption
+        {
+            public bool highPriority = false;
+
+            public LockMode lockMode = LockMode.Undef;
+            public SelectDuplicationStrategy resultDup = SelectDuplicationStrategy.All;
+
+            public SelectSmallOrBigResult resultSize = SelectSmallOrBigResult.Undef;
+
+            public SelectQueryCacheStrategy SelectQueryCache = SelectQueryCacheStrategy.Undef;
+
+            public bool sqlBufferResult = false;
+
+            public bool sqlCalcFoundRows = false;
+
+            public bool straightJoin = false;
+
+            public override string ToString()
+            {
+                var sb = new StringBuilder();
+                sb.Append(GetType().Name).Append('{');
+                sb.Append("resultDup").Append('=').Append(resultDup);
+                sb.Append(", ").Append("highPriority").Append('=').Append(highPriority);
+                sb.Append(", ").Append("straightJoin").Append('=').Append(straightJoin);
+                sb.Append(", ").Append("resultSize").Append('=').Append(resultSize);
+                sb.Append(", ").Append("sqlBufferResult").Append('=').Append(sqlBufferResult);
+                sb.Append(", ").Append("SelectQueryCache").Append('=').Append(SelectQueryCache);
+                sb.Append(", ").Append("sqlCalcFoundRows").Append('=').Append(sqlCalcFoundRows);
+                sb.Append(", ").Append("lockMode").Append('=').Append(lockMode);
+                sb.Append('}');
+                return sb.ToString();
+            }
         }
     }
 }

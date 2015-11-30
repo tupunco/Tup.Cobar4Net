@@ -20,7 +20,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class GetFormat : FunctionExpression
     {
         public enum FormatType
@@ -30,30 +32,30 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime
             Datetime
         }
 
-        private GetFormat.FormatType formatType;
+        private readonly FormatType formatType;
 
-        public GetFormat(GetFormat.FormatType type, Expression format)
+        public GetFormat(FormatType type, IExpression format)
             : base("GET_FORMAT", WrapList(format))
         {
-            this.formatType = type;
+            formatType = type;
         }
 
-        public virtual GetFormat.FormatType GetFormatType()
+        public virtual FormatType GetFormatType()
         {
             return formatType;
         }
 
-        public virtual Expression GetFormatExpr()
+        public virtual IExpression GetFormatExpr()
         {
             return arguments[0];
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of GetFormat has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

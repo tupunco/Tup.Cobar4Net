@@ -19,22 +19,19 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DDLTruncateStatement : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DdlTruncateStatement : IDdlStatement
     {
-        private readonly Identifier table;
-
-        public DDLTruncateStatement(Identifier table)
+        public DdlTruncateStatement(Identifier table)
         {
-            this.table = table;
+            Table = table;
         }
 
-        public virtual Identifier GetTable()
-        {
-            return table;
-        }
+        public virtual Identifier Table { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

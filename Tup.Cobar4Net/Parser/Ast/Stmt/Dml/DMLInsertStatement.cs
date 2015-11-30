@@ -15,79 +15,79 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLInsertStatement : DMLInsertReplaceStatement
+    /// <summary>
+    ///     DmlInsertStatement Mode
+    /// </summary>
+    public enum InsertMode
     {
-        public enum InsertMode
-        {
-            Undef,
-            Low,
-            Delay,
-            High
-        }
+        Undef,
+        Low,
+        Delay,
+        High
+    }
 
-        private readonly DMLInsertStatement.InsertMode mode;
-
-        private readonly bool ignore;
-
-        private readonly IList<Pair<Identifier, Expr
-            >> duplicateUpdate;
-
-        /// <summary>(insert ...</summary>
-        /// <remarks>(insert ... values | insert ... set) format</remarks>
-        /// <param name="columnNameList">can be null</param>
-        public DMLInsertStatement(DMLInsertStatement.InsertMode mode,
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlInsertStatement : DmlInsertReplaceStatement
+    {
+        /// <summary>
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="ignore"></param>
+        /// <param name="table"></param>
+        /// <param name="columnNameList"></param>
+        /// <param name="rowList"></param>
+        /// <param name="duplicateUpdate"></param>
+        public DmlInsertStatement(InsertMode mode,
             bool ignore,
             Identifier table,
             IList<Identifier> columnNameList,
             IList<RowExpression> rowList,
-            IList<Pair<Identifier, Expr>> duplicateUpdate)
+            IList<Pair<Identifier, IExpression>> duplicateUpdate)
             : base(table, columnNameList, rowList)
         {
-            this.mode = mode;
-            this.ignore = ignore;
-            this.duplicateUpdate = EnsureListType(duplicateUpdate);
+            Mode = mode;
+            IsIgnore = ignore;
+            DuplicateUpdate = EnsureListType(duplicateUpdate);
         }
 
-        /// <summary>insert ...</summary>
-        /// <remarks>insert ... select format</remarks>
-        /// <param name="columnNameList">can be null</param>
-        public DMLInsertStatement(DMLInsertStatement.InsertMode mode,
+        /// <summary>
+        /// </summary>
+        /// <param name="mode"></param>
+        /// <param name="ignore"></param>
+        /// <param name="table"></param>
+        /// <param name="columnNameList"></param>
+        /// <param name="select"></param>
+        /// <param name="duplicateUpdate"></param>
+        public DmlInsertStatement(InsertMode mode,
             bool ignore,
-            Identifier table, IList<Identifier> columnNameList,
-            QueryExpression select,
-            IList<Pair<Identifier, Expr>> duplicateUpdate)
+            Identifier table,
+            IList<Identifier> columnNameList,
+            IQueryExpression select,
+            IList<Pair<Identifier, IExpression>> duplicateUpdate)
             : base(table, columnNameList, select)
         {
-            this.mode = mode;
-            this.ignore = ignore;
-            this.duplicateUpdate = EnsureListType(duplicateUpdate);
+            Mode = mode;
+            IsIgnore = ignore;
+            DuplicateUpdate = EnsureListType(duplicateUpdate);
         }
 
-        public virtual DMLInsertStatement.InsertMode GetMode()
-        {
-            return mode;
-        }
+        public virtual InsertMode Mode { get; }
 
-        public virtual bool IsIgnore()
-        {
-            return ignore;
-        }
+        public virtual bool IsIgnore { get; }
 
-        public virtual IList<Pair<Identifier, Expr>> GetDuplicateUpdate()
-        {
-            return duplicateUpdate;
-        }
+        public virtual IList<Pair<Identifier, IExpression>> DuplicateUpdate { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

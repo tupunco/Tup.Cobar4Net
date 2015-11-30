@@ -20,98 +20,29 @@ namespace Tup.Cobar4Net.Config.Model
     /// <author>xianmao.hexm</author>
     public sealed class CobarNodeConfig
     {
-        private string name;
-        private string host;
-        private int port;
-        private int weight;
-
-        public int Weight
-        {
-            get { return weight; }
-            set { weight = value; }
-        }
-
-        public int Port
-        {
-            get { return port; }
-            set { port = value; }
-        }
-
-        public string Host
-        {
-            get { return host; }
-            set { host = value; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
         public CobarNodeConfig(string name, string host, int port, int weight)
         {
-            this.name = name;
-            this.host = host;
-            this.port = port;
-            this.weight = weight;
+            Name = name;
+            Host = host;
+            Port = port;
+            Weight = weight;
         }
 
-        public string GetName()
-        {
-            return name;
-        }
+        public int Weight { get; set; }
 
-        public void SetName(string name)
-        {
-            this.name = name;
-        }
+        public int Port { get; set; }
 
-        public string GetHost()
-        {
-            return host;
-        }
+        public string Host { get; set; }
 
-        public void SetHost(string host)
-        {
-            this.host = host;
-        }
-
-        public int GetPort()
-        {
-            return port;
-        }
-
-        public void SetPort(int port)
-        {
-            this.port = port;
-        }
-
-        public int GetWeight()
-        {
-            return weight;
-        }
-
-        public void SetWeight(int weight)
-        {
-            this.weight = weight;
-        }
+        public string Name { get; set; }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[CobarNodeConfig Name={0}, Host={1}, Port={2}, Weight={3}]",
-                                        name, host, port, weight);
+                Name, Host, Port, Weight);
         }
-
-        //public override string ToString()
-        //{
-        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
-        //        Host).Append(",port=").Append(Port).Append(",weight=").Append(Weight).Append(']'
-        //        ).ToString();
-        //}
     }
 }

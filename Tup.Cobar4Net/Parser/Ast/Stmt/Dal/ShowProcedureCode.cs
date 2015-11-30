@@ -19,22 +19,19 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowProcedureCode : DALShowStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowProcedureCode : DalShowStatement
     {
-        private readonly Identifier procedureName;
-
         public ShowProcedureCode(Identifier procedureName)
         {
-            this.procedureName = procedureName;
+            ProcedureName = procedureName;
         }
 
-        public virtual Identifier GetProcedureName()
-        {
-            return procedureName;
-        }
+        public virtual Identifier ProcedureName { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

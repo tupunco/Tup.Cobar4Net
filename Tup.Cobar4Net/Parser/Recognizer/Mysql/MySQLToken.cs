@@ -18,9 +18,11 @@ using System;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    [System.Serializable]
-    public enum MySQLToken
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    [Serializable]
+    public enum MySqlToken
     {
         None = 0,
 
@@ -302,1153 +304,1153 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         KwZerofill
     }
 
-    internal static class MySQLTokenUtils
+    internal static class MySqlTokenUtils
     {
         // /** &#64; */
         // OP_AT,
-        public static string KeyWordToString(this MySQLToken token)
+        public static string KeyWordToString(this MySqlToken token)
         {
             switch (token)
             {
-                case MySQLToken.KwAccessible:
-                    {
-                        return "ACCESSIBLE";
-                    }
-
-                case MySQLToken.KwAdd:
-                    {
-                        return "ADD";
-                    }
-
-                case MySQLToken.KwAll:
-                    {
-                        return "ALL";
-                    }
-
-                case MySQLToken.KwAlter:
-                    {
-                        return "ALTER";
-                    }
-
-                case MySQLToken.KwAnalyze:
-                    {
-                        return "ANALYZE";
-                    }
-
-                case MySQLToken.KwAnd:
-                    {
-                        return "AND";
-                    }
-
-                case MySQLToken.KwAs:
-                    {
-                        return "AS";
-                    }
-
-                case MySQLToken.KwAsc:
-                    {
-                        return "ASC";
-                    }
-
-                case MySQLToken.KwAsensitive:
-                    {
-                        return "ASENSITIVE";
-                    }
-
-                case MySQLToken.KwBefore:
-                    {
-                        return "BEFORE";
-                    }
-
-                case MySQLToken.KwBetween:
-                    {
-                        return "BETWEEN";
-                    }
-
-                case MySQLToken.KwBigint:
-                    {
-                        return "BIGINT";
-                    }
-
-                case MySQLToken.KwBinary:
-                    {
-                        return "BINARY";
-                    }
-
-                case MySQLToken.KwBlob:
-                    {
-                        return "BLOB";
-                    }
-
-                case MySQLToken.KwBoth:
-                    {
-                        return "BOTH";
-                    }
-
-                case MySQLToken.KwBy:
-                    {
-                        return "BY";
-                    }
-
-                case MySQLToken.KwCall:
-                    {
-                        return "CALL";
-                    }
-
-                case MySQLToken.KwCascade:
-                    {
-                        return "CASCADE";
-                    }
-
-                case MySQLToken.KwCase:
-                    {
-                        return "CASE";
-                    }
-
-                case MySQLToken.KwChange:
-                    {
-                        return "CHANGE";
-                    }
-
-                case MySQLToken.KwChar:
-                    {
-                        return "CHAR";
-                    }
-
-                case MySQLToken.KwCharacter:
-                    {
-                        return "CHARACTER";
-                    }
-
-                case MySQLToken.KwCheck:
-                    {
-                        return "CHECK";
-                    }
-
-                case MySQLToken.KwCollate:
-                    {
-                        return "COLLATE";
-                    }
-
-                case MySQLToken.KwColumn:
-                    {
-                        return "COLUMN";
-                    }
-
-                case MySQLToken.KwCondition:
-                    {
-                        return "CONDITION";
-                    }
-
-                case MySQLToken.KwConstraint:
-                    {
-                        return "CONSTRAINT";
-                    }
-
-                case MySQLToken.KwContinue:
-                    {
-                        return "CONTINUE";
-                    }
-
-                case MySQLToken.KwConvert:
-                    {
-                        return "CONVERT";
-                    }
-
-                case MySQLToken.KwCreate:
-                    {
-                        return "CREATE";
-                    }
-
-                case MySQLToken.KwCross:
-                    {
-                        return "CROSS";
-                    }
-
-                case MySQLToken.KwCurrentDate:
-                    {
-                        return "CURRENT_DATE";
-                    }
-
-                case MySQLToken.KwCurrentTime:
-                    {
-                        return "CURRENT_TIME";
-                    }
-
-                case MySQLToken.KwCurrentTimestamp:
-                    {
-                        return "CURRENT_TIMESTAMP";
-                    }
-
-                case MySQLToken.KwCurrentUser:
-                    {
-                        return "CURRENT_USER";
-                    }
-
-                case MySQLToken.KwCursor:
-                    {
-                        return "CURSOR";
-                    }
-
-                case MySQLToken.KwDatabase:
-                    {
-                        return "DATABASE";
-                    }
-
-                case MySQLToken.KwDatabases:
-                    {
-                        return "DATABASES";
-                    }
-
-                case MySQLToken.KwDayHour:
-                    {
-                        return "DAY_HOUR";
-                    }
-
-                case MySQLToken.KwDayMicrosecond:
-                    {
-                        return "DAY_MICROSECOND";
-                    }
-
-                case MySQLToken.KwDayMinute:
-                    {
-                        return "DAY_MINUTE";
-                    }
-
-                case MySQLToken.KwDaySecond:
-                    {
-                        return "DAY_SECOND";
-                    }
-
-                case MySQLToken.KwDec:
-                    {
-                        return "DEC";
-                    }
-
-                case MySQLToken.KwDecimal:
-                    {
-                        return "DECIMAL";
-                    }
-
-                case MySQLToken.KwDeclare:
-                    {
-                        return "DECLARE";
-                    }
-
-                case MySQLToken.KwDefault:
-                    {
-                        return "DEFAULT";
-                    }
-
-                case MySQLToken.KwDelayed:
-                    {
-                        return "DELAYED";
-                    }
-
-                case MySQLToken.KwDelete:
-                    {
-                        return "DELETE";
-                    }
-
-                case MySQLToken.KwDesc:
-                    {
-                        return "DESC";
-                    }
-
-                case MySQLToken.KwDescribe:
-                    {
-                        return "DESCRIBE";
-                    }
-
-                case MySQLToken.KwDeterministic:
-                    {
-                        return "DETERMINISTIC";
-                    }
-
-                case MySQLToken.KwDistinct:
-                    {
-                        return "DISTINCT";
-                    }
-
-                case MySQLToken.KwDistinctrow:
-                    {
-                        return "DISTINCTROW";
-                    }
-
-                case MySQLToken.KwDiv:
-                    {
-                        return "DIV";
-                    }
-
-                case MySQLToken.KwDouble:
-                    {
-                        return "DOUBLE";
-                    }
-
-                case MySQLToken.KwDrop:
-                    {
-                        return "DROP";
-                    }
-
-                case MySQLToken.KwDual:
-                    {
-                        return "DUAL";
-                    }
-
-                case MySQLToken.KwEach:
-                    {
-                        return "EACH";
-                    }
-
-                case MySQLToken.KwElse:
-                    {
-                        return "ELSE";
-                    }
-
-                case MySQLToken.KwElseif:
-                    {
-                        return "ELSEIF";
-                    }
-
-                case MySQLToken.KwEnclosed:
-                    {
-                        return "ENCLOSED";
-                    }
-
-                case MySQLToken.KwEscaped:
-                    {
-                        return "ESCAPED";
-                    }
-
-                case MySQLToken.KwExists:
-                    {
-                        return "EXISTS";
-                    }
-
-                case MySQLToken.KwExit:
-                    {
-                        return "EXIT";
-                    }
-
-                case MySQLToken.KwExplain:
-                    {
-                        return "EXPLAIN";
-                    }
-
-                case MySQLToken.KwFetch:
-                    {
-                        return "FETCH";
-                    }
-
-                case MySQLToken.KwFloat:
-                    {
-                        return "FLOAT";
-                    }
-
-                case MySQLToken.KwFloat4:
-                    {
-                        return "FLOAT4";
-                    }
-
-                case MySQLToken.KwFloat8:
-                    {
-                        return "FLOAT8";
-                    }
-
-                case MySQLToken.KwFor:
-                    {
-                        return "FOR";
-                    }
-
-                case MySQLToken.KwForce:
-                    {
-                        return "FORCE";
-                    }
-
-                case MySQLToken.KwForeign:
-                    {
-                        return "FOREIGN";
-                    }
-
-                case MySQLToken.KwFrom:
-                    {
-                        return "FROM";
-                    }
-
-                case MySQLToken.KwFulltext:
-                    {
-                        return "FULLTEXT";
-                    }
-
-                case MySQLToken.KwGeneral:
-                    {
-                        return "GENERAL";
-                    }
-
-                case MySQLToken.KwGrant:
-                    {
-                        return "GRANT";
-                    }
-
-                case MySQLToken.KwGroup:
-                    {
-                        return "GROUP";
-                    }
-
-                case MySQLToken.KwHaving:
-                    {
-                        return "HAVING";
-                    }
-
-                case MySQLToken.KwHighPriority:
-                    {
-                        return "HIGH_PRIORITY";
-                    }
-
-                case MySQLToken.KwHourMicrosecond:
-                    {
-                        return "HOUR_MICROSECOND";
-                    }
-
-                case MySQLToken.KwHourMinute:
-                    {
-                        return "HOUR_MINUTE";
-                    }
-
-                case MySQLToken.KwHourSecond:
-                    {
-                        return "HOUR_SECOND";
-                    }
-
-                case MySQLToken.KwIf:
-                    {
-                        return "IF";
-                    }
-
-                case MySQLToken.KwIgnore:
-                    {
-                        return "IGNORE";
-                    }
-
-                case MySQLToken.KwIgnoreServerIds:
-                    {
-                        return "IGNORE_SERVER_IDS";
-                    }
-
-                case MySQLToken.KwIn:
-                    {
-                        return "IN";
-                    }
-
-                case MySQLToken.KwIndex:
-                    {
-                        return "INDEX";
-                    }
-
-                case MySQLToken.KwInfile:
-                    {
-                        return "INFILE";
-                    }
-
-                case MySQLToken.KwInner:
-                    {
-                        return "INNER";
-                    }
-
-                case MySQLToken.KwInout:
-                    {
-                        return "INOUT";
-                    }
-
-                case MySQLToken.KwInsensitive:
-                    {
-                        return "INSENSITIVE";
-                    }
-
-                case MySQLToken.KwInsert:
-                    {
-                        return "INSERT";
-                    }
-
-                case MySQLToken.KwInt:
-                    {
-                        return "INT";
-                    }
-
-                case MySQLToken.KwInt1:
-                    {
-                        return "INT1";
-                    }
-
-                case MySQLToken.KwInt2:
-                    {
-                        return "INT2";
-                    }
-
-                case MySQLToken.KwInt3:
-                    {
-                        return "INT3";
-                    }
-
-                case MySQLToken.KwInt4:
-                    {
-                        return "INT4";
-                    }
-
-                case MySQLToken.KwInt8:
-                    {
-                        return "INT8";
-                    }
-
-                case MySQLToken.KwInteger:
-                    {
-                        return "INTEGER";
-                    }
-
-                case MySQLToken.KwInterval:
-                    {
-                        return "INTERVAL";
-                    }
-
-                case MySQLToken.KwInto:
-                    {
-                        return "INTO";
-                    }
-
-                case MySQLToken.KwIs:
-                    {
-                        return "IS";
-                    }
-
-                case MySQLToken.KwIterate:
-                    {
-                        return "ITERATE";
-                    }
-
-                case MySQLToken.KwJoin:
-                    {
-                        return "JOIN";
-                    }
-
-                case MySQLToken.KwKey:
-                    {
-                        return "KEY";
-                    }
-
-                case MySQLToken.KwKeys:
-                    {
-                        return "KEYS";
-                    }
-
-                case MySQLToken.KwKill:
-                    {
-                        return "KILL";
-                    }
-
-                case MySQLToken.KwLeading:
-                    {
-                        return "LEADING";
-                    }
-
-                case MySQLToken.KwLeave:
-                    {
-                        return "LEAVE";
-                    }
-
-                case MySQLToken.KwLeft:
-                    {
-                        return "LEFT";
-                    }
-
-                case MySQLToken.KwLike:
-                    {
-                        return "LIKE";
-                    }
-
-                case MySQLToken.KwLimit:
-                    {
-                        return "LIMIT";
-                    }
-
-                case MySQLToken.KwLinear:
-                    {
-                        return "LINEAR";
-                    }
-
-                case MySQLToken.KwLines:
-                    {
-                        return "LINES";
-                    }
-
-                case MySQLToken.KwLoad:
-                    {
-                        return "LOAD";
-                    }
-
-                case MySQLToken.KwLocaltime:
-                    {
-                        return "LOCALTIME";
-                    }
-
-                case MySQLToken.KwLocaltimestamp:
-                    {
-                        return "LOCALTIMESTAMP";
-                    }
-
-                case MySQLToken.KwLock:
-                    {
-                        return "LOCK";
-                    }
-
-                case MySQLToken.KwLong:
-                    {
-                        return "LONG";
-                    }
-
-                case MySQLToken.KwLongblob:
-                    {
-                        return "LONGBLOB";
-                    }
-
-                case MySQLToken.KwLongtext:
-                    {
-                        return "LONGTEXT";
-                    }
-
-                case MySQLToken.KwLoop:
-                    {
-                        return "LOOP";
-                    }
-
-                case MySQLToken.KwLowPriority:
-                    {
-                        return "LOW_PRIORITY";
-                    }
-
-                case MySQLToken.KwMasterHeartbeatPeriod:
-                    {
-                        return "MASTER_HEARTBEAT_PERIOD";
-                    }
-
-                case MySQLToken.KwMasterSslVerifyServerCert:
-                    {
-                        return "MASTER_SSL_VERIFY_SERVER_CERT";
-                    }
-
-                case MySQLToken.KwMatch:
-                    {
-                        return "MATCH";
-                    }
-
-                case MySQLToken.KwMaxvalue:
-                    {
-                        return "MAXVALUE";
-                    }
-
-                case MySQLToken.KwMediumblob:
-                    {
-                        return "MEDIUMBLOB";
-                    }
-
-                case MySQLToken.KwMediumint:
-                    {
-                        return "MEDIUMINT";
-                    }
-
-                case MySQLToken.KwMediumtext:
-                    {
-                        return "MEDIUMTEXT";
-                    }
-
-                case MySQLToken.KwMiddleint:
-                    {
-                        return "MIDDLEINT";
-                    }
-
-                case MySQLToken.KwMinuteMicrosecond:
-                    {
-                        return "MINUTE_MICROSECOND";
-                    }
-
-                case MySQLToken.KwMinuteSecond:
-                    {
-                        return "MINUTE_SECOND";
-                    }
-
-                case MySQLToken.KwMod:
-                    {
-                        return "MOD";
-                    }
-
-                case MySQLToken.KwModifies:
-                    {
-                        return "MODIFIES";
-                    }
-
-                case MySQLToken.KwNatural:
-                    {
-                        return "NATURAL";
-                    }
-
-                case MySQLToken.KwNot:
-                    {
-                        return "NOT";
-                    }
-
-                case MySQLToken.KwNoWriteToBinlog:
-                    {
-                        return "NO_WRITE_TO_BINLOG";
-                    }
-
-                case MySQLToken.KwNumeric:
-                    {
-                        return "NUMERIC";
-                    }
-
-                case MySQLToken.KwOn:
-                    {
-                        return "ON";
-                    }
-
-                case MySQLToken.KwOptimize:
-                    {
-                        return "OPTIMIZE";
-                    }
-
-                case MySQLToken.KwOption:
-                    {
-                        return "OPTION";
-                    }
-
-                case MySQLToken.KwOptionally:
-                    {
-                        return "OPTIONALLY";
-                    }
-
-                case MySQLToken.KwOr:
-                    {
-                        return "OR";
-                    }
-
-                case MySQLToken.KwOrder:
-                    {
-                        return "ORDER";
-                    }
-
-                case MySQLToken.KwOut:
-                    {
-                        return "OUT";
-                    }
-
-                case MySQLToken.KwOuter:
-                    {
-                        return "OUTER";
-                    }
-
-                case MySQLToken.KwOutfile:
-                    {
-                        return "OUTFILE";
-                    }
-
-                case MySQLToken.KwPrecision:
-                    {
-                        return "PRECISION";
-                    }
-
-                case MySQLToken.KwPrimary:
-                    {
-                        return "PRIMARY";
-                    }
-
-                case MySQLToken.KwProcedure:
-                    {
-                        return "PROCEDURE";
-                    }
-
-                case MySQLToken.KwPurge:
-                    {
-                        return "PURGE";
-                    }
-
-                case MySQLToken.KwRange:
-                    {
-                        return "RANGE";
-                    }
-
-                case MySQLToken.KwRead:
-                    {
-                        return "READ";
-                    }
-
-                case MySQLToken.KwReads:
-                    {
-                        return "READS";
-                    }
-
-                case MySQLToken.KwReadWrite:
-                    {
-                        return "READ_WRITE";
-                    }
-
-                case MySQLToken.KwReal:
-                    {
-                        return "REAL";
-                    }
-
-                case MySQLToken.KwReferences:
-                    {
-                        return "REFERENCES";
-                    }
-
-                case MySQLToken.KwRegexp:
-                    {
-                        return "REGEXP";
-                    }
-
-                case MySQLToken.KwRelease:
-                    {
-                        return "RELEASE";
-                    }
-
-                case MySQLToken.KwRename:
-                    {
-                        return "RENAME";
-                    }
-
-                case MySQLToken.KwRepeat:
-                    {
-                        return "REPEAT";
-                    }
-
-                case MySQLToken.KwReplace:
-                    {
-                        return "REPLACE";
-                    }
-
-                case MySQLToken.KwRequire:
-                    {
-                        return "REQUIRE";
-                    }
-
-                case MySQLToken.KwResignal:
-                    {
-                        return "RESIGNAL";
-                    }
-
-                case MySQLToken.KwRestrict:
-                    {
-                        return "RESTRICT";
-                    }
-
-                case MySQLToken.KwReturn:
-                    {
-                        return "RETURN";
-                    }
-
-                case MySQLToken.KwRevoke:
-                    {
-                        return "REVOKE";
-                    }
-
-                case MySQLToken.KwRight:
-                    {
-                        return "RIGHT";
-                    }
-
-                case MySQLToken.KwRlike:
-                    {
-                        return "RLIKE";
-                    }
-
-                case MySQLToken.KwSchema:
-                    {
-                        return "SCHEMA";
-                    }
-
-                case MySQLToken.KwSchemas:
-                    {
-                        return "SCHEMAS";
-                    }
-
-                case MySQLToken.KwSecondMicrosecond:
-                    {
-                        return "SECOND_MICROSECOND";
-                    }
-
-                case MySQLToken.KwSelect:
-                    {
-                        return "SELECT";
-                    }
-
-                case MySQLToken.KwSensitive:
-                    {
-                        return "SENSITIVE";
-                    }
-
-                case MySQLToken.KwSeparator:
-                    {
-                        return "SEPARATOR";
-                    }
-
-                case MySQLToken.KwSet:
-                    {
-                        return "SET";
-                    }
-
-                case MySQLToken.KwShow:
-                    {
-                        return "SHOW";
-                    }
-
-                case MySQLToken.KwSignal:
-                    {
-                        return "SIGNAL";
-                    }
-
-                case MySQLToken.KwSlow:
-                    {
-                        return "SLOW";
-                    }
-
-                case MySQLToken.KwSmallint:
-                    {
-                        return "SMALLINT";
-                    }
-
-                case MySQLToken.KwSpatial:
-                    {
-                        return "SPATIAL";
-                    }
-
-                case MySQLToken.KwSpecific:
-                    {
-                        return "SPECIFIC";
-                    }
-
-                case MySQLToken.KwSql:
-                    {
-                        return "SQL";
-                    }
-
-                case MySQLToken.KwSqlexception:
-                    {
-                        return "SQLEXCEPTION";
-                    }
-
-                case MySQLToken.KwSqlstate:
-                    {
-                        return "SQLSTATE";
-                    }
-
-                case MySQLToken.KwSqlwarning:
-                    {
-                        return "SQLWARNING";
-                    }
-
-                case MySQLToken.KwSqlBigResult:
-                    {
-                        return "SQL_BIG_RESULT";
-                    }
-
-                case MySQLToken.KwSqlCalcFoundRows:
-                    {
-                        return "SQL_CALC_FOUND_ROWS";
-                    }
-
-                case MySQLToken.KwSqlSmallResult:
-                    {
-                        return "SQL_SMALL_RESULT";
-                    }
-
-                case MySQLToken.KwSsl:
-                    {
-                        return "SSL";
-                    }
-
-                case MySQLToken.KwStarting:
-                    {
-                        return "STARTING";
-                    }
-
-                case MySQLToken.KwStraightJoin:
-                    {
-                        return "STRAIGHT_JOIN";
-                    }
-
-                case MySQLToken.KwTable:
-                    {
-                        return "TABLE";
-                    }
-
-                case MySQLToken.KwTerminated:
-                    {
-                        return "TERMINATED";
-                    }
-
-                case MySQLToken.KwThen:
-                    {
-                        return "THEN";
-                    }
-
-                case MySQLToken.KwTinyblob:
-                    {
-                        return "TINYBLOB";
-                    }
-
-                case MySQLToken.KwTinyint:
-                    {
-                        return "TINYINT";
-                    }
-
-                case MySQLToken.KwTinytext:
-                    {
-                        return "TINYTEXT";
-                    }
-
-                case MySQLToken.KwTo:
-                    {
-                        return "TO";
-                    }
-
-                case MySQLToken.KwTrailing:
-                    {
-                        return "TRAILING";
-                    }
-
-                case MySQLToken.KwTrigger:
-                    {
-                        return "TRIGGER";
-                    }
-
-                case MySQLToken.KwUndo:
-                    {
-                        return "UNDO";
-                    }
-
-                case MySQLToken.KwUnion:
-                    {
-                        return "UNION";
-                    }
-
-                case MySQLToken.KwUnique:
-                    {
-                        return "UNIQUE";
-                    }
-
-                case MySQLToken.KwUnlock:
-                    {
-                        return "UNLOCK";
-                    }
-
-                case MySQLToken.KwUnsigned:
-                    {
-                        return "UNSIGNED";
-                    }
-
-                case MySQLToken.KwUpdate:
-                    {
-                        return "UPDATE";
-                    }
-
-                case MySQLToken.KwUsage:
-                    {
-                        return "USAGE";
-                    }
-
-                case MySQLToken.KwUse:
-                    {
-                        return "USE";
-                    }
-
-                case MySQLToken.KwUsing:
-                    {
-                        return "USING";
-                    }
-
-                case MySQLToken.KwUtcDate:
-                    {
-                        return "UTC_DATE";
-                    }
-
-                case MySQLToken.KwUtcTime:
-                    {
-                        return "UTC_TIME";
-                    }
-
-                case MySQLToken.KwUtcTimestamp:
-                    {
-                        return "UTC_TIMESTAMP";
-                    }
-
-                case MySQLToken.KwValues:
-                    {
-                        return "VALUES";
-                    }
-
-                case MySQLToken.KwVarbinary:
-                    {
-                        return "VARBINARY";
-                    }
-
-                case MySQLToken.KwVarchar:
-                    {
-                        return "VARCHAR";
-                    }
-
-                case MySQLToken.KwVarcharacter:
-                    {
-                        return "VARCHARACTER";
-                    }
-
-                case MySQLToken.KwVarying:
-                    {
-                        return "VARYING";
-                    }
-
-                case MySQLToken.KwWhen:
-                    {
-                        return "WHEN";
-                    }
-
-                case MySQLToken.KwWhere:
-                    {
-                        return "WHERE";
-                    }
-
-                case MySQLToken.KwWhile:
-                    {
-                        return "WHILE";
-                    }
-
-                case MySQLToken.KwWith:
-                    {
-                        return "WITH";
-                    }
-
-                case MySQLToken.KwWrite:
-                    {
-                        return "WRITE";
-                    }
-
-                case MySQLToken.KwXor:
-                    {
-                        return "XOR";
-                    }
-
-                case MySQLToken.KwYearMonth:
-                    {
-                        return "YEAR_MONTH";
-                    }
-
-                case MySQLToken.KwZerofill:
-                    {
-                        return "ZEROFILL";
-                    }
+                case MySqlToken.KwAccessible:
+                {
+                    return "ACCESSIBLE";
+                }
+
+                case MySqlToken.KwAdd:
+                {
+                    return "ADD";
+                }
+
+                case MySqlToken.KwAll:
+                {
+                    return "ALL";
+                }
+
+                case MySqlToken.KwAlter:
+                {
+                    return "ALTER";
+                }
+
+                case MySqlToken.KwAnalyze:
+                {
+                    return "ANALYZE";
+                }
+
+                case MySqlToken.KwAnd:
+                {
+                    return "AND";
+                }
+
+                case MySqlToken.KwAs:
+                {
+                    return "AS";
+                }
+
+                case MySqlToken.KwAsc:
+                {
+                    return "ASC";
+                }
+
+                case MySqlToken.KwAsensitive:
+                {
+                    return "ASENSITIVE";
+                }
+
+                case MySqlToken.KwBefore:
+                {
+                    return "BEFORE";
+                }
+
+                case MySqlToken.KwBetween:
+                {
+                    return "BETWEEN";
+                }
+
+                case MySqlToken.KwBigint:
+                {
+                    return "BIGINT";
+                }
+
+                case MySqlToken.KwBinary:
+                {
+                    return "BINARY";
+                }
+
+                case MySqlToken.KwBlob:
+                {
+                    return "BLOB";
+                }
+
+                case MySqlToken.KwBoth:
+                {
+                    return "BOTH";
+                }
+
+                case MySqlToken.KwBy:
+                {
+                    return "BY";
+                }
+
+                case MySqlToken.KwCall:
+                {
+                    return "CALL";
+                }
+
+                case MySqlToken.KwCascade:
+                {
+                    return "CASCADE";
+                }
+
+                case MySqlToken.KwCase:
+                {
+                    return "CASE";
+                }
+
+                case MySqlToken.KwChange:
+                {
+                    return "CHANGE";
+                }
+
+                case MySqlToken.KwChar:
+                {
+                    return "CHAR";
+                }
+
+                case MySqlToken.KwCharacter:
+                {
+                    return "CHARACTER";
+                }
+
+                case MySqlToken.KwCheck:
+                {
+                    return "CHECK";
+                }
+
+                case MySqlToken.KwCollate:
+                {
+                    return "COLLATE";
+                }
+
+                case MySqlToken.KwColumn:
+                {
+                    return "COLUMN";
+                }
+
+                case MySqlToken.KwCondition:
+                {
+                    return "CONDITION";
+                }
+
+                case MySqlToken.KwConstraint:
+                {
+                    return "CONSTRAINT";
+                }
+
+                case MySqlToken.KwContinue:
+                {
+                    return "CONTINUE";
+                }
+
+                case MySqlToken.KwConvert:
+                {
+                    return "CONVERT";
+                }
+
+                case MySqlToken.KwCreate:
+                {
+                    return "CREATE";
+                }
+
+                case MySqlToken.KwCross:
+                {
+                    return "CROSS";
+                }
+
+                case MySqlToken.KwCurrentDate:
+                {
+                    return "CURRENT_DATE";
+                }
+
+                case MySqlToken.KwCurrentTime:
+                {
+                    return "CURRENT_TIME";
+                }
+
+                case MySqlToken.KwCurrentTimestamp:
+                {
+                    return "CURRENT_TIMESTAMP";
+                }
+
+                case MySqlToken.KwCurrentUser:
+                {
+                    return "CURRENT_USER";
+                }
+
+                case MySqlToken.KwCursor:
+                {
+                    return "CURSOR";
+                }
+
+                case MySqlToken.KwDatabase:
+                {
+                    return "DATABASE";
+                }
+
+                case MySqlToken.KwDatabases:
+                {
+                    return "DATABASES";
+                }
+
+                case MySqlToken.KwDayHour:
+                {
+                    return "DAY_HOUR";
+                }
+
+                case MySqlToken.KwDayMicrosecond:
+                {
+                    return "DAY_MICROSECOND";
+                }
+
+                case MySqlToken.KwDayMinute:
+                {
+                    return "DAY_MINUTE";
+                }
+
+                case MySqlToken.KwDaySecond:
+                {
+                    return "DAY_SECOND";
+                }
+
+                case MySqlToken.KwDec:
+                {
+                    return "DEC";
+                }
+
+                case MySqlToken.KwDecimal:
+                {
+                    return "DECIMAL";
+                }
+
+                case MySqlToken.KwDeclare:
+                {
+                    return "DECLARE";
+                }
+
+                case MySqlToken.KwDefault:
+                {
+                    return "DEFAULT";
+                }
+
+                case MySqlToken.KwDelayed:
+                {
+                    return "DELAYED";
+                }
+
+                case MySqlToken.KwDelete:
+                {
+                    return "DELETE";
+                }
+
+                case MySqlToken.KwDesc:
+                {
+                    return "DESC";
+                }
+
+                case MySqlToken.KwDescribe:
+                {
+                    return "DESCRIBE";
+                }
+
+                case MySqlToken.KwDeterministic:
+                {
+                    return "DETERMINISTIC";
+                }
+
+                case MySqlToken.KwDistinct:
+                {
+                    return "DISTINCT";
+                }
+
+                case MySqlToken.KwDistinctrow:
+                {
+                    return "DISTINCTROW";
+                }
+
+                case MySqlToken.KwDiv:
+                {
+                    return "DIV";
+                }
+
+                case MySqlToken.KwDouble:
+                {
+                    return "DOUBLE";
+                }
+
+                case MySqlToken.KwDrop:
+                {
+                    return "DROP";
+                }
+
+                case MySqlToken.KwDual:
+                {
+                    return "DUAL";
+                }
+
+                case MySqlToken.KwEach:
+                {
+                    return "EACH";
+                }
+
+                case MySqlToken.KwElse:
+                {
+                    return "ELSE";
+                }
+
+                case MySqlToken.KwElseif:
+                {
+                    return "ELSEIF";
+                }
+
+                case MySqlToken.KwEnclosed:
+                {
+                    return "ENCLOSED";
+                }
+
+                case MySqlToken.KwEscaped:
+                {
+                    return "ESCAPED";
+                }
+
+                case MySqlToken.KwExists:
+                {
+                    return "EXISTS";
+                }
+
+                case MySqlToken.KwExit:
+                {
+                    return "EXIT";
+                }
+
+                case MySqlToken.KwExplain:
+                {
+                    return "EXPLAIN";
+                }
+
+                case MySqlToken.KwFetch:
+                {
+                    return "FETCH";
+                }
+
+                case MySqlToken.KwFloat:
+                {
+                    return "FLOAT";
+                }
+
+                case MySqlToken.KwFloat4:
+                {
+                    return "FLOAT4";
+                }
+
+                case MySqlToken.KwFloat8:
+                {
+                    return "FLOAT8";
+                }
+
+                case MySqlToken.KwFor:
+                {
+                    return "FOR";
+                }
+
+                case MySqlToken.KwForce:
+                {
+                    return "FORCE";
+                }
+
+                case MySqlToken.KwForeign:
+                {
+                    return "FOREIGN";
+                }
+
+                case MySqlToken.KwFrom:
+                {
+                    return "FROM";
+                }
+
+                case MySqlToken.KwFulltext:
+                {
+                    return "FULLTEXT";
+                }
+
+                case MySqlToken.KwGeneral:
+                {
+                    return "GENERAL";
+                }
+
+                case MySqlToken.KwGrant:
+                {
+                    return "GRANT";
+                }
+
+                case MySqlToken.KwGroup:
+                {
+                    return "GROUP";
+                }
+
+                case MySqlToken.KwHaving:
+                {
+                    return "HAVING";
+                }
+
+                case MySqlToken.KwHighPriority:
+                {
+                    return "HIGH_PRIORITY";
+                }
+
+                case MySqlToken.KwHourMicrosecond:
+                {
+                    return "HOUR_MICROSECOND";
+                }
+
+                case MySqlToken.KwHourMinute:
+                {
+                    return "HOUR_MINUTE";
+                }
+
+                case MySqlToken.KwHourSecond:
+                {
+                    return "HOUR_SECOND";
+                }
+
+                case MySqlToken.KwIf:
+                {
+                    return "IF";
+                }
+
+                case MySqlToken.KwIgnore:
+                {
+                    return "IGNORE";
+                }
+
+                case MySqlToken.KwIgnoreServerIds:
+                {
+                    return "IGNORE_SERVER_IDS";
+                }
+
+                case MySqlToken.KwIn:
+                {
+                    return "IN";
+                }
+
+                case MySqlToken.KwIndex:
+                {
+                    return "INDEX";
+                }
+
+                case MySqlToken.KwInfile:
+                {
+                    return "INFILE";
+                }
+
+                case MySqlToken.KwInner:
+                {
+                    return "INNER";
+                }
+
+                case MySqlToken.KwInout:
+                {
+                    return "INOUT";
+                }
+
+                case MySqlToken.KwInsensitive:
+                {
+                    return "INSENSITIVE";
+                }
+
+                case MySqlToken.KwInsert:
+                {
+                    return "INSERT";
+                }
+
+                case MySqlToken.KwInt:
+                {
+                    return "INT";
+                }
+
+                case MySqlToken.KwInt1:
+                {
+                    return "INT1";
+                }
+
+                case MySqlToken.KwInt2:
+                {
+                    return "INT2";
+                }
+
+                case MySqlToken.KwInt3:
+                {
+                    return "INT3";
+                }
+
+                case MySqlToken.KwInt4:
+                {
+                    return "INT4";
+                }
+
+                case MySqlToken.KwInt8:
+                {
+                    return "INT8";
+                }
+
+                case MySqlToken.KwInteger:
+                {
+                    return "INTEGER";
+                }
+
+                case MySqlToken.KwInterval:
+                {
+                    return "INTERVAL";
+                }
+
+                case MySqlToken.KwInto:
+                {
+                    return "INTO";
+                }
+
+                case MySqlToken.KwIs:
+                {
+                    return "IS";
+                }
+
+                case MySqlToken.KwIterate:
+                {
+                    return "ITERATE";
+                }
+
+                case MySqlToken.KwJoin:
+                {
+                    return "JOIN";
+                }
+
+                case MySqlToken.KwKey:
+                {
+                    return "KEY";
+                }
+
+                case MySqlToken.KwKeys:
+                {
+                    return "KEYS";
+                }
+
+                case MySqlToken.KwKill:
+                {
+                    return "KILL";
+                }
+
+                case MySqlToken.KwLeading:
+                {
+                    return "LEADING";
+                }
+
+                case MySqlToken.KwLeave:
+                {
+                    return "LEAVE";
+                }
+
+                case MySqlToken.KwLeft:
+                {
+                    return "LEFT";
+                }
+
+                case MySqlToken.KwLike:
+                {
+                    return "LIKE";
+                }
+
+                case MySqlToken.KwLimit:
+                {
+                    return "LIMIT";
+                }
+
+                case MySqlToken.KwLinear:
+                {
+                    return "LINEAR";
+                }
+
+                case MySqlToken.KwLines:
+                {
+                    return "LINES";
+                }
+
+                case MySqlToken.KwLoad:
+                {
+                    return "LOAD";
+                }
+
+                case MySqlToken.KwLocaltime:
+                {
+                    return "LOCALTIME";
+                }
+
+                case MySqlToken.KwLocaltimestamp:
+                {
+                    return "LOCALTIMESTAMP";
+                }
+
+                case MySqlToken.KwLock:
+                {
+                    return "LOCK";
+                }
+
+                case MySqlToken.KwLong:
+                {
+                    return "LONG";
+                }
+
+                case MySqlToken.KwLongblob:
+                {
+                    return "LONGBLOB";
+                }
+
+                case MySqlToken.KwLongtext:
+                {
+                    return "LONGTEXT";
+                }
+
+                case MySqlToken.KwLoop:
+                {
+                    return "LOOP";
+                }
+
+                case MySqlToken.KwLowPriority:
+                {
+                    return "LOW_PRIORITY";
+                }
+
+                case MySqlToken.KwMasterHeartbeatPeriod:
+                {
+                    return "MASTER_HEARTBEAT_PERIOD";
+                }
+
+                case MySqlToken.KwMasterSslVerifyServerCert:
+                {
+                    return "MASTER_SSL_VERIFY_SERVER_CERT";
+                }
+
+                case MySqlToken.KwMatch:
+                {
+                    return "MATCH";
+                }
+
+                case MySqlToken.KwMaxvalue:
+                {
+                    return "MAXVALUE";
+                }
+
+                case MySqlToken.KwMediumblob:
+                {
+                    return "MEDIUMBLOB";
+                }
+
+                case MySqlToken.KwMediumint:
+                {
+                    return "MEDIUMINT";
+                }
+
+                case MySqlToken.KwMediumtext:
+                {
+                    return "MEDIUMTEXT";
+                }
+
+                case MySqlToken.KwMiddleint:
+                {
+                    return "MIDdlEINT";
+                }
+
+                case MySqlToken.KwMinuteMicrosecond:
+                {
+                    return "MINUTE_MICROSECOND";
+                }
+
+                case MySqlToken.KwMinuteSecond:
+                {
+                    return "MINUTE_SECOND";
+                }
+
+                case MySqlToken.KwMod:
+                {
+                    return "MOD";
+                }
+
+                case MySqlToken.KwModifies:
+                {
+                    return "MODIFIES";
+                }
+
+                case MySqlToken.KwNatural:
+                {
+                    return "NATURAL";
+                }
+
+                case MySqlToken.KwNot:
+                {
+                    return "NOT";
+                }
+
+                case MySqlToken.KwNoWriteToBinlog:
+                {
+                    return "NO_WRITE_TO_BINLOG";
+                }
+
+                case MySqlToken.KwNumeric:
+                {
+                    return "NUMERIC";
+                }
+
+                case MySqlToken.KwOn:
+                {
+                    return "ON";
+                }
+
+                case MySqlToken.KwOptimize:
+                {
+                    return "OPTIMIZE";
+                }
+
+                case MySqlToken.KwOption:
+                {
+                    return "OPTION";
+                }
+
+                case MySqlToken.KwOptionally:
+                {
+                    return "OPTIONALLY";
+                }
+
+                case MySqlToken.KwOr:
+                {
+                    return "OR";
+                }
+
+                case MySqlToken.KwOrder:
+                {
+                    return "ORDER";
+                }
+
+                case MySqlToken.KwOut:
+                {
+                    return "OUT";
+                }
+
+                case MySqlToken.KwOuter:
+                {
+                    return "OUTER";
+                }
+
+                case MySqlToken.KwOutfile:
+                {
+                    return "OUTFILE";
+                }
+
+                case MySqlToken.KwPrecision:
+                {
+                    return "PRECISION";
+                }
+
+                case MySqlToken.KwPrimary:
+                {
+                    return "PRIMARY";
+                }
+
+                case MySqlToken.KwProcedure:
+                {
+                    return "PROCEDURE";
+                }
+
+                case MySqlToken.KwPurge:
+                {
+                    return "PURGE";
+                }
+
+                case MySqlToken.KwRange:
+                {
+                    return "RANGE";
+                }
+
+                case MySqlToken.KwRead:
+                {
+                    return "READ";
+                }
+
+                case MySqlToken.KwReads:
+                {
+                    return "READS";
+                }
+
+                case MySqlToken.KwReadWrite:
+                {
+                    return "READ_WRITE";
+                }
+
+                case MySqlToken.KwReal:
+                {
+                    return "REAL";
+                }
+
+                case MySqlToken.KwReferences:
+                {
+                    return "REFERENCES";
+                }
+
+                case MySqlToken.KwRegexp:
+                {
+                    return "REGEXP";
+                }
+
+                case MySqlToken.KwRelease:
+                {
+                    return "RELEASE";
+                }
+
+                case MySqlToken.KwRename:
+                {
+                    return "RENAME";
+                }
+
+                case MySqlToken.KwRepeat:
+                {
+                    return "REPEAT";
+                }
+
+                case MySqlToken.KwReplace:
+                {
+                    return "REPLACE";
+                }
+
+                case MySqlToken.KwRequire:
+                {
+                    return "REQUIRE";
+                }
+
+                case MySqlToken.KwResignal:
+                {
+                    return "RESIGNAL";
+                }
+
+                case MySqlToken.KwRestrict:
+                {
+                    return "RESTRICT";
+                }
+
+                case MySqlToken.KwReturn:
+                {
+                    return "RETURN";
+                }
+
+                case MySqlToken.KwRevoke:
+                {
+                    return "REVOKE";
+                }
+
+                case MySqlToken.KwRight:
+                {
+                    return "RIGHT";
+                }
+
+                case MySqlToken.KwRlike:
+                {
+                    return "RLIKE";
+                }
+
+                case MySqlToken.KwSchema:
+                {
+                    return "SCHEMA";
+                }
+
+                case MySqlToken.KwSchemas:
+                {
+                    return "SCHEMAS";
+                }
+
+                case MySqlToken.KwSecondMicrosecond:
+                {
+                    return "SECOND_MICROSECOND";
+                }
+
+                case MySqlToken.KwSelect:
+                {
+                    return "SELECT";
+                }
+
+                case MySqlToken.KwSensitive:
+                {
+                    return "SENSITIVE";
+                }
+
+                case MySqlToken.KwSeparator:
+                {
+                    return "SEPARATOR";
+                }
+
+                case MySqlToken.KwSet:
+                {
+                    return "SET";
+                }
+
+                case MySqlToken.KwShow:
+                {
+                    return "SHOW";
+                }
+
+                case MySqlToken.KwSignal:
+                {
+                    return "SIGNAL";
+                }
+
+                case MySqlToken.KwSlow:
+                {
+                    return "SLOW";
+                }
+
+                case MySqlToken.KwSmallint:
+                {
+                    return "SMALLINT";
+                }
+
+                case MySqlToken.KwSpatial:
+                {
+                    return "SPATIAL";
+                }
+
+                case MySqlToken.KwSpecific:
+                {
+                    return "SPECIFIC";
+                }
+
+                case MySqlToken.KwSql:
+                {
+                    return "Sql";
+                }
+
+                case MySqlToken.KwSqlexception:
+                {
+                    return "SQLEXCEPTION";
+                }
+
+                case MySqlToken.KwSqlstate:
+                {
+                    return "SQLSTATE";
+                }
+
+                case MySqlToken.KwSqlwarning:
+                {
+                    return "SQLWARNING";
+                }
+
+                case MySqlToken.KwSqlBigResult:
+                {
+                    return "SQL_BIG_RESULT";
+                }
+
+                case MySqlToken.KwSqlCalcFoundRows:
+                {
+                    return "SQL_CALC_FOUND_ROWS";
+                }
+
+                case MySqlToken.KwSqlSmallResult:
+                {
+                    return "SQL_SMALL_RESULT";
+                }
+
+                case MySqlToken.KwSsl:
+                {
+                    return "SSL";
+                }
+
+                case MySqlToken.KwStarting:
+                {
+                    return "STARTING";
+                }
+
+                case MySqlToken.KwStraightJoin:
+                {
+                    return "STRAIGHT_JOIN";
+                }
+
+                case MySqlToken.KwTable:
+                {
+                    return "TABLE";
+                }
+
+                case MySqlToken.KwTerminated:
+                {
+                    return "TERMINATED";
+                }
+
+                case MySqlToken.KwThen:
+                {
+                    return "THEN";
+                }
+
+                case MySqlToken.KwTinyblob:
+                {
+                    return "TINYBLOB";
+                }
+
+                case MySqlToken.KwTinyint:
+                {
+                    return "TINYINT";
+                }
+
+                case MySqlToken.KwTinytext:
+                {
+                    return "TINYTEXT";
+                }
+
+                case MySqlToken.KwTo:
+                {
+                    return "TO";
+                }
+
+                case MySqlToken.KwTrailing:
+                {
+                    return "TRAILING";
+                }
+
+                case MySqlToken.KwTrigger:
+                {
+                    return "TRIGGER";
+                }
+
+                case MySqlToken.KwUndo:
+                {
+                    return "UNDO";
+                }
+
+                case MySqlToken.KwUnion:
+                {
+                    return "UNION";
+                }
+
+                case MySqlToken.KwUnique:
+                {
+                    return "UNIQUE";
+                }
+
+                case MySqlToken.KwUnlock:
+                {
+                    return "UNLOCK";
+                }
+
+                case MySqlToken.KwUnsigned:
+                {
+                    return "UNSIGNED";
+                }
+
+                case MySqlToken.KwUpdate:
+                {
+                    return "UPDATE";
+                }
+
+                case MySqlToken.KwUsage:
+                {
+                    return "USAGE";
+                }
+
+                case MySqlToken.KwUse:
+                {
+                    return "USE";
+                }
+
+                case MySqlToken.KwUsing:
+                {
+                    return "USING";
+                }
+
+                case MySqlToken.KwUtcDate:
+                {
+                    return "UTC_DATE";
+                }
+
+                case MySqlToken.KwUtcTime:
+                {
+                    return "UTC_TIME";
+                }
+
+                case MySqlToken.KwUtcTimestamp:
+                {
+                    return "UTC_TIMESTAMP";
+                }
+
+                case MySqlToken.KwValues:
+                {
+                    return "VALUES";
+                }
+
+                case MySqlToken.KwVarbinary:
+                {
+                    return "VARBINARY";
+                }
+
+                case MySqlToken.KwVarchar:
+                {
+                    return "VARCHAR";
+                }
+
+                case MySqlToken.KwVarcharacter:
+                {
+                    return "VARCHARACTER";
+                }
+
+                case MySqlToken.KwVarying:
+                {
+                    return "VARYING";
+                }
+
+                case MySqlToken.KwWhen:
+                {
+                    return "WHEN";
+                }
+
+                case MySqlToken.KwWhere:
+                {
+                    return "WHERE";
+                }
+
+                case MySqlToken.KwWhile:
+                {
+                    return "WHILE";
+                }
+
+                case MySqlToken.KwWith:
+                {
+                    return "WITH";
+                }
+
+                case MySqlToken.KwWrite:
+                {
+                    return "WRITE";
+                }
+
+                case MySqlToken.KwXor:
+                {
+                    return "XOR";
+                }
+
+                case MySqlToken.KwYearMonth:
+                {
+                    return "YEAR_MONTH";
+                }
+
+                case MySqlToken.KwZerofill:
+                {
+                    return "ZEROFILL";
+                }
 
                 default:
-                    {
-                        throw new ArgumentException("token is not keyword: " + token);
-                    }
+                {
+                    throw new ArgumentException("token is not keyword: " + token);
+                }
             }
         }
     }

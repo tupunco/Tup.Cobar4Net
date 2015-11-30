@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -19,7 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Xml;
-
+using Sharpen;
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 using Tup.Cobar4Net.Config.Util;
@@ -27,73 +27,68 @@ using Tup.Cobar4Net.Util;
 
 namespace Tup.Cobar4Net.Config.Loader.Xml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class XMLSchemaLoader : SchemaLoader
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class XmlSchemaLoader : ISchemaLoader
     {
         private const string DefaultDtd = "/schema.dtd";
 
         private const string DefaultXml = "/schema.xml";
 
-        private readonly IDictionary<string, TableRuleConfig> tableRules;
-
-        private readonly ICollection<RuleConfig> rules;
-
-        private readonly IDictionary<string, RuleAlgorithm> functions;
+        private readonly IDictionary<string, DataNodeConfig> dataNodes;
 
         private readonly IDictionary<string, DataSourceConfig> dataSources;
 
-        private readonly IDictionary<string, DataNodeConfig> dataNodes;
-
         private readonly IDictionary<string, SchemaConfig> schemas;
 
-        public XMLSchemaLoader(string schemaFile, string ruleFile)
+        private readonly IDictionary<string, TableRuleConfig> tableRules;
+
+        public XmlSchemaLoader(string schemaFile, string ruleFile)
         {
             var ruleLoader = new XMLRuleLoader(ruleFile);
-            this.rules = ruleLoader.ListRuleConfig();
-            this.tableRules = ruleLoader.GetTableRules();
-            this.functions = ruleLoader.GetFunctions();
+            RuleConfigList = ruleLoader.RuleConfigList;
+            tableRules = ruleLoader.TableRules;
+            Functions = ruleLoader.Functions;
             ruleLoader = null;
 
-            this.dataSources = new Dictionary<string, DataSourceConfig>();
-            this.dataNodes = new Dictionary<string, DataNodeConfig>();
-            this.schemas = new Dictionary<string, SchemaConfig>();
-            this.Load(DefaultDtd, schemaFile == null ? DefaultXml : schemaFile);
+            dataSources = new Dictionary<string, DataSourceConfig>();
+            dataNodes = new Dictionary<string, DataNodeConfig>();
+            schemas = new Dictionary<string, SchemaConfig>();
+            Load(DefaultDtd, schemaFile ?? DefaultXml);
         }
 
-        public XMLSchemaLoader()
+        public XmlSchemaLoader()
             : this(null, null)
         {
         }
 
-        public virtual IDictionary<string, TableRuleConfig> GetTableRules()
+        public virtual IDictionary<string, TableRuleConfig> TableRules
         {
-            return tableRules;
+            get { return tableRules; }
         }
 
-        public virtual IDictionary<string, RuleAlgorithm> GetFunctions()
+        public virtual IDictionary<string, IRuleAlgorithm> Functions { get; }
+
+        public virtual IDictionary<string, DataSourceConfig> DataSources
         {
-            return functions;
+            get
+            {
+                return dataSources.IsEmpty() ? new Dictionary<string, DataSourceConfig>(0) : dataSources.AsReadOnly();
+            }
         }
 
-        public virtual IDictionary<string, DataSourceConfig> GetDataSources()
+        public virtual IDictionary<string, DataNodeConfig> DataNodes
         {
-            return dataSources.IsEmpty() ? new Dictionary<string, DataSourceConfig>(0) : dataSources.AsReadOnly();
+            get { return dataNodes.IsEmpty() ? new Dictionary<string, DataNodeConfig>(0) : dataNodes.AsReadOnly(); }
         }
 
-        public virtual IDictionary<string, DataNodeConfig> GetDataNodes()
+        public virtual IDictionary<string, SchemaConfig> Schemas
         {
-            return dataNodes.IsEmpty() ? new Dictionary<string, DataNodeConfig>(0) : dataNodes.AsReadOnly();
+            get { return schemas.IsEmpty() ? new Dictionary<string, SchemaConfig>(0) : schemas.AsReadOnly(); }
         }
 
-        public virtual IDictionary<string, SchemaConfig> GetSchemas()
-        {
-            return schemas.IsEmpty() ? new Dictionary<string, SchemaConfig>(0) : schemas.AsReadOnly();
-        }
-
-        public virtual ICollection<RuleConfig> ListRuleConfig()
-        {
-            return rules;
-        }
+        public virtual ICollection<RuleConfig> RuleConfigList { get; }
 
         private void Load(string dtdFile, string xmlFile)
         {
@@ -104,7 +99,11 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
 
                 var nsmgr = new XmlNamespaceManager(xmlDoc.NameTable);
                 nsmgr.AddNamespace("cobar", "http://cobar.alibaba.com/");
-                var root = xmlDoc.SelectNodes("cobar:schema", nsmgr).Item(0) as XmlElement;
+                var xmlNodeList = xmlDoc.SelectNodes("cobar:schema", nsmgr);
+                if (xmlNodeList == null)
+                    return;
+
+                var root = xmlNodeList.Item(0) as XmlElement;
 
                 LoadDataSources(root);
                 LoadDataNodes(root);
@@ -126,7 +125,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             {
                 element = (XmlElement)list.Item(i);
                 var dscList = new List<DataSourceConfig>();
-                string dsNamePrefix = element.GetAttribute("name");
+                var dsNamePrefix = element.GetAttribute("name");
                 try
                 {
                     var dsType = element.GetAttribute("type");
@@ -134,19 +133,19 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     if (locElement == null)
                     {
                         throw new ArgumentNullException("dataSource xml XmlElement with name of " + dsNamePrefix
-                                                            + " has no location Element");
+                                                        + " has no location Element");
                     }
 
                     locationList = locElement.GetElementsByTagName("location");
-                    int dsIndex = 0;
+                    var dsIndex = 0;
                     for (int j = 0, m = locationList.Count; j < m; ++j)
                     {
                         var locStr = ((XmlElement)locationList.Item(j)).InnerText;
-                        int colonIndex = locStr.IndexOf(':');
-                        int slashIndex = locStr.IndexOf('/');
-                        string dsHost = Sharpen.Runtime.Substring(locStr, 0, colonIndex).Trim();
-                        int dsPort = System.Convert.ToInt32(Sharpen.Runtime.Substring(locStr, colonIndex + 1, slashIndex).Trim());
-                        string[] schemas = SplitUtil.Split(Sharpen.Runtime.Substring(locStr, slashIndex + 1).Trim(), ',', '$', '-');
+                        var colonIndex = locStr.IndexOf(':');
+                        var slashIndex = locStr.IndexOf('/');
+                        var dsHost = Runtime.Substring(locStr, 0, colonIndex).Trim();
+                        var dsPort = Convert.ToInt32(Runtime.Substring(locStr, colonIndex + 1, slashIndex).Trim());
+                        var schemas = SplitUtil.Split(Runtime.Substring(locStr, slashIndex + 1).Trim(), ',', '$', '-');
                         foreach (var dsSchema in schemas)
                         {
                             var dsConf = new DataSourceConfig();
@@ -156,27 +155,27 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                             switch (dsIndex)
                             {
                                 case 0:
-                                    {
-                                        dsConf.SetName(dsNamePrefix);
-                                        break;
-                                    }
+                                {
+                                    dsConf.Name = dsNamePrefix;
+                                    break;
+                                }
 
                                 case 1:
-                                    {
-                                        dscList[0].SetName(dsNamePrefix + "[0]");
-                                        goto default;
-                                    }
+                                {
+                                    dscList[0].Name = dsNamePrefix + "[0]";
+                                    goto default;
+                                }
 
                                 default:
-                                    {
-                                        dsConf.SetName(dsNamePrefix + "[" + dsIndex + "]");
-                                        break;
-                                    }
+                                {
+                                    dsConf.Name = dsNamePrefix + "[" + dsIndex + "]";
+                                    break;
+                                }
                             }
-                            dsConf.SetType(dsType);
-                            dsConf.SetDatabase(dsSchema);
-                            dsConf.SetHost(dsHost);
-                            dsConf.SetPort(dsPort);
+                            dsConf.Type = dsType;
+                            dsConf.Database = dsSchema;
+                            dsConf.Host = dsHost;
+                            dsConf.Port = dsPort;
                             ++dsIndex;
                         }
                     }
@@ -188,12 +187,12 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
 
                 foreach (var dsConf_1 in dscList)
                 {
-                    if (dataSources.ContainsKey(dsConf_1.GetName()))
+                    if (dataSources.ContainsKey(dsConf_1.Name))
                     {
-                        throw new ConfigException("dataSource name " + dsConf_1.GetName() + "duplicated!");
+                        throw new ConfigException("dataSource name " + dsConf_1.Name + "duplicated!");
                     }
 
-                    dataSources[dsConf_1.GetName()] = dsConf_1;
+                    dataSources[dsConf_1.Name] = dsConf_1;
                 }
             }
         }
@@ -207,7 +206,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             for (int i = 0, n = list.Count; i < n; i++)
             {
                 element = (XmlElement)list.Item(i);
-                string dnNamePrefix = element.GetAttribute("name");
+                var dnNamePrefix = element.GetAttribute("name");
                 IList<DataNodeConfig> confList = new List<DataNodeConfig>();
                 try
                 {
@@ -215,11 +214,11 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     if (dsElement == null)
                     {
                         throw new ArgumentNullException("dataNode xml XmlElement with name of " + dnNamePrefix
-                             + " has no dataSource Element");
+                                                        + " has no dataSource Element");
                     }
 
                     dataSourceList = dsElement.GetElementsByTagName("dataSourceRef");
-                    string[][] dataSources = new string[dataSourceList.Count][];
+                    var dataSources = new string[dataSourceList.Count][];
                     for (int j = 0, m = dataSourceList.Count; j < m; ++j)
                     {
                         var @ref = (XmlElement)dataSourceList.Item(j);
@@ -231,7 +230,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     {
                         throw new ConfigException("no dataSourceRef defined!");
                     }
-                    foreach (string[] dss in dataSources)
+                    foreach (var dss in dataSources)
                     {
                         if (dss.Length != dataSources[0].Length)
                         {
@@ -242,7 +241,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     for (int k = 0, limit = dataSources[0].Length; k < limit; ++k)
                     {
                         var dsString = new StringBuilder();
-                        for (int dsIndex = 0; dsIndex < dataSources.Length; ++dsIndex)
+                        for (var dsIndex = 0; dsIndex < dataSources.Length; ++dsIndex)
                         {
                             if (dsIndex > 0)
                             {
@@ -258,18 +257,18 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                         switch (k)
                         {
                             case 0:
-                                {
-                                    conf.SetName((limit == 1) ? dnNamePrefix : dnNamePrefix + "[" + k + "]");
-                                    break;
-                                }
+                            {
+                                conf.Name = limit == 1 ? dnNamePrefix : dnNamePrefix + "[" + k + "]";
+                                break;
+                            }
 
                             default:
-                                {
-                                    conf.SetName(dnNamePrefix + "[" + k + "]");
-                                    break;
-                                }
+                            {
+                                conf.Name = dnNamePrefix + "[" + k + "]";
+                                break;
+                            }
                         }
-                        conf.SetDataSource(dsString.ToString());
+                        conf.DataSource = dsString.ToString();
                     }
                 }
                 catch (Exception e)
@@ -279,11 +278,11 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
 
                 foreach (var conf_1 in confList)
                 {
-                    if (dataNodes.ContainsKey(conf_1.GetName()))
+                    if (dataNodes.ContainsKey(conf_1.Name))
                     {
-                        throw new ConfigException("dataNode " + conf_1.GetName() + " duplicated!");
+                        throw new ConfigException("dataNode " + conf_1.Name + " duplicated!");
                     }
-                    dataNodes[conf_1.GetName()] = conf_1;
+                    dataNodes[conf_1.Name] = conf_1;
                 }
             }
         }
@@ -296,8 +295,8 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             for (int i = 0, n = list.Count; i < n; i++)
             {
                 schemaElement = (XmlElement)list.Item(i);
-                string name = schemaElement.GetAttribute("name");
-                string dataNode = schemaElement.GetAttribute("dataNode");
+                var name = schemaElement.GetAttribute("name");
+                var dataNode = schemaElement.GetAttribute("dataNode");
                 // 在非空的情况下检查dataNode是否存在
                 if (dataNode != null && dataNode.Length != 0)
                 {
@@ -309,7 +308,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                 }
 
                 // 确保非空
-                string group = "default";
+                var group = "default";
                 if (schemaElement.HasAttribute("group"))
                 {
                     group = schemaElement.GetAttribute("group").Trim();
@@ -320,7 +319,7 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     throw new ConfigException("schema " + name + " duplicated!");
                 }
 
-                bool keepSqlSchema = false;
+                var keepSqlSchema = false;
                 if (schemaElement.HasAttribute("keepSqlSchema"))
                 {
                     keepSqlSchema = bool.Parse(schemaElement.GetAttribute("keepSqlSchema").Trim());
@@ -335,15 +334,15 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
             var nodeList = node.GetElementsByTagName("table");
             XmlElement tableElement = null;
             TableRuleConfig tableRule = null;
-            for (int i = 0; i < nodeList.Count; i++)
+            for (var i = 0; i < nodeList.Count; i++)
             {
                 tableElement = (XmlElement)nodeList.Item(i);
-                string name = tableElement.GetAttribute("name").ToUpper();
-                string dataNode = tableElement.GetAttribute("dataNode");
+                var name = tableElement.GetAttribute("name").ToUpper();
+                var dataNode = tableElement.GetAttribute("dataNode");
                 tableRule = null;
                 if (tableElement.HasAttribute("rule"))
                 {
-                    string ruleName = tableElement.GetAttribute("rule");
+                    var ruleName = tableElement.GetAttribute("rule");
                     tableRule = tableRules[ruleName];
                     if (tableRule == null)
                     {
@@ -351,22 +350,22 @@ namespace Tup.Cobar4Net.Config.Loader.Xml
                     }
                 }
 
-                bool ruleRequired = false;
+                var ruleRequired = false;
                 if (tableElement.HasAttribute("ruleRequired"))
                 {
                     ruleRequired = bool.Parse(tableElement.GetAttribute("ruleRequired"));
                 }
 
                 var tableNames = SplitUtil.Split(name, ',', true);
-                foreach (string tableName in tableNames)
+                foreach (var tableName in tableNames)
                 {
                     var table = new TableConfig(tableName, dataNode, tableRule, ruleRequired);
-                    CheckDataNodeExists(table.GetDataNodes());
-                    if (tables.ContainsKey(table.GetName()))
+                    CheckDataNodeExists(table.DataNodes);
+                    if (tables.ContainsKey(table.Name))
                     {
                         throw new ConfigException("table " + tableName + " duplicated!");
                     }
-                    tables[table.GetName()] = table;
+                    tables[table.Name] = table;
                 }
             }
             return tables;

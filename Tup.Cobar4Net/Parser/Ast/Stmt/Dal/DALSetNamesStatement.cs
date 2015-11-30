@@ -19,45 +19,37 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DALSetNamesStatement : SQLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DalSetNamesStatement : ISqlStatement
     {
-        private readonly string charsetName;
-
-        private readonly string collationName;
-
-        public DALSetNamesStatement()
+        public DalSetNamesStatement()
         {
-            this.charsetName = null;
-            this.collationName = null;
+            CharsetName = null;
+            CollationName = null;
         }
 
-        public DALSetNamesStatement(string charsetName, string collationName)
+        public DalSetNamesStatement(string charsetName, string collationName)
         {
             if (charsetName == null)
             {
                 throw new ArgumentException("charsetName is null");
             }
-            this.charsetName = charsetName;
-            this.collationName = collationName;
+            CharsetName = charsetName;
+            CollationName = collationName;
         }
 
-        public virtual bool IsDefault()
+        public virtual bool IsDefault
         {
-            return charsetName == null;
+            get { return CharsetName == null; }
         }
 
-        public virtual string GetCharsetName()
-        {
-            return charsetName;
-        }
+        public virtual string CharsetName { get; }
 
-        public virtual string GetCollationName()
-        {
-            return collationName;
-        }
+        public virtual string CollationName { get; }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -13,9 +13,9 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-using NUnit.Framework;
 
 using System.Collections.Generic;
+using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Route
 {
@@ -29,10 +29,10 @@ namespace Tup.Cobar4Net.Route
             var map = new Dictionary<RouteResultsetNode, string>();
             var rrn = new RouteResultsetNode("test", "select * from t1 limit 1");
             var rrn2 = new RouteResultsetNode("test", 1, "select * from t2 limit 1");
-            map[rrn] = rrn.GetStatement();
-            map[rrn2] = rrn2.GetStatement();
+            map[rrn] = rrn.Statement;
+            map[rrn2] = rrn2.Statement;
             Assert.AreEqual(2, map.Count);
-            for (int i = 0; i < 100; i++)
+            for (var i = 0; i < 100; i++)
             {
                 Assert.AreEqual("select * from t1 limit 1", map[rrn]);
                 Assert.AreEqual("select * from t2 limit 1", map[rrn2]);

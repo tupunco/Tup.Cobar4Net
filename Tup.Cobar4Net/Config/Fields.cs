@@ -76,29 +76,29 @@ namespace Tup.Cobar4Net.Config
         public const int FieldTypeGeometry = 255;
 
         /// <summary>field flag</summary>
-        public const int NotNullFlag = unchecked((int)(0x0001));
+        public const int NotNullFlag = 0x0001;
 
-        public const int PriKeyFlag = unchecked((int)(0x0002));
+        public const int PriKeyFlag = 0x0002;
 
-        public const int UniqueKeyFlag = unchecked((int)(0x0004));
+        public const int UniqueKeyFlag = 0x0004;
 
-        public const int MultipleKeyFlag = unchecked((int)(0x0008));
+        public const int MultipleKeyFlag = 0x0008;
 
-        public const int BlobFlag = unchecked((int)(0x0010));
+        public const int BlobFlag = 0x0010;
 
-        public const int UnsignedFlag = unchecked((int)(0x0020));
+        public const int UnsignedFlag = 0x0020;
 
-        public const int ZerofillFlag = unchecked((int)(0x0040));
+        public const int ZerofillFlag = 0x0040;
 
-        public const int BinaryFlag = unchecked((int)(0x0080));
+        public const int BinaryFlag = 0x0080;
 
-        public const int EnumFlag = unchecked((int)(0x0100));
+        public const int EnumFlag = 0x0100;
 
-        public const int AutoIncrementFlag = unchecked((int)(0x0200));
+        public const int AutoIncrementFlag = 0x0200;
 
-        public const int TimestampFlag = unchecked((int)(0x0400));
+        public const int TimestampFlag = 0x0400;
 
-        public const int SetFlag = unchecked((int)(0x0800));
+        public const int SetFlag = 0x0800;
     }
 
     public static class FieldsConstants

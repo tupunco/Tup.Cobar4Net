@@ -23,16 +23,16 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public abstract class ArithmeticBinaryOperatorExpression
-        : BinaryOperatorExpression, BinaryOperandCalculator
+        : BinaryOperatorExpression, IBinaryOperandCalculator
     {
-        protected ArithmeticBinaryOperatorExpression(Expression leftOprand, Expression rightOprand, int precedence)
+        protected ArithmeticBinaryOperatorExpression(IExpression leftOprand, IExpression rightOprand, int precedence)
             : base(leftOprand, rightOprand, precedence, true)
         {
         }
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object left = leftOprand.Evaluation(parameters);
+            object left = LeftOprand.Evaluation(parameters);
             object right = rightOprand.Evaluation(parameters);
             if (left == null || right == null)
             {
@@ -43,7 +43,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
                 return ExpressionConstants.Unevaluatable;
             }
             var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
-            return ExprEvalUtils.Calculate(this, pair.GetKey(), pair.GetValue());
+            return ExprEvalUtils.Calculate(this, pair.Key, pair.Value);
         }
 
         public abstract Number Calculate(int integer1, int integer2);

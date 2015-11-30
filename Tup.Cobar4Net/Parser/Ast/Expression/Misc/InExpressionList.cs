@@ -19,71 +19,72 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Misc
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class InExpressionList : AbstractExpression
     {
-        private IList<Expression> list;
+        private IList<IExpression> _exprList;
 
-        public InExpressionList(IList<Expression> list)
+        private IList<IExpression> _replaceList;
+
+        public InExpressionList(IList<IExpression> list)
         {
             if (list == null || list.Count == 0)
             {
-                this.list = new List<Expression>(0);
+                _exprList = new List<IExpression>(0);
             }
             else
             {
-                if (list is List<Expression>)
+                if (list is List<IExpression>)
                 {
-                    this.list = list;
+                    _exprList = list;
                 }
                 else
                 {
-                    this.list = new List<Tup.Cobar4Net.Parser.Ast.Expression.Expression>(list);
+                    _exprList = new List<IExpression>(list);
                 }
             }
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<Expression> GetList()
+        /// <value>never null</value>
+        public virtual IList<IExpression> ExprList
         {
-            return list;
+            get { return _exprList; }
         }
 
-        public override int GetPrecedence()
+        public override int Precedence
         {
-            return ExpressionConstants.PrecedencePrimary;
+            get { return ExpressionConstants.PrecedencePrimary; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters
-            )
+        public virtual IList<IExpression> ReplaceExpr
+        {
+            set { _replaceList = value; }
+        }
+
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
             return ExpressionConstants.Unevaluatable;
         }
 
-        private IList<Expression> replaceList;
-
-        public virtual void SetReplaceExpr(IList<Expression> replaceList)
-        {
-            this.replaceList = replaceList;
-        }
-
         public virtual void ClearReplaceExpr()
         {
-            this.replaceList = null;
+            _replaceList = null;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
-            if (replaceList == null)
+            if (_replaceList == null)
             {
                 visitor.Visit(this);
             }
             else
             {
-                IList<Expression> temp = list;
-                list = replaceList;
+                var temp = _exprList;
+                _exprList = _replaceList;
                 visitor.Visit(this);
-                list = temp;
+                _exprList = temp;
             }
         }
     }

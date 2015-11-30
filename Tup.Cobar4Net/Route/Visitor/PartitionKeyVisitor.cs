@@ -25,6 +25,7 @@ using Tup.Cobar4Net.Parser.Ast.Expression.Logical;
 using Tup.Cobar4Net.Parser.Ast.Expression.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function;
+using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Groupby;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String;
@@ -33,8 +34,6 @@ using Tup.Cobar4Net.Parser.Ast.Expression.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Type;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Datatype;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dal;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
@@ -43,20 +42,73 @@ using Tup.Cobar4Net.Parser.Ast.Stmt.Extension;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Mts;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
+using Char = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String.Char;
+using Convert = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast.Convert;
 
 namespace Tup.Cobar4Net.Route.Visitor
 {
-    using ColumnValueType = IDictionary<object, ICollection<Pair<Expr, ASTNode>>>;
+    using ColumnValueType = IDictionary<object, ICollection<Pair<IExpression, IAstNode>>>;
 
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public sealed class PartitionKeyVisitor : SQLASTVisitor
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public sealed class PartitionKeyVisitor : ISqlAstVisitor
     {
+        public const int GroupCancel = -1;
+
+        public const int GroupNon = 0;
+
+        public const int GroupSum = 1;
+
+        public const int GroupMin = 2;
+
+        public const int GroupMax = 3;
         private static readonly ICollection<Type> VerdictPassThroughWhere = new HashSet<Type>();
 
         private static readonly ICollection<Type> GroupFuncPassThroughSelect = new HashSet<Type>();
 
         private static readonly ICollection<Type> PartitionOperandSingle = new HashSet<Type>();
+
+        private static readonly string Null_Alias_Key = "_NULL_ALIAS_";
+
+        private static readonly string[] EmptyStringArray = new string[0];
+
+        private readonly IDictionary<string, string> _tableAlias = new Dictionary<string, string>();
+
+        /// <summary>{tableNameUp -&gt; {columnNameUp -&gt; columnValues}}, obj[] never null</summary>
+        private readonly IDictionary<string, IDictionary<string, IList<object>>> columnValue
+            = new Dictionary<string, IDictionary<string, IList<object>>>();
+
+        private readonly IDictionary<object, object> evaluationParameter = new Dictionary<object, object>();
+
+        private readonly IDictionary<string, TableConfig> tablesRuleConfig;
+
+        private bool _customedSchema;
+
+        private bool _dual;
+
+        private int _groupFuncType = GroupNon;
+
+        private int _idLevel = 2;
+
+        private long _limitOffset = -1L;
+
+        private long _limitSize = -1L;
+
+        private bool _rewriteField;
+
+        private bool _schemaTrimmed;
+
+        private bool _tableMetaRead;
+
+        private string _trimSchema;
+
+        private bool _verdictColumn = true;
+
+        private bool _verdictGroupFunc = true;
+
+        /// <summary>{table -&gt; {column -&gt; {value -&gt; [(expr,parentExpr)]}}}</summary>
+        private IDictionary<string, IDictionary<string, ColumnValueType>> columnValueIndex;
 
         static PartitionKeyVisitor()
         {
@@ -76,301 +128,6 @@ namespace Tup.Cobar4Net.Route.Visitor
             PartitionOperandSingle.Add(typeof(ComparisionEqualsExpression));
         }
 
-        private static bool IsVerdictPassthroughWhere(Expr node)
-        {
-            if (node == null)
-            {
-                return false;
-            }
-            return VerdictPassThroughWhere.Contains(node.GetType());
-        }
-
-        private static bool IsGroupFuncPassthroughSelect(Expr node)
-        {
-            if (node == null)
-            {
-                return false;
-            }
-            return GroupFuncPassThroughSelect.Contains(node.GetType());
-        }
-
-        public static bool IsPartitionKeyOperandSingle(Expr expr, ASTNode parent)
-        {
-            return parent == null
-                && expr is ReplacableExpression
-                && PartitionOperandSingle.Contains(expr.GetType());
-        }
-
-        public static bool IsPartitionKeyOperandIn(Expr expr, ASTNode parent)
-        {
-            return expr != null && parent is InExpression;
-        }
-
-        public const int GroupCancel = -1;
-
-        public const int GroupNon = 0;
-
-        public const int GroupSum = 1;
-
-        public const int GroupMin = 2;
-
-        public const int GroupMax = 3;
-
-        private bool dual = false;
-
-        private int groupFuncType = GroupNon;
-
-        private long limitSize = -1L;
-
-        private long limitOffset = -1L;
-
-        private bool tableMetaRead;
-
-        private bool rewriteField = false;
-
-        private bool schemaTrimmed = false;
-
-        private bool customedSchema = false;
-
-        /// <summary>{tableNameUp -&gt; {columnNameUp -&gt; columnValues}}, obj[] never null</summary>
-        private IDictionary<string, IDictionary<string, IList<object>>> columnValue
-                                = new Dictionary<string, IDictionary<string, IList<object>>>();
-
-        /// <summary>{table -&gt; {column -&gt; {value -&gt; [(expr,parentExpr)]}}}</summary>
-        private IDictionary<string, IDictionary<string, ColumnValueType>> columnValueIndex = null;
-
-        private static readonly string Null_Alias_Key = "_NULL_ALIAS_";
-
-        private IDictionary<string, string> tableAlias = new Dictionary<string, string>();
-
-        private static readonly string[] EmptyStringArray = new string[0];
-
-        // ---output------------------------------------------------------------------
-        public bool IsDual()
-        {
-            return dual;
-        }
-
-        public bool IsCustomedSchema()
-        {
-            return customedSchema;
-        }
-
-        public bool IsTableMetaRead()
-        {
-            return tableMetaRead;
-        }
-
-        public bool IsNeedRewriteField()
-        {
-            return rewriteField;
-        }
-
-        /// <returns>null for statement not table meta read</returns>
-        public string[] GetMetaReadTable()
-        {
-            if (IsTableMetaRead())
-            {
-                var tables = columnValue.Keys;
-                if (tables == null || tables.IsEmpty())
-                {
-                    return EmptyStringArray;
-                }
-                return tables.ToArray();
-                //string[] array = new string[tables.Count];
-                //using (var iter = tables.GetEnumerator())
-                //{
-                //    for (int i = 0; i < array.Length; ++i)
-                //    {
-                //        array[i] = iter.Current;
-                //    }
-                //}
-                //return array;
-            }
-            return null;
-        }
-
-        public IDictionary<string, string> GetTableAlias()
-        {
-            return tableAlias;
-        }
-
-        /// <returns>-1 for no limit</returns>
-        public long GetLimitOffset()
-        {
-            return limitOffset;
-        }
-
-        /// <returns>-1 for no limit</returns>
-        public long GetLimitSize()
-        {
-            return limitSize;
-        }
-
-        /// <returns>
-        ///
-        /// <see cref="GroupNon"/>
-        /// or
-        /// <see cref="GroupSum"/>
-        /// or
-        /// <see cref="GroupMin"/>
-        /// or
-        /// <see cref="GroupMax"/>
-        /// </returns>
-        public int GetGroupFuncType()
-        {
-            return groupFuncType;
-        }
-
-        public bool IsSchemaTrimmed()
-        {
-            return schemaTrimmed;
-        }
-
-        /// <returns>never null</returns>
-        public IDictionary<string, ColumnValueType> GetColumnIndex(string tableNameUp)
-        {
-            if (columnValueIndex == null)
-            {
-                return new Dictionary<string, ColumnValueType>(0);
-            }
-            var index = columnValueIndex.GetValue(tableNameUp);
-            if (index == null || index.IsEmpty())
-            {
-                return new Dictionary<string, ColumnValueType>(0);
-            }
-            return index;
-        }
-
-        /// <returns><code>table -&gt; null</code> is possible</returns>
-        public IDictionary<string, IDictionary<string, IList<object>>> GetColumnValue()
-        {
-            return columnValue;
-        }
-
-        private void AddTable(string tableNameUp)
-        {
-            AddTable(tableNameUp, 2);
-        }
-
-        /// <param name="initColumnMapSize">0 for emptyMap</param>
-        private void AddTable(string tableNameUp, int initColumnMapSize)
-        {
-            if (columnValue.ContainsKey(tableNameUp))
-            {
-                return;
-            }
-            IDictionary<string, IList<object>> colMap = null;
-            if (initColumnMapSize > 0)
-            {
-                colMap = new Dictionary<string, IList<object>>(initColumnMapSize);
-            }
-            else
-            {
-                colMap = new Dictionary<string, IList<object>>(0);
-            }
-            columnValue[tableNameUp] = colMap;
-        }
-
-        private void AddColumnValueIndex(string table,
-            string column,
-            object value,
-            Expr expr,
-            ASTNode parent)
-        {
-            var colMap = EnsureColumnValueIndexByTable(table);
-            var valMap = EnsureColumnValueIndexObjMap(colMap, column);
-            AddIntoColumnValueIndex(valMap, value, expr, parent);
-        }
-
-        private void AddIntoColumnValueIndex(ColumnValueType valMap,
-            object value,
-            Expr expr,
-            ASTNode parent)
-        {
-            var exprSet = value == null ? null : valMap.GetValue(value);
-            if (exprSet == null)
-            {
-                exprSet = new HashSet<Pair<Expr, ASTNode>>();
-                valMap[value ?? Null_Alias_Key] = exprSet;
-            }
-            var pair = new Pair<Expr, ASTNode>(expr, parent);
-            exprSet.Add(pair);
-        }
-
-        private IDictionary<string, ColumnValueType> EnsureColumnValueIndexByTable(string table)
-        {
-            if (columnValueIndex == null)
-            {
-                columnValueIndex = new Dictionary<string, IDictionary<string, ColumnValueType>>();
-            }
-            var colMap = columnValueIndex.GetValue(table);
-            if (colMap == null)
-            {
-                colMap = new Dictionary<string, ColumnValueType>();
-                columnValueIndex[table] = colMap;
-            }
-            return colMap;
-        }
-
-        private ColumnValueType EnsureColumnValueIndexObjMap(
-            IDictionary<string, ColumnValueType> colMap,
-            string column)
-        {
-            var valMap = column == null ? null : colMap.GetValue(column);
-            if (valMap == null)
-            {
-                valMap = new Dictionary<object, ICollection<Pair<Expr, ASTNode>>>();
-                colMap[column ?? Null_Alias_Key] = valMap;
-            }
-            return valMap;
-        }
-
-        private void AddColumnValue(string tableNameUp,
-            string columnNameUp,
-            object value,
-            Expr expr,
-            ASTNode parent)
-        {
-            var colVals = EnsureColumnValueByTable(tableNameUp);
-            EnsureColumnValueList(colVals, columnNameUp).Add(value);
-            AddColumnValueIndex(tableNameUp, columnNameUp, value, expr, parent);
-        }
-
-        private IDictionary<string, IList<object>> EnsureColumnValueByTable(string tableNameUp)
-        {
-            var colVals = columnValue.GetValue(tableNameUp);
-            if (colVals == null)
-            {
-                colVals = new Dictionary<string, IList<object>>();
-                columnValue[tableNameUp] = colVals;
-            }
-            return colVals;
-        }
-
-        private IList<object> EnsureColumnValueList(IDictionary<string, IList<object>> columnValue, string column)
-        {
-            var list = columnValue.GetValue(column);
-            if (list == null)
-            {
-                list = new List<object>();
-                columnValue[column] = list;
-            }
-            return list;
-        }
-
-        private readonly IDictionary<object, object> evaluationParameter = new Dictionary<object, object>();
-
-        private readonly IDictionary<string, TableConfig> tablesRuleConfig;
-
-        private bool verdictColumn = true;
-
-        private int idLevel = 2;
-
-        private bool verdictGroupFunc = true;
-
-        private string trimSchema;
-
         public PartitionKeyVisitor(IDictionary<string, TableConfig> tables)
         {
             // ---temp
@@ -379,364 +136,222 @@ namespace Tup.Cobar4Net.Route.Visitor
             {
                 tables = new Dictionary<string, TableConfig>(0);
             }
-            this.tablesRuleConfig = tables;
+            tablesRuleConfig = tables;
         }
 
-        public PartitionKeyVisitor SetTrimSchema(string trimSchema)
+        public void Visit(DmlSelectStatement node)
         {
-            if (trimSchema != null)
-            {
-                this.trimSchema = trimSchema.ToUpper();
-            }
-            return this;
-        }
-
-        private bool IsRuledColumn(string tableNameUp, string columnNameUp)
-        {
-            if (tableNameUp == null)
-            {
-                return false;
-            }
-            var config = tablesRuleConfig.GetValue(tableNameUp);
-            if (config != null)
-            {
-                return config.ExistsColumn(columnNameUp);
-            }
-            return false;
-        }
-
-        private void VisitChild(int idLevel,
-            bool verdictColumn,
-            bool verdictGroupFunc,
-            params ASTNode[] nodes)
-        {
-            if (nodes == null || nodes.Length <= 0)
-                return;
-
-            VisitChild(idLevel, verdictColumn, verdictGroupFunc, new List<ASTNode>(nodes));
-        }
-
-        private void VisitChild<TNode>(int idLevel,
-            bool verdictColumn,
-            bool verdictGroupFunc,
-            IList<TNode> nodes)
-            where TNode : ASTNode
-        {
-            if (nodes == null || nodes.IsEmpty())
-            {
-                return;
-            }
-            int oldLevel = this.idLevel;
-            bool oldVerdict = this.verdictColumn;
-            bool oldverdictGroupFunc = this.verdictGroupFunc;
-            this.idLevel = idLevel;
-            this.verdictColumn = verdictColumn;
-            this.verdictGroupFunc = verdictGroupFunc;
-            try
-            {
-                foreach (ASTNode node in nodes)
-                {
-                    if (node != null)
-                    {
-                        node.Accept(this);
-                    }
-                }
-            }
-            finally
-            {
-                this.verdictColumn = oldVerdict;
-                this.idLevel = oldLevel;
-                this.verdictGroupFunc = oldverdictGroupFunc;
-            }
-        }
-
-        // --------------------------------------------------------------------------------
-        private void Limit(Limit limit)
-        {
-            if (limit != null)
-            {
-                object ls = limit.GetSize();
-                if (ls is Expr)
-                {
-                    ls = ((Expr)ls).Evaluation(evaluationParameter);
-                }
-                if (ls is int)
-                {
-                    limitSize = ((int)ls);
-                }
-                object lo = limit.GetOffset();
-                if (lo is Expr)
-                {
-                    lo = ((Expr)lo).Evaluation(evaluationParameter);
-                }
-                if (lo is int)
-                {
-                    this.limitOffset = ((int)lo);
-                }
-            }
-        }
-
-        public void Visit(DMLSelectStatement node)
-        {
-            bool verdictGroup = true;
+            var verdictGroup = true;
             var exprList = node.GetSelectExprListWithoutAlias();
-            if (verdictGroupFunc)
+            if (_verdictGroupFunc)
             {
-                foreach (Expr expr in exprList)
+                foreach (var expr in exprList)
                 {
-                    if (!IsGroupFuncPassthroughSelect(expr))
-                    {
-                        groupFuncType = GroupCancel;
-                        verdictGroup = false;
-                        break;
-                    }
+                    if (IsGroupFuncPassthroughSelect(expr))
+                        continue;
+
+                    _groupFuncType = GroupCancel;
+                    verdictGroup = false;
+                    break;
                 }
-                Limit(node.GetLimit());
+                Limit(node.Limit);
             }
-            VisitChild(2, false, verdictGroupFunc && verdictGroup, exprList);
-            TableReference tr = node.GetTables();
-            VisitChild(1, verdictColumn, verdictGroupFunc && verdictGroup, tr);
-            Expr where = node.GetWhere();
-            VisitChild(2, verdictColumn, false, where);
-            GroupBy group = node.GetGroup();
+
+            VisitChild(2, false, _verdictGroupFunc && verdictGroup, exprList);
+
+            TableReference tr = node.Tables;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc && verdictGroup, tr);
+
+            var where = node.Where;
+            VisitChild(2, _verdictColumn, false, where);
+
+            var group = node.Group;
             VisitChild(2, false, false, group);
-            Expr having = node.GetHaving();
-            VisitChild(2, verdictColumn, false, having);
-            OrderBy order = node.GetOrder();
+
+            var having = node.Having;
+            VisitChild(2, _verdictColumn, false, having);
+
+            var order = node.Order;
             VisitChild(2, false, false, order);
         }
 
-        public void Visit(DMLSelectUnionStatement node)
+        public void Visit(DmlSelectUnionStatement node)
         {
-            VisitChild(2, false, false, node.GetOrderBy());
-            VisitChild(2, false, false, node.GetSelectStmtList());
+            VisitChild(2, false, false, node.OrderBy);
+            VisitChild(2, false, false, node.SelectStmtList);
         }
 
-        public void Visit(DMLUpdateStatement node)
+        public void Visit(DmlUpdateStatement node)
         {
-            TableReference tr = node.GetTableRefs();
+            TableReference tr = node.TableRefs;
             VisitChild(1, false, false, tr);
-            var assignmentList = node.GetValues();
+
+            var assignmentList = node.Values;
             if (assignmentList != null && !assignmentList.IsEmpty())
             {
-                IList<ASTNode> list = new List<ASTNode>(assignmentList.Count * 2);
-                foreach (Pair<Identifier, Expr> p in assignmentList)
+                IList<IAstNode> list = new List<IAstNode>(assignmentList.Count * 2);
+                foreach (var p in assignmentList)
                 {
                     if (p == null)
                     {
                         continue;
                     }
-                    list.Add(p.GetKey());
-                    list.Add(p.GetValue());
+                    list.Add(p.Key);
+                    list.Add(p.Value);
                 }
                 VisitChild(2, false, false, list);
             }
-            Expr where = node.GetWhere();
-            VisitChild(2, verdictColumn, false, where);
-            OrderBy order = node.GetOrderBy();
+
+            var where = node.Where;
+            VisitChild(2, _verdictColumn, false, where);
+
+            var order = node.OrderBy;
             VisitChild(2, false, false, order);
         }
 
-        private void TableAsTableFactor(Identifier table)
+        public void Visit(DmlDeleteStatement node)
         {
-            int trim = table.TrimParent(1, trimSchema);
-            schemaTrimmed = schemaTrimmed || trim == Identifier.ParentTrimed;
-            customedSchema = customedSchema || trim == Identifier.ParentIgnored;
-            string tableName = table.GetIdTextUpUnescape();
-            tableAlias[Null_Alias_Key] = tableName;
-            tableAlias[tableName] = tableName;
-            AddTable(tableName);
-        }
-
-        public void Visit(DMLDeleteStatement node)
-        {
-            TableReference tr = node.GetTableRefs();
-            IList<Identifier> tbs = node.GetTableNames();
+            TableReference tr = node.TableRefs;
+            var tbs = node.TableNames;
             if (tr == null)
             {
-                Identifier table = tbs[0];
+                var table = tbs[0];
                 TableAsTableFactor(table);
             }
             else
             {
-                VisitChild(1, verdictColumn, false, tr);
-                foreach (Identifier tb in tbs)
+                VisitChild(1, _verdictColumn, false, tr);
+                foreach (var tb in tbs)
                 {
                     if (tb is Wildcard)
                     {
-                        int trim = tb.TrimParent(2, trimSchema);
-                        schemaTrimmed = schemaTrimmed || trim == Identifier.ParentTrimed;
-                        customedSchema = customedSchema || trim == Identifier.ParentIgnored;
+                        var trim = tb.TrimParent(2, _trimSchema);
+                        _schemaTrimmed = _schemaTrimmed || trim == Identifier.ParentTrimed;
+                        _customedSchema = _customedSchema || trim == Identifier.ParentIgnored;
                     }
                     else
                     {
-                        int trim = tb.TrimParent(1, trimSchema);
-                        schemaTrimmed = schemaTrimmed || trim == Identifier.ParentTrimed;
-                        customedSchema = customedSchema || trim == Identifier.ParentIgnored;
+                        var trim = tb.TrimParent(1, _trimSchema);
+                        _schemaTrimmed = _schemaTrimmed || trim == Identifier.ParentTrimed;
+                        _customedSchema = _customedSchema || trim == Identifier.ParentIgnored;
                     }
                 }
             }
-            Expr where = node.GetWhereCondition();
-            VisitChild(2, verdictColumn, false, where);
+
+            var where = node.WhereCondition;
+            VisitChild(2, _verdictColumn, false, where);
+
             if (tr == null)
             {
-                OrderBy order = node.GetOrderBy();
+                var order = node.OrderBy;
                 VisitChild(2, false, false, order);
             }
         }
 
-        private void InsertReplace(DMLInsertReplaceStatement node)
+        public void Visit(DmlInsertStatement node)
         {
-            Identifier table = node.GetTable();
-            IList<Identifier> collist = node.GetColumnNameList();
-            QueryExpression query = node.GetSelect();
-            IList<RowExpression> rows = node.GetRowList();
-            TableAsTableFactor(table);
-            string tableName = table.GetIdTextUpUnescape();
-            VisitChild(2, false, false, collist);
-            if (query != null)
-            {
-                query.Accept(this);
+            InsertReplace(node);
+            var dup = node.DuplicateUpdate;
+            if (dup == null)
                 return;
-            }
-            foreach (RowExpression row in rows)
+
+            var duplist = new IAstNode[dup.Count * 2];
+            var i = 0;
+            foreach (var p in dup)
             {
-                VisitChild(2, false, false, row);
-            }
-            var colVals = EnsureColumnValueByTable(tableName);
-            var colValsIndex = EnsureColumnValueIndexByTable(tableName);
-            if (collist != null)
-            {
-                for (int i = 0; i < collist.Count; ++i)
-                {
-                    string colName = collist[i].GetIdTextUpUnescape();
-                    if (IsRuledColumn(tableName, colName))
-                    {
-                        IList<object> valueList = EnsureColumnValueList(colVals, colName);
-                        var valMap = EnsureColumnValueIndexObjMap(colValsIndex, colName);
-                        foreach (RowExpression row_1 in rows)
-                        {
-                            Expr expr = row_1.GetRowExprList()[i];
-                            object value = expr == null ? null : expr.Evaluation(evaluationParameter);
-                            if (value != ExpressionConstants.Unevaluatable)
-                            {
-                                valueList.Add(value);
-                                AddIntoColumnValueIndex(valMap, value, row_1, node);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-
-        public void Visit(DMLInsertStatement node)
-        {
-            InsertReplace(node);
-            var dup = node.GetDuplicateUpdate();
-            if (dup != null)
-            {
-                ASTNode[] duplist = new ASTNode[dup.Count * 2];
-                int i = 0;
-                foreach (Pair<Identifier, Expr> p in dup)
-                {
-                    Identifier key = null;
-                    Expr value = null;
-                    if (p != null)
-                    {
-                        key = p.GetKey();
-                        value = p.GetValue();
-                    }
-                    duplist[i++] = key;
-                    duplist[i++] = value;
-                }
-                VisitChild(2, false, false, duplist);
-            }
-        }
-
-        public void Visit(DMLReplaceStatement node)
-        {
-            InsertReplace(node);
-        }
-
-        private void DdlTable(Identifier id, int idLevel)
-        {
-            VisitChild(idLevel, false, false, id);
-            AddTable(id.GetIdTextUpUnescape());
-        }
-
-        public void Visit(DDLTruncateStatement node)
-        {
-            DdlTable(node.GetTable(), 1);
-        }
-
-        public void Visit(DDLAlterTableStatement node)
-        {
-            DdlTable(node.GetTable(), 1);
-        }
-
-        public void Visit(DDLCreateIndexStatement node)
-        {
-            DdlTable(node.GetTable(), 1);
-            DdlTable(node.GetIndexName(), 1);
-        }
-
-        public void Visit(DDLCreateTableStatement node)
-        {
-            DdlTable(node.GetTable(), 1);
-        }
-
-        public void Visit(DDLRenameTableStatement node)
-        {
-            var list = node.GetList();
-            IList<Identifier> idl = new List<Identifier>(list.Count * 2);
-            foreach (Pair<Identifier, Identifier> p in list)
-            {
+                Identifier key = null;
+                IExpression value = null;
                 if (p != null)
                 {
-                    if (p.GetKey() != null)
-                    {
-                        AddTable(p.GetKey().GetIdTextUpUnescape());
-                        idl.Add(p.GetKey());
-                    }
-                    idl.Add(p.GetValue());
+                    key = p.Key;
+                    value = p.Value;
                 }
+                duplist[i++] = key;
+                duplist[i++] = value;
+            }
+            VisitChild(2, false, false, duplist);
+        }
+
+        public void Visit(DmlReplaceStatement node)
+        {
+            InsertReplace(node);
+        }
+
+        public void Visit(DdlTruncateStatement node)
+        {
+            DdlTable(node.Table, 1);
+        }
+
+        public void Visit(DdlAlterTableStatement node)
+        {
+            DdlTable(node.Table, 1);
+        }
+
+        public void Visit(DdlCreateIndexStatement node)
+        {
+            DdlTable(node.Table, 1);
+            DdlTable(node.IndexName, 1);
+        }
+
+        public void Visit(DdlCreateTableStatement node)
+        {
+            DdlTable(node.Table, 1);
+        }
+
+        public void Visit(DdlRenameTableStatement node)
+        {
+            var list = node.PairList;
+            IList<Identifier> idl = new List<Identifier>(list.Count * 2);
+            foreach (var p in list)
+            {
+                if (p == null)
+                    continue;
+
+                if (p.Key != null)
+                {
+                    AddTable(p.Key.IdTextUpUnescape);
+                    idl.Add(p.Key);
+                }
+                idl.Add(p.Value);
             }
             VisitChild(1, false, false, idl);
         }
 
-        public void Visit(DDLDropIndexStatement node)
+        public void Visit(DdlDropIndexStatement node)
         {
-            DdlTable(node.GetTable(), 1);
-            DdlTable(node.GetIndexName(), 1);
+            DdlTable(node.Table, 1);
+            DdlTable(node.IndexName, 1);
         }
 
-        public void Visit(DDLDropTableStatement node)
+        public void Visit(DdlDropTableStatement node)
         {
-            VisitChild(1, false, false, node.GetTableNames());
-            IList<Identifier> tbs = node.GetTableNames();
-            if (tbs != null)
+            VisitChild(1, false, false, node.TableNames);
+
+            var tbs = node.TableNames;
+            if (tbs == null)
+                return;
+
+            foreach (var tb in tbs)
             {
-                foreach (Identifier tb in tbs)
-                {
-                    AddTable(tb.GetIdTextUpUnescape());
-                }
+                AddTable(tb.IdTextUpUnescape);
             }
         }
 
         public void Visit(BetweenAndExpression node)
         {
-            Expr fst = node.GetFirst();
-            Expr snd = node.GetSecond();
-            Expr trd = node.GetThird();
+            var fst = node.First;
+            var snd = node.Second;
+            var trd = node.Third;
             VisitChild(2, false, false, fst, snd, trd);
-            if (verdictColumn && !node.IsNot() && fst is Identifier)
+
+            if (_verdictColumn && !node.IsNot && fst is Identifier)
             {
-                Identifier col = (Identifier)fst;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
-                if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
+                var col = (Identifier)fst;
+                var table = _tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
+                if (IsRuledColumn(table, col.IdTextUpUnescape))
                 {
-                    object e1 = snd.Evaluation(evaluationParameter);
-                    object e2 = trd.Evaluation(evaluationParameter);
+                    var e1 = snd.Evaluation(evaluationParameter);
+                    var e2 = trd.Evaluation(evaluationParameter);
                     if (e1 != ExpressionConstants.Unevaluatable
                         && e2 != ExpressionConstants.Unevaluatable
                         && e1 != null
@@ -744,75 +359,56 @@ namespace Tup.Cobar4Net.Route.Visitor
                     {
                         if (CompareEvaluatedValue(e1, e2))
                         {
-                            AddColumnValue(table, col.GetIdTextUpUnescape(), e1, node, null);
+                            AddColumnValue(table, col.IdTextUpUnescape, e1, node, null);
                         }
                     }
                 }
             }
         }
 
-        /// <param name="obj1">not null</param>
-        /// <param name="obj2">not null</param>
-        private static bool CompareEvaluatedValue(object obj1, object obj2)
-        {
-            if (obj1.Equals(obj2))
-            {
-                return true;
-            }
-            try
-            {
-                Pair<Number, Number> pair = ExprEvalUtils.ConvertNum2SameLevel(obj1, obj2);
-                return pair.GetKey().Equals(pair.GetValue());
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-        }
-
         public void Visit(ComparisionIsExpression node)
         {
-            Expr operand = node.GetOperand();
+            var operand = node.Operand;
             VisitChild(2, false, false, operand);
-            if (verdictColumn && (operand is Identifier))
+            if (!_verdictColumn || !(operand is Identifier))
+                return;
+
+            var col = (Identifier)operand;
+            var table = _tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
+            if (!IsRuledColumn(table, col.IdTextUpUnescape))
+                return;
+
+            switch (node.Mode)
             {
-                Identifier col = (Identifier)operand;
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
-                if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
-                {
-                    switch (node.GetMode())
+                case ComparisionIsExpression.IsFalse:
                     {
-                        case ComparisionIsExpression.IsFalse:
-                            {
-                                AddColumnValue(table, col.GetIdTextUpUnescape(), LiteralBoolean.False, node, null);
-                                break;
-                            }
-
-                        case ComparisionIsExpression.IsTrue:
-                            {
-                                AddColumnValue(table, col.GetIdTextUpUnescape(), LiteralBoolean.True, node, null);
-                                break;
-                            }
-
-                        case ComparisionIsExpression.IsNull:
-                            {
-                                AddColumnValue(table, col.GetIdTextUpUnescape(), null, node, null);
-                                break;
-                            }
+                        AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.False, node, null);
+                        break;
                     }
-                }
+
+                case ComparisionIsExpression.IsTrue:
+                    {
+                        AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.True, node, null);
+                        break;
+                    }
+
+                case ComparisionIsExpression.IsNull:
+                    {
+                        AddColumnValue(table, col.IdTextUpUnescape, null, node, null);
+                        break;
+                    }
             }
         }
 
         public void Visit(InExpressionList node)
         {
-            VisitChild(2, false, false, node.GetList());
+            VisitChild(2, false, false, node.ExprList);
         }
 
         public void Visit(BinaryOperatorExpression node)
         {
-            Expr left = node.GetLeftOprand();
-            Expr right = node.GetRightOprand();
+            var left = node.LeftOprand;
+            var right = node.RightOprand;
             VisitChild(2, false, false, left, right);
         }
 
@@ -823,259 +419,235 @@ namespace Tup.Cobar4Net.Route.Visitor
         // QS_TODO
         public void Visit(ComparisionEqualsExpression node)
         {
-            Expr left = node.GetLeftOprand();
-            Expr right = node.GetRightOprand();
+            var left = node.LeftOprand;
+            var right = node.RightOprand;
             VisitChild(2, false, false, left, right);
-            if (verdictColumn)
+
+            if (!_verdictColumn)
+                return;
+
+            if (left is Identifier)
             {
-                if (left is Identifier)
-                {
-                    ComparisionEquals((Identifier)left, right.Evaluation(evaluationParameter), false,
-                        node);
-                }
-                else if (right is Identifier)
-                {
-                    ComparisionEquals((Identifier)right, left.Evaluation(evaluationParameter), false,
-                        node);
-                }
+                ComparisionEquals((Identifier)left, right.Evaluation(evaluationParameter), false,
+                    node);
+            }
+            else if (right is Identifier)
+            {
+                ComparisionEquals((Identifier)right, left.Evaluation(evaluationParameter), false,
+                    node);
             }
         }
 
         public void Visit(ComparisionNullSafeEqualsExpression node)
         {
-            Expr left = node.GetLeftOprand();
-            Expr right = node.GetRightOprand();
+            var left = node.LeftOprand;
+            var right = node.RightOprand;
             VisitChild(2, false, false, left, right);
-            if (verdictColumn)
-            {
-                if (left is Identifier)
-                {
-                    ComparisionEquals((Identifier)left,
-                        right.Evaluation(evaluationParameter),
-                        true, node);
-                }
-                else if (right is Identifier)
-                {
-                    ComparisionEquals((Identifier)right,
-                        left.Evaluation(evaluationParameter),
-                        true, node);
-                }
-            }
-        }
 
-        private void ComparisionEquals(Identifier col, object value, bool nullsafe, Expr node)
-        {
-            if (value != ExpressionConstants.Unevaluatable
-                && (nullsafe || value != null))
+            if (!_verdictColumn)
+                return;
+
+            if (left is Identifier)
             {
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
-                if (IsRuledColumn(table, col.GetIdTextUpUnescape()))
-                {
-                    AddColumnValue(table, col.GetIdTextUpUnescape(), value, node, null);
-                }
+                ComparisionEquals((Identifier)left,
+                    right.Evaluation(evaluationParameter),
+                    true, node);
+            }
+            else if (right is Identifier)
+            {
+                ComparisionEquals((Identifier)right,
+                    left.Evaluation(evaluationParameter),
+                    true, node);
             }
         }
 
         public void Visit(InExpression node)
         {
-            Expr left = node.GetLeftOprand();
-            Expr right = node.GetRightOprand();
+            var left = node.LeftOprand;
+            var right = node.RightOprand;
             VisitChild(2, false, false, left, right);
-            if (verdictColumn && !node.IsNot() && left is Identifier && right is InExpressionList)
+
+            if (!_verdictColumn || node.IsNot || !(left is Identifier) || !(right is InExpressionList))
+                return;
+
+            var col = (Identifier)left;
+            var colName = col.IdTextUpUnescape;
+            var table = _tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
+
+            if (!IsRuledColumn(table, colName))
+                return;
+
+            var valList = EnsureColumnValueList(EnsureColumnValueByTable(table), colName);
+            var valMap = EnsureColumnValueIndexObjMap(EnsureColumnValueIndexByTable(table), colName);
+            var inlist = (InExpressionList)right;
+            foreach (var expr in inlist.ExprList)
             {
-                var col = (Identifier)left;
-                string colName = col.GetIdTextUpUnescape();
-                string table = tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
-                if (IsRuledColumn(table, colName))
+                var value = expr.Evaluation(evaluationParameter);
+                if (value != ExpressionConstants.Unevaluatable)
                 {
-                    var valList = EnsureColumnValueList(EnsureColumnValueByTable(table), colName);
-                    var valMap = EnsureColumnValueIndexObjMap(EnsureColumnValueIndexByTable(table), colName);
-                    var inlist = (InExpressionList)right;
-                    foreach (Expr expr in inlist.GetList())
-                    {
-                        object value = expr.Evaluation(evaluationParameter);
-                        if (value != ExpressionConstants.Unevaluatable)
-                        {
-                            valList.Add(value);
-                            AddIntoColumnValueIndex(valMap, value, expr, node);
-                        }
-                    }
+                    valList.Add(value);
+                    AddIntoColumnValueIndex(valMap, value, expr, node);
                 }
             }
         }
 
         public void Visit(LogicalAndExpression node)
         {
-            for (int i = 0, len = node.GetArity(); i < len; ++i)
+            for (int i = 0, len = node.Arity; i < len; ++i)
             {
-                Expr oprand = node.GetOperand(i);
-                VisitChild(2, verdictColumn && IsVerdictPassthroughWhere(oprand), false, oprand);
+                var oprand = node.GetOperand(i);
+                VisitChild(2, _verdictColumn && IsVerdictPassthroughWhere(oprand), false, oprand);
             }
         }
 
         public void Visit(LogicalOrExpression node)
         {
-            for (int i = 0, len = node.GetArity(); i < len; ++i)
+            for (int i = 0, len = node.Arity; i < len; ++i)
             {
-                Expr oprand = node.GetOperand(i);
-                VisitChild(2, verdictColumn && IsVerdictPassthroughWhere(oprand), false, oprand);
+                var oprand = node.GetOperand(i);
+                VisitChild(2, _verdictColumn && IsVerdictPassthroughWhere(oprand), false, oprand);
             }
         }
 
         public void Visit(Count node)
         {
-            VisitChild(2, false, false, node.GetArguments());
-            if (verdictGroupFunc)
-            {
-                if (groupFuncType != GroupNon && groupFuncType != GroupSum || node.IsDistinct())
-                {
-                    groupFuncType = GroupCancel;
-                }
-                else
-                {
-                    groupFuncType = GroupSum;
-                }
-            }
+            VisitChild(2, false, false, node.Arguments);
+            if (!_verdictGroupFunc)
+                return;
+
+            if (_groupFuncType != GroupNon && _groupFuncType != GroupSum || node.IsDistinct)
+                _groupFuncType = GroupCancel;
+            else
+                _groupFuncType = GroupSum;
         }
 
         public void Visit(Sum node)
         {
-            VisitChild(2, false, false, node.GetArguments());
-            if (verdictGroupFunc)
-            {
-                if (groupFuncType != GroupNon && groupFuncType != GroupSum || node.IsDistinct())
-                {
-                    groupFuncType = GroupCancel;
-                }
-                else
-                {
-                    groupFuncType = GroupSum;
-                }
-            }
+            VisitChild(2, false, false, node.Arguments);
+            if (!_verdictGroupFunc)
+                return;
+
+            if (_groupFuncType != GroupNon && _groupFuncType != GroupSum || node.IsDistinct)
+                _groupFuncType = GroupCancel;
+            else
+                _groupFuncType = GroupSum;
         }
 
         public void Visit(Max node)
         {
-            VisitChild(2, false, false, node.GetArguments());
-            if (verdictGroupFunc)
-            {
-                if (groupFuncType != GroupNon && groupFuncType != GroupMax)
-                {
-                    groupFuncType = GroupCancel;
-                }
-                else
-                {
-                    groupFuncType = GroupMax;
-                }
-            }
+            VisitChild(2, false, false, node.Arguments);
+            if (!_verdictGroupFunc)
+                return;
+
+            if (_groupFuncType != GroupNon && _groupFuncType != GroupMax)
+                _groupFuncType = GroupCancel;
+            else
+                _groupFuncType = GroupMax;
         }
 
         public void Visit(Min node)
         {
-            VisitChild(2, false, false, node.GetArguments());
-            if (verdictGroupFunc)
-            {
-                if (groupFuncType != GroupNon && groupFuncType != GroupMin)
-                {
-                    groupFuncType = GroupCancel;
-                }
-                else
-                {
-                    groupFuncType = GroupMin;
-                }
-            }
+            VisitChild(2, false, false, node.Arguments);
+            if (!_verdictGroupFunc)
+                return;
+
+            if (_groupFuncType != GroupNon && _groupFuncType != GroupMin)
+                _groupFuncType = GroupCancel;
+            else
+                _groupFuncType = GroupMin;
         }
 
         public void Visit(Identifier node)
         {
-            int trim = node.TrimParent(idLevel, trimSchema);
-            schemaTrimmed = schemaTrimmed || trim == Identifier.ParentTrimed;
-            customedSchema = customedSchema || trim == Identifier.ParentIgnored;
+            var trim = node.TrimParent(_idLevel, _trimSchema);
+            _schemaTrimmed = _schemaTrimmed || trim == Identifier.ParentTrimed;
+            _customedSchema = _customedSchema || trim == Identifier.ParentIgnored;
         }
 
         public void Visit(InnerJoin node)
         {
-            TableReference tr1 = node.GetLeftTableRef();
-            TableReference tr2 = node.GetRightTableRef();
-            Expr on = node.GetOnCond();
-            VisitChild(1, verdictColumn, verdictGroupFunc, tr1, tr2);
-            VisitChild(2, verdictColumn && IsVerdictPassthroughWhere(on), false, on);
+            var tr1 = node.LeftTableRef;
+            var tr2 = node.RightTableRef;
+            var on = node.OnCond;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc, tr1, tr2);
+            VisitChild(2, _verdictColumn && IsVerdictPassthroughWhere(on), false, on);
         }
 
         public void Visit(NaturalJoin node)
         {
-            TableReference tr1 = node.GetLeftTableRef();
-            TableReference tr2 = node.GetRightTableRef();
-            VisitChild(1, verdictColumn, verdictGroupFunc, tr1, tr2);
+            var tr1 = node.LeftTableRef;
+            var tr2 = node.RightTableRef;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc, tr1, tr2);
         }
 
         public void Visit(OuterJoin node)
         {
-            TableReference tr1 = node.GetLeftTableRef();
-            TableReference tr2 = node.GetRightTableRef();
-            Expr on = node.GetOnCond();
-            VisitChild(1, verdictColumn, verdictGroupFunc, tr1, tr2);
-            VisitChild(2, verdictColumn && IsVerdictPassthroughWhere(on), false, on);
+            var tr1 = node.LeftTableRef;
+            var tr2 = node.RightTableRef;
+            var on = node.OnCond;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc, tr1, tr2);
+            VisitChild(2, _verdictColumn && IsVerdictPassthroughWhere(on), false, on);
         }
 
         public void Visit(StraightJoin node)
         {
-            TableReference tr1 = node.GetLeftTableRef();
-            TableReference tr2 = node.GetRightTableRef();
-            Expr on = node.GetOnCond();
-            VisitChild(1, verdictColumn, verdictGroupFunc, tr1, tr2);
-            VisitChild(2, verdictColumn && IsVerdictPassthroughWhere(on), false, on);
+            var tr1 = node.LeftTableRef;
+            var tr2 = node.RightTableRef;
+            var on = node.OnCond;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc, tr1, tr2);
+            VisitChild(2, _verdictColumn && IsVerdictPassthroughWhere(on), false, on);
         }
 
         public void Visit(TableReferences node)
         {
-            IList<TableReference> list = node.GetTableReferenceList();
-            VisitChild(1, verdictColumn, verdictGroupFunc, list);
+            var list = node.TableReferenceList;
+            VisitChild(1, _verdictColumn, _verdictGroupFunc, list);
         }
 
         public void Visit(SubqueryFactor node)
         {
-            QueryExpression query = node.GetSubquery();
-            VisitChild(2, verdictColumn, verdictGroupFunc, query);
+            var query = node.Subquery;
+            VisitChild(2, _verdictColumn, _verdictGroupFunc, query);
         }
 
         public void Visit(TableRefFactor node)
         {
             //TODO Visit(TableRefFactor node) _NULL_ALIAS_
-            Identifier table = node.GetTable();
+            var table = node.Table;
             VisitChild(1, false, false, table);
-            string tableName = table.GetIdTextUpUnescape();
+
+            var tableName = table.IdTextUpUnescape;
             AddTable(tableName);
-            string alias = node.GetAliasUnescapeUppercase();
+            var alias = node.GetAliasUnescapeUppercase();
             if (alias == null)
             {
-                tableAlias[Null_Alias_Key] = tableName;
-                tableAlias[tableName] = tableName;
+                _tableAlias[Null_Alias_Key] = tableName;
+                _tableAlias[tableName] = tableName;
             }
             else
             {
-                if (!tableAlias.ContainsKey(Null_Alias_Key))
+                if (!_tableAlias.ContainsKey(Null_Alias_Key))
                 {
-                    tableAlias[Null_Alias_Key] = tableName;
+                    _tableAlias[Null_Alias_Key] = tableName;
                 }
-                tableAlias[alias] = tableName;
+                _tableAlias[alias] = tableName;
             }
         }
 
         public void Visit(Dual dual)
         {
-            this.dual = true;
+            _dual = true;
         }
 
         // ------------------------------------------------------------------------------
         public void Visit(LikeExpression node)
         {
-            VisitChild(2, false, false, node.GetFirst(), node.GetSecond(), node.GetThird());
+            VisitChild(2, false, false, node.First, node.Second, node.Third);
         }
 
         public void Visit(CollateExpression node)
         {
-            VisitChild(2, false, false, node.GetString());
+            VisitChild(2, false, false, node.StringValue);
         }
 
         public void Visit(UserExpression node)
@@ -1084,64 +656,64 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(UnaryOperatorExpression node)
         {
-            VisitChild(2, false, false, node.GetOperand());
+            VisitChild(2, false, false, node.Operand);
         }
 
         public void Visit(FunctionExpression node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
-        public void Visit(Parser.Ast.Expression.Primary.Function.String.Char node)
+        public void Visit(Char node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
-        public void Visit(Parser.Ast.Expression.Primary.Function.Cast.Convert node)
+        public void Visit(Convert node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(Trim node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
-        public void Visit(Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Cast.Cast
+        public void Visit(Cast
             node)
         {
-            VisitChild(2, false, false, node.GetArguments());
-            VisitChild(2, false, false, node.GetTypeInfo1(), node.GetTypeInfo2());
+            VisitChild(2, false, false, node.Arguments);
+            VisitChild(2, false, false, node.TypeInfo1, node.TypeInfo2);
         }
 
         public void Visit(Avg node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(GroupConcat node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(IntervalPrimary node)
         {
-            VisitChild(2, false, false, node.GetQuantity());
+            VisitChild(2, false, false, node.Quantity);
         }
 
         public void Visit(Extract node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(Timestampdiff node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(Timestampadd node)
         {
-            VisitChild(2, false, false, node.GetArguments());
+            VisitChild(2, false, false, node.Arguments);
         }
 
         public void Visit(GetFormat node)
@@ -1174,21 +746,22 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(CaseWhenOperatorExpression node)
         {
-            VisitChild(2, false, false, node.GetComparee(), node.GetElseResult());
-            IList<Pair<Expr, Expr>> whenPairList = node.GetWhenList();
+            VisitChild(2, false, false, node.Comparee, node.ElseResult);
+            var whenPairList = node.WhenList;
             if (whenPairList == null || whenPairList.IsEmpty())
             {
                 return;
             }
-            IList<Expr> list = new List<Expr>(whenPairList.Count * 2);
-            foreach (Pair<Expr, Expr> pair in whenPairList)
+
+            var list = new List<IExpression>(whenPairList.Count * 2);
+            foreach (var pair in whenPairList)
             {
                 if (pair == null)
                 {
                     continue;
                 }
-                list.Add(pair.GetKey());
-                list.Add(pair.GetValue());
+                list.Add(pair.Key);
+                list.Add(pair.Value);
             }
             VisitChild(2, false, false, list);
         }
@@ -1199,7 +772,7 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ExistsPrimary node)
         {
-            VisitChild(2, false, false, node.GetSubquery());
+            VisitChild(2, false, false, node.Subquery);
         }
 
         public void Visit(PlaceHolder node)
@@ -1208,8 +781,8 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(MatchExpression node)
         {
-            VisitChild(2, false, false, node.GetColumns());
-            VisitChild(2, false, false, node.GetPattern());
+            VisitChild(2, false, false, node.Columns);
+            VisitChild(2, false, false, node.Pattern);
         }
 
         public void Visit(ParamMarker node)
@@ -1218,7 +791,7 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(RowExpression node)
         {
-            VisitChild(2, false, false, node.GetRowExprList());
+            VisitChild(2, false, false, node.RowExprList);
         }
 
         public void Visit(SysVarPrimary node)
@@ -1235,28 +808,12 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(GroupBy node)
         {
-            SortPairList(node.GetOrderByList());
+            SortPairList(node.OrderByList);
         }
 
         public void Visit(OrderBy node)
         {
-            SortPairList(node.GetOrderByList());
-        }
-
-        private void SortPairList(IList<Pair<Expr, SortOrder>> list)
-        {
-            if (list == null || list.IsEmpty())
-            {
-                return;
-            }
-            Expr[] exprs = new Expr[list.Count];
-            int i = 0;
-            foreach (Pair<Expr, SortOrder> p in list)
-            {
-                exprs[i] = p.GetKey();
-                ++i;
-            }
-            VisitChild(2, false, false, new List<Expr>(exprs));
+            SortPairList(node.OrderByList);
         }
 
         public void Visit(Limit node)
@@ -1279,7 +836,7 @@ namespace Tup.Cobar4Net.Route.Visitor
         {
         }
 
-        public void Visit(DDLAlterTableStatement.AlterSpecification node)
+        public void Visit(DdlAlterTableStatement.AlterSpecification node)
         {
         }
 
@@ -1309,7 +866,7 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowColumns node)
         {
-            TableMetaRead(node.GetTable());
+            TableMetaRead(node.Table);
         }
 
         public void Visit(ShowContributors node)
@@ -1318,9 +875,9 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowCreate node)
         {
-            if (node.GetCreateType() == ShowCreate.CreateType.Table)
+            if (node.CreateType == CreateType.Table)
             {
-                TableMetaRead(node.GetId());
+                TableMetaRead(node.Id);
             }
         }
 
@@ -1342,10 +899,10 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowEvents node)
         {
-            if (node.GetSchema() != null)
+            if (node.Schema != null)
             {
-                schemaTrimmed = true;
-                node.SetSchema(null);
+                _schemaTrimmed = true;
+                node.Schema = null;
             }
             TableMetaRead(null);
         }
@@ -1364,7 +921,7 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowIndex node)
         {
-            TableMetaRead(node.GetTable());
+            TableMetaRead(node.Table);
         }
 
         public void Visit(ShowMasterStatus node)
@@ -1373,10 +930,10 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowOpenTables node)
         {
-            if (node.GetSchema() != null)
+            if (node.Schema != null)
             {
-                schemaTrimmed = true;
-                node.SetSchema(null);
+                _schemaTrimmed = true;
+                node.Schema = null;
             }
             TableMetaRead(null);
         }
@@ -1423,31 +980,31 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(ShowTables node)
         {
-            if (node.GetSchema() != null)
+            if (node.Schema != null)
             {
-                schemaTrimmed = true;
-                node.SetSchema(null);
+                _schemaTrimmed = true;
+                node.Schema = null;
             }
-            rewriteField = true;
+            _rewriteField = true;
             TableMetaRead(null);
         }
 
         public void Visit(ShowTableStatus node)
         {
-            if (node.GetDatabase() != null)
+            if (node.Database != null)
             {
-                schemaTrimmed = true;
-                node.SetDatabase(null);
+                _schemaTrimmed = true;
+                node.Database = null;
             }
             TableMetaRead(null);
         }
 
         public void Visit(ShowTriggers node)
         {
-            if (node.GetSchema() != null)
+            if (node.Schema != null)
             {
-                schemaTrimmed = true;
-                node.SetSchema(null);
+                _schemaTrimmed = true;
+                node.Schema = null;
             }
             TableMetaRead(null);
         }
@@ -1462,32 +1019,22 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         public void Visit(DescTableStatement node)
         {
-            TableMetaRead(node.GetTable());
+            TableMetaRead(node.Table);
         }
 
-        private void TableMetaRead(Identifier table)
-        {
-            if (table != null)
-            {
-                VisitChild(1, false, false, table);
-                AddTable(table.GetIdTextUpUnescape(), 0);
-            }
-            tableMetaRead = true;
-        }
-
-        public void Visit(DALSetStatement node)
+        public void Visit(DalSetStatement node)
         {
         }
 
-        public void Visit(DALSetNamesStatement node)
+        public void Visit(DalSetNamesStatement node)
         {
         }
 
-        public void Visit(DALSetCharacterSetStatement node)
+        public void Visit(DalSetCharacterSetStatement node)
         {
         }
 
-        public void Visit(DMLCallStatement node)
+        public void Visit(DmlCallStatement node)
         {
         }
 
@@ -1507,12 +1054,432 @@ namespace Tup.Cobar4Net.Route.Visitor
         {
         }
 
-        public void Visit(ExtDDLCreatePolicy node)
+        public void Visit(ExtDdlCreatePolicy node)
         {
         }
 
-        public void Visit(ExtDDLDropPolicy node)
+        public void Visit(ExtDdlDropPolicy node)
         {
+        }
+
+        private static bool IsVerdictPassthroughWhere(IExpression node)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+            return VerdictPassThroughWhere.Contains(node.GetType());
+        }
+
+        private static bool IsGroupFuncPassthroughSelect(IExpression node)
+        {
+            if (node == null)
+            {
+                return false;
+            }
+            return GroupFuncPassThroughSelect.Contains(node.GetType());
+        }
+
+        public static bool IsPartitionKeyOperandSingle(IExpression expr, IAstNode parent)
+        {
+            return parent == null
+                   && expr is IReplacableExpression
+                   && PartitionOperandSingle.Contains(expr.GetType());
+        }
+
+        public static bool IsPartitionKeyOperandIn(IExpression expr, IAstNode parent)
+        {
+            return expr != null && parent is InExpression;
+        }
+
+        // ---output------------------------------------------------------------------
+        public bool IsDual()
+        {
+            return _dual;
+        }
+
+        public bool IsCustomedSchema()
+        {
+            return _customedSchema;
+        }
+
+        public bool IsTableMetaRead()
+        {
+            return _tableMetaRead;
+        }
+
+        public bool IsNeedRewriteField()
+        {
+            return _rewriteField;
+        }
+
+        /// <returns>null for statement not table meta read</returns>
+        public string[] GetMetaReadTable()
+        {
+            if (!IsTableMetaRead())
+                return null;
+
+            var tables = columnValue.Keys;
+            return tables.IsEmpty() ? EmptyStringArray : tables.ToArray();
+        }
+
+        public IDictionary<string, string> GetTableAlias()
+        {
+            return _tableAlias;
+        }
+
+        /// <returns>-1 for no limit</returns>
+        public long GetLimitOffset()
+        {
+            return _limitOffset;
+        }
+
+        /// <returns>-1 for no limit</returns>
+        public long GetLimitSize()
+        {
+            return _limitSize;
+        }
+
+        /// <returns>
+        ///     <see cref="GroupNon" />
+        ///     or
+        ///     <see cref="GroupSum" />
+        ///     or
+        ///     <see cref="GroupMin" />
+        ///     or
+        ///     <see cref="GroupMax" />
+        /// </returns>
+        public int GetGroupFuncType()
+        {
+            return _groupFuncType;
+        }
+
+        public bool IsSchemaTrimmed()
+        {
+            return _schemaTrimmed;
+        }
+
+        /// <returns>never null</returns>
+        public IDictionary<string, ColumnValueType> GetColumnIndex(string tableNameUp)
+        {
+            if (columnValueIndex == null)
+                return new Dictionary<string, ColumnValueType>(0);
+
+            var index = columnValueIndex.GetValue(tableNameUp);
+            if (index == null || index.IsEmpty())
+                return new Dictionary<string, ColumnValueType>(0);
+
+            return index;
+        }
+
+        /// <returns><code>table -&gt; null</code> is possible</returns>
+        public IDictionary<string, IDictionary<string, IList<object>>> GetColumnValue()
+        {
+            return columnValue;
+        }
+
+        private void AddTable(string tableNameUp)
+        {
+            AddTable(tableNameUp, 2);
+        }
+
+        /// <param name="initColumnMapSize">0 for emptyMap</param>
+        private void AddTable(string tableNameUp, int initColumnMapSize)
+        {
+            if (columnValue.ContainsKey(tableNameUp))
+                return;
+
+            var colMap = new Dictionary<string, IList<object>>(initColumnMapSize > 0 ? initColumnMapSize : 0);
+            columnValue[tableNameUp] = colMap;
+        }
+
+        private void AddColumnValueIndex(string table,
+            string column,
+            object value,
+            IExpression expr,
+            IAstNode parent)
+        {
+            var colMap = EnsureColumnValueIndexByTable(table);
+            var valMap = EnsureColumnValueIndexObjMap(colMap, column);
+            AddIntoColumnValueIndex(valMap, value, expr, parent);
+        }
+
+        private void AddIntoColumnValueIndex(ColumnValueType valMap,
+            object value,
+            IExpression expr,
+            IAstNode parent)
+        {
+            var exprSet = value == null ? null : valMap.GetValue(value);
+            if (exprSet == null)
+            {
+                exprSet = new HashSet<Pair<IExpression, IAstNode>>();
+                valMap[value ?? Null_Alias_Key] = exprSet;
+            }
+            var pair = new Pair<IExpression, IAstNode>(expr, parent);
+            exprSet.Add(pair);
+        }
+
+        private IDictionary<string, ColumnValueType> EnsureColumnValueIndexByTable(string table)
+        {
+            if (columnValueIndex == null)
+                columnValueIndex = new Dictionary<string, IDictionary<string, ColumnValueType>>();
+
+            var colMap = columnValueIndex.GetValue(table);
+            if (colMap == null)
+            {
+                colMap = new Dictionary<string, ColumnValueType>();
+                columnValueIndex[table] = colMap;
+            }
+            return colMap;
+        }
+
+        private ColumnValueType EnsureColumnValueIndexObjMap(
+            IDictionary<string, ColumnValueType> colMap,
+            string column)
+        {
+            var valMap = column == null ? null : colMap.GetValue(column);
+            if (valMap == null)
+            {
+                valMap = new Dictionary<object, ICollection<Pair<IExpression, IAstNode>>>();
+                colMap[column ?? Null_Alias_Key] = valMap;
+            }
+            return valMap;
+        }
+
+        private void AddColumnValue(string tableNameUp,
+            string columnNameUp,
+            object value,
+            IExpression expr,
+            IAstNode parent)
+        {
+            var colVals = EnsureColumnValueByTable(tableNameUp);
+            EnsureColumnValueList(colVals, columnNameUp).Add(value);
+            AddColumnValueIndex(tableNameUp, columnNameUp, value, expr, parent);
+        }
+
+        private IDictionary<string, IList<object>> EnsureColumnValueByTable(string tableNameUp)
+        {
+            var colVals = columnValue.GetValue(tableNameUp);
+            if (colVals == null)
+            {
+                colVals = new Dictionary<string, IList<object>>();
+                columnValue[tableNameUp] = colVals;
+            }
+            return colVals;
+        }
+
+        private IList<object> EnsureColumnValueList(IDictionary<string, IList<object>> columnValue, string column)
+        {
+            var list = columnValue.GetValue(column);
+            if (list == null)
+            {
+                list = new List<object>();
+                columnValue[column] = list;
+            }
+            return list;
+        }
+
+        public PartitionKeyVisitor SetTrimSchema(string trimSchema)
+        {
+            if (trimSchema != null)
+                _trimSchema = trimSchema.ToUpper();
+
+            return this;
+        }
+
+        private bool IsRuledColumn(string tableNameUp, string columnNameUp)
+        {
+            if (tableNameUp == null)
+                return false;
+
+            var config = tablesRuleConfig.GetValue(tableNameUp);
+            return config != null && config.ExistsColumn(columnNameUp);
+        }
+
+        private void VisitChild(int idLevel,
+            bool verdictColumn,
+            bool verdictGroupFunc,
+            params IAstNode[] nodes)
+        {
+            if (nodes == null || nodes.Length <= 0)
+                return;
+
+            VisitChild(idLevel, verdictColumn, verdictGroupFunc, new List<IAstNode>(nodes));
+        }
+
+        private void VisitChild<TNode>(int idLevel,
+            bool verdictColumn,
+            bool verdictGroupFunc,
+            IList<TNode> nodes)
+            where TNode : IAstNode
+        {
+            if (nodes == null || nodes.IsEmpty())
+            {
+                return;
+            }
+            var oldLevel = _idLevel;
+            var oldVerdict = _verdictColumn;
+            var oldverdictGroupFunc = _verdictGroupFunc;
+            _idLevel = idLevel;
+            _verdictColumn = verdictColumn;
+            _verdictGroupFunc = verdictGroupFunc;
+            try
+            {
+                foreach (IAstNode node in nodes)
+                {
+                    if (node != null)
+                    {
+                        node.Accept(this);
+                    }
+                }
+            }
+            finally
+            {
+                _verdictColumn = oldVerdict;
+                _idLevel = oldLevel;
+                _verdictGroupFunc = oldverdictGroupFunc;
+            }
+        }
+
+        // --------------------------------------------------------------------------------
+        private void Limit(Limit limit)
+        {
+            if (limit == null)
+                return;
+
+            var ls = limit.Size;
+            if (ls is IExpression)
+                ls = ((IExpression)ls).Evaluation(evaluationParameter);
+
+            if (ls is int)
+                _limitSize = (int)ls;
+
+            var lo = limit.Offset;
+            if (lo is IExpression)
+                lo = ((IExpression)lo).Evaluation(evaluationParameter);
+
+            if (lo is int)
+                _limitOffset = (int)lo;
+        }
+
+        private void TableAsTableFactor(Identifier table)
+        {
+            var trim = table.TrimParent(1, _trimSchema);
+            _schemaTrimmed = _schemaTrimmed || trim == Identifier.ParentTrimed;
+            _customedSchema = _customedSchema || trim == Identifier.ParentIgnored;
+
+            var tableName = table.IdTextUpUnescape;
+            _tableAlias[Null_Alias_Key] = tableName;
+            _tableAlias[tableName] = tableName;
+            AddTable(tableName);
+        }
+
+        private void InsertReplace(DmlInsertReplaceStatement node)
+        {
+            var table = node.Table;
+            var collist = node.ColumnNameList;
+            var query = node.Select;
+            var rows = node.RowList;
+            TableAsTableFactor(table);
+
+            var tableName = table.IdTextUpUnescape;
+            VisitChild(2, false, false, collist);
+            if (query != null)
+            {
+                query.Accept(this);
+                return;
+            }
+
+            foreach (var row in rows)
+            {
+                VisitChild(2, false, false, row);
+            }
+
+            var colVals = EnsureColumnValueByTable(tableName);
+            var colValsIndex = EnsureColumnValueIndexByTable(tableName);
+            if (collist == null)
+                return;
+
+            for (var i = 0; i < collist.Count; ++i)
+            {
+                var colName = collist[i].IdTextUpUnescape;
+                if (IsRuledColumn(tableName, colName))
+                {
+                    var valueList = EnsureColumnValueList(colVals, colName);
+                    var valMap = EnsureColumnValueIndexObjMap(colValsIndex, colName);
+                    foreach (var row_1 in rows)
+                    {
+                        var expr = row_1.RowExprList[i];
+                        var value = expr == null ? null : expr.Evaluation(evaluationParameter);
+                        if (value != ExpressionConstants.Unevaluatable)
+                        {
+                            valueList.Add(value);
+                            AddIntoColumnValueIndex(valMap, value, row_1, node);
+                        }
+                    }
+                }
+            }
+        }
+
+        private void DdlTable(Identifier id, int idLevel)
+        {
+            VisitChild(idLevel, false, false, id);
+            AddTable(id.IdTextUpUnescape);
+        }
+
+        /// <param name="obj1">not null</param>
+        /// <param name="obj2">not null</param>
+        private static bool CompareEvaluatedValue(object obj1, object obj2)
+        {
+            if (obj1.Equals(obj2))
+                return true;
+
+            try
+            {
+                var pair = ExprEvalUtils.ConvertNum2SameLevel(obj1, obj2);
+                return pair.Key.Equals(pair.Value);
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        private void ComparisionEquals(Identifier col, object value, bool nullsafe, IExpression node)
+        {
+            if (value == ExpressionConstants.Unevaluatable || (!nullsafe && value == null))
+                return;
+
+            var table = _tableAlias.GetValue(col.GetLevelUnescapeUpName(2) ?? Null_Alias_Key);
+            if (IsRuledColumn(table, col.IdTextUpUnescape))
+            {
+                AddColumnValue(table, col.IdTextUpUnescape, value, node, null);
+            }
+        }
+
+        private void SortPairList(IList<Pair<IExpression, SortOrder>> list)
+        {
+            if (list == null || list.IsEmpty())
+                return;
+
+            var exprs = new IExpression[list.Count];
+            var i = 0;
+            foreach (var p in list)
+            {
+                exprs[i] = p.Key;
+                ++i;
+            }
+            VisitChild(2, false, false, new List<IExpression>(exprs));
+        }
+
+        private void TableMetaRead(Identifier table)
+        {
+            if (table != null)
+            {
+                VisitChild(1, false, false, table);
+                AddTable(table.IdTextUpUnescape, 0);
+            }
+            _tableMetaRead = true;
         }
     }
 }

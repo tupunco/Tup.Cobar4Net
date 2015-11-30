@@ -15,46 +15,43 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Extension
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ExtDDLCreatePolicy : DDLStatement
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ExtDdlCreatePolicy : IDdlStatement
     {
-        private readonly Identifier name;
+        private readonly IList<Pair<int, IExpression>> proportion;
 
-        private readonly IList<Pair<int, Expr>> proportion;
-
-        public ExtDDLCreatePolicy(Identifier name)
+        public ExtDdlCreatePolicy(Identifier name)
         {
-            this.name = name;
-            this.proportion = new List<Pair<int, Expr>>(1);
+            Name = name;
+            proportion = new List<Pair<int, IExpression>>(1);
         }
 
-        public virtual Identifier GetName()
+        public virtual Identifier Name { get; }
+
+        public virtual IList<Pair<int, IExpression>> Proportion
         {
-            return name;
+            get { return proportion; }
         }
 
-        public virtual IList<Pair<int, Expr>> GetProportion()
-        {
-            return proportion;
-        }
-
-        public virtual ExtDDLCreatePolicy AddProportion(int id, Expr val)
-        {
-            proportion.Add(new Pair<int, Expr>(id, val));
-            return this;
-        }
-
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public virtual ExtDdlCreatePolicy AddProportion(int id, IExpression val)
+        {
+            proportion.Add(new Pair<int, IExpression>(id, val));
+            return this;
         }
     }
 }

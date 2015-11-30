@@ -21,42 +21,42 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class DMLReplaceStatement : DMLInsertReplaceStatement
+    /// <summary>
+    ///     DmlReplaceStatement Mode
+    /// </summary>
+    public enum ReplaceMode
     {
-        public enum ReplaceMode
-        {
-            Undef,
-            Low,
-            Delay
-        }
+        Undef,
+        Low,
+        Delay
+    }
 
-        private readonly DMLReplaceStatement.ReplaceMode mode;
-
-        public DMLReplaceStatement(DMLReplaceStatement.ReplaceMode mode,
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class DmlReplaceStatement : DmlInsertReplaceStatement
+    {
+        public DmlReplaceStatement(ReplaceMode mode,
             Identifier table,
             IList<Identifier> columnNameList,
             IList<RowExpression> rowList)
             : base(table, columnNameList, rowList)
         {
-            this.mode = mode;
+            Mode = mode;
         }
 
-        public DMLReplaceStatement(DMLReplaceStatement.ReplaceMode mode,
+        public DmlReplaceStatement(ReplaceMode mode,
             Identifier table,
             IList<Identifier> columnNameList,
-            QueryExpression select)
+            IQueryExpression select)
             : base(table, columnNameList, select)
         {
-            this.mode = mode;
+            Mode = mode;
         }
 
-        public virtual DMLReplaceStatement.ReplaceMode GetMode()
-        {
-            return mode;
-        }
+        public virtual ReplaceMode Mode { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

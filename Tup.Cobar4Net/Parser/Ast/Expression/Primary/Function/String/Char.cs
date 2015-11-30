@@ -20,29 +20,25 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Char : FunctionExpression
     {
-        private readonly string charset;
-
-        public Char(IList<Expression> arguments, string charset
-            )
+        public Char(IList<IExpression> arguments, string charset)
             : base("CHAR", arguments)
         {
-            this.charset = charset;
+            Charset = charset;
         }
 
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public virtual string Charset { get; }
+
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of char has special arguments");
         }
 
-        public virtual string GetCharset()
-        {
-            return charset;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

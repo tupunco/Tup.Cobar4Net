@@ -19,7 +19,9 @@ using System.Collections.Generic;
 
 namespace Tup.Cobar4Net.Config.Model.Rule
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class TableRuleConfig
     {
         private readonly string name;
@@ -40,25 +42,24 @@ namespace Tup.Cobar4Net.Config.Model.Rule
             this.rules = new List<RuleConfig>(rules).AsReadOnly();
         }
 
-        public virtual string GetName()
+        public virtual string Name
         {
-            return name;
+            get { return name; }
         }
 
-        /// <returns>unmodifiable</returns>
-        public virtual IList<RuleConfig> GetRules()
+        /// <value>unmodifiable</value>
+        public virtual IList<RuleConfig> Rules
         {
-            return rules;
+            get { return rules; }
         }
 
         /// <summary>
-        ///
         /// </summary>
         /// <returns></returns>
         public override string ToString()
         {
             return string.Format("[TableRuleConfig name:{0}, rules:{1}]",
-                                    name, string.Join(",", rules ?? new RuleConfig[0]));
+                name, string.Join(",", rules ?? new RuleConfig[0]));
         }
     }
 }

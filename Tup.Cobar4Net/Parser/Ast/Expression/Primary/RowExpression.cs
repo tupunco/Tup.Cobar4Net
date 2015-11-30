@@ -15,42 +15,38 @@
 */
 
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class RowExpression : PrimaryExpression
     {
-        private readonly IList<Expression> rowExprList;
-
-        public RowExpression(IList<Expression> rowExprList)
+        public RowExpression(IList<IExpression> rowExprList)
         {
             if (rowExprList == null || rowExprList.IsEmpty())
             {
-                this.rowExprList = new List<Expression>(0);
+                RowExprList = new List<IExpression>(0);
             }
             else
             {
-                if (rowExprList is List<Expression>)
+                if (rowExprList is List<IExpression>)
                 {
-                    this.rowExprList = rowExprList;
+                    RowExprList = rowExprList;
                 }
                 else
                 {
-                    this.rowExprList = new List<Expression>(rowExprList);
+                    RowExprList = new List<IExpression>(rowExprList);
                 }
             }
         }
 
-        /// <returns>never null</returns>
-        public virtual IList<Expression> GetRowExprList()
-        {
-            return rowExprList;
-        }
+        /// <value>never null</value>
+        public virtual IList<IExpression> RowExprList { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -20,36 +20,61 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     IntervalPrimary Unit
+    /// </summary>
+    public enum Unit
+    {
+        None = 0,
+
+        Microsecond,
+        Second,
+        Minute,
+        Hour,
+        Day,
+        Week,
+        Month,
+        Quarter,
+        Year,
+        SecondMicrosecond,
+        MinuteMicrosecond,
+        MinuteSecond,
+        HourMicrosecond,
+        HourSecond,
+        HourMinute,
+        DayMicrosecond,
+        DaySecond,
+        DayMinute,
+        DayHour,
+        YearMonth
+    }
+
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class IntervalPrimary : Literal
     {
-        public enum Unit
-        {
-            None = 0,
+        private static readonly IDictionary<string, Unit> unitMap = InitUnitMap();
 
-            Microsecond,
-            Second,
-            Minute,
-            Hour,
-            Day,
-            Week,
-            Month,
-            Quarter,
-            Year,
-            SecondMicrosecond,
-            MinuteMicrosecond,
-            MinuteSecond,
-            HourMicrosecond,
-            HourSecond,
-            HourMinute,
-            DayMicrosecond,
-            DaySecond,
-            DayMinute,
-            DayHour,
-            YearMonth
+        public IntervalPrimary(IExpression quantity, Unit unit)
+        {
+            if (quantity == null)
+            {
+                throw new ArgumentException("quantity expression is null");
+            }
+            if (unit == Unit.None)
+            {
+                throw new ArgumentException("unit of time is null");
+            }
+            Quantity = quantity;
+            Unit = unit;
         }
 
-        private static readonly IDictionary<string, Unit> unitMap = InitUnitMap();
+        /// <value>never null</value>
+        public virtual Unit Unit { get; }
+
+        /// <value>never null</value>
+        public virtual IExpression Quantity { get; }
 
         private static IDictionary<string, Unit> InitUnitMap()
         {
@@ -62,37 +87,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
             return unitMap.GetValue(unitString);
         }
 
-        private readonly Unit unit;
-
-        private readonly Expression quantity;
-
-        public IntervalPrimary(Expression quantity, Unit unit)
-        {
-            if (quantity == null)
-            {
-                throw new ArgumentException("quantity expression is null");
-            }
-            if (unit == Unit.None)
-            {
-                throw new ArgumentException("unit of time is null");
-            }
-            this.quantity = quantity;
-            this.unit = unit;
-        }
-
-        /// <returns>never null</returns>
-        public virtual Unit GetUnit()
-        {
-            return unit;
-        }
-
-        /// <returns>never null</returns>
-        public virtual Expression GetQuantity()
-        {
-            return quantity;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

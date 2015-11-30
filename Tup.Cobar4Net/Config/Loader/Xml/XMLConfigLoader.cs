@@ -15,107 +15,93 @@
 */
 
 using System.Collections.Generic;
-
 using Tup.Cobar4Net.Config.Model;
 using Tup.Cobar4Net.Config.Model.Rule;
 
 namespace Tup.Cobar4Net.Config.Loader.Xml
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class XMLConfigLoader : ConfigLoader
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class XMLConfigLoader : IConfigLoader
     {
         /// <summary>unmodifiable</summary>
-        private readonly ICollection<RuleConfig> rules;
-
-        /// <summary>unmodifiable</summary>
-        private readonly IDictionary<string, RuleAlgorithm> functions;
+        private readonly IDictionary<string, DataNodeConfig> dataNodes;
 
         /// <summary>unmodifiable</summary>
         private readonly IDictionary<string, DataSourceConfig> dataSources;
 
         /// <summary>unmodifiable</summary>
-        private readonly IDictionary<string, DataNodeConfig> dataNodes;
+        private readonly IDictionary<string, IRuleAlgorithm> functions;
+
+        /// <summary>unmodifiable</summary>
+        private readonly ICollection<RuleConfig> rules;
 
         /// <summary>unmodifiable</summary>
         private readonly IDictionary<string, SchemaConfig> schemas;
 
-        private readonly SystemConfig system = null;
-
         /// <summary>unmodifiable</summary>
-        private readonly IDictionary<string, UserConfig> users = null;
+        private readonly IDictionary<string, UserConfig> users;
 
-        private readonly QuarantineConfig quarantine = null;
-
-        private readonly ClusterConfig cluster = null;
-
-        public XMLConfigLoader(SchemaLoader schemaLoader)
+        public XMLConfigLoader(ISchemaLoader schemaLoader)
         {
-            this.functions = new Dictionary<string, RuleAlgorithm>(schemaLoader.GetFunctions()).AsReadOnly();
-            this.dataSources = schemaLoader.GetDataSources();
-            this.dataNodes = schemaLoader.GetDataNodes();
-            this.schemas = schemaLoader.GetSchemas();
-            this.rules = schemaLoader.ListRuleConfig();
+            functions = new Dictionary<string, IRuleAlgorithm>(schemaLoader.Functions).AsReadOnly();
+            dataSources = schemaLoader.DataSources;
+            dataNodes = schemaLoader.DataNodes;
+            schemas = schemaLoader.Schemas;
+            rules = schemaLoader.RuleConfigList;
             schemaLoader = null;
 
-            var serverLoader = new XMLServerLoader();
-            this.system = serverLoader.GetSystem();
-            this.users = serverLoader.GetUsers();
-            this.quarantine = serverLoader.GetQuarantine();
-            this.cluster = serverLoader.GetCluster();
+            var serverLoader = new XmlServerLoader();
+            SystemConfig = serverLoader.System;
+            users = serverLoader.Users;
+            QuarantineConfig = serverLoader.Quarantine;
+            ClusterConfig = serverLoader.Cluster;
             serverLoader = null;
         }
 
-        public virtual ClusterConfig GetClusterConfig()
-        {
-            return cluster;
-        }
+        public ClusterConfig ClusterConfig { get; }
 
-        public virtual QuarantineConfig GetQuarantineConfig()
-        {
-            return quarantine;
-        }
+        public QuarantineConfig QuarantineConfig { get; }
 
-        public virtual UserConfig GetUserConfig(string user)
+        public UserConfig GetUserConfig(string user)
         {
             return users.GetValue(user);
         }
 
-        public virtual IDictionary<string, UserConfig> GetUserConfigs()
+        public IDictionary<string, UserConfig> UserConfigs
         {
-            return users;
+            get { return users; }
         }
 
-        public virtual SystemConfig GetSystemConfig()
+        public SystemConfig SystemConfig { get; }
+
+        public IDictionary<string, IRuleAlgorithm> RuleFunction
         {
-            return system;
+            get { return functions; }
         }
 
-        public virtual IDictionary<string, RuleAlgorithm> GetRuleFunction()
+        public ICollection<RuleConfig> RuleConfigList
         {
-            return functions;
+            get { return rules; }
         }
 
-        public virtual ICollection<RuleConfig> ListRuleConfig()
+        public IDictionary<string, SchemaConfig> SchemaConfigs
         {
-            return rules;
+            get { return schemas; }
         }
 
-        public virtual IDictionary<string, SchemaConfig> GetSchemaConfigs()
+        public IDictionary<string, DataNodeConfig> DataNodes
         {
-            return schemas;
+            get { return dataNodes; }
         }
 
-        public virtual IDictionary<string, DataNodeConfig> GetDataNodes()
+        public IDictionary<string, DataSourceConfig> DataSources
         {
-            return dataNodes;
+            get { return dataSources; }
         }
 
-        public virtual IDictionary<string, DataSourceConfig> GetDataSources()
-        {
-            return dataSources;
-        }
-
-        public virtual SchemaConfig GetSchemaConfig(string schema)
+        public SchemaConfig GetSchemaConfig(string schema)
         {
             return schemas.GetValue(schema);
         }

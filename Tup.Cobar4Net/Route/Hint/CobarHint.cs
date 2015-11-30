@@ -14,22 +14,23 @@
 * limitations under the License.
 */
 
-using Sharpen;
 using System;
 using System.Collections.Generic;
+using Sharpen;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Route.Hint
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public sealed class CobarHint
     {
         public const string CobarHintPrefix = "/*!cobar:";
 
         private static readonly IDictionary<string, HintParser>
-
 #pragma warning disable RECS0104 // When object creation uses object or collection initializer, empty argument list is redundant
-            HintParsers = new Dictionary<string, HintParser>()
+            HintParsers = new Dictionary<string, HintParser>
             {
                 {"table", new SimpleHintParser()},
                 {"replica", new SimpleHintParser()},
@@ -39,185 +40,139 @@ namespace Tup.Cobar4Net.Route.Hint
 
 #pragma warning restore RECS0104 // When object creation uses object or collection initializer, empty argument list is redundant
 
-        private int replica = RouteResultsetNode.DefaultReplicaIndex;
+        private Pair<string[], object[][]> _partitionOperand;
 
-        private string table;
+        private string _table;
 
-        private IList<Pair<int, int>> dataNodes;
+        /// <value>String[] in upper-case</value>
+        public Pair<string[], object[][]> PartitionOperand
+        {
+            get { return _partitionOperand; }
+            set
+            {
+                var columns = value.Key;
+                if (columns == null)
+                {
+                    _partitionOperand = value;
+                }
+                else
+                {
+                    var colUp = new string[columns.Length];
+                    for (var i = 0; i < columns.Length; ++i)
+                    {
+                        colUp[i] = columns[i].ToUpper();
+                    }
+                    _partitionOperand = new Pair<string[], object[][]>(colUp, value.Value);
+                }
+            }
+        }
 
-        private Pair<string[], object[][]> partitionOperand;
+        public IList<Pair<int, int>> DataNodes { get; private set; }
+
+        /// <value>upper case</value>
+        public string Table
+        {
+            get { return _table; }
+            set { _table = value.ToUpper(); }
+        }
+
+        public int Replica { get; set; } = RouteResultsetNode.DefaultReplicaIndex;
+
+        public int CurrentIndex { set; get; }
+
+        public string OutputSql { get; private set; }
 
         // index start from 1
-        // /*!cobar: $dataNodeId=0.0, $table='offer'*/
-        // /*!cobar: $dataNodeId=[0,1,5.2], $table='offer'*/
-        // /*!cobar: $partitionOperand=('member_id'='m1'), $table='offer'*/
-        // /*!cobar: $partitionOperand=('member_id'=['m1','m2']), $table='offer',
-        // $replica=2*/
-        // /*!cobar: $partitionOperand=(['offer_id','group_id']=[123,'3c']),
-        // $table='offer'*/
+        // /*!cobar: $dataNodeId=0.0, $_table='offer'*/
+        // /*!cobar: $dataNodeId=[0,1,5.2], $_table='offer'*/
+        // /*!cobar: $_partitionOperand=('member_id'='m1'), $_table='offer'*/
+        // /*!cobar: $_partitionOperand=('member_id'=['m1','m2']), $_table='offer',
+        // $_replica=2*/
+        // /*!cobar: $_partitionOperand=(['offer_id','group_id']=[123,'3c']),
+        // $_table='offer'*/
         // /*!cobar:
-        // $partitionOperand=(['offer_id','group_id']=[[123,'3c'],[234,'food']]),
-        // $table='offer'*/
+        // $_partitionOperand=(['offer_id','group_id']=[[123,'3c'],[234,'food']]),
+        // $_table='offer'*/
         /// <param name="offset">
-        /// index of first char of
-        /// <see cref="CobarHintPrefix"/>
+        ///     index of first char of
+        ///     <see cref="CobarHintPrefix" />
         /// </param>
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         public static CobarHint ParserCobarHint(string sql, int offset)
         {
-            CobarHint hint = new CobarHint();
-            hint.currentIndex = offset + CobarHintPrefix.Length;
+            var hint = new CobarHint
+            {
+                CurrentIndex = offset + CobarHintPrefix.Length
+            };
             hint.Parse(sql);
             return hint;
-        }
-
-        /// <returns>String[] in upper-case</returns>
-        public Pair<string[], object[][]> GetPartitionOperand()
-        {
-            return partitionOperand;
-        }
-
-        public void SetPartitionOperand(Pair<string[], object[][]> partitionOperand)
-        {
-            string[] columns = partitionOperand.GetKey();
-            if (columns == null)
-            {
-                this.partitionOperand = partitionOperand;
-            }
-            else
-            {
-                string[] colUp = new string[columns.Length];
-                for (int i = 0; i < columns.Length; ++i)
-                {
-                    colUp[i] = columns[i].ToUpper();
-                }
-                this.partitionOperand = new Pair<string[], object[][]>(colUp, partitionOperand.GetValue());
-            }
-        }
-
-        public IList<Pair<int, int>> GetDataNodes()
-        {
-            return dataNodes;
         }
 
         public void AddDataNode(int dataNodeIndex, int replica)
         {
             if (dataNodeIndex < 0)
-            {
                 throw new ArgumentException("data node index is null");
-            }
+
             if (replica == RouteResultsetNode.DefaultReplicaIndex || replica < 0)
-            {
                 replica = -1;
-            }
-            if (dataNodes == null)
-            {
-                dataNodes = new List<Pair<int, int>>();
-            }
-            dataNodes.Add(new Pair<int, int>(dataNodeIndex, replica));
+
+            if (DataNodes == null)
+                DataNodes = new List<Pair<int, int>>();
+
+            DataNodes.Add(new Pair<int, int>(dataNodeIndex, replica));
         }
 
-        /// <returns>upper case</returns>
-        public string GetTable()
-        {
-            return table;
-        }
-
-        public void SetTable(string table)
-        {
-            this.table = table.ToUpper();
-        }
-
-        public string Table
-        {
-            get { return table; }
-            set { table = value.ToUpper(); }
-        }
-
-        public int Replica
-        {
-            get { return replica; }
-            set { replica = value; }
-        }
-
-        public int GetReplica()
-        {
-            return replica;
-        }
-
-        public void SetReplica(int replica)
-        {
-            this.replica = replica;
-        }
-
-        /// <exception cref="System.Data.Sql.SQLSyntaxErrorException"/>
+        /// <exception cref="System.SqlSyntaxErrorException" />
         private void Parse(string sql)
         {
             for (;;)
             {
                 for (;;)
                 {
-                    switch (sql[currentIndex])
+                    switch (sql[CurrentIndex])
                     {
                         case '$':
-                            {
-                                goto skip_break;
-                            }
+                        {
+                            goto skip_break;
+                        }
 
                         case '*':
-                            {
-                                currentIndex += 2;
-                                goto cobarHint_break;
-                            }
+                        {
+                            CurrentIndex += 2;
+                            goto cobarHint_break;
+                        }
 
                         default:
-                            {
-                                ++currentIndex;
-                                break;
-                            }
+                        {
+                            ++CurrentIndex;
+                            break;
+                        }
                     }
                 }
-            skip_break:;
-                int hintNameEnd = sql.IndexOf('=', currentIndex);
-                string hintName = Runtime.Substring(sql, currentIndex + 1, hintNameEnd).Trim();
+                skip_break:
+                ;
+                var hintNameEnd = sql.IndexOf('=', CurrentIndex);
+                var hintName = Runtime.Substring(sql, CurrentIndex + 1, hintNameEnd).Trim();
                 var hintParser = HintParsers.GetValue(hintName);
                 if (hintParser != null)
                 {
-                    currentIndex = 1 + sql.IndexOf('=', hintNameEnd);
+                    CurrentIndex = 1 + sql.IndexOf('=', hintNameEnd);
                     hintParser.Process(this, hintName, sql);
                 }
                 else
                 {
-                    throw new SQLSyntaxErrorException("unrecognized hint name: ${" + hintName + "}");
+                    throw new SqlSyntaxErrorException("unrecognized hint name: ${" + hintName + "}");
                 }
             }
-        cobarHint_break:;
-            outputSql = Runtime.Substring(sql, currentIndex);
-        }
-
-        private string outputSql;
-
-        private int currentIndex;
-
-        public int GetCurrentIndex()
-        {
-            return currentIndex;
+            cobarHint_break:
+            ;
+            OutputSql = Runtime.Substring(sql, CurrentIndex);
         }
 
         public CobarHint IncreaseCurrentIndex()
         {
-            ++currentIndex;
+            ++CurrentIndex;
             return this;
-        }
-
-        public void SetCurrentIndex(int ci)
-        {
-            currentIndex = ci;
-        }
-
-        public string GetOutputSql()
-        {
-            return outputSql;
         }
     }
 }

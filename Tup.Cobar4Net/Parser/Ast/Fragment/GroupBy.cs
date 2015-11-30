@@ -15,69 +15,67 @@
 */
 
 using System.Collections.Generic;
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Util;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class GroupBy : ASTNode
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class GroupBy : IAstNode
     {
         /// <summary>
-        /// might be
-        /// <see cref="System.Collections.ArrayList{E}"/>
-        ///
+        ///     might be
+        ///     <see cref="System.Collections.Generic.IList{E}" />
         /// </summary>
-        private readonly IList<Pair<Expr, SortOrder
-            >> orderByList;
+        private readonly IList<Pair<IExpression, SortOrder>> _orderByList;
 
-        private bool withRollup = false;
-
-        public virtual bool IsWithRollup()
-        {
-            return withRollup;
-        }
-
-        /// <returns>never null</returns>
-        public virtual IList<Pair<Expr, SortOrder>>
-             GetOrderByList()
-        {
-            return orderByList;
-        }
+        private bool _withRollup;
 
         /// <summary>performance tip: expect to have only 1 order item</summary>
-        public GroupBy(Tup.Cobar4Net.Parser.Ast.Expression.Expression expr, SortOrder order,
-            bool withRollup)
+        public GroupBy(IExpression expr, SortOrder order, bool withRollup)
         {
-            this.orderByList = new List<Pair<Expr, SortOrder>>(1);
-            this.orderByList.Add(new Pair<Expr, SortOrder>(expr, order));
-            this.withRollup = withRollup;
+            _orderByList = new List<Pair<IExpression, SortOrder>>(1)
+            {
+                new Pair<IExpression, SortOrder>(expr, order)
+            };
+            _withRollup = withRollup;
         }
 
         /// <summary>performance tip: linked list is used</summary>
         public GroupBy()
         {
-            this.orderByList = new List<Pair<Expr, SortOrder
-                >>();
+            _orderByList = new List<Pair<IExpression, SortOrder>>();
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Fragment.GroupBy SetWithRollup()
+        public virtual bool IsWithRollup
         {
-            withRollup = true;
-            return this;
+            get { return _withRollup; }
         }
 
-        public virtual Tup.Cobar4Net.Parser.Ast.Fragment.GroupBy AddOrderByItem(Tup.Cobar4Net.Parser.Ast.Expression.Expression
-             expr, SortOrder order)
+        /// <value>never null</value>
+        public virtual IList<Pair<IExpression, SortOrder>> OrderByList
         {
-            orderByList.Add(new Pair<Expr, SortOrder>(expr, order));
-            return this;
+            get { return _orderByList; }
         }
 
-        public virtual void Accept(SQLASTVisitor visitor)
+        public virtual void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
+        }
+
+        public virtual GroupBy SetWithRollup()
+        {
+            _withRollup = true;
+            return this;
+        }
+
+        public virtual GroupBy AddOrderByItem(IExpression expr, SortOrder order)
+        {
+            _orderByList.Add(new Pair<IExpression, SortOrder>(expr, order));
+            return this;
         }
     }
 }

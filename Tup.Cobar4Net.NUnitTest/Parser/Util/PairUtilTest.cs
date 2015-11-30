@@ -13,42 +13,39 @@
 * See the License for the specific language governing permissions and
 * limitations under the License.
 */
+
 using NUnit.Framework;
 
 namespace Tup.Cobar4Net.Parser.Util
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     [TestFixture(Category = "PairUtilTest")]
     public class PairUtilTest
     {
         [Test]
-        public virtual void TestSequenceSlicing()
+        public virtual void SplitIndexTest()
         {
-            Assert.AreEqual(new Pair<int, int>(0, 2), PairUtil.SequenceSlicing
-                ("2"));
-            Assert.AreEqual(new Pair<int, int>(1, 2), PairUtil.SequenceSlicing
-                ("1: 2"));
-            Assert.AreEqual(new Pair<int, int>(1, 0), PairUtil.SequenceSlicing
-                (" 1 :"));
-            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
-                ("-1: "));
-            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing
-                (" -1:0"));
-            Assert.AreEqual(new Pair<int, int>(0, 0), PairUtil.SequenceSlicing
-                (" :"));
+            var src1 = "offer_group[10]";
+            var pair1 = PairUtil.SplitIndex(src1, '[', ']');
+            Assert.AreEqual("offer_group", pair1.Key);
+            Assert.AreEqual(10, pair1.Value);
+            var src2 = "offer_group";
+            var pair2 = PairUtil.SplitIndex(src2, '[', ']');
+            Assert.AreEqual("offer_group", pair2.Key);
+            Assert.AreEqual(-1, pair2.Value);
         }
 
         [Test]
-        public virtual void SplitIndexTest()
+        public virtual void TestSequenceSlicing()
         {
-            string src1 = "offer_group[10]";
-            Pair<string, int> pair1 = PairUtil.SplitIndex(src1, '[', ']');
-            Assert.AreEqual("offer_group", pair1.GetKey());
-            Assert.AreEqual(10, pair1.GetValue());
-            string src2 = "offer_group";
-            Pair<string, int> pair2 = PairUtil.SplitIndex(src2, '[', ']');
-            Assert.AreEqual("offer_group", pair2.GetKey());
-            Assert.AreEqual(-1, pair2.GetValue());
+            Assert.AreEqual(new Pair<int, int>(0, 2), PairUtil.SequenceSlicing("2"));
+            Assert.AreEqual(new Pair<int, int>(1, 2), PairUtil.SequenceSlicing("1: 2"));
+            Assert.AreEqual(new Pair<int, int>(1, 0), PairUtil.SequenceSlicing(" 1 :"));
+            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing("-1: "));
+            Assert.AreEqual(new Pair<int, int>(-1, 0), PairUtil.SequenceSlicing(" -1:0"));
+            Assert.AreEqual(new Pair<int, int>(0, 0), PairUtil.SequenceSlicing(" :"));
         }
     }
 }

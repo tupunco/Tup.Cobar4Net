@@ -21,33 +21,30 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Datetime
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class Extract : FunctionExpression
     {
-        private IntervalPrimary.Unit unit;
-
-        public Extract(IntervalPrimary.Unit unit, Expression date)
+        public Extract(Unit unit, IExpression date)
             : base("EXTRACT", WrapList(date))
         {
-            this.unit = unit;
+            Unit = unit;
         }
 
-        public virtual IntervalPrimary.Unit GetUnit()
+        public virtual Unit Unit { get; }
+
+        public virtual IExpression Date
         {
-            return unit;
+            get { return arguments[0]; }
         }
 
-        public virtual Expression GetDate()
-        {
-            return arguments[0];
-        }
-
-        public override FunctionExpression ConstructFunction(IList<Expression> arguments)
+        public override FunctionExpression ConstructFunction(IList<IExpression> arguments)
         {
             throw new NotSupportedException("function of extract has special arguments");
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

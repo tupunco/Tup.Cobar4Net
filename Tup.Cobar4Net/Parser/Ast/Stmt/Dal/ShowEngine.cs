@@ -18,29 +18,29 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class ShowEngine : DALShowStatement
+    /// <summary>
+    ///     ShowEngine ProfileType
+    /// </summary>
+    public enum EngineType
     {
-        public enum EngineType
-        {
-            InnodbStatus,
-            InnodbMutex,
-            PerformanceSchemaStatus
-        }
+        InnodbStatus,
+        InnodbMutex,
+        PerformanceSchemaStatus
+    }
 
-        private readonly EngineType type;
-
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class ShowEngine : DalShowStatement
+    {
         public ShowEngine(EngineType type)
         {
-            this.type = type;
+            this.EngineType = type;
         }
 
-        public virtual EngineType GetEngineType()
-        {
-            return type;
-        }
+        public virtual EngineType EngineType { get; }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

@@ -24,15 +24,15 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
     /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
     public class ArithmeticSubtractExpression : ArithmeticBinaryOperatorExpression
     {
-        public ArithmeticSubtractExpression(Expression leftOprand,
-                                            Expression rightOprand)
+        public ArithmeticSubtractExpression(IExpression leftOprand,
+                                            IExpression rightOprand)
             : base(leftOprand, rightOprand, ExpressionConstants.PrecedenceArithmeticTermOp)
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "-";
+            get { return "-"; }
         }
 
         public override Number Calculate(int integer1, int integer2)
@@ -119,7 +119,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             return bigDecimal1.Subtract(bigDecimal2);
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

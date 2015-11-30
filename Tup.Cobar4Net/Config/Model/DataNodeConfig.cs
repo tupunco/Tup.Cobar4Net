@@ -22,172 +22,56 @@ namespace Tup.Cobar4Net.Config.Model
     {
         private const int DefaultPoolSize = 128;
 
-        private const long DefaultWaitTimeout = 10 * 1000L;
+        private const long DefaultWaitTimeout = 10*1000L;
 
-        private const long DefaultIdleTimeout = 10 * 60 * 1000L;
+        private const long DefaultIdleTimeout = 10*60*1000L;
 
-        private const long DefaultHeartbeatTimeout = 30 * 1000L;
+        private const long DefaultHeartbeatTimeout = 30*1000L;
 
         private const int DefaultHeartbeatRetry = 10;
 
-        private string name;
+        /// <summary>
+        /// </summary>
+        /// <remarks>
+        ///     保持后端数据通道的默认最大值
+        ///     取得新连接的等待超时时间
+        ///     连接池中连接空闲超时时间
+        ///     heartbeat config
+        ///     心跳超时时间
+        ///     检查连接发生异常到切换，重试次数
+        ///     静态心跳语句
+        /// </remarks>
+        public string HeartbeatSql { get; set; }
 
-        private string dataSource;
+        public string Name { get; set; }
 
-        private int poolSize = DefaultPoolSize;
+        public string DataSource { get; set; }
 
-        private long waitTimeout = DefaultWaitTimeout;
+        public int PoolSize { get; set; } = DefaultPoolSize;
 
-        private long idleTimeout = DefaultIdleTimeout;
+        public long WaitTimeout { get; set; } = DefaultWaitTimeout;
 
-        private long heartbeatTimeout = DefaultHeartbeatTimeout;
+        public long IdleTimeout { get; set; } = DefaultIdleTimeout;
 
-        private int heartbeatRetry = DefaultHeartbeatRetry;
+        public long HeartbeatTimeout { get; set; } = DefaultHeartbeatTimeout;
 
-        private string heartbeatSQL;
+        public int HeartbeatRetry { get; set; } = DefaultHeartbeatRetry;
 
-        public int HeartbeatRetry
+        public bool IsNeedHeartbeat
         {
-            get { return heartbeatRetry; }
-            set { heartbeatRetry = value; }
-        }
-
-        public long HeartbeatTimeout
-        {
-            get { return heartbeatTimeout; }
-            set { heartbeatTimeout = value; }
-        }
-
-        public long IdleTimeout
-        {
-            get { return idleTimeout; }
-            set { idleTimeout = value; }
-        }
-
-        public long WaitTimeout
-        {
-            get { return waitTimeout; }
-            set { waitTimeout = value; }
-        }
-
-        public int PoolSize
-        {
-            get { return poolSize; }
-            set { poolSize = value; }
-        }
-
-        public string DataSource
-        {
-            get { return dataSource; }
-            set { dataSource = value; }
-        }
-
-        public string Name
-        {
-            get { return name; }
-            set { name = value; }
-        }
-
-        // 保持后端数据通道的默认最大值
-        // 取得新连接的等待超时时间
-        // 连接池中连接空闲超时时间
-        // heartbeat config
-        // 心跳超时时间
-        // 检查连接发生异常到切换，重试次数
-        // 静态心跳语句
-        public string GetHeartbeatSQL()
-        {
-            return heartbeatSQL;
-        }
-
-        public void SetHeartbeatSQL(string heartbeatSQL)
-        {
-            this.heartbeatSQL = heartbeatSQL;
-        }
-
-        public string GetName()
-        {
-            return name;
-        }
-
-        public void SetName(string name)
-        {
-            this.name = name;
-        }
-
-        public string GetDataSource()
-        {
-            return dataSource;
-        }
-
-        public void SetDataSource(string dataSource)
-        {
-            this.dataSource = dataSource;
-        }
-
-        public int GetPoolSize()
-        {
-            return poolSize;
-        }
-
-        public void SetPoolSize(int poolSize)
-        {
-            this.poolSize = poolSize;
-        }
-
-        public long GetWaitTimeout()
-        {
-            return waitTimeout;
-        }
-
-        public void SetWaitTimeout(long waitTimeout)
-        {
-            this.waitTimeout = waitTimeout;
-        }
-
-        public long GetIdleTimeout()
-        {
-            return idleTimeout;
-        }
-
-        public void SetIdleTimeout(long idleTimeout)
-        {
-            this.idleTimeout = idleTimeout;
-        }
-
-        public long GetHeartbeatTimeout()
-        {
-            return heartbeatTimeout;
-        }
-
-        public void SetHeartbeatTimeout(long heartbeatTimeout)
-        {
-            this.heartbeatTimeout = heartbeatTimeout;
-        }
-
-        public int GetHeartbeatRetry()
-        {
-            return heartbeatRetry;
-        }
-
-        public void SetHeartbeatRetry(int heartbeatRetry)
-        {
-            this.heartbeatRetry = heartbeatRetry;
-        }
-
-        public bool IsNeedHeartbeat()
-        {
-            return heartbeatSQL != null;
+            get { return HeartbeatSql != null; }
         }
 
         public override string ToString()
         {
-            return string.Format("[DataNodeConfig Name={0}, DataSource={1}, PoolSize={2}, WaitTimeout={3}, IdleTimeout={4}, HeartbeatTimeout={5}, HeartbeatRetry={6}, HeartbeatSQL={7}]",
-                                        name, dataSource, poolSize,
-                                        waitTimeout, idleTimeout,
-                                        heartbeatTimeout,
-                                        heartbeatRetry,
-                                        heartbeatSQL);
+            return
+                string.Format(
+                    "[DataNodeConfig Name={0}, DataSource={1}, PoolSize={2}, WaitTimeout={3}, IdleTimeout={4}, HeartbeatTimeout={5}, HeartbeatRetry={6}, HeartbeatSQL={7}]",
+                    Name, DataSource, PoolSize,
+                    WaitTimeout, IdleTimeout,
+                    HeartbeatTimeout,
+                    HeartbeatRetry,
+                    HeartbeatSql);
         }
     }
 }

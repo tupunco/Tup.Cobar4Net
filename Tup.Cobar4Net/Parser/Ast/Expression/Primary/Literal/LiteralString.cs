@@ -22,53 +22,40 @@ using Tup.Cobar4Net.Parser.Visitor;
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 {
     /// <summary>literal date is also possible</summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LiteralString : Literal
     {
-        private readonly string introducer;
-
-        private readonly string @string;
-
-        private readonly bool nchars;
-
-        /// <param name="string">
-        /// content of string, excluded of head and tail "'". e.g. for
-        /// string token of "'don\\'t'", argument of string is "don\\'t"
+        /// <param name="stringValue">
+        ///     content of stringValue, excluded of head and tail "'". e.g. for
+        ///     stringValue token of "'don\\'t'", argument of stringValue is "don\\'t"
         /// </param>
-        public LiteralString(string introducer, string @string, bool nchars)
+        public LiteralString(string introducer, string stringValue, bool nChars)
         {
-            this.introducer = introducer;
-            if (@string == null)
+            Introducer = introducer;
+            if (stringValue == null)
             {
-                throw new ArgumentException("argument string is null!");
+                throw new ArgumentException("argument stringValue is null!");
             }
-            this.@string = @string;
-            this.nchars = nchars;
+            StringValue = stringValue;
+            IsNChars = nChars;
         }
 
-        public virtual string GetIntroducer()
-        {
-            return introducer;
-        }
+        public virtual string Introducer { get; }
 
-        public virtual string GetString()
-        {
-            return @string;
-        }
+        public virtual string StringValue { get; }
 
-        public virtual bool IsNchars()
-        {
-            return nchars;
-        }
+        public virtual bool IsNChars { get; }
 
         public virtual string GetUnescapedString()
         {
-            return GetUnescapedString(@string, false);
+            return GetUnescapedString(StringValue, false);
         }
 
         public virtual string GetUnescapedString(bool toUppercase)
         {
-            return GetUnescapedString(@string, toUppercase);
+            return GetUnescapedString(StringValue, toUppercase);
         }
 
         public static string GetUnescapedString(string @string)
@@ -78,56 +65,56 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 
         public static string GetUnescapedString(string @string, bool toUppercase)
         {
-            StringBuilder sb = new StringBuilder();
-            char[] chars = @string.ToCharArray();
-            for (int i = 0; i < chars.Length; ++i)
+            var sb = new StringBuilder();
+            var chars = @string.ToCharArray();
+            for (var i = 0; i < chars.Length; ++i)
             {
-                char c = chars[i];
+                var c = chars[i];
                 if (c == '\\')
                 {
                     switch (c = chars[++i])
                     {
                         case '0':
-                            {
-                                sb.Append('\0');
-                                break;
-                            }
+                        {
+                            sb.Append('\0');
+                            break;
+                        }
 
                         case 'b':
-                            {
-                                sb.Append('\b');
-                                break;
-                            }
+                        {
+                            sb.Append('\b');
+                            break;
+                        }
 
                         case 'n':
-                            {
-                                sb.Append('\n');
-                                break;
-                            }
+                        {
+                            sb.Append('\n');
+                            break;
+                        }
 
                         case 'r':
-                            {
-                                sb.Append('\r');
-                                break;
-                            }
+                        {
+                            sb.Append('\r');
+                            break;
+                        }
 
                         case 't':
-                            {
-                                sb.Append('\t');
-                                break;
-                            }
+                        {
+                            sb.Append('\t');
+                            break;
+                        }
 
                         case 'Z':
-                            {
-                                sb.Append((char)26);
-                                break;
-                            }
+                        {
+                            sb.Append((char)26);
+                            break;
+                        }
 
                         default:
-                            {
-                                sb.Append(c);
-                                break;
-                            }
+                        {
+                            sb.Append(c);
+                            break;
+                        }
                     }
                 }
                 else
@@ -152,14 +139,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Primary.Literal
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            if (@string == null)
+            if (StringValue == null)
             {
                 return null;
             }
             return GetUnescapedString();
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

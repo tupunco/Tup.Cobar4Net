@@ -14,72 +14,63 @@
 * limitations under the License.
 */
 
+using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Visitor;
-using Expr = Tup.Cobar4Net.Parser.Ast.Expression.Expression;
 
 namespace Tup.Cobar4Net.Parser.Ast.Fragment.Tableref
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class StraightJoin : TableReference
     {
-        private readonly TableReference leftTableRef;
-
-        private readonly TableReference rightTableRef;
-
-        private Expr onCond;
+        private IExpression onCond;
 
         public StraightJoin(TableReference leftTableRef,
-            TableReference rightTableRef,
-            Expr onCond)
+                            TableReference rightTableRef,
+                            IExpression onCond)
         {
-            this.leftTableRef = leftTableRef;
-            this.rightTableRef = rightTableRef;
+            LeftTableRef = leftTableRef;
+            RightTableRef = rightTableRef;
             this.onCond = onCond;
         }
 
         public StraightJoin(TableReference leftTableRef,
-            TableReference rightTableRef)
+                            TableReference rightTableRef)
             : this(leftTableRef, rightTableRef, null)
         {
         }
 
-        public virtual TableReference GetLeftTableRef()
+        public virtual TableReference LeftTableRef { get; }
+
+        public virtual TableReference RightTableRef { get; }
+
+        public virtual IExpression OnCond
         {
-            return leftTableRef;
+            get { return onCond; }
         }
 
-        public virtual TableReference GetRightTableRef()
+        public override bool IsSingleTable
         {
-            return rightTableRef;
+            get { return false; }
         }
 
-        public virtual Expr GetOnCond()
+        public override int Precedence
         {
-            return onCond;
+            get { return PrecedenceJoin; }
         }
 
         public override object RemoveLastConditionElement()
         {
-            if (onCond != null)
-            {
-                object obj = onCond;
-                onCond = null;
-                return obj;
-            }
-            return null;
+            if (onCond == null)
+                return null;
+
+            object obj = onCond;
+            onCond = null;
+            return obj;
         }
 
-        public override bool IsSingleTable()
-        {
-            return false;
-        }
-
-        public override int GetPrecedence()
-        {
-            return TableReference.PrecedenceJoin;
-        }
-
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

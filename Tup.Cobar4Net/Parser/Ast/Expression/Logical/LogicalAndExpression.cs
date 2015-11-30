@@ -29,15 +29,14 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
         {
         }
 
-        public override string GetOperator()
+        public override string Operator
         {
-            return "AND";
+            get { return "AND"; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters
-            )
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            foreach (Expression operand in operands)
+            foreach (IExpression operand in operands)
             {
                 object val = operand.Evaluation(parameters);
                 if (val == null)
@@ -56,7 +55,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             return LiteralBoolean.True;
         }
 
-        public override void Accept(SQLASTVisitor visitor)
+        public override void Accept(ISqlAstVisitor visitor)
         {
             visitor.Visit(this);
         }

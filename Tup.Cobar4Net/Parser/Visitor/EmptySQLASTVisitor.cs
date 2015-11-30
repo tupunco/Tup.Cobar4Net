@@ -31,8 +31,6 @@ using Tup.Cobar4Net.Parser.Ast.Expression.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Type;
 using Tup.Cobar4Net.Parser.Ast.Fragment;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Datatype;
-using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl.Index;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Tableref;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Dal;
 using Tup.Cobar4Net.Parser.Ast.Stmt.Ddl;
@@ -43,73 +41,38 @@ using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Parser.Visitor
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
-    public class EmptySQLASTVisitor : SQLASTVisitor
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
+    public class EmptySqlAstVisitor : ISqlAstVisitor
     {
-        private void VisitInternal(object obj)
-        {
-            if (obj == null)
-            {
-                return;
-            }
-            if (obj is ASTNode)
-            {
-                ((ASTNode)obj).Accept(this);
-            }
-            else
-            {
-                if (obj is ICollection)
-                {
-                    foreach (object o in (ICollection)obj)
-                    {
-                        VisitInternal(o);
-                    }
-                }
-                else
-                {
-                    //INFO EmptySQLASTVisitor.VisitInternal
-                    var t = obj.GetType();
-                    if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Pair<,>))
-                    {
-                        VisitInternal(t.GetMethod("GetKey").Invoke(obj, new object[0]));
-                        VisitInternal(t.GetMethod("GetValue").Invoke(obj, new object[0]));
-                    }
-                    //if (obj is Pair)
-                    //{
-                    //    VisitInternal(((Pair)obj).GetKey());
-                    //    VisitInternal(((Pair)obj).GetValue());
-                    //}
-                }
-            }
-        }
-
         public virtual void Visit(BetweenAndExpression node)
         {
-            VisitInternal(node.GetFirst());
-            VisitInternal(node.GetSecond());
-            VisitInternal(node.GetThird());
+            VisitInternal(node.First);
+            VisitInternal(node.Second);
+            VisitInternal(node.Third);
         }
 
         public virtual void Visit(ComparisionIsExpression node)
         {
-            VisitInternal(node.GetOperand());
+            VisitInternal(node.Operand);
         }
 
         public virtual void Visit(InExpressionList node)
         {
-            VisitInternal(node.GetList());
+            VisitInternal(node.ExprList);
         }
 
         public virtual void Visit(LikeExpression node)
         {
-            VisitInternal(node.GetFirst());
-            VisitInternal(node.GetSecond());
-            VisitInternal(node.GetThird());
+            VisitInternal(node.First);
+            VisitInternal(node.Second);
+            VisitInternal(node.Third);
         }
 
         public virtual void Visit(CollateExpression node)
         {
-            VisitInternal(node.GetString());
+            VisitInternal(node.StringValue);
         }
 
         public virtual void Visit(UserExpression node)
@@ -118,18 +81,18 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(UnaryOperatorExpression node)
         {
-            VisitInternal(node.GetOperand());
+            VisitInternal(node.Operand);
         }
 
         public virtual void Visit(BinaryOperatorExpression node)
         {
-            VisitInternal(node.GetLeftOprand());
-            VisitInternal(node.GetRightOprand());
+            VisitInternal(node.LeftOprand);
+            VisitInternal(node.RightOprand);
         }
 
         public virtual void Visit(PolyadicOperatorExpression node)
         {
-            for (int i = 0, len = node.GetArity(); i < len; ++i)
+            for (int i = 0, len = node.Arity; i < len; ++i)
             {
                 VisitInternal(node.GetOperand(i));
             }
@@ -137,89 +100,89 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(LogicalAndExpression node)
         {
-            Visit((PolyadicOperatorExpression)node);
+            Visit((PolyadicOperatorExpression) node);
         }
 
         public virtual void Visit(LogicalOrExpression node)
         {
-            Visit((PolyadicOperatorExpression)node);
+            Visit((PolyadicOperatorExpression) node);
         }
 
         public virtual void Visit(ComparisionEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public virtual void Visit(ComparisionNullSafeEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public virtual void Visit(InExpression node)
         {
-            Visit((BinaryOperatorExpression)node);
+            Visit((BinaryOperatorExpression) node);
         }
 
         public virtual void Visit(FunctionExpression node)
         {
-            VisitInternal(node.GetArguments());
+            VisitInternal(node.Arguments);
         }
 
         public virtual void Visit(Char node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Convert node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Trim node)
         {
-            Visit((FunctionExpression)node);
-            VisitInternal(node.GetRemainString());
-            VisitInternal(node.GetString());
+            Visit((FunctionExpression) node);
+            VisitInternal(node.RemainString);
+            VisitInternal(node.StringValue);
         }
 
         public virtual void Visit(Cast node)
         {
-            Visit((FunctionExpression)node);
-            VisitInternal(node.GetExpr());
-            VisitInternal(node.GetTypeInfo1());
-            VisitInternal(node.GetTypeInfo2());
+            Visit((FunctionExpression) node);
+            VisitInternal(node.Expr);
+            VisitInternal(node.TypeInfo1);
+            VisitInternal(node.TypeInfo2);
         }
 
         public virtual void Visit(Avg node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Max node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Min node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Sum node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(Count node)
         {
-            Visit((FunctionExpression)node);
+            Visit((FunctionExpression) node);
         }
 
         public virtual void Visit(GroupConcat node)
         {
-            Visit((FunctionExpression)node);
-            VisitInternal(node.GetAppendedColumnNames());
-            VisitInternal(node.GetOrderBy());
+            Visit((FunctionExpression) node);
+            VisitInternal(node.AppendedColumnNames);
+            VisitInternal(node.OrderBy);
         }
 
         public virtual void Visit(Timestampdiff node)
@@ -240,7 +203,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(IntervalPrimary node)
         {
-            VisitInternal(node.GetQuantity());
+            VisitInternal(node.Quantity);
         }
 
         public virtual void Visit(LiteralBitField node)
@@ -269,9 +232,9 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(CaseWhenOperatorExpression node)
         {
-            VisitInternal(node.GetComparee());
-            VisitInternal(node.GetElseResult());
-            VisitInternal(node.GetWhenList());
+            VisitInternal(node.Comparee);
+            VisitInternal(node.ElseResult);
+            VisitInternal(node.WhenList);
         }
 
         public virtual void Visit(DefaultValue node)
@@ -280,7 +243,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ExistsPrimary node)
         {
-            VisitInternal(node.GetSubquery());
+            VisitInternal(node.Subquery);
         }
 
         public virtual void Visit(PlaceHolder node)
@@ -293,8 +256,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(MatchExpression node)
         {
-            VisitInternal(node.GetColumns());
-            VisitInternal(node.GetPattern());
+            VisitInternal(node.Columns);
+            VisitInternal(node.Pattern);
         }
 
         public virtual void Visit(ParamMarker node)
@@ -303,7 +266,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(RowExpression node)
         {
-            VisitInternal(node.GetRowExprList());
+            VisitInternal(node.RowExprList);
         }
 
         public virtual void Visit(SysVarPrimary node)
@@ -320,45 +283,45 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(InnerJoin node)
         {
-            VisitInternal(node.GetLeftTableRef());
-            VisitInternal(node.GetOnCond());
-            VisitInternal(node.GetRightTableRef());
+            VisitInternal(node.LeftTableRef);
+            VisitInternal(node.OnCond);
+            VisitInternal(node.RightTableRef);
         }
 
         public virtual void Visit(NaturalJoin node)
         {
-            VisitInternal(node.GetLeftTableRef());
-            VisitInternal(node.GetRightTableRef());
+            VisitInternal(node.LeftTableRef);
+            VisitInternal(node.RightTableRef);
         }
 
         public virtual void Visit(OuterJoin node)
         {
-            VisitInternal(node.GetLeftTableRef());
-            VisitInternal(node.GetOnCond());
-            VisitInternal(node.GetRightTableRef());
+            VisitInternal(node.LeftTableRef);
+            VisitInternal(node.OnCond);
+            VisitInternal(node.RightTableRef);
         }
 
         public virtual void Visit(StraightJoin node)
         {
-            VisitInternal(node.GetLeftTableRef());
-            VisitInternal(node.GetOnCond());
-            VisitInternal(node.GetRightTableRef());
+            VisitInternal(node.LeftTableRef);
+            VisitInternal(node.OnCond);
+            VisitInternal(node.RightTableRef);
         }
 
         public virtual void Visit(SubqueryFactor node)
         {
-            VisitInternal(node.GetSubquery());
+            VisitInternal(node.Subquery);
         }
 
         public virtual void Visit(TableReferences node)
         {
-            VisitInternal(node.GetTableReferenceList());
+            VisitInternal(node.TableReferenceList);
         }
 
         public virtual void Visit(TableRefFactor node)
         {
-            VisitInternal(node.GetHintList());
-            VisitInternal(node.GetTable());
+            VisitInternal(node.HintList);
+            VisitInternal(node.Table);
         }
 
         public virtual void Visit(Dual dual)
@@ -367,18 +330,18 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(GroupBy node)
         {
-            VisitInternal(node.GetOrderByList());
+            VisitInternal(node.OrderByList);
         }
 
         public virtual void Visit(Limit node)
         {
-            VisitInternal(node.GetOffset());
-            VisitInternal(node.GetSize());
+            VisitInternal(node.Offset);
+            VisitInternal(node.Size);
         }
 
         public virtual void Visit(OrderBy node)
         {
-            VisitInternal(node.GetOrderByList());
+            VisitInternal(node.OrderByList);
         }
 
         public virtual void Visit(ColumnDefinition columnDefinition)
@@ -397,7 +360,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
         {
         }
 
-        public virtual void Visit(DDLAlterTableStatement.AlterSpecification node)
+        public virtual void Visit(DdlAlterTableStatement.AlterSpecification node)
         {
         }
 
@@ -415,24 +378,24 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowBinLogEvent node)
         {
-            VisitInternal(node.GetLimit());
-            VisitInternal(node.GetPos());
+            VisitInternal(node.Limit);
+            VisitInternal(node.Pos);
         }
 
         public virtual void Visit(ShowCharaterSet node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowCollation node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowColumns node)
         {
-            VisitInternal(node.GetTable());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Table);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowContributors node)
@@ -441,12 +404,12 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowCreate node)
         {
-            VisitInternal(node.GetId());
+            VisitInternal(node.Id);
         }
 
         public virtual void Visit(ShowDatabases node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowEngine node)
@@ -459,33 +422,33 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowErrors node)
         {
-            VisitInternal(node.GetLimit());
+            VisitInternal(node.Limit);
         }
 
         public virtual void Visit(ShowEvents node)
         {
-            VisitInternal(node.GetSchema());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Schema);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowFunctionCode node)
         {
-            VisitInternal(node.GetFunctionName());
+            VisitInternal(node.FunctionName);
         }
 
         public virtual void Visit(ShowFunctionStatus node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowGrants node)
         {
-            VisitInternal(node.GetUser());
+            VisitInternal(node.User);
         }
 
         public virtual void Visit(ShowIndex node)
         {
-            VisitInternal(node.GetTable());
+            VisitInternal(node.Table);
         }
 
         public virtual void Visit(ShowMasterStatus node)
@@ -494,8 +457,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowOpenTables node)
         {
-            VisitInternal(node.GetSchema());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Schema);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowPlugins node)
@@ -508,12 +471,12 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowProcedureCode node)
         {
-            VisitInternal(node.GetProcedureName());
+            VisitInternal(node.ProcedureName);
         }
 
         public virtual void Visit(ShowProcedureStatus node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowProcesslist node)
@@ -522,8 +485,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowProfile node)
         {
-            VisitInternal(node.GetForQuery());
-            VisitInternal(node.GetLimit());
+            VisitInternal(node.ForQuery);
+            VisitInternal(node.Limit);
         }
 
         public virtual void Visit(ShowProfiles node)
@@ -540,112 +503,112 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(ShowStatus node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowTables node)
         {
-            VisitInternal(node.GetSchema());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Schema);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowTableStatus node)
         {
-            VisitInternal(node.GetDatabase());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Database);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowTriggers node)
         {
-            VisitInternal(node.GetSchema());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Schema);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowVariables node)
         {
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(ShowWarnings node)
         {
-            VisitInternal(node.GetLimit());
+            VisitInternal(node.Limit);
         }
 
         public virtual void Visit(DescTableStatement node)
         {
-            VisitInternal(node.GetTable());
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DALSetStatement node)
+        public virtual void Visit(DalSetStatement node)
         {
-            VisitInternal(node.GetAssignmentList());
+            VisitInternal(node.AssignmentList);
         }
 
-        public virtual void Visit(DALSetNamesStatement node)
-        {
-        }
-
-        public virtual void Visit(DALSetCharacterSetStatement node)
+        public virtual void Visit(DalSetNamesStatement node)
         {
         }
 
-        public virtual void Visit(DMLCallStatement node)
+        public virtual void Visit(DalSetCharacterSetStatement node)
+        {
+        }
+
+        public virtual void Visit(DmlCallStatement node)
         {
             VisitInternal(node.GetArguments());
             VisitInternal(node.GetProcedure());
         }
 
-        public virtual void Visit(DMLDeleteStatement node)
+        public virtual void Visit(DmlDeleteStatement node)
         {
-            VisitInternal(node.GetLimit());
-            VisitInternal(node.GetOrderBy());
-            VisitInternal(node.GetTableNames());
-            VisitInternal(node.GetTableRefs());
-            VisitInternal(node.GetWhereCondition());
+            VisitInternal(node.Limit);
+            VisitInternal(node.OrderBy);
+            VisitInternal(node.TableNames);
+            VisitInternal(node.TableRefs);
+            VisitInternal(node.WhereCondition);
         }
 
-        public virtual void Visit(DMLInsertStatement node)
+        public virtual void Visit(DmlInsertStatement node)
         {
-            VisitInternal(node.GetColumnNameList());
-            VisitInternal(node.GetDuplicateUpdate());
-            VisitInternal(node.GetRowList());
-            VisitInternal(node.GetSelect());
-            VisitInternal(node.GetTable());
+            VisitInternal(node.ColumnNameList);
+            VisitInternal(node.DuplicateUpdate);
+            VisitInternal(node.RowList);
+            VisitInternal(node.Select);
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DMLReplaceStatement node)
+        public virtual void Visit(DmlReplaceStatement node)
         {
-            VisitInternal(node.GetColumnNameList());
-            VisitInternal(node.GetRowList());
-            VisitInternal(node.GetSelect());
-            VisitInternal(node.GetTable());
+            VisitInternal(node.ColumnNameList);
+            VisitInternal(node.RowList);
+            VisitInternal(node.Select);
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DMLSelectStatement node)
+        public virtual void Visit(DmlSelectStatement node)
         {
-            VisitInternal(node.GetGroup());
-            VisitInternal(node.GetHaving());
-            VisitInternal(node.GetLimit());
-            VisitInternal(node.GetOrder());
-            VisitInternal(node.GetSelectExprList());
-            VisitInternal(node.GetTables());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Group);
+            VisitInternal(node.Having);
+            VisitInternal(node.Limit);
+            VisitInternal(node.Order);
+            VisitInternal(node.SelectExprList);
+            VisitInternal(node.Tables);
+            VisitInternal(node.Where);
         }
 
-        public virtual void Visit(DMLSelectUnionStatement node)
+        public virtual void Visit(DmlSelectUnionStatement node)
         {
-            VisitInternal(node.GetLimit());
-            VisitInternal(node.GetOrderBy());
-            VisitInternal(node.GetSelectStmtList());
+            VisitInternal(node.Limit);
+            VisitInternal(node.OrderBy);
+            VisitInternal(node.SelectStmtList);
         }
 
-        public virtual void Visit(DMLUpdateStatement node)
+        public virtual void Visit(DmlUpdateStatement node)
         {
-            VisitInternal(node.GetLimit());
-            VisitInternal(node.GetOrderBy());
-            VisitInternal(node.GetTableRefs());
-            VisitInternal(node.GetValues());
-            VisitInternal(node.GetWhere());
+            VisitInternal(node.Limit);
+            VisitInternal(node.OrderBy);
+            VisitInternal(node.TableRefs);
+            VisitInternal(node.Values);
+            VisitInternal(node.Where);
         }
 
         public virtual void Visit(MTSSetTransactionStatement node)
@@ -654,62 +617,95 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(MTSSavepointStatement node)
         {
-            VisitInternal(node.GetSavepoint());
+            VisitInternal(node.Savepoint);
         }
 
         public virtual void Visit(MTSReleaseStatement node)
         {
-            VisitInternal(node.GetSavepoint());
+            VisitInternal(node.Savepoint);
         }
 
         public virtual void Visit(MTSRollbackStatement node)
         {
-            VisitInternal(node.GetSavepoint());
+            VisitInternal(node.Savepoint);
         }
 
-        public virtual void Visit(DDLTruncateStatement node)
+        public virtual void Visit(DdlTruncateStatement node)
         {
-            VisitInternal(node.GetTable());
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DDLAlterTableStatement node)
+        public virtual void Visit(DdlAlterTableStatement node)
         {
-            VisitInternal(node.GetTable());
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DDLCreateIndexStatement node)
+        public virtual void Visit(DdlCreateIndexStatement node)
         {
-            VisitInternal(node.GetIndexName());
-            VisitInternal(node.GetTable());
+            VisitInternal(node.IndexName);
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DDLCreateTableStatement node)
+        public virtual void Visit(DdlCreateTableStatement node)
         {
-            VisitInternal(node.GetTable());
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DDLRenameTableStatement node)
+        public virtual void Visit(DdlRenameTableStatement node)
         {
-            VisitInternal(node.GetList());
+            VisitInternal(node.PairList);
         }
 
-        public virtual void Visit(DDLDropIndexStatement node)
+        public virtual void Visit(DdlDropIndexStatement node)
         {
-            VisitInternal(node.GetIndexName());
-            VisitInternal(node.GetTable());
+            VisitInternal(node.IndexName);
+            VisitInternal(node.Table);
         }
 
-        public virtual void Visit(DDLDropTableStatement node)
+        public virtual void Visit(DdlDropTableStatement node)
         {
-            VisitInternal(node.GetTableNames());
+            VisitInternal(node.TableNames);
         }
 
-        public virtual void Visit(ExtDDLCreatePolicy node)
+        public virtual void Visit(ExtDdlCreatePolicy node)
         {
         }
 
-        public virtual void Visit(ExtDDLDropPolicy node)
+        public virtual void Visit(ExtDdlDropPolicy node)
         {
+        }
+
+        private void VisitInternal(object obj)
+        {
+            if (obj == null)
+                return;
+
+            if (obj is IAstNode)
+            {
+                ((IAstNode) obj).Accept(this);
+            }
+            else if (obj is ICollection)
+            {
+                foreach (var o in (ICollection) obj)
+                {
+                    VisitInternal(o);
+                }
+            }
+            else
+            {
+                //INFO EmptySqlAstVisitor.VisitInternal
+                var t = obj.GetType();
+                if (t.IsGenericType && t.GetGenericTypeDefinition() == typeof (Pair<,>))
+                {
+                    VisitInternal(t.GetMethod("GetKey").Invoke(obj, new object[0]));
+                    VisitInternal(t.GetMethod("GetValue").Invoke(obj, new object[0]));
+                }
+                //if (obj is Pair)
+                //{
+                //    VisitInternal(((Pair)obj).GetKey());
+                //    VisitInternal(((Pair)obj).GetValue());
+                //}
+            }
         }
     }
 }
