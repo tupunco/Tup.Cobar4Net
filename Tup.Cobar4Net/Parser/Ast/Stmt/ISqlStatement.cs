@@ -22,8 +22,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt
     public interface ISqlStatement : IAstNode
     {
     }
+
     /// <summary>
-    /// StmtType
+    ///     StmtType
     /// </summary>
     public enum StmtType
     {

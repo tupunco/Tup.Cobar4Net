@@ -14,14 +14,18 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
-    /// <summary><code>higherExpr '-' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherExpr '-' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ArithmeticSubtractExpression : ArithmeticBinaryOperatorExpression
     {
         public ArithmeticSubtractExpression(IExpression leftOprand,
@@ -41,8 +45,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
-            int i1 = integer1;
-            int i2 = integer2;
+            var i1 = integer1;
+            var i2 = integer2;
             if (i2 == 0)
             {
                 return integer1;
@@ -59,10 +63,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return i1 - i2;
             }
-            int rst = i1 - i2;
+            var rst = i1 - i2;
             if (i1 > 0 && rst < i1 || i1 < 0 && rst > i1)
             {
-                return (long)i1 - (long)i2;
+                return i1 - (long)i2;
             }
             return rst;
         }
@@ -73,8 +77,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
-            long l1 = long1;
-            long l2 = long1;
+            var l1 = long1;
+            var l2 = long1;
             if (l2 == 0L)
             {
                 return long1;
@@ -91,11 +95,11 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return l1 - l2;
             }
-            long rst = l1 - l2;
+            var rst = l1 - l2;
             if (l1 > 0L && rst < l1 || l1 < 00L && rst > l1)
             {
-                BigInteger bi1 = BigInteger.ValueOf(l1);
-                BigInteger bi2 = BigInteger.ValueOf(l2);
+                var bi1 = BigInteger.ValueOf(l1);
+                var bi2 = BigInteger.ValueOf(l2);
                 return bi1.Subtract(bi2);
             }
             return rst;

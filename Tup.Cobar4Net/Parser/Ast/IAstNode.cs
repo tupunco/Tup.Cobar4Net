@@ -18,7 +18,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public interface IAstNode
     {
         void Accept(ISqlAstVisitor visitor);

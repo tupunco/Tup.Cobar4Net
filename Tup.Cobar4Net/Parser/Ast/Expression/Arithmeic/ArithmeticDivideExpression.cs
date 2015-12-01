@@ -14,14 +14,18 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
-    /// <summary><code>higherExpr '/' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherExpr '/' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ArithmeticDivideExpression : ArithmeticBinaryOperatorExpression
     {
         public ArithmeticDivideExpression(IExpression leftOprand,

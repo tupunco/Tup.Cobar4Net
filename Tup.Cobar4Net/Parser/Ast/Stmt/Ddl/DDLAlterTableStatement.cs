@@ -16,7 +16,6 @@
 
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-
 using Tup.Cobar4Net.Parser.Ast.Expression;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary;
 using Tup.Cobar4Net.Parser.Ast.Fragment.Ddl;
@@ -31,7 +30,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
     /// </author>
     public class DdlAlterTableStatement : IDdlStatement
     {
-        [SuppressMessage("Potential Code Quality Issues", "RECS0021:Warns about calls to virtual member functions occuring in the constructor",
+        [SuppressMessage("Potential Code Quality Issues",
+            "RECS0021:Warns about calls to virtual member functions occuring in the constructor",
             Justification = "<¹ÒÆð>")]
         public DdlAlterTableStatement(bool ignore, Identifier table)
         {
@@ -103,8 +103,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
             /// <param name="columnDefine" />
             /// <param name="afterColumn">null means fisrt</param>
             public AddColumn(Identifier columnName,
-                ColumnDefinition columnDefine,
-                Identifier afterColumn)
+                             ColumnDefinition columnDefine,
+                             Identifier afterColumn)
             {
                 // | ADD [COLUMN] col_name column_definition [FIRST | AFTER col_name ]
                 ColumnName = columnName;
@@ -117,7 +117,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
             /// <param name="columnDefine" />
             /// <param name="afterColumn">null means fisrt</param>
             public AddColumn(Identifier columnName,
-                ColumnDefinition columnDefine)
+                             ColumnDefinition columnDefine)
             {
                 ColumnName = columnName;
                 ColumnDefine = columnDefine;
@@ -171,7 +171,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
             /// <param name="indexName" />
             /// <param name="indexType" />
             public AddIndex(Identifier indexName,
-                IndexDefinition indexDef)
+                            IndexDefinition indexDef)
             {
                 // | ADD {INDEX|KEY} [index_name] [index_type] (index_col_name,...)
                 // [index_option] ...
@@ -209,7 +209,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         public class AddUniqueKey : AlterSpecification
         {
             public AddUniqueKey(Identifier indexName,
-                IndexDefinition indexDef)
+                                IndexDefinition indexDef)
             {
                 // | ADD [CONSTRAINT [symbol]] UNIQUE [INDEX|KEY] [index_name] [index_type]
                 // (index_col_name,...) [index_option] ...
@@ -230,7 +230,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         public class AddFullTextIndex : AlterSpecification
         {
             public AddFullTextIndex(Identifier indexName,
-                IndexDefinition indexDef)
+                                    IndexDefinition indexDef)
             {
                 // | ADD FULLTEXT [INDEX|KEY] [index_name] (index_col_name,...)
                 // [index_option] ...
@@ -251,7 +251,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         public class AddSpatialIndex : AlterSpecification
         {
             public AddSpatialIndex(Identifier indexName,
-                IndexDefinition indexDef)
+                                   IndexDefinition indexDef)
             {
                 // | ADD SPATIAL [INDEX|KEY] [index_name] (index_col_name,...)
                 // [index_option] ...
@@ -274,7 +274,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
             /// <param name="columnName" />
             /// <param name="defaultValue" />
             public AlterColumnDefaultVal(Identifier columnName,
-                IExpression defaultValue)
+                                         IExpression defaultValue)
             {
                 // | ALTER [COLUMN] col_name {SET DEFAULT literal | DROP DEFAULT}
                 ColumnName = columnName;
@@ -306,9 +306,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         public class ChangeColumn : AlterSpecification
         {
             public ChangeColumn(Identifier oldName,
-                Identifier newName,
-                ColumnDefinition colDef,
-                Identifier afterColumn)
+                                Identifier newName,
+                                ColumnDefinition colDef,
+                                Identifier afterColumn)
             {
                 // | CHANGE [COLUMN] old_col_name new_col_name column_definition
                 // [FIRST|AFTER col_name]
@@ -321,8 +321,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 
             /// <summary>without column position specification</summary>
             public ChangeColumn(Identifier oldName,
-                Identifier newName,
-                ColumnDefinition colDef)
+                                Identifier newName,
+                                ColumnDefinition colDef)
             {
                 OldName = oldName;
                 NewName = newName;
@@ -350,8 +350,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         public class ModifyColumn : AlterSpecification
         {
             public ModifyColumn(Identifier colName,
-                ColumnDefinition colDef,
-                Identifier afterColumn)
+                                ColumnDefinition colDef,
+                                Identifier afterColumn)
             {
                 // | MODIFY [COLUMN] col_name column_definition [FIRST | AFTER col_name]
                 ColName = colName;
@@ -362,7 +362,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 
             /// <summary>without column position specification</summary>
             public ModifyColumn(Identifier colName,
-                ColumnDefinition colDef)
+                                ColumnDefinition colDef)
             {
                 ColName = colName;
                 ColDef = colDef;

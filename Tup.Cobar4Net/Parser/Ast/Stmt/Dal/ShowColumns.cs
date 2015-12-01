@@ -26,9 +26,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     public class ShowColumns : DalShowStatement
     {
         public ShowColumns(bool full,
-            Identifier table,
-            Identifier database,
-            IExpression where)
+                           Identifier table,
+                           Identifier database,
+                           IExpression where)
         {
             IsFull = full;
             Table = table;

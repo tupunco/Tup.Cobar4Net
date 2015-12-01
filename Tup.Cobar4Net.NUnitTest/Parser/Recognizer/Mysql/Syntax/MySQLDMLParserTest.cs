@@ -49,21 +49,29 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             var parser = GetDmlParser(lexer);
             var groupBy = parser.GroupBy();
             var output = Output2MySql(groupBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc), new Pair<IExpression, SortOrder>(new Identifier(null, "c2"), SortOrder.Desc), new Pair<IExpression, SortOrder>(new Identifier(null, "c3"), SortOrder.Asc)), groupBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc),
+                    new Pair<IExpression, SortOrder>(new Identifier(null, "c2"), SortOrder.Desc),
+                    new Pair<IExpression, SortOrder>(new Identifier(null, "c3"), SortOrder.Asc)), groupBy.OrderByList);
             Assert.AreEqual("GROUP BY c1, c2 DESC, c3 WITH ROLLUP", output);
             sql = "group by c1 asc, c2 desc  , c3 ";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
             groupBy = parser.GroupBy();
             output = Output2MySql(groupBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc), new Pair<IExpression, SortOrder>(new Identifier(null, "c2"), SortOrder.Desc), new Pair<IExpression, SortOrder>(new Identifier(null, "c3"), SortOrder.Asc)), groupBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc),
+                    new Pair<IExpression, SortOrder>(new Identifier(null, "c2"), SortOrder.Desc),
+                    new Pair<IExpression, SortOrder>(new Identifier(null, "c3"), SortOrder.Asc)), groupBy.OrderByList);
             Assert.AreEqual("GROUP BY c1, c2 DESC, c3", output);
             sql = "group by c1   ";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
             groupBy = parser.GroupBy();
             output = Output2MySql(groupBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)), groupBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)),
+                groupBy.OrderByList);
             Assert.AreEqual("GROUP BY c1", output);
             sql = "group by c1 asc  ";
             lexer = new MySqlLexer(sql);
@@ -79,14 +87,18 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = GetDmlParser(lexer);
             groupBy = parser.GroupBy();
             output = Output2MySql(groupBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Desc)), groupBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Desc)),
+                groupBy.OrderByList);
             Assert.AreEqual("GROUP BY c1 DESC", output);
             sql = "group by c1 with rollup  ";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
             groupBy = parser.GroupBy();
             output = Output2MySql(groupBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)), groupBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)),
+                groupBy.OrderByList);
             Assert.AreEqual("GROUP BY c1 WITH ROLLUP", output);
         }
 
@@ -205,14 +217,18 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = GetDmlParser(lexer);
             orderBy = parser.OrderBy();
             output = Output2MySql(orderBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)), orderBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Asc)),
+                orderBy.OrderByList);
             Assert.AreEqual("ORDER BY c1", output);
             sql = "order by c1 desc  ";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
             orderBy = parser.OrderBy();
             output = Output2MySql(orderBy, sql);
-            ListUtil.IsEquals(ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Desc)), orderBy.OrderByList);
+            ListUtil.IsEquals(
+                ListUtil.CreateList(new Pair<IExpression, SortOrder>(new Identifier(null, "c1"), SortOrder.Desc)),
+                orderBy.OrderByList);
             Assert.AreEqual("ORDER BY c1 DESC", output);
         }
 
@@ -242,7 +258,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual(2, list.Count);
             Assert.AreEqual(typeof (SubqueryFactor), list[0].GetType());
             Assert.AreEqual(typeof (TableReferences), list[1].GetType());
-            Assert.AreEqual("((SELECT * FROM any) UNION (SELECT `select` FROM `from` ORDER BY dd)) AS 'a1', t2, t3", output);
+            Assert.AreEqual("((SELECT * FROM any) UNION (SELECT `select` FROM `from` ORDER BY dd)) AS 'a1', t2, t3",
+                output);
             sql = "(t1)";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
@@ -435,7 +452,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual("INDEX", indexhint.IndexType.GetEnumName());
             Assert.AreEqual("GROUP_BY", indexhint.HintScope.GetEnumName());
             Assert.AreEqual(
-                "tb1 USE KEY FOR ORDER BY (i1, i2) " + "USE KEY FOR GROUP BY () IGNORE INDEX FOR GROUP BY (i1, i2)", output);
+                "tb1 USE KEY FOR ORDER BY (i1, i2) " + "USE KEY FOR GROUP BY () IGNORE INDEX FOR GROUP BY (i1, i2)",
+                output);
             sql = "tb1 use index for order by (i1,i2) force index for group by (i1)";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
@@ -508,7 +526,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             trs = parser.TableRefs();
             output = Output2MySql(trs, sql);
             Assert.AreEqual(
-                "offer AS A STRAIGHT_JOIN wp_image AS B USE KEY FOR JOIN (t1, t2) ON a.member_id = b.member_id INNER JOIN product_visit AS C", output);
+                "offer AS A STRAIGHT_JOIN wp_image AS B USE KEY FOR JOIN (t1, t2) ON a.member_id = b.member_id INNER JOIN product_visit AS C",
+                output);
             sql = "tb1 ignore index for order by(i1)";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
@@ -627,7 +646,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual(typeof (ComparisionEqualsExpression), ((OuterJoin)
                 list[0]).OnCond.GetType());
             Assert.AreEqual(
-                "(tb1 FORCE INDEX FOR JOIN (i1, i2)) " + "LEFT JOIN tb2 AS T2 USE INDEX (i1, i2, i3) ON t1.id1 = t2.id1", output);
+                "(tb1 FORCE INDEX FOR JOIN (i1, i2)) " + "LEFT JOIN tb2 AS T2 USE INDEX (i1, i2, i3) ON t1.id1 = t2.id1",
+                output);
             sql = " (((tb1 force index for join (i1,i2),tb3),tb4),tb5) " +
                   "left outer join (tb2 as t2 use index (i1,i2,i3)) using(id1)";
             lexer = new MySqlLexer(sql);
@@ -783,7 +803,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual(0, hintlist.Count);
             Assert.AreEqual("tb3", rtf.Table.IdText);
             Assert.AreEqual(typeof (LogicalAndExpression), ((InnerJoin)list[0]).OnCond.GetType());
-            Assert.AreEqual("(tb1 RIGHT JOIN tb2 USING ()) " + "INNER JOIN tb3 ON tb1.id = tb2.id AND tb2.id = tb3.id", output);
+            Assert.AreEqual("(tb1 RIGHT JOIN tb2 USING ()) " + "INNER JOIN tb3 ON tb1.id = tb2.id AND tb2.id = tb3.id",
+                output);
             sql = "tb1 right outer join tb2 using(id1,id2) " + "join (tb3,tb4) on tb1.id=tb2.id and tb2.id=tb3.id";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
@@ -804,7 +825,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual("tb4", ((TableRefFactor)rtr.TableReferenceList[1]).Table.IdText);
             Assert.AreEqual(typeof (LogicalAndExpression), ((InnerJoin)list[0]).OnCond.GetType());
             Assert.AreEqual(
-                "tb1 RIGHT JOIN tb2 USING (id1, id2) " + "INNER JOIN (tb3, tb4) ON tb1.id = tb2.id AND tb2.id = tb3.id", output);
+                "tb1 RIGHT JOIN tb2 USING (id1, id2) " + "INNER JOIN (tb3, tb4) ON tb1.id = tb2.id AND tb2.id = tb3.id",
+                output);
             sql = "tb1 left outer join tb2 join tb3 using(id)";
             lexer = new MySqlLexer(sql);
             parser = GetDmlParser(lexer);
@@ -905,7 +927,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             using_list = oj.Using;
             Assert.AreEqual(2, using_list.Count);
             Assert.AreEqual(
-                "(SELECT `select` FROM `from`) AS TB1, tb3 AS T3, `select`, tb2 USE KEY FOR JOIN (i1, i2) LEFT JOIN tb4 USING (i1, i2) STRAIGHT_JOIN tb5", output);
+                "(SELECT `select` FROM `from`) AS TB1, tb3 AS T3, `select`, tb2 USE KEY FOR JOIN (i1, i2) LEFT JOIN tb4 USING (i1, i2) STRAIGHT_JOIN tb5",
+                output);
             sql = "(`select`,(tb1 as t1 use index for join()ignore key for group by (i1)))" +
                   "join tb2 on cd1=any " + "right join " + "tb3 straight_join " +
                   "(tb4 use index() left outer join (tb6,tb7) on id3=all(select `all` from `all`)) "

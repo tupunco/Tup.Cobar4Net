@@ -100,27 +100,27 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(LogicalAndExpression node)
         {
-            Visit((PolyadicOperatorExpression) node);
+            Visit((PolyadicOperatorExpression)node);
         }
 
         public virtual void Visit(LogicalOrExpression node)
         {
-            Visit((PolyadicOperatorExpression) node);
+            Visit((PolyadicOperatorExpression)node);
         }
 
         public virtual void Visit(ComparisionEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public virtual void Visit(ComparisionNullSafeEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public virtual void Visit(InExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public virtual void Visit(FunctionExpression node)
@@ -130,24 +130,24 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(Char node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Convert node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Trim node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
             VisitInternal(node.RemainString);
             VisitInternal(node.StringValue);
         }
 
         public virtual void Visit(Cast node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
             VisitInternal(node.Expr);
             VisitInternal(node.TypeInfo1);
             VisitInternal(node.TypeInfo2);
@@ -155,32 +155,32 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public virtual void Visit(Avg node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Max node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Min node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Sum node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(Count node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
         }
 
         public virtual void Visit(GroupConcat node)
         {
-            Visit((FunctionExpression) node);
+            Visit((FunctionExpression)node);
             VisitInternal(node.AppendedColumnNames);
             VisitInternal(node.OrderBy);
         }
@@ -682,11 +682,11 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
             if (obj is IAstNode)
             {
-                ((IAstNode) obj).Accept(this);
+                ((IAstNode)obj).Accept(this);
             }
             else if (obj is ICollection)
             {
-                foreach (var o in (ICollection) obj)
+                foreach (var o in (ICollection)obj)
                 {
                     VisitInternal(o);
                 }

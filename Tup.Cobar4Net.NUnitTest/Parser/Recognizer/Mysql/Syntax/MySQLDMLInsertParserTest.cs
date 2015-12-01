@@ -96,7 +96,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser.Match(MySqlToken.Eof);
             output = Output2MySql(insert, sql);
             Assert.AreEqual(
-                "INSERT LOW_PRIORITY INTO t1 (col1, t1.col2) VALUES (123, '123\\'4') ON DUPLICATE KEY UPDATE ex.col1 = ?", output);
+                "INSERT LOW_PRIORITY INTO t1 (col1, t1.col2) VALUES (123, '123\\'4') ON DUPLICATE KEY UPDATE ex.col1 = ?",
+                output);
             sql = "insErt LOW_PRIORITY t1 (col1, t1.col2) select id from t3 oN dupLicatE key UPDATE ex.col1=?";
             lexer = new MySqlLexer(sql);
             parser = new MySqlDmlInsertParser(lexer, new MySqlExprParser(lexer));
@@ -104,7 +105,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser.Match(MySqlToken.Eof);
             output = Output2MySql(insert, sql);
             Assert.AreEqual(
-                "INSERT LOW_PRIORITY INTO t1 (col1, t1.col2) SELECT id FROM t3 ON DUPLICATE KEY UPDATE ex.col1 = ?", output);
+                "INSERT LOW_PRIORITY INTO t1 (col1, t1.col2) SELECT id FROM t3 ON DUPLICATE KEY UPDATE ex.col1 = ?",
+                output);
             sql = "insErt LOW_PRIORITY IGNORE intO t1 (col1) ( select id from t3) ";
             lexer = new MySqlLexer(sql);
             parser = new MySqlDmlInsertParser(lexer, new MySqlExprParser(lexer));

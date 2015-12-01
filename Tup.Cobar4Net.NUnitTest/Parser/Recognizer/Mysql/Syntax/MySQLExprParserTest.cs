@@ -54,7 +54,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
             Assert.AreEqual(
-                "1 >= ANY (SELECT id FROM t1 LIMIT 0, 1) > ALL (SELECT tb1.id FROM tb1 AS T1, tb2 AS T2 WHERE t1.id = t2.id LIMIT 0, 1)", output);
+                "1 >= ANY (SELECT id FROM t1 LIMIT 0, 1) > ALL (SELECT tb1.id FROM tb1 AS T1, tb2 AS T2 WHERE t1.id = t2.id LIMIT 0, 1)",
+                output);
             var gt = (ComparisionGreaterThanExpression)expr;
             var ge = (ComparisionGreaterThanOrEqualsExpression)gt.LeftOprand;
             Assert.AreEqual(typeof (LiteralNumber), ge.LeftOprand.GetType());
@@ -368,7 +369,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(new MySqlLexer(sql));
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("a IS NOT NULL IS NOT FALSE IS NOT TRUE IS NOT UNKNOWN IS NULL IS FALSE IS TRUE IS UNKNOWN", output);
+            Assert.AreEqual(
+                "a IS NOT NULL IS NOT FALSE IS NOT TRUE IS NOT UNKNOWN IS NULL IS FALSE IS TRUE IS UNKNOWN", output);
             var @is = (ComparisionIsExpression)expr;
             var is2 = (ComparisionIsExpression)@is.Operand;
             var is3 = (ComparisionIsExpression)is2.Operand;
@@ -460,7 +462,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(lexer);
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("(N'\"abc\"abc\\'s' + 11.23 / id3) * (1E+2 - a OR b) % x'abc' AND (SELECT b'1001' ^ b'0000')", output);
+            Assert.AreEqual(
+                "(N'\"abc\"abc\\'s' + 11.23 / id3) * (1E+2 - a OR b) % x'abc' AND (SELECT b'1001' ^ b'0000')", output);
             Assert.AreEqual(typeof (LogicalAndExpression), expr.GetType());
             bex = (BinaryOperatorExpression)((LogicalAndExpression)expr).GetOperand(0);
             Assert.AreEqual(typeof (ArithmeticModExpression), bex.GetType());
@@ -477,7 +480,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(lexer);
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("NOT ! ~ `select` IN (1, CURDATE(), `current_date`) LIKE `all` DIV a BETWEEN (c AND d) AND d | e", output);
+            Assert.AreEqual(
+                "NOT ! ~ `select` IN (1, CURDATE(), `current_date`) LIKE `all` DIV a BETWEEN (c AND d) AND d | e",
+                output);
             Assert.AreEqual(typeof (LogicalNotExpression), expr.GetType());
             var tex = (TernaryOperatorExpression)((LogicalNotExpression)expr).Operand;
             Assert.AreEqual(typeof (BetweenAndExpression), tex.GetType());
@@ -497,7 +502,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(lexer);
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("BINARY CASE ~ a OR b AND c ^ d XOR e WHEN 2 > ANY (SELECT a) THEN 3 ELSE 4 END IS NOT NULL = a", output);
+            Assert.AreEqual(
+                "BINARY CASE ~ a OR b AND c ^ d XOR e WHEN 2 > ANY (SELECT a) THEN 3 ELSE 4 END IS NOT NULL = a", output);
             Assert.AreEqual(typeof (ComparisionEqualsExpression), expr.GetType());
             bex = (ComparisionEqualsExpression)expr;
             Assert.AreEqual(typeof (ComparisionIsExpression), bex.LeftOprand.GetType());
@@ -524,7 +530,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
             Assert.AreEqual(
-                "! INTERVAL(a, b) <=> a >> b COLLATE x / ? + a != @@1 OR @var SOUNDS LIKE - (a - b) % - (d OR e)", output);
+                "! INTERVAL(a, b) <=> a >> b COLLATE x / ? + a != @@1 OR @var SOUNDS LIKE - (a - b) % - (d OR e)",
+                output);
             Assert.AreEqual(typeof (LogicalOrExpression), expr.GetType());
             pex = (LogicalOrExpression)expr;
             Assert.AreEqual(typeof (ComparisionNotEqualsExpression), pex.GetOperand(0).GetType());
@@ -785,7 +792,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(new MySqlLexer(sql));
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("MATCH (title, body) AGAINST ('database' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION)", output);
+            Assert.AreEqual("MATCH (title, body) AGAINST ('database' IN NATURAL LANGUAGE MODE WITH QUERY EXPANSION)",
+                output);
         }
 
         /// <exception cref="System.Exception" />
@@ -1185,7 +1193,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlExprParser(new MySqlLexer(sql));
             expr = parser.Expression();
             output = Output2MySql(expr, sql);
-            Assert.AreEqual("GROUP_CONCAT(DISTINCT expr1, expr2, expr3 ORDER BY col_name1 DESC, col_name2 SEPARATOR  )", output);
+            Assert.AreEqual(
+                "GROUP_CONCAT(DISTINCT expr1, expr2, expr3 ORDER BY col_name1 DESC, col_name2 SEPARATOR  )", output);
             sql = "GROUP_CONCAT(a||b,expr2,expr3 ORDER BY col_name1 asc,col_name2 SEPARATOR '@ ')";
             parser = new MySqlExprParser(new MySqlLexer(sql));
             expr = parser.Expression();

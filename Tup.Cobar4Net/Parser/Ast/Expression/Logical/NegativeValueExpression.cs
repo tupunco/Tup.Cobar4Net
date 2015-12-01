@@ -20,8 +20,12 @@ using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 {
-    /// <summary><code>'!' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'!' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class NegativeValueExpression : UnaryOperatorExpression
     {
         public NegativeValueExpression(IExpression operand)
@@ -36,7 +40,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object operand = Operand.Evaluation(parameters);
+            var operand = Operand.Evaluation(parameters);
             if (operand == null)
             {
                 return null;
@@ -45,7 +49,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             {
                 return ExpressionConstants.Unevaluatable;
             }
-            bool @bool = ExprEvalUtils.Obj2bool(operand);
+            var @bool = ExprEvalUtils.Obj2bool(operand);
             return @bool ? LiteralBoolean.False : LiteralBoolean.True;
         }
     }

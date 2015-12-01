@@ -29,8 +29,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.String
         private readonly bool not;
 
         public RegexpExpression(bool not,
-            IExpression comparee,
-            IExpression pattern)
+                                IExpression comparee,
+                                IExpression pattern)
             : base(comparee, pattern, ExpressionConstants.PrecedenceComparision)
         {
             this.not = not;

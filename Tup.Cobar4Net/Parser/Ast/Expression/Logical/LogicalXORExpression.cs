@@ -21,7 +21,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LogicalXORExpression : BinaryOperatorExpression
     {
         public LogicalXORExpression(IExpression left, IExpression right)
@@ -36,8 +38,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object left = LeftOprand.Evaluation(parameters);
-            object right = rightOprand.Evaluation(parameters);
+            var left = LeftOprand.Evaluation(parameters);
+            var right = rightOprand.Evaluation(parameters);
             if (left == null || right == null)
             {
                 return null;
@@ -46,8 +48,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
             {
                 return ExpressionConstants.Unevaluatable;
             }
-            bool b1 = ExprEvalUtils.Obj2bool(left);
-            bool b2 = ExprEvalUtils.Obj2bool(right);
+            var b1 = ExprEvalUtils.Obj2bool(left);
+            var b2 = ExprEvalUtils.Obj2bool(right);
             return b1 != b2 ? LiteralBoolean.True : LiteralBoolean.False;
         }
 

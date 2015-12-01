@@ -36,8 +36,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         private IList<RowExpression> rowListBak;
 
         protected DmlInsertReplaceStatement(Identifier table,
-            IList<Identifier> columnNameList,
-            IList<RowExpression> rowList)
+                                            IList<Identifier> columnNameList,
+                                            IList<RowExpression> rowList)
         {
             this.table = table;
             this.columnNameList = EnsureListType(columnNameList);
@@ -46,8 +46,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         }
 
         protected DmlInsertReplaceStatement(Identifier table,
-            IList<Identifier> columnNameList,
-            IQueryExpression select)
+                                            IList<Identifier> columnNameList,
+                                            IQueryExpression select)
         {
             if (select == null)
             {

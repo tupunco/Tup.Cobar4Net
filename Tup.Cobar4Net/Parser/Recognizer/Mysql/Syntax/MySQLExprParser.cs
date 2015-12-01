@@ -755,7 +755,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         /// </summary>
         /// <exception cref="System.SqlSyntaxErrorException" />
         private IExpression UnaryOpExpression(string consumed
-            , string consumedUp)
+                                              , string consumedUp)
         {
             if (consumed == null)
             {
@@ -802,7 +802,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         private IExpression CollateExpression(string consumed
-            , string consumedUp)
+                                              , string consumedUp)
         {
             for (var expr = UserExpression(consumed, consumedUp);;)
             {
@@ -820,21 +820,21 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         private IExpression UserExpression(string consumed
-            , string consumedUp)
+                                           , string consumedUp)
         {
             var first = PrimaryExpression(consumed, consumedUp);
             if (lexer.Token() == MySqlToken.UsrVar)
             {
                 if (first is LiteralString)
                 {
-                    var str = new StringBuilder().Append('\'').Append(((LiteralString) first
+                    var str = new StringBuilder().Append('\'').Append(((LiteralString)first
                         ).StringValue).Append('\'').Append(lexer.GetStringValue());
                     lexer.NextToken();
                     return new UserExpression(str.ToString()).SetCacheEvalRst(cacheEvalRst);
                 }
                 if (first is IdentifierExpr)
                 {
-                    var str = new StringBuilder().Append(((IdentifierExpr) first).IdText).Append(lexer.GetStringValue());
+                    var str = new StringBuilder().Append(((IdentifierExpr)first).IdText).Append(lexer.GetStringValue());
                     lexer.NextToken();
                     return new UserExpression(str.ToString()).SetCacheEvalRst(cacheEvalRst);
                 }
@@ -844,7 +844,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         private IExpression PrimaryExpression(string consumed
-            , string consumedUp)
+                                              , string consumedUp)
         {
             if (consumed != null)
             {
@@ -958,7 +958,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                     Match(MySqlToken.PuncLeftParen);
                     tempExpr = SubQuery();
                     Match(MySqlToken.PuncRightParen);
-                    return new ExistsPrimary((IQueryExpression) tempExpr).SetCacheEvalRst(cacheEvalRst);
+                    return new ExistsPrimary((IQueryExpression)tempExpr).SetCacheEvalRst(cacheEvalRst);
                 }
 
                 case MySqlToken.UsrVar:
@@ -1305,14 +1305,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                 case MySqlToken.PuncDot:
                 {
                     for (tempExpr = new Identifier(null, consumed, consumedUp).SetCacheEvalRst(cacheEvalRst);
-                        lexer.Token() == MySqlToken.PuncDot;)
+                         lexer.Token() == MySqlToken.PuncDot;)
                     {
                         switch (lexer.NextToken())
                         {
                             case MySqlToken.Identifier:
                             {
                                 tempExpr =
-                                    new Identifier((Identifier) tempExpr, lexer.GetStringValue(),
+                                    new Identifier((Identifier)tempExpr, lexer.GetStringValue(),
                                         lexer.GetStringValueUppercase()).SetCacheEvalRst(cacheEvalRst);
                                 lexer.NextToken();
                                 break;
@@ -1321,7 +1321,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                             case MySqlToken.OpAsterisk:
                             {
                                 lexer.NextToken();
-                                return new Wildcard((Identifier) tempExpr).SetCacheEvalRst(cacheEvalRst);
+                                return new Wildcard((Identifier)tempExpr).SetCacheEvalRst(cacheEvalRst);
                             }
 
                             default:
@@ -1652,8 +1652,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                         }
                                     }
                                     for (appendedColumnNames = new List<IExpression>()
-                                        ;
-                                        lexer.Token() == MySqlToken.PuncComma;)
+                                         ;
+                                         lexer.Token() == MySqlToken.PuncComma;)
                                     {
                                         lexer.NextToken();
                                         appendedColumnNames.Add(Expression());
@@ -1818,7 +1818,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         }
 
         private static Pair<string, Pair<IExpression, IExpression>> ConstructTypePair(string typeName, IExpression exp1,
-            IExpression exp2)
+                                                                                      IExpression exp2)
         {
             return new Pair<string, Pair<IExpression, IExpression>>(typeName,
                 new Pair<IExpression, IExpression>(exp1, exp2));

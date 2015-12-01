@@ -68,7 +68,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             parser = new MySqlDmlUpdateParser(lexer, new MySqlExprParser(lexer));
             update = parser.Update();
             output = Output2MySql(update, sql);
-            Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4' WHERE id = 'a'", output);
+            Assert.AreEqual("UPDATE LOW_PRIORITY t1, test.t2 SET col2 = DEFAULT, col2 = '123\\'4' WHERE id = 'a'",
+                output);
         }
     }
 }

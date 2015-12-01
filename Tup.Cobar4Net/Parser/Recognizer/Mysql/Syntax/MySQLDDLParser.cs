@@ -191,7 +191,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                             {
                                                 Match(MySqlToken.PuncComma);
                                             }
-                                            var id = (int) lexer.GetIntegerValue();
+                                            var id = (int)lexer.GetIntegerValue();
                                             Match(MySqlToken.LiteralNumPureDigit);
                                             var val = exprParser.Expression();
                                             policy.AddProportion(id, val);
@@ -1189,7 +1189,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 case SpecialIdentifier.Comment:
                                 {
                                     lexer.NextToken();
-                                    var @string = (LiteralString) exprParser.Expression();
+                                    var @string = (LiteralString)exprParser.Expression();
                                     if (list == null)
                                     {
                                         list = new List<IndexOption>(1);
@@ -1898,7 +1898,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             if (lexer.Token() == MySqlToken.Identifier && "COMMENT".Equals(lexer.GetStringValueUppercase()))
             {
                 lexer.NextToken();
-                comment = (LiteralString) exprParser.Expression();
+                comment = (LiteralString)exprParser.Expression();
             }
             if (lexer.Token() == MySqlToken.Identifier && "COLUMN_FORMAT".Equals(lexer.GetStringValueUppercase()))
             {
@@ -2072,7 +2072,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                         {
                             lexer.NextToken();
                         }
-                        options.IndexDir = (LiteralString) exprParser.Expression();
+                        options.IndexDir = (LiteralString)exprParser.Expression();
                         break;
                     }
                     lexer.AddCacheToke(MySqlToken.KwIndex);
@@ -2183,7 +2183,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
                                     case MySqlToken.LiteralNumPureDigit:
                                     {
-                                        var intVal = (int) lexer.GetIntegerValue();
+                                        var intVal = (int)lexer.GetIntegerValue();
                                         lexer.NextToken();
                                         if (intVal == 0)
                                         {
@@ -2229,7 +2229,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
                                     case MySqlToken.LiteralNumPureDigit:
                                     {
-                                        var intVal_1 = (int) lexer.GetIntegerValue();
+                                        var intVal_1 = (int)lexer.GetIntegerValue();
                                         lexer.NextToken();
                                         if (intVal_1 == 0)
                                         {
@@ -2257,7 +2257,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 {
                                     lexer.NextToken();
                                 }
-                                options.Comment = (LiteralString) exprParser.Expression();
+                                options.Comment = (LiteralString)exprParser.Expression();
                                 goto os_break;
                             }
 
@@ -2268,7 +2268,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 {
                                     lexer.NextToken();
                                 }
-                                options.Connection = (LiteralString) exprParser.Expression();
+                                options.Connection = (LiteralString)exprParser.Expression();
                                 goto os_break;
                             }
 
@@ -2281,7 +2281,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 {
                                     lexer.NextToken();
                                 }
-                                options.DataDir = (LiteralString) exprParser.Expression();
+                                options.DataDir = (LiteralString)exprParser.Expression();
                                 goto os_break;
                             }
 
@@ -2373,7 +2373,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
 
                                     case MySqlToken.LiteralNumPureDigit:
                                     {
-                                        var intVal_2 = (int) lexer.GetIntegerValue();
+                                        var intVal_2 = (int)lexer.GetIntegerValue();
                                         lexer.NextToken();
                                         if (intVal_2 == 0)
                                         {
@@ -2408,7 +2408,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 {
                                     lexer.NextToken();
                                 }
-                                options.Password = (LiteralString) exprParser.Expression();
+                                options.Password = (LiteralString)exprParser.Expression();
                                 goto os_break;
                             }
 

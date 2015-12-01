@@ -75,7 +75,7 @@ namespace Tup.Cobar4Net.Parser.Util
             {
                 return false;
             }
-            var that = (Pair<TKey, TValue>) obj;
+            var that = (Pair<TKey, TValue>)obj;
             return IsEquals(Key, that.Key) && IsEquals(Value, that.Value);
         }
 

@@ -233,20 +233,20 @@ namespace Tup.Cobar4Net.Route.Function
             var args = objects.Select(x => (IExpression)x).ToList();
 
             return new Dimension2PartitionFunction(functionName, args)
-            {
-                _countX = _countX,
-                _xSize = _xSize,
-                _lengthX = _lengthX,
-                _keyTypeX = _keyTypeX,
-                _hashSliceStartX = _hashSliceStartX,
-                _hashSliceEndX = _hashSliceEndX,
-                _countY = _countY,
-                _ySize = _ySize,
-                _lengthY = _lengthY,
-                _keyTypeY = _keyTypeY,
-                _hashSliceStartY = _hashSliceStartY,
-                _hashSliceEndY = _hashSliceEndY
-            };
+                   {
+                       _countX = _countX,
+                       _xSize = _xSize,
+                       _lengthX = _lengthX,
+                       _keyTypeX = _keyTypeX,
+                       _hashSliceStartX = _hashSliceStartX,
+                       _hashSliceEndX = _hashSliceEndX,
+                       _countY = _countY,
+                       _ySize = _ySize,
+                       _lengthY = _lengthY,
+                       _keyTypeY = _keyTypeY,
+                       _hashSliceStartY = _hashSliceStartY,
+                       _hashSliceEndY = _hashSliceEndY
+                   };
         }
 
         public Number[] Calculate(IDictionary<object, object> parameters)
@@ -352,10 +352,10 @@ namespace Tup.Cobar4Net.Route.Function
 
         /// <returns>null if eval invalid type</returns>
         private static int? Calculate(object eval,
-            PartitionUtil partitionUtil,
-            int keyType,
-            int hashSliceStart,
-            int hashSliceEnd)
+                                      PartitionUtil partitionUtil,
+                                      int keyType,
+                                      int hashSliceStart,
+                                      int hashSliceEnd)
         {
             if (eval == ExpressionConstants.Unevaluatable || eval == null)
                 return null;
@@ -443,23 +443,23 @@ namespace Tup.Cobar4Net.Route.Function
             return (FunctionExpression)ConstructMe(args);
         }
 
-        // }
-        // }
-        // System.out.println(i);
-        // for(Integer i:ints){
-        // Integer[] ints=func.eval(1023L, "zzzz");
-        //
-        // func.init();
-        // func.setHashLengthY(8);
-        // func.setPartitionLengthY("512");
-        // func.setPartitionCountY("2");
-        // func.setKeyTypeY("string");
-        // func.setPartitionLengthX("512,256");
-        // func.setPartitionCountX("1,2");
-        // func.setKeyTypeX("long");
-        // Dimension2PartitionFunction("test999", new ArrayList<Expression>(2));
-        // Dimension2PartitionFunction func = new
-
         // public static void main(String[] args) throws Exception {
+        // Dimension2PartitionFunction func = new
+        // Dimension2PartitionFunction("test999", new ArrayList<Expression>(2));
+        // func.setKeyTypeX("long");
+        // func.setPartitionCountX("1,2");
+        // func.setPartitionLengthX("512,256");
+        // func.setKeyTypeY("string");
+        // func.setPartitionCountY("2");
+        // func.setPartitionLengthY("512");
+        // func.setHashLengthY(8);
+        // func.init();
+        //
+        // Integer[] ints=func.eval(1023L, "zzzz");
+        // for(Integer i:ints){
+        // System.out.println(i);
+        // }
+
+        // }
     }
 }

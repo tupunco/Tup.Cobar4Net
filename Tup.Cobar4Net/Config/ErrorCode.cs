@@ -1026,8 +1026,8 @@ namespace Tup.Cobar4Net.Config
         public const int ErDropPartitionWhenFkDefined = 1493;
 
         public const int ErPluginIsNotLoaded = 1494;
-        // mysql error code
         // cobar error code
+        // mysql error code
     }
 
     public static class ErrorCodeConstants

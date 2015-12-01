@@ -75,6 +75,7 @@ namespace Tup.Cobar4Net.Route
             return nodeMap;
         }
 
+        #region INodeNameDeconstructor
         private interface INodeNameDeconstructor
         {
             int GetNodeIndex(string name);
@@ -137,7 +138,9 @@ namespace Tup.Cobar4Net.Route
                 SetNames(names);
             }
         }
+        #endregion
 
+        #region Asserter
         private interface IReplicaAsserter
         {
             void AssertReplica(int nodeIndex, int replica);
@@ -172,7 +175,7 @@ namespace Tup.Cobar4Net.Route
             public virtual void AssertNode(RouteResultsetNode node)
             {
                 var nodeIndex = _deconstructor.GetNodeIndex(node.Name);
-                _sqlAsserter.AssertSQL(node.Statement, nodeIndex);
+                _sqlAsserter.AssertSql(node.Statement, nodeIndex);
                 _replicaAsserter.AssertReplica(nodeIndex, node.ReplicaIndex);
             }
 
@@ -188,7 +191,7 @@ namespace Tup.Cobar4Net.Route
         private interface ISqlAsserter
         {
             /// <exception cref="System.Exception" />
-            void AssertSQL(string sql, int nodeIndex);
+            void AssertSql(string sql, int nodeIndex);
         }
 
         private class SimpleSqlAsserter : ISqlAsserter
@@ -196,13 +199,13 @@ namespace Tup.Cobar4Net.Route
             private readonly IDictionary<int, ICollection<string>> map = new Dictionary<int, ICollection<string>>();
 
             /// <exception cref="System.Exception" />
-            public virtual void AssertSQL(string sql, int nodeIndex)
+            public virtual void AssertSql(string sql, int nodeIndex)
             {
                 Assert.IsNotNull(map[nodeIndex]);
                 Assert.IsTrue(map[nodeIndex].Contains(sql));
             }
 
-            public virtual SimpleSqlAsserter AddExpectSQL(int nodeIndex, string sql)
+            public virtual SimpleSqlAsserter AddExpectSql(int nodeIndex, string sql)
             {
                 var set = map.GetValue(nodeIndex);
                 if (set == null)
@@ -214,16 +217,16 @@ namespace Tup.Cobar4Net.Route
                 return this;
             }
 
-            public virtual SimpleSqlAsserter AddExpectSQL(int nodeIndex, params string[] sql)
+            public virtual SimpleSqlAsserter AddExpectSql(int nodeIndex, params string[] sql)
             {
                 foreach (var s in sql)
                 {
-                    AddExpectSQL(nodeIndex, s);
+                    AddExpectSql(nodeIndex, s);
                 }
                 return this;
             }
 
-            public virtual SimpleSqlAsserter AddExpectSQL(int nodeIndex,
+            public virtual SimpleSqlAsserter AddExpectSql(int nodeIndex,
                                                           string prefix,
                                                           PermutationUtil.PermutationGenerator pg,
                                                           string suffix)
@@ -231,27 +234,27 @@ namespace Tup.Cobar4Net.Route
                 var ss = pg.PermutateSql();
                 foreach (var s in ss)
                 {
-                    AddExpectSQL(nodeIndex, prefix + s + suffix);
+                    AddExpectSql(nodeIndex, prefix + s + suffix);
                 }
                 return this;
             }
         }
 
-        private abstract class ParseredSQLAsserter : ISqlAsserter
+        private abstract class ParseredSqlAsserter : ISqlAsserter
         {
             /// <exception cref="System.Exception" />
-            public virtual void AssertSQL(string sql, int nodeIndex)
+            public virtual void AssertSql(string sql, int nodeIndex)
             {
                 var stmt = SqlParserDelegate.Parse(sql);
-                AssertAST(stmt, nodeIndex);
+                AssertAst(stmt, nodeIndex);
             }
 
-            protected internal abstract void AssertAST(ISqlStatement stmt, int nodeIndex);
+            protected internal abstract void AssertAst(ISqlStatement stmt, int nodeIndex);
         }
 
-        private sealed class _ParseredSQLAsserter_351 : ParseredSQLAsserter
+        private sealed class _ParseredSQLAsserter_351 : ParseredSqlAsserter
         {
-            protected internal override void AssertAST(ISqlStatement stmt, int nodeIndex)
+            protected internal override void AssertAst(ISqlStatement stmt, int nodeIndex)
             {
                 var insert = (DmlInsertStatement)stmt;
                 var rows = insert.RowList;
@@ -340,6 +343,7 @@ namespace Tup.Cobar4Net.Route
                 Assert.AreEqual(2, replica);
             }
         }
+        #endregion
 
         /// <exception cref="System.Exception" />
         [Test]
@@ -381,9 +385,9 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("offer_dn[1]", "offer_dn[2]", "offer_dn[5]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`")
-                       .AddExpectSQL(1, " select * from `dual`")
-                       .AddExpectSQL(2, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`")
+                       .AddExpectSql(1, " select * from `dual`")
+                       .AddExpectSql(2, " select * from `dual`");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1468());
             foreach (var node in nodeMap.Values)
             {
@@ -398,9 +402,9 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[5]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`")
-                       .AddExpectSQL(1, " select * from `dual`")
-                       .AddExpectSQL(2, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`")
+                       .AddExpectSql(1, " select * from `dual`")
+                       .AddExpectSql(2, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1492());
             foreach (var node_1 in nodeMap.Values)
             {
@@ -421,7 +425,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "  select * from `dual`").AddExpectSQL(1, "  select * from `dual`");
+            sqlAsserter.AddExpectSql(0, "  select * from `dual`").AddExpectSql(1, "  select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1521());
             foreach (var node_2 in nodeMap.Values)
             {
@@ -443,7 +447,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[29]", "offer_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`").AddExpectSQL(1, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`").AddExpectSql(1, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1547());
             foreach (var node_3 in nodeMap.Values)
             {
@@ -457,7 +461,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[29]", "offer_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`").AddExpectSQL(1, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`").AddExpectSql(1, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1565());
             foreach (var node_4 in nodeMap.Values)
             {
@@ -473,7 +477,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i = 0; i < 128; i++)
             {
-                sqlAsserter.AddExpectSQL(i, " select * from `dual`");
+                sqlAsserter.AddExpectSql(i, " select * from `dual`");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1585());
             foreach (var node_5 in nodeMap.Values)
@@ -487,7 +491,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[1]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_6 in nodeMap.Values)
             {
@@ -500,7 +504,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[0]", "offer_dn[3]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`").AddExpectSQL(1, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`").AddExpectSql(1, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_7 in nodeMap.Values)
             {
@@ -515,7 +519,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i_1 = 0; i_1 < 128; i_1++)
             {
-                sqlAsserter.AddExpectSQL(i_1, " select * from `dual`");
+                sqlAsserter.AddExpectSql(i_1, " select * from `dual`");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_8 in nodeMap.Values)
@@ -529,7 +533,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("independent_dn[0]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_9 in nodeMap.Values)
             {
@@ -542,9 +546,9 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("independent_dn[1]", "independent_dn[2]", "independent_dn[5]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`")
-                       .AddExpectSQL(1, " select * from `dual`")
-                       .AddExpectSQL(2, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`")
+                       .AddExpectSql(1, " select * from `dual`")
+                       .AddExpectSql(2, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_10 in nodeMap.Values)
             {
@@ -559,7 +563,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i_2 = 0; i_2 < 128; i_2++)
             {
-                sqlAsserter.AddExpectSQL(i_2, " select * from `dual`");
+                sqlAsserter.AddExpectSql(i_2, " select * from `dual`");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_11 in nodeMap.Values)
@@ -574,7 +578,7 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, " select * from `dual`").AddExpectSQL(1, " select * from `dual`");
+            sqlAsserter.AddExpectSql(0, " select * from `dual`").AddExpectSql(1, " select * from `dual`");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter, new _ReplicaAsserter_1687());
             foreach (var node_12 in nodeMap.Values)
             {
@@ -680,13 +684,13 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[29]", "offer_dn[21]", "offer_dn[5]", "offer_dn[13]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").
-                        AddExpectSQL(3, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
-                       .AddExpectSQL(4, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
-                       .AddExpectSQL(
-                           5, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").AddExpectSQL(6, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").AddExpectSQL(7,
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").
+                        AddExpectSql(3, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
+                       .AddExpectSql(4, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'")
+                       .AddExpectSql(
+                           5, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").AddExpectSql(6, "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'").AddExpectSql(7,
                                    "SELECT * FROM product_visit WHERE member_id = 'pavarotti17'");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
@@ -701,14 +705,14 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[8]", "offer_dn[12]", "offer_dn[16]", "offer_dn[20]", "offer_dn[24]", "offer_dn[28]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(3, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(4, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(5, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(6, "SELECT * FROM product_visit WHERE member_id = 'abc'")
-                       .AddExpectSQL(7, "SELECT * FROM product_visit WHERE member_id = 'abc'");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(3, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(4, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(5, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(6, "SELECT * FROM product_visit WHERE member_id = 'abc'")
+                       .AddExpectSql(7, "SELECT * FROM product_visit WHERE member_id = 'abc'");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_1 in nodeMap.Values)
             {
@@ -722,22 +726,22 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[8]", "offer_dn[12]", "offer_dn[16]", "offer_dn[20]", "offer_dn[24]", "offer_dn[28]", "offer_dn[1]", "offer_dn[5]", "offer_dn[9]", "offer_dn[13]", "offer_dn[17]", "offer_dn[21]", "offer_dn[25]", "offer_dn[29]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(1, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(2, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(3, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(4, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(5, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(6, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(7, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
-                       .AddExpectSQL(8, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(9, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(10, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(11, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(12, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(13, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(14, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(15, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE");
+            sqlAsserter.AddExpectSql(0, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(1, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(2, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(3, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(4, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(5, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(6, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(7, "DELETE FROM product_visit WHERE FALSE OR Member_id BETWEEN 'abc' AND 'abc'")
+                       .AddExpectSql(8, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(9, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(10, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(11, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(12, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(13, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(14, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(15, "DELETE FROM product_visit WHERE member_id = 'pavarotti17' OR FALSE");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_2 in nodeMap.Values)
             {
@@ -751,10 +755,10 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[10]", "offer_dn[11]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE product_id = 2345")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE product_id = 2345")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE product_id = 2345")
-                       .AddExpectSQL(3, "SELECT * FROM product_visit WHERE product_id = 2345");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE product_id = 2345")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE product_id = 2345")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE product_id = 2345")
+                       .AddExpectSql(3, "SELECT * FROM product_visit WHERE product_id = 2345");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_3 in nodeMap.Values)
             {
@@ -768,10 +772,10 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[6]", "offer_dn[7]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE product_id = 1234")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE product_id = 1234")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE product_id = 1234")
-                       .AddExpectSQL(3, "SELECT * FROM product_visit WHERE product_id = 1234");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE product_id = 1234")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE product_id = 1234")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE product_id = 1234")
+                       .AddExpectSql(3, "SELECT * FROM product_visit WHERE product_id = 1234");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_4 in nodeMap.Values)
             {
@@ -785,14 +789,14 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[6]", "offer_dn[7]", "offer_dn[8]", "offer_dn[9]", "offer_dn[10]", "offer_dn[11]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
-                       .AddExpectSQL(3, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
-                       .AddExpectSQL(4, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
-                       .AddExpectSQL(5, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
-                       .AddExpectSQL(6, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
-                       .AddExpectSQL(7, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
+                       .AddExpectSql(3, "SELECT * FROM product_visit WHERE product_id = 1234 OR FALSE")
+                       .AddExpectSql(4, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
+                       .AddExpectSql(5, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
+                       .AddExpectSql(6, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345")
+                       .AddExpectSql(7, "SELECT * FROM product_visit WHERE FALSE OR product_id = 2345");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_5 in nodeMap.Values)
             {
@@ -806,14 +810,14 @@ namespace Tup.Cobar4Net.Route
                 "offer_dn[6]", "offer_dn[7]", "offer_dn[8]", "offer_dn[9]", "offer_dn[10]", "offer_dn[11]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM product_visit WHERE product_id IN (1234)")
-                       .AddExpectSQL(1, "SELECT * FROM product_visit WHERE product_id IN (1234)")
-                       .AddExpectSQL(2, "SELECT * FROM product_visit WHERE product_id IN (1234)")
-                       .AddExpectSQL(3, "SELECT * FROM product_visit WHERE product_id IN (1234)")
-                       .AddExpectSQL(4, "SELECT * FROM product_visit WHERE product_id IN (2345)")
-                       .AddExpectSQL(5, "SELECT * FROM product_visit WHERE product_id IN (2345)")
-                       .AddExpectSQL(6, "SELECT * FROM product_visit WHERE product_id IN (2345)")
-                       .AddExpectSQL(7, "SELECT * FROM product_visit WHERE product_id IN (2345)");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM product_visit WHERE product_id IN (1234)")
+                       .AddExpectSql(1, "SELECT * FROM product_visit WHERE product_id IN (1234)")
+                       .AddExpectSql(2, "SELECT * FROM product_visit WHERE product_id IN (1234)")
+                       .AddExpectSql(3, "SELECT * FROM product_visit WHERE product_id IN (1234)")
+                       .AddExpectSql(4, "SELECT * FROM product_visit WHERE product_id IN (2345)")
+                       .AddExpectSql(5, "SELECT * FROM product_visit WHERE product_id IN (2345)")
+                       .AddExpectSql(6, "SELECT * FROM product_visit WHERE product_id IN (2345)")
+                       .AddExpectSql(7, "SELECT * FROM product_visit WHERE product_id IN (2345)");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_6 in nodeMap.Values)
             {
@@ -834,9 +838,9 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM wp_image WHERE member_id IN ('pavarotti17') OR FALSE OR FALSE")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE OR FALSE")
-                       .AddExpectSQL(2,
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM wp_image WHERE member_id IN ('pavarotti17') OR FALSE OR FALSE")
+                       .AddExpectSql(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE OR FALSE")
+                       .AddExpectSql(2,
                            "SELECT * FROM wp_image WHERE FALSE OR wp_image.member_id = '1qq' OR member_id = '1qq'");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
@@ -852,11 +856,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "INSERT INTO wp_image (id, member_id, gmt) VALUES (2, 'pavarotti17', NOW()), (1, 'pavarotti17', NOW())"
                 ,
                 "INSERT INTO wp_image (id, member_id, gmt) VALUES (1, 'pavarotti17', NOW()), (2, 'pavarotti17', NOW())")
-                       .AddExpectSQL(1, "INSERT INTO wp_image (id, member_id, gmt) VALUES (3, 'qaa', NOW())");
+                       .AddExpectSql(1, "INSERT INTO wp_image (id, member_id, gmt) VALUES (3, 'qaa', NOW())");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_1 in nodeMap.Values)
             {
@@ -872,9 +876,9 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM wp_image WHERE member_id IN ('pavarotti17', 'pavarotti17') OR wp_image.member_id = 'pavarotti17'")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE");
+                       .AddExpectSql(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_2 in nodeMap.Values)
             {
@@ -890,10 +894,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM `wp_image` WHERE `member_id` IN ('pavarotti17', 'pavarotti17') OR member_id IN ('pavarotti17', 'pavarotti17') OR wp_image.member_id = 'pavarotti17'")
-                       .AddExpectSQL(1, "SELECT * FROM `wp_image` WHERE `member_id` IN ('qaa') OR FALSE OR FALSE")
-                       .AddExpectSQL(2, "SELECT * FROM `wp_image` WHERE FALSE OR member_id IN ('1qq') OR FALSE");
+                       .AddExpectSql(1, "SELECT * FROM `wp_image` WHERE `member_id` IN ('qaa') OR FALSE OR FALSE")
+                       .AddExpectSql(2, "SELECT * FROM `wp_image` WHERE FALSE OR member_id IN ('1qq') OR FALSE");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_3 in nodeMap.Values)
             {
@@ -908,10 +912,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[29]", "detail_dn[43]", "detail_dn[57]", "detail_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "INSERT INTO offer_detail (offer_id, gmt) VALUES (234, NOW())")
-                       .AddExpectSQL(1, "INSERT INTO offer_detail (offer_id, gmt) VALUES (345, NOW())")
-                       .AddExpectSQL(2, "INSERT INTO offer_detail (offer_id, gmt) VALUES (456, NOW())")
-                       .AddExpectSQL(3, "INSERT INTO offer_detail (offer_id, gmt) VALUES ",
+            sqlAsserter.AddExpectSql(0, "INSERT INTO offer_detail (offer_id, gmt) VALUES (234, NOW())")
+                       .AddExpectSql(1, "INSERT INTO offer_detail (offer_id, gmt) VALUES (345, NOW())")
+                       .AddExpectSql(2, "INSERT INTO offer_detail (offer_id, gmt) VALUES (456, NOW())")
+                       .AddExpectSql(3, "INSERT INTO offer_detail (offer_id, gmt) VALUES ",
                            new PermutationUtil.PermutationGenerator("(123, NOW())", "(123, NOW() + 1)",
                                "(122 + 1, NOW())", "(123, NOW())").SetDelimiter(", "), string.Empty);
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -931,21 +935,21 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[58]", "offer_dn[100]", "offer_dn[86]", "offer_dn[72]", "offer_dn[114]", "offer_dn[44]", "offer_dn[30]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(345, 123, NOW())", "(123, 345, NOW())", "(234, 234, NOW())").SetDelimiter(", "), string.Empty)
-                       .AddExpectSQL(1, "INSERT INTO offer (offer_id, group_id, gmt) VALUES "
+            sqlAsserter.AddExpectSql(0, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(345, 123, NOW())", "(123, 345, NOW())", "(234, 234, NOW())").SetDelimiter(", "), string.Empty)
+                       .AddExpectSql(1, "INSERT INTO offer (offer_id, group_id, gmt) VALUES "
                            ,
                            new PermutationUtil.PermutationGenerator("(345, 456, NOW())", "(456, 345, NOW())")
                                .SetDelimiter(", "), string.Empty)
-                       .AddExpectSQL(2, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(456, 234, NOW())", "(234, 456, NOW())", "(345, 345, NOW())").SetDelimiter(", "), string.Empty)
-                       .AddExpectSQL(3, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(123, 456, NOW())", "(345, 234, NOW())", "(234, 345, NOW())", "(456, 123, NOW())").SetDelimiter(", "), string.Empty)
-                       .AddExpectSQL(4, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ",
+                       .AddExpectSql(2, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(456, 234, NOW())", "(234, 456, NOW())", "(345, 345, NOW())").SetDelimiter(", "), string.Empty)
+                       .AddExpectSql(3, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(123, 456, NOW())", "(345, 234, NOW())", "(234, 345, NOW())", "(456, 123, NOW())").SetDelimiter(", "), string.Empty)
+                       .AddExpectSql(4, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ",
                            new PermutationUtil.PermutationGenerator("(456, 456, NOW())").SetDelimiter(", "),
                            string.Empty)
-                       .AddExpectSQL(5, "INSERT INTO offer (offer_id, group_id, gmt) VALUES "
+                       .AddExpectSql(5, "INSERT INTO offer (offer_id, group_id, gmt) VALUES "
                            ,
                            new PermutationUtil.PermutationGenerator("(234, 123, NOW())", "(123, 234, NOW())")
                                .SetDelimiter(", "), string.Empty)
-                       .AddExpectSQL(6, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(123, 123, NOW())").SetDelimiter(", "),
+                       .AddExpectSql(6, "INSERT INTO offer (offer_id, group_id, gmt) VALUES ", new PermutationUtil.PermutationGenerator("(123, 123, NOW())").SetDelimiter(", "),
                            string.Empty);
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_5 in nodeMap.Values)
@@ -989,13 +993,13 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[58]", "offer_dn[100]", "offer_dn[86]", "offer_dn[72]", "offer_dn[114]", "offer_dn[44]", "offer_dn[30]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, sqlTemp)
-                       .AddExpectSQL(1, sqlTemp)
-                       .AddExpectSQL(2, sqlTemp)
-                       .AddExpectSQL(3, sqlTemp)
-                       .AddExpectSQL(4, sqlTemp)
-                       .AddExpectSQL(5, sqlTemp)
-                       .AddExpectSQL(6, sqlTemp);
+            sqlAsserter.AddExpectSql(0, sqlTemp)
+                       .AddExpectSql(1, sqlTemp)
+                       .AddExpectSql(2, sqlTemp)
+                       .AddExpectSql(3, sqlTemp)
+                       .AddExpectSql(4, sqlTemp)
+                       .AddExpectSql(5, sqlTemp)
+                       .AddExpectSql(6, sqlTemp);
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_6 in nodeMap.Values)
             {
@@ -1013,10 +1017,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[72]", "offer_dn[58]", "offer_dn[44]", "offer_dn[30]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, sqlTemp)
-                       .AddExpectSQL(1, sqlTemp)
-                       .AddExpectSQL(2, sqlTemp)
-                       .AddExpectSQL(3, sqlTemp);
+            sqlAsserter.AddExpectSql(0, sqlTemp)
+                       .AddExpectSql(1, sqlTemp)
+                       .AddExpectSql(2, sqlTemp)
+                       .AddExpectSql(3, sqlTemp);
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_7 in nodeMap.Values)
             {
@@ -1048,8 +1052,8 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT COUNT(*) FROM wp_image WHERE member_id IN ('pavarotti17')")
-                       .AddExpectSQL(1, "SELECT COUNT(*) FROM wp_image WHERE member_id IN ('qaa')");
+            sqlAsserter.AddExpectSql(0, "SELECT COUNT(*) FROM wp_image WHERE member_id IN ('pavarotti17')")
+                       .AddExpectSql(1, "SELECT COUNT(*) FROM wp_image WHERE member_id IN ('qaa')");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
             {
@@ -1069,8 +1073,8 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT MIN(id) FROM wp_image WHERE member_id IN ('pavarotti17') LIMIT 0, 99")
-                       .AddExpectSQL(1, "SELECT MIN(id) FROM wp_image WHERE member_id IN ('qaa') LIMIT 0, 99");
+            sqlAsserter.AddExpectSql(0, "SELECT MIN(id) FROM wp_image WHERE member_id IN ('pavarotti17') LIMIT 0, 99")
+                       .AddExpectSql(1, "SELECT MIN(id) FROM wp_image WHERE member_id IN ('qaa') LIMIT 0, 99");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_1 in nodeMap.Values)
             {
@@ -1091,11 +1095,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT MAX(offer_id) FROM wp_image WHERE member_id IN ('pavarotti17', 'pavarotti17') OR member_id IN ('pavarotti17', 'pavarotti17') OR wp_image.member_id = 'pavarotti17' LIMIT 1, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT MAX(offer_id) FROM wp_image WHERE member_id IN ('qaa') OR FALSE OR FALSE LIMIT 1, 99")
-                       .AddExpectSQL(2,
+                       .AddExpectSql(2,
                            "SELECT MAX(offer_id) FROM wp_image WHERE FALSE OR member_id IN ('1qq') OR FALSE LIMIT 1, 99");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_2 in nodeMap.Values)
@@ -1119,7 +1123,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i = 0; i < 128; ++i)
             {
-                sqlAsserter.AddExpectSQL(i,
+                sqlAsserter.AddExpectSql(i,
                     "select Count(*) from (select * from wp_image) w, (select * from offer) o  where o.member_id=w.member_id and o.member_id='pavarotti17' limit 99");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1144,7 +1148,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i_1 = 0; i_1 < 128; ++i_1)
             {
-                sqlAsserter.AddExpectSQL(i_1,
+                sqlAsserter.AddExpectSql(i_1,
                     "select Count(*) from (select * from wp_image) w, (select * from offer limit 99) o  where o.member_id=w.member_id and o.member_id='pavarotti17' ");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1161,11 +1165,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[12]", "offer_dn[123]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT COUNT(*) FROM (SELECT * FROM wp_image WHERE member_id = 'abc' OR FALSE LIMIT 0, 100) AS "
                 + AliasConvert("w") + ", (SELECT * FROM offer_detail WHERE offer_id = '123') AS "
                 + AliasConvert("o") + " WHERE o.member_id = w.member_id AND o.member_id = 'pavarotti17' LIMIT 0, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT COUNT(*) FROM (SELECT * FROM wp_image WHERE FALSE OR member_id = 'pavarotti17' LIMIT 0, 100) AS "
                            + AliasConvert("w") + ", (SELECT * FROM offer_detail WHERE offer_id = '123') AS "
                            + AliasConvert("o") +
@@ -1184,11 +1188,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[29]", "detail_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT COUNT(*) FROM (SELECT * FROM (SELECT * FROM offer_detail WHERE FALSE OR offer_id = '234' LIMIT 0, 88) AS "
                 + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " + AliasConvert("w") +
                 " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT COUNT(*) FROM (SELECT * FROM (SELECT * FROM offer_detail WHERE offer_id = '123' OR FALSE LIMIT 0, 88) AS "
                            + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " +
                            AliasConvert("w") + " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99");
@@ -1206,11 +1210,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[29]", "detail_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT COUNT(*) FROM (SELECT * FROM (SELECT MAX(id) FROM offer_detail WHERE FALSE OR offer_id = '234' LIMIT 0, 88) AS "
                 + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " + AliasConvert("w") +
                 " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT COUNT(*) FROM (SELECT * FROM (SELECT MAX(id) FROM offer_detail WHERE offer_id = '123' OR FALSE LIMIT 0, 88) AS "
                            + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " +
                            AliasConvert("w") + " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99");
@@ -1228,11 +1232,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[29]", "detail_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM (SELECT * FROM (SELECT MAX(id) FROM offer_detail WHERE FALSE OR offer_id = '234' LIMIT 0, 88) AS "
                 + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " + AliasConvert("w") +
                 " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT * FROM (SELECT * FROM (SELECT MAX(id) FROM offer_detail WHERE offer_id = '123' OR FALSE LIMIT 0, 88) AS "
                            + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " +
                            AliasConvert("w") + " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99");
@@ -1250,11 +1254,11 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[29]", "detail_dn[15]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM (SELECT COUNT(*) FROM (SELECT * FROM offer_detail WHERE FALSE OR offer_id = '234' LIMIT 0, 88) AS "
                 + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " + AliasConvert("w") +
                 " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT * FROM (SELECT COUNT(*) FROM (SELECT * FROM offer_detail WHERE offer_id = '123' OR FALSE LIMIT 0, 88) AS "
                            + AliasConvert("offer") + " WHERE offer.member_id = 'abc' LIMIT 0, 60) AS " +
                            AliasConvert("w") + " WHERE w.member_id = 'pavarotti17' LIMIT 0, 99");
@@ -1325,7 +1329,7 @@ namespace Tup.Cobar4Net.Route
 
         /// <exception cref="System.Exception" />
         [Test]
-        public virtual void TestNonPartitionSQL()
+        public virtual void TestNonPartitionSql()
         {
             var schema = schemaMap["cndb"];
             var sql = "  select * from `dual`";
@@ -1369,10 +1373,10 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("detail_dn[0]", "offer_dn[0]", "cndb_dn", "independent_dn[0]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SHOW FULL TABLES LIKE 'solo'")
-                       .AddExpectSQL(1, "SHOW FULL TABLES LIKE 'solo'")
-                       .AddExpectSQL(2, "SHOW FULL TABLES LIKE 'solo'")
-                       .AddExpectSQL(3, "SHOW FULL TABLES LIKE 'solo'");
+            sqlAsserter.AddExpectSql(0, "SHOW FULL TABLES LIKE 'solo'")
+                       .AddExpectSql(1, "SHOW FULL TABLES LIKE 'solo'")
+                       .AddExpectSql(2, "SHOW FULL TABLES LIKE 'solo'")
+                       .AddExpectSql(3, "SHOW FULL TABLES LIKE 'solo'");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
             {
@@ -1393,8 +1397,8 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM wp_image WHERE member_id = 'pavarotti17' OR FALSE")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image WHERE FALSE OR member_id = '1qq'");
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM wp_image WHERE member_id = 'pavarotti17' OR FALSE")
+                       .AddExpectSql(1, "SELECT * FROM wp_image WHERE FALSE OR member_id = '1qq'");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
             {
@@ -1409,7 +1413,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i = 0; i < 128; ++i)
             {
-                sqlAsserter.AddExpectSQL(i, "select * from independent where member='abc'");
+                sqlAsserter.AddExpectSql(i, "select * from independent where member='abc'");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_1 in nodeMap.Values)
@@ -1425,7 +1429,7 @@ namespace Tup.Cobar4Net.Route
             sqlAsserter = new SimpleSqlAsserter();
             for (var i_1 = 0; i_1 < 128; ++i_1)
             {
-                sqlAsserter.AddExpectSQL(i_1, "SELECT * FROM independent AS A WHERE a.member = 'abc'");
+                sqlAsserter.AddExpectSql(i_1, "SELECT * FROM independent AS A WHERE a.member = 'abc'");
             }
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_2 in nodeMap.Values)
@@ -1501,10 +1505,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM wp_image WHERE member_id IN ('pavarotti17') OR FALSE")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE")
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM wp_image WHERE member_id IN ('pavarotti17') OR FALSE")
+                       .AddExpectSql(1, "SELECT * FROM wp_image WHERE member_id IN ('qaa') OR FALSE")
                        .
-                        AddExpectSQL(2, "SELECT * FROM wp_image WHERE FALSE OR wp_image.member_id = '1qq'");
+                        AddExpectSql(2, "SELECT * FROM wp_image WHERE FALSE OR wp_image.member_id = '1qq'");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_3 in nodeMap.Values)
             {
@@ -1520,10 +1524,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM wp_image, tb2 AS " + AliasConvert("t2") + " WHERE member_id IN ('pavarotti17') OR FALSE")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image, tb2 AS "
-                                        + AliasConvert("t2") + " WHERE member_id IN ('qaa') OR FALSE").AddExpectSQL(2,
+                       .AddExpectSql(1, "SELECT * FROM wp_image, tb2 AS "
+                                        + AliasConvert("t2") + " WHERE member_id IN ('qaa') OR FALSE").AddExpectSql(2,
                                             "SELECT * FROM wp_image, tb2 AS " + AliasConvert("t2") +
                                             " WHERE FALSE OR wp_image.member_id = '1qq'");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1540,15 +1544,15 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[126]", "offer_dn[74]", "offer_dn[26]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM wp_image, tb2 AS " + AliasConvert("t2") + " WHERE member_id IN ('pavarotti17')")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image, tb2 AS "
+                       .AddExpectSql(1, "SELECT * FROM wp_image, tb2 AS "
                                         + AliasConvert("t2") + " WHERE member_id IN ('sdddf')")
-                       .AddExpectSQL(2, "SELECT * FROM wp_image, tb2 AS "
+                       .AddExpectSql(2, "SELECT * FROM wp_image, tb2 AS "
                                         + AliasConvert("t2") + " WHERE member_id IN ('sf', 'sd')",
                            "SELECT * FROM wp_image, tb2 AS "
                            + AliasConvert("t2") + " WHERE member_id IN ('sd', 'sf')")
-                       .AddExpectSQL(3, "SELECT * FROM wp_image, tb2 AS "
+                       .AddExpectSql(3, "SELECT * FROM wp_image, tb2 AS "
                                         + AliasConvert("t2") + " WHERE member_id IN ('s22f')");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_5 in nodeMap.Values)
@@ -1564,12 +1568,12 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM tb2 AS " + AliasConvert("t2") + ", wp_image WHERE member_id IN ('pavarotti17') OR FALSE")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT * FROM tb2 AS " + AliasConvert("t2") +
                            ", wp_image WHERE member_id IN ('qaa') OR FALSE")
-                       .AddExpectSQL(2,
+                       .AddExpectSql(2,
                            "SELECT * FROM tb2 AS " + AliasConvert("t2") +
                            ", wp_image WHERE FALSE OR wp_image.member_id = '1qq'");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1586,13 +1590,13 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[10]", "offer_dn[66]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0,
+            sqlAsserter.AddExpectSql(0,
                 "SELECT * FROM tb2 AS " + AliasConvert("t2") +
                 ", wp_image WHERE member_id IN ('pavarotti17') OR FALSE AND t2.member_id = '123'")
-                       .AddExpectSQL(1,
+                       .AddExpectSql(1,
                            "SELECT * FROM tb2 AS " + AliasConvert("t2") +
                            ", wp_image WHERE member_id IN ('qaa') OR FALSE AND t2.member_id = '123'")
-                       .AddExpectSQL(2,
+                       .AddExpectSql(2,
                            "SELECT * FROM tb2 AS " + AliasConvert("t2") +
                            ", wp_image WHERE FALSE OR wp_image.member_id = '1qq' AND t2.member_id = '123'");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1620,10 +1624,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[68]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SELECT * FROM wp_image AS " + AliasConvert("w") + " INNER JOIN offer AS "
+            sqlAsserter.AddExpectSql(0, "SELECT * FROM wp_image AS " + AliasConvert("w") + " INNER JOIN offer AS "
                                         + AliasConvert("o") +
                                         " ON w.member_id = O.member_ID WHERE w.member_iD IN ('pavarotti17') AND o.id = 3")
-                       .AddExpectSQL(1, "SELECT * FROM wp_image AS " + AliasConvert("w") + " INNER JOIN offer AS "
+                       .AddExpectSql(1, "SELECT * FROM wp_image AS " + AliasConvert("w") + " INNER JOIN offer AS "
                                         + AliasConvert("o") +
                                         " ON w.member_id = O.member_ID WHERE w.member_iD IN ('13') AND o.id = 3");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
@@ -1639,8 +1643,8 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("offer_dn[123]", "offer_dn[70]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "INSERT INTO wp_image (member_id, gmt) VALUES ('pavarotti17', NOW())")
-                       .AddExpectSQL(1, "INSERT INTO wp_image (member_id, gmt) VALUES ('123', NOW())");
+            sqlAsserter.AddExpectSql(0, "INSERT INTO wp_image (member_id, gmt) VALUES ('pavarotti17', NOW())")
+                       .AddExpectSql(1, "INSERT INTO wp_image (member_id, gmt) VALUES ('123', NOW())");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_9 in nodeMap.Values)
             {
@@ -1822,10 +1826,10 @@ namespace Tup.Cobar4Net.Route
             var nameAsserter = new NodeNameAsserter("detail_dn[0]", "offer_dn[0]", "cndb_dn", "independent_dn[0]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             var sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SHOW TABLES LIKE 'solo'")
-                       .AddExpectSQL(1, "SHOW TABLES LIKE 'solo'")
-                       .AddExpectSQL(2, "SHOW TABLES LIKE 'solo'")
-                       .AddExpectSQL(3, "SHOW TABLES LIKE 'solo'");
+            sqlAsserter.AddExpectSql(0, "SHOW TABLES LIKE 'solo'")
+                       .AddExpectSql(1, "SHOW TABLES LIKE 'solo'")
+                       .AddExpectSql(2, "SHOW TABLES LIKE 'solo'")
+                       .AddExpectSql(3, "SHOW TABLES LIKE 'solo'");
             var asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node in nodeMap.Values)
             {
@@ -1838,10 +1842,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[0]", "offer_dn[0]", "cndb_dn", "independent_dn[0]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SHOW TABLES")
-                       .AddExpectSQL(1, "SHOW TABLES")
-                       .AddExpectSQL(2, "SHOW TABLES")
-                       .AddExpectSQL(3, "SHOW TABLES");
+            sqlAsserter.AddExpectSql(0, "SHOW TABLES")
+                       .AddExpectSql(1, "SHOW TABLES")
+                       .AddExpectSql(2, "SHOW TABLES")
+                       .AddExpectSql(3, "SHOW TABLES");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_1 in nodeMap.Values)
             {
@@ -1854,10 +1858,10 @@ namespace Tup.Cobar4Net.Route
             nameAsserter = new NodeNameAsserter("detail_dn[0]", "offer_dn[0]", "cndb_dn", "independent_dn[0]");
             nameAsserter.AssertRouteNodeNames(nodeMap.Keys);
             sqlAsserter = new SimpleSqlAsserter();
-            sqlAsserter.AddExpectSQL(0, "SHOW TABLeS ")
-                       .AddExpectSQL(1, "SHOW TABLeS ")
-                       .AddExpectSQL(2, "SHOW TABLeS ")
-                       .AddExpectSQL(3, "SHOW TABLeS ");
+            sqlAsserter.AddExpectSql(0, "SHOW TABLeS ")
+                       .AddExpectSql(1, "SHOW TABLeS ")
+                       .AddExpectSql(2, "SHOW TABLeS ")
+                       .AddExpectSql(3, "SHOW TABLeS ");
             asserter = new RouteNodeAsserter(nameAsserter, sqlAsserter);
             foreach (var node_2 in nodeMap.Values)
             {

@@ -35,7 +35,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
             {
                 throw new ArgumentException("charsetName is null");
             }
-            this.Charset = charset;
+            Charset = charset;
         }
 
         public virtual bool IsDefault

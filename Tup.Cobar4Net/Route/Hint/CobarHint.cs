@@ -31,12 +31,12 @@ namespace Tup.Cobar4Net.Route.Hint
         private static readonly IDictionary<string, HintParser>
 #pragma warning disable RECS0104 // When object creation uses object or collection initializer, empty argument list is redundant
             HintParsers = new Dictionary<string, HintParser>
-            {
-                {"table", new SimpleHintParser()},
-                {"replica", new SimpleHintParser()},
-                {"dataNodeId", new DataNodeHintParser()},
-                {"partitionOperand", new PartitionOperandHintParser()}
-            };
+                          {
+                              {"table", new SimpleHintParser()},
+                              {"replica", new SimpleHintParser()},
+                              {"dataNodeId", new DataNodeHintParser()},
+                              {"partitionOperand", new PartitionOperandHintParser()}
+                          };
 
 #pragma warning restore RECS0104 // When object creation uses object or collection initializer, empty argument list is redundant
 
@@ -101,9 +101,9 @@ namespace Tup.Cobar4Net.Route.Hint
         public static CobarHint ParserCobarHint(string sql, int offset)
         {
             var hint = new CobarHint
-            {
-                CurrentIndex = offset + CobarHintPrefix.Length
-            };
+                       {
+                           CurrentIndex = offset + CobarHintPrefix.Length
+                       };
             hint.Parse(sql);
             return hint;
         }

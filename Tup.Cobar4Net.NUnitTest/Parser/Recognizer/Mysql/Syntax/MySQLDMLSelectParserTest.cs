@@ -211,7 +211,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual(3, @select.SelectStmtList.Count);
             var output = Output2MySql(select, sql);
             Assert.AreEqual(
-                "(SELECT id FROM t1) UNION ALL (SELECT id FROM t2) UNION ALL (SELECT id FROM t3) ORDER BY d DESC LIMIT ?, 1", output);
+                "(SELECT id FROM t1) UNION ALL (SELECT id FROM t2) UNION ALL (SELECT id FROM t3) ORDER BY d DESC LIMIT ?, 1",
+                output);
             sql =
                 "(select id from t1) union  select id from t2 order by id union aLl (select id from t3) ordeR By d asC";
             lexer = new MySqlLexer(sql);
@@ -221,7 +222,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             Assert.AreEqual(3, @select.SelectStmtList.Count);
             output = Output2MySql(select, sql);
             Assert.AreEqual(
-                "(SELECT id FROM t1) UNION (SELECT id FROM t2 ORDER BY id) UNION ALL (SELECT id FROM t3) ORDER BY d", output);
+                "(SELECT id FROM t1) UNION (SELECT id FROM t2 ORDER BY id) UNION ALL (SELECT id FROM t3) ORDER BY d",
+                output);
             sql = "(select id from t1) union distInct (select id from t2) union  select id from t3";
             lexer = new MySqlLexer(sql);
             parser = new MySqlDmlSelectParser(lexer, new MySqlExprParser(lexer));

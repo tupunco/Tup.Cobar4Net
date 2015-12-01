@@ -38,9 +38,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
         public GroupBy(IExpression expr, SortOrder order, bool withRollup)
         {
             _orderByList = new List<Pair<IExpression, SortOrder>>(1)
-            {
-                new Pair<IExpression, SortOrder>(expr, order)
-            };
+                           {
+                               new Pair<IExpression, SortOrder>(expr, order)
+                           };
             _withRollup = withRollup;
         }
 

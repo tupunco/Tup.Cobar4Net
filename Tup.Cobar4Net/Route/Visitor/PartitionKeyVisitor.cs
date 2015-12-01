@@ -112,20 +112,20 @@ namespace Tup.Cobar4Net.Route.Visitor
 
         static PartitionKeyVisitor()
         {
-            VerdictPassThroughWhere.Add(typeof(LogicalAndExpression));
-            VerdictPassThroughWhere.Add(typeof(LogicalOrExpression));
-            VerdictPassThroughWhere.Add(typeof(BetweenAndExpression));
-            VerdictPassThroughWhere.Add(typeof(InExpression));
-            VerdictPassThroughWhere.Add(typeof(ComparisionNullSafeEqualsExpression));
-            VerdictPassThroughWhere.Add(typeof(ComparisionEqualsExpression));
-            GroupFuncPassThroughSelect.Add(typeof(Count));
-            GroupFuncPassThroughSelect.Add(typeof(Sum));
-            GroupFuncPassThroughSelect.Add(typeof(Min));
-            GroupFuncPassThroughSelect.Add(typeof(Max));
-            GroupFuncPassThroughSelect.Add(typeof(Wildcard));
-            PartitionOperandSingle.Add(typeof(BetweenAndExpression));
-            PartitionOperandSingle.Add(typeof(ComparisionNullSafeEqualsExpression));
-            PartitionOperandSingle.Add(typeof(ComparisionEqualsExpression));
+            VerdictPassThroughWhere.Add(typeof (LogicalAndExpression));
+            VerdictPassThroughWhere.Add(typeof (LogicalOrExpression));
+            VerdictPassThroughWhere.Add(typeof (BetweenAndExpression));
+            VerdictPassThroughWhere.Add(typeof (InExpression));
+            VerdictPassThroughWhere.Add(typeof (ComparisionNullSafeEqualsExpression));
+            VerdictPassThroughWhere.Add(typeof (ComparisionEqualsExpression));
+            GroupFuncPassThroughSelect.Add(typeof (Count));
+            GroupFuncPassThroughSelect.Add(typeof (Sum));
+            GroupFuncPassThroughSelect.Add(typeof (Min));
+            GroupFuncPassThroughSelect.Add(typeof (Max));
+            GroupFuncPassThroughSelect.Add(typeof (Wildcard));
+            PartitionOperandSingle.Add(typeof (BetweenAndExpression));
+            PartitionOperandSingle.Add(typeof (ComparisionNullSafeEqualsExpression));
+            PartitionOperandSingle.Add(typeof (ComparisionEqualsExpression));
         }
 
         public PartitionKeyVisitor(IDictionary<string, TableConfig> tables)
@@ -189,7 +189,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             var assignmentList = node.Values;
             if (assignmentList != null && !assignmentList.IsEmpty())
             {
-                IList<IAstNode> list = new List<IAstNode>(assignmentList.Count * 2);
+                IList<IAstNode> list = new List<IAstNode>(assignmentList.Count*2);
                 foreach (var p in assignmentList)
                 {
                     if (p == null)
@@ -255,7 +255,7 @@ namespace Tup.Cobar4Net.Route.Visitor
             if (dup == null)
                 return;
 
-            var duplist = new IAstNode[dup.Count * 2];
+            var duplist = new IAstNode[dup.Count*2];
             var i = 0;
             foreach (var p in dup)
             {
@@ -301,7 +301,7 @@ namespace Tup.Cobar4Net.Route.Visitor
         public void Visit(DdlRenameTableStatement node)
         {
             var list = node.PairList;
-            IList<Identifier> idl = new List<Identifier>(list.Count * 2);
+            IList<Identifier> idl = new List<Identifier>(list.Count*2);
             foreach (var p in list)
             {
                 if (p == null)
@@ -381,22 +381,22 @@ namespace Tup.Cobar4Net.Route.Visitor
             switch (node.Mode)
             {
                 case ComparisionIsExpression.IsFalse:
-                    {
-                        AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.False, node, null);
-                        break;
-                    }
+                {
+                    AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.False, node, null);
+                    break;
+                }
 
                 case ComparisionIsExpression.IsTrue:
-                    {
-                        AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.True, node, null);
-                        break;
-                    }
+                {
+                    AddColumnValue(table, col.IdTextUpUnescape, LiteralBoolean.True, node, null);
+                    break;
+                }
 
                 case ComparisionIsExpression.IsNull:
-                    {
-                        AddColumnValue(table, col.IdTextUpUnescape, null, node, null);
-                        break;
-                    }
+                {
+                    AddColumnValue(table, col.IdTextUpUnescape, null, node, null);
+                    break;
+                }
             }
         }
 
@@ -680,7 +680,7 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         public void Visit(Cast
-            node)
+                              node)
         {
             VisitChild(2, false, false, node.Arguments);
             VisitChild(2, false, false, node.TypeInfo1, node.TypeInfo2);
@@ -753,7 +753,7 @@ namespace Tup.Cobar4Net.Route.Visitor
                 return;
             }
 
-            var list = new List<IExpression>(whenPairList.Count * 2);
+            var list = new List<IExpression>(whenPairList.Count*2);
             foreach (var pair in whenPairList)
             {
                 if (pair == null)
@@ -1194,10 +1194,10 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         private void AddColumnValueIndex(string table,
-            string column,
-            object value,
-            IExpression expr,
-            IAstNode parent)
+                                         string column,
+                                         object value,
+                                         IExpression expr,
+                                         IAstNode parent)
         {
             var colMap = EnsureColumnValueIndexByTable(table);
             var valMap = EnsureColumnValueIndexObjMap(colMap, column);
@@ -1205,9 +1205,9 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         private void AddIntoColumnValueIndex(ColumnValueType valMap,
-            object value,
-            IExpression expr,
-            IAstNode parent)
+                                             object value,
+                                             IExpression expr,
+                                             IAstNode parent)
         {
             var exprSet = value == null ? null : valMap.GetValue(value);
             if (exprSet == null)
@@ -1247,10 +1247,10 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         private void AddColumnValue(string tableNameUp,
-            string columnNameUp,
-            object value,
-            IExpression expr,
-            IAstNode parent)
+                                    string columnNameUp,
+                                    object value,
+                                    IExpression expr,
+                                    IAstNode parent)
         {
             var colVals = EnsureColumnValueByTable(tableNameUp);
             EnsureColumnValueList(colVals, columnNameUp).Add(value);
@@ -1297,9 +1297,9 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         private void VisitChild(int idLevel,
-            bool verdictColumn,
-            bool verdictGroupFunc,
-            params IAstNode[] nodes)
+                                bool verdictColumn,
+                                bool verdictGroupFunc,
+                                params IAstNode[] nodes)
         {
             if (nodes == null || nodes.Length <= 0)
                 return;
@@ -1308,9 +1308,9 @@ namespace Tup.Cobar4Net.Route.Visitor
         }
 
         private void VisitChild<TNode>(int idLevel,
-            bool verdictColumn,
-            bool verdictGroupFunc,
-            IList<TNode> nodes)
+                                       bool verdictColumn,
+                                       bool verdictGroupFunc,
+                                       IList<TNode> nodes)
             where TNode : IAstNode
         {
             if (nodes == null || nodes.IsEmpty())

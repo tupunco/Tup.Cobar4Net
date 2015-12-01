@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace Tup.Cobar4Net.Parser
 {
     /// <summary>
-    /// SystemUtils
+    ///     SystemUtils
     /// </summary>
     public static class SystemUtils
     {
@@ -20,7 +20,7 @@ namespace Tup.Cobar4Net.Parser
             where TEnum : struct
         {
             var keywords = new Dictionary<string, TEnum>();
-            var values = (TEnum[]) Enum.GetValues(typeof (TEnum));
+            var values = (TEnum[])Enum.GetValues(typeof (TEnum));
             var names = Enum.GetNames(typeof (TEnum));
             var name = string.Empty;
 

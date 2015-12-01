@@ -40,8 +40,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
         ///     is true
         /// </summary>
         protected BinaryOperatorExpression(IExpression leftOprand,
-            IExpression rightOprand,
-            int precedence)
+                                           IExpression rightOprand,
+                                           int precedence)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;
@@ -50,9 +50,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
         }
 
         protected BinaryOperatorExpression(IExpression leftOprand,
-            IExpression rightOprand,
-            int precedence,
-            bool leftCombine)
+                                           IExpression rightOprand,
+                                           int precedence,
+                                           bool leftCombine)
         {
             this.leftOprand = leftOprand;
             this.rightOprand = rightOprand;

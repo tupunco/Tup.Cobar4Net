@@ -14,9 +14,9 @@
 * limitations under the License.
 */
 
+using System;
 using NUnit.Framework;
 using Sharpen;
-using System;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
 {
@@ -42,22 +42,22 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     switch (sut.Token())
                     {
                         case MySqlToken.LiteralNumMixDigit:
-                            {
-                                sut.GetDecimalValue();
-                                break;
-                            }
+                        {
+                            sut.GetDecimalValue();
+                            break;
+                        }
 
                         case MySqlToken.LiteralNumPureDigit:
-                            {
-                                sut.GetIntegerValue();
-                                break;
-                            }
+                        {
+                            sut.GetIntegerValue();
+                            break;
+                        }
 
                         default:
-                            {
-                                sut.GetStringValue();
-                                break;
-                            }
+                        {
+                            sut.GetStringValue();
+                            break;
+                        }
                     }
                 }
             }
@@ -73,27 +73,27 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     switch (sut.Token())
                     {
                         case MySqlToken.LiteralNumMixDigit:
-                            {
-                                sut.GetDecimalValue();
-                                break;
-                            }
+                        {
+                            sut.GetDecimalValue();
+                            break;
+                        }
 
                         case MySqlToken.LiteralNumPureDigit:
-                            {
-                                sut.GetIntegerValue();
-                                break;
-                            }
+                        {
+                            sut.GetIntegerValue();
+                            break;
+                        }
 
                         default:
-                            {
-                                sut.GetStringValue();
-                                break;
-                            }
+                        {
+                            sut.GetStringValue();
+                            break;
+                        }
                     }
                 }
             }
             end = Runtime.CurrentTimeMillis();
-            Console.Out.WriteLine((end - start) * 1.0d / (loop / 1000) + " us.");
+            Console.Out.WriteLine((end - start)*1.0d/(loop/1000) + " us.");
         }
 
         /// <exception cref="System.SqlSyntaxErrorException" />

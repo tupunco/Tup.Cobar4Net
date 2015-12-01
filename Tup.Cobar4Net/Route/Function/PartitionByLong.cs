@@ -73,10 +73,10 @@ namespace Tup.Cobar4Net.Route.Function
             var args = objects.Select(x => (IExpression)x).ToList();
 
             var partitionFunc = new PartitionByLong(functionName, args)
-            {
-                Count = Count,
-                Length = Length
-            };
+                                {
+                                    Count = Count,
+                                    Length = Length
+                                };
             return partitionFunc;
         }
 

@@ -78,7 +78,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
         {
             if (rightOprand is InExpressionList)
             {
-                return (InExpressionList) rightOprand;
+                return (InExpressionList)rightOprand;
             }
             return null;
         }
@@ -87,7 +87,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
         {
             if (rightOprand is IQueryExpression)
             {
-                return (IQueryExpression) rightOprand;
+                return (IQueryExpression)rightOprand;
             }
             return null;
         }

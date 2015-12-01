@@ -74,8 +74,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
         /// <param name="args"></param>
         public MySqlOutputAstVisitor(StringBuilder appendable, object[] args)
         {
-            this._appendable = appendable;
-            this._args = args ?? EmptyObjArray;
+            _appendable = appendable;
+            _args = args ?? EmptyObjArray;
             _argsIndex = args == null ? EmptyIntArray : new int[args.Length];
         }
 
@@ -320,27 +320,27 @@ namespace Tup.Cobar4Net.Parser.Visitor
 
         public void Visit(LogicalAndExpression node)
         {
-            Visit((PolyadicOperatorExpression) node);
+            Visit((PolyadicOperatorExpression)node);
         }
 
         public void Visit(LogicalOrExpression node)
         {
-            Visit((PolyadicOperatorExpression) node);
+            Visit((PolyadicOperatorExpression)node);
         }
 
         public void Visit(ComparisionEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public void Visit(ComparisionNullSafeEqualsExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public void Visit(InExpression node)
         {
-            Visit((BinaryOperatorExpression) node);
+            Visit((BinaryOperatorExpression)node);
         }
 
         public void Visit(FunctionExpression node)
@@ -558,8 +558,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Extract node)
         {
             _appendable.Append("EXTRACT(")
-                .Append(node.Unit.GetEnumName())
-                .Append(" FROM ");
+                       .Append(node.Unit.GetEnumName())
+                       .Append(" FROM ");
             PrintList(node.Arguments);
             _appendable.Append(')');
         }
@@ -567,8 +567,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Timestampdiff node)
         {
             _appendable.Append("TIMESTAMPDIFF(")
-                .Append(node.Unit.GetEnumName())
-                .Append(", ");
+                       .Append(node.Unit.GetEnumName())
+                       .Append(", ");
             PrintList(node.Arguments);
             _appendable.Append(')');
         }
@@ -576,8 +576,8 @@ namespace Tup.Cobar4Net.Parser.Visitor
         public void Visit(Timestampadd node)
         {
             _appendable.Append("TIMESTAMPADD(")
-                .Append(node.Unit.GetEnumName())
-                .Append(", ");
+                       .Append(node.Unit.GetEnumName())
+                       .Append(", ");
             PrintList(node.Arguments);
             _appendable.Append(')');
         }
@@ -587,7 +587,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
             _appendable.Append("GET_FORMAT(");
             var type = node.GetFormatType();
             _appendable.Append(type)
-                .Append(", ");
+                       .Append(", ");
             PrintList(node.Arguments);
             _appendable.Append(')');
         }
@@ -597,16 +597,16 @@ namespace Tup.Cobar4Net.Parser.Visitor
             if (_placeHolderToString == null)
             {
                 _appendable.Append("${")
-                    .Append(node.Name)
-                    .Append('}');
+                           .Append(node.Name)
+                           .Append('}');
                 return;
             }
             var toStringer = _placeHolderToString.GetValue(node);
             if (toStringer == null)
             {
                 _appendable.Append("${")
-                    .Append(node.Name)
-                    .Append('}');
+                           .Append(node.Name)
+                           .Append('}');
             }
             else
             {
@@ -638,11 +638,11 @@ namespace Tup.Cobar4Net.Parser.Visitor
             if (introducer != null)
             {
                 _appendable.Append(introducer)
-                    .Append(' ');
+                           .Append(' ');
             }
             _appendable.Append("b'")
-                .Append(node.Text)
-                .Append('\'');
+                       .Append(node.Text)
+                       .Append('\'');
         }
 
         public void Visit(LiteralBoolean node)
@@ -1234,7 +1234,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
             var offset = node.Offset;
             if (offset is ParamMarker)
             {
-                ((ParamMarker) offset).Accept(this);
+                ((ParamMarker)offset).Accept(this);
             }
             else
             {
@@ -1244,7 +1244,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
             var size = node.Size;
             if (size is ParamMarker)
             {
-                ((ParamMarker) size).Accept(this);
+                ((ParamMarker)size).Accept(this);
             }
             else
             {
@@ -2565,7 +2565,7 @@ namespace Tup.Cobar4Net.Parser.Visitor
                 {
                     return true;
                 }
-                var bp = (BinaryOperatorExpression) pat;
+                var bp = (BinaryOperatorExpression)pat;
                 if (bp.IsLeftCombine)
                 {
                     return ContainsCompIn(bp.LeftOprand);
@@ -2574,17 +2574,17 @@ namespace Tup.Cobar4Net.Parser.Visitor
             }
             if (pat is ComparisionIsExpression)
             {
-                var @is = (ComparisionIsExpression) pat;
+                var @is = (ComparisionIsExpression)pat;
                 return ContainsCompIn(@is.Operand);
             }
             if (pat is TernaryOperatorExpression)
             {
-                var tp = (TernaryOperatorExpression) pat;
+                var tp = (TernaryOperatorExpression)pat;
                 return ContainsCompIn(tp.First) || ContainsCompIn(tp.Second) || ContainsCompIn(tp.Third);
             }
             if (pat is UnaryOperatorExpression)
             {
-                var up = (UnaryOperatorExpression) pat;
+                var up = (UnaryOperatorExpression)pat;
                 return ContainsCompIn(up.Operand);
             }
             return false;

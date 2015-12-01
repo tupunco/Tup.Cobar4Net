@@ -29,13 +29,12 @@ using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Misc;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.String;
 using Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Xml;
-
 using Version = Tup.Cobar4Net.Parser.Ast.Expression.Primary.Function.Info.Version;
 
 namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
 {
     /// <summary>
-    /// MySqlFunctionManager ParsingStrategy
+    ///     MySqlFunctionManager ParsingStrategy
     /// </summary>
     public enum FunctionParsingStrategy
     {
@@ -61,7 +60,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql
         Timestampdiff,
         GetFormat
     }
-    
+
     /// <author>
     ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
     /// </author>

@@ -14,14 +14,18 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
-    /// <summary><code>higherExpr ('MOD'|'%') higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>higherExpr ('MOD'|'%') higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class ArithmeticModExpression : ArithmeticBinaryOperatorExpression
     {
         public ArithmeticModExpression(IExpression leftOprand,
@@ -46,13 +50,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
-            int i1 = integer1;
-            int i2 = integer2;
+            var i1 = integer1;
+            var i2 = integer2;
             if (i2 == 0)
             {
                 return 0;
             }
-            return i1 % i2;
+            return i1%i2;
         }
 
         public override Number Calculate(long long1, long long2)
@@ -67,7 +71,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
-            return i1 % i2;
+            return i1%i2;
         }
 
         public override Number Calculate(BigInteger bigint1, BigInteger bigint2)
@@ -76,19 +80,16 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return 0;
             }
-            int comp = bigint2.CompareTo(BigInteger.Zero);
+            var comp = bigint2.CompareTo(BigInteger.Zero);
             if (comp == 0)
             {
                 return 0;
             }
-            else if (comp < 0)
+            if (comp < 0)
             {
                 return bigint1.Negate().Mod(bigint2).Negate();
             }
-            else
-            {
-                return bigint1.Mod(bigint2);
-            }
+            return bigint1.Mod(bigint2);
         }
 
         public override Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2)

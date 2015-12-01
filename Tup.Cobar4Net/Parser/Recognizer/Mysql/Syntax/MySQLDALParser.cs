@@ -1280,9 +1280,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             var obj = VarAssign();
             if (obj is MTSSetTransactionStatement)
             {
-                return (MTSSetTransactionStatement) obj;
+                return (MTSSetTransactionStatement)obj;
             }
-            var pair = (Pair<VariableExpression, IExpression>) obj;
+            var pair = (Pair<VariableExpression, IExpression>)obj;
             if (lexer.Token() != MySqlToken.PuncComma)
             {
                 assignmentList = new List<Pair<VariableExpression, IExpression>>(1);
@@ -1294,7 +1294,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             for (; lexer.Token() == MySqlToken.PuncComma;)
             {
                 lexer.NextToken();
-                pair = (Pair<VariableExpression, IExpression>) VarAssign();
+                pair = (Pair<VariableExpression, IExpression>)VarAssign();
                 assignmentList.Add(pair);
             }
             return new DalSetStatement(assignmentList);

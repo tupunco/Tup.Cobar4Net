@@ -71,52 +71,52 @@ namespace Tup.Cobar4Net.Parser.Util
             }
             if (obj is bool)
             {
-                return (bool) obj;
+                return (bool)obj;
             }
 
             Number num = null;
             if (obj is string)
             {
-                num = String2Number((string) obj);
+                num = String2Number((string)obj);
             }
             else
             {
-                num = (Number) obj;
+                num = (Number)obj;
             }
             var classType = classMap[num.GetType()];
             if (classType == 0)
             {
-                return (int) num != 0;
+                return (int)num != 0;
             }
             switch (classType)
             {
                 case ClassMapBigDecimal:
                 {
-                    return BigDecimal.Zero.CompareTo((BigDecimal) num) != 0;
+                    return BigDecimal.Zero.CompareTo((BigDecimal)num) != 0;
                 }
 
                 case ClassMapBigIng:
                 {
-                    return BigInteger.Zero.CompareTo((BigInteger) num) != 0;
+                    return BigInteger.Zero.CompareTo((BigInteger)num) != 0;
                 }
 
                 case ClassMapDouble:
                 {
 #pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
-                    return (double) num != 0d;
+                    return (double)num != 0d;
 #pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
                 }
 
                 case ClassMapFloat:
                 {
 #pragma warning disable RECS0018 // Comparison of floating point numbers with equality operator
-                    return (float) num != 0f;
+                    return (float)num != 0f;
 #pragma warning restore RECS0018 // Comparison of floating point numbers with equality operator
                 }
 
                 case ClassMapLong:
                 {
-                    return (long) num != 0L;
+                    return (long)num != 0L;
                 }
 
                 default:
@@ -135,18 +135,18 @@ namespace Tup.Cobar4Net.Parser.Util
             switch (num.TypeCode)
             {
                 case NumberTypeCode.Int32:
-                    return cal.Calculate((int) num);
+                    return cal.Calculate((int)num);
 
                 case NumberTypeCode.Int64:
-                    return cal.Calculate((long) num);
+                    return cal.Calculate((long)num);
 
                 case NumberTypeCode.BigInteger:
-                    return cal.Calculate((BigInteger) num);
+                    return cal.Calculate((BigInteger)num);
 
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
-                    return cal.Calculate((BigDecimal) num);
+                    return cal.Calculate((BigDecimal)num);
             }
 
             throw new ArgumentException("unsupported add calculate: " + num.GetType());
@@ -161,18 +161,18 @@ namespace Tup.Cobar4Net.Parser.Util
             switch (n1.TypeCode)
             {
                 case NumberTypeCode.Int32:
-                    return cal.Calculate((int) n1, (int) n2);
+                    return cal.Calculate((int)n1, (int)n2);
 
                 case NumberTypeCode.Int64:
-                    return cal.Calculate((long) n1, (long) n2);
+                    return cal.Calculate((long)n1, (long)n2);
 
                 case NumberTypeCode.BigInteger:
-                    return cal.Calculate((BigInteger) n1, (BigInteger) n2);
+                    return cal.Calculate((BigInteger)n1, (BigInteger)n2);
 
                 case NumberTypeCode.Double:
                 case NumberTypeCode.Decimal:
                 case NumberTypeCode.BigDecimal:
-                    return cal.Calculate((BigDecimal) n1, (BigDecimal) n2);
+                    return cal.Calculate((BigDecimal)n1, (BigDecimal)n2);
             }
             throw new ArgumentException("unsupported add calculate: " + n1.GetType());
         }
@@ -184,19 +184,19 @@ namespace Tup.Cobar4Net.Parser.Util
             Number n2;
             if (obj1 is string)
             {
-                n1 = String2Number((string) obj1);
+                n1 = String2Number((string)obj1);
             }
             else
             {
-                n1 = (Number) obj1;
+                n1 = (Number)obj1;
             }
             if (obj2 is string)
             {
-                n2 = String2Number((string) obj2);
+                n2 = String2Number((string)obj2);
             }
             else
             {
-                n2 = (Number) obj2;
+                n2 = (Number)obj2;
             }
             if (n1 == null || n2 == null)
             {

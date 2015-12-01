@@ -56,11 +56,8 @@ namespace Tup.Cobar4Net.Route.Hint
                     }
                 }
             }
-            else
-            {
-                pair = ParseDataNode(hint, sql);
-                hint.AddDataNode(pair.Key, pair.Value);
-            }
+            pair = ParseDataNode(hint, sql);
+            hint.AddDataNode(pair.Key, pair.Value);
         }
 
         /// <summary>first char is not separator</summary>

@@ -28,9 +28,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.String
     {
         /// <param name="escape">null is no ESCAPE</param>
         public LikeExpression(bool not,
-            IExpression comparee,
-            IExpression pattern,
-            IExpression escape)
+                              IExpression comparee,
+                              IExpression pattern,
+                              IExpression escape)
             : base(comparee, pattern, escape)
         {
             IsNot = not;

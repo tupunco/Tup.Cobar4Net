@@ -42,9 +42,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
         public OrderBy(IExpression expr, SortOrder order)
         {
             orderByList = new List<Pair<IExpression, SortOrder>>(1)
-            {
-                new Pair<IExpression, SortOrder>(expr, order)
-            };
+                          {
+                              new Pair<IExpression, SortOrder>(expr, order)
+                          };
         }
 
         public OrderBy(IList<Pair<IExpression, SortOrder>> orderByList)

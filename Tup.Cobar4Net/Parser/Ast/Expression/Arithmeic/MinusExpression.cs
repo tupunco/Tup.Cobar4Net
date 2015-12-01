@@ -14,15 +14,19 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
 using System.Collections.Generic;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
-    /// <summary><code>'-' higherExpr</code></summary>
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <summary>
+    ///     <code>'-' higherExpr</code>
+    /// </summary>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class MinusExpression : UnaryOperatorExpression, IUnaryOperandCalculator
     {
         public MinusExpression(IExpression operand)
@@ -35,37 +39,13 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             get { return "-"; }
         }
 
-        protected override object EvaluationInternal(IDictionary<object, object> parameters)
-        {
-            object operand = Operand.Evaluation(parameters);
-            if (operand == null)
-            {
-                return 0;
-            }
-            if (operand == ExpressionConstants.Unevaluatable)
-            {
-                return ExpressionConstants.Unevaluatable;
-            }
-
-            Number num = null;
-            if (operand is string)
-            {
-                num = ExprEvalUtils.String2Number((string)operand);
-            }
-            else
-            {
-                num = (Number)operand;
-            }
-            return ExprEvalUtils.Calculate(this, num);
-        }
-
         public virtual Number Calculate(int num)
         {
             if (num == 0)
             {
                 return -0;
             }
-            int n = num;
+            var n = num;
             if (n == int.MinValue)
             {
                 return -(long)n;
@@ -79,10 +59,10 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             {
                 return -0;
             }
-            long n = num;
+            var n = num;
             if (n == long.MinValue)
             {
-                return -(long)n;
+                return -n;
             }
             return -n;
         }
@@ -103,6 +83,30 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
                 return -0;
             }
             return num.Negate();
+        }
+
+        protected override object EvaluationInternal(IDictionary<object, object> parameters)
+        {
+            var operand = Operand.Evaluation(parameters);
+            if (operand == null)
+            {
+                return 0;
+            }
+            if (operand == ExpressionConstants.Unevaluatable)
+            {
+                return ExpressionConstants.Unevaluatable;
+            }
+
+            Number num = null;
+            if (operand is string)
+            {
+                num = ExprEvalUtils.String2Number((string)operand);
+            }
+            else
+            {
+                num = (Number)operand;
+            }
+            return ExprEvalUtils.Calculate(this, num);
         }
     }
 }

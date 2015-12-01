@@ -269,7 +269,7 @@ namespace Tup.Cobar4Net.Parser.Util
                             , length));
                     }
                 }
-                bs[(i - offset) >> 1] = unchecked((byte) b);
+                bs[(i - offset) >> 1] = unchecked((byte)b);
             }
             return bs;
         }

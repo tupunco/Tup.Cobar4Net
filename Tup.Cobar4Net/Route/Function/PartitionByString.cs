@@ -94,12 +94,12 @@ namespace Tup.Cobar4Net.Route.Function
             var args = objects.Select(x => (IExpression)x).ToList();
 
             var partitionFunc = new PartitionByString(functionName, args)
-            {
-                _hashSliceStart = _hashSliceStart,
-                _hashSliceEnd = _hashSliceEnd,
-                Count = Count,
-                Length = Length
-            };
+                                {
+                                    _hashSliceStart = _hashSliceStart,
+                                    _hashSliceEnd = _hashSliceEnd,
+                                    Count = Count,
+                                    Length = Length
+                                };
             return partitionFunc;
         }
 

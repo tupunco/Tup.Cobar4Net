@@ -69,7 +69,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression
             }
             if (GetType().IsAssignableFrom(operand.GetType()))
             {
-                var sub = (PolyadicOperatorExpression) operand;
+                var sub = (PolyadicOperatorExpression)operand;
                 operands.AddRange(sub.operands);
             }
             else

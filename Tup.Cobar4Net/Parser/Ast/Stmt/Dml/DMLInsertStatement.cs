@@ -48,11 +48,11 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         /// <param name="rowList"></param>
         /// <param name="duplicateUpdate"></param>
         public DmlInsertStatement(InsertMode mode,
-            bool ignore,
-            Identifier table,
-            IList<Identifier> columnNameList,
-            IList<RowExpression> rowList,
-            IList<Pair<Identifier, IExpression>> duplicateUpdate)
+                                  bool ignore,
+                                  Identifier table,
+                                  IList<Identifier> columnNameList,
+                                  IList<RowExpression> rowList,
+                                  IList<Pair<Identifier, IExpression>> duplicateUpdate)
             : base(table, columnNameList, rowList)
         {
             Mode = mode;
@@ -69,11 +69,11 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
         /// <param name="select"></param>
         /// <param name="duplicateUpdate"></param>
         public DmlInsertStatement(InsertMode mode,
-            bool ignore,
-            Identifier table,
-            IList<Identifier> columnNameList,
-            IQueryExpression select,
-            IList<Pair<Identifier, IExpression>> duplicateUpdate)
+                                  bool ignore,
+                                  Identifier table,
+                                  IList<Identifier> columnNameList,
+                                  IQueryExpression select,
+                                  IList<Pair<Identifier, IExpression>> duplicateUpdate)
             : base(table, columnNameList, select)
         {
             Mode = mode;

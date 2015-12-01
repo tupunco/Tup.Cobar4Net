@@ -53,12 +53,12 @@ namespace Tup.Cobar4Net.Config.Model
                     Name, SourceType, Host, Port, User, Password, Database, SqlMode, SqlRecordCount);
         }
 
-        //}
-        //        (']').ToString();
-        //        Host).Append(",port=").Append(Port).Append(",database=").Append(Database).Append
-        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
-        //{
-
         //public override string ToString()
+        //{
+        //    return new StringBuilder().Append("[name=").Append(Name).Append(",host=").Append(
+        //        Host).Append(",port=").Append(Port).Append(",database=").Append(Database).Append
+        //        (']').ToString();
+
+        //}
     }
 }

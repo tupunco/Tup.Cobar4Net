@@ -28,7 +28,7 @@ namespace Tup.Cobar4Net.Parser.Util
 
         static CharTypes()
         {
-            for (var c = (char) 0; c < hexFlags.Length; ++c)
+            for (var c = (char)0; c < hexFlags.Length; ++c)
             {
                 if (c >= 'A' && c <= 'F')
                 {
@@ -50,7 +50,7 @@ namespace Tup.Cobar4Net.Parser.Util
                 }
             }
 
-            for (var c = (char) 0; c < identifierFlags.Length; ++c)
+            for (var c = (char)0; c < identifierFlags.Length; ++c)
             {
                 if (c >= 'A' && c <= 'Z')
                 {

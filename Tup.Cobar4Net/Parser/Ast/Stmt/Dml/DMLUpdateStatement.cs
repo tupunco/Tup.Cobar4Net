@@ -31,11 +31,11 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
     public class DmlUpdateStatement : DmlStatement
     {
         public DmlUpdateStatement(bool lowPriority,
-            bool ignore,
-            TableReferences tableRefs,
-            IList<Pair<Identifier, IExpression>> values,
-            IExpression where, OrderBy orderBy,
-            Limit limit)
+                                  bool ignore,
+                                  TableReferences tableRefs,
+                                  IList<Pair<Identifier, IExpression>> values,
+                                  IExpression where, OrderBy orderBy,
+                                  Limit limit)
         {
             IsLowPriority = lowPriority;
             IsIgnore = ignore;

@@ -61,7 +61,7 @@ namespace Tup.Cobar4Net.Route.Config
         }
 
         private static void BuildFuncManager(MySqlFunctionManager functionManager,
-            IDictionary<string, IRuleAlgorithm> functions)
+                                             IDictionary<string, IRuleAlgorithm> functions)
         {
             var extFuncPrototypeMap = new Dictionary<string, FunctionExpression>(functions.Count);
             foreach (var en in functions)

@@ -14,14 +14,16 @@
 * limitations under the License.
 */
 
-using Deveel.Math;
 using System;
 using System.Collections.Generic;
+using Deveel.Math;
 using Tup.Cobar4Net.Parser.Util;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public abstract class ArithmeticBinaryOperatorExpression
         : BinaryOperatorExpression, IBinaryOperandCalculator
     {
@@ -30,10 +32,18 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
         {
         }
 
+        public abstract Number Calculate(int integer1, int integer2);
+
+        public abstract Number Calculate(long long1, long long2);
+
+        public abstract Number Calculate(BigInteger bigint1, BigInteger bigint2);
+
+        public abstract Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
+
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            object left = LeftOprand.Evaluation(parameters);
-            object right = rightOprand.Evaluation(parameters);
+            var left = LeftOprand.Evaluation(parameters);
+            var right = rightOprand.Evaluation(parameters);
             if (left == null || right == null)
             {
                 return null;
@@ -45,13 +55,5 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Arithmeic
             var pair = ExprEvalUtils.ConvertNum2SameLevel(left, right);
             return ExprEvalUtils.Calculate(this, pair.Key, pair.Value);
         }
-
-        public abstract Number Calculate(int integer1, int integer2);
-
-        public abstract Number Calculate(long long1, long long2);
-
-        public abstract Number Calculate(BigInteger bigint1, BigInteger bigint2);
-
-        public abstract Number Calculate(BigDecimal bigDecimal1, BigDecimal bigDecimal2);
     }
 }

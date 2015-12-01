@@ -26,7 +26,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     public class ShowTableStatus : DalShowStatement
     {
         public ShowTableStatus(Identifier database,
-            IExpression where)
+                               IExpression where)
         {
             Database = database;
             Pattern = null;

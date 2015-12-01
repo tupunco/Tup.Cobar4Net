@@ -225,7 +225,8 @@ namespace Tup.Cobar4Net.Route.Perf
             public override string GetSql()
             {
                 var sb = new StringBuilder();
-                sb.Append(" seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from").Append("    offer_detail wheRe \t\t\n offer_id in (");
+                sb.Append(" seLEcT id, member_id , image_path  \t , image_size , STATUS,   gmt_modified from")
+                  .Append("    offer_detail wheRe \t\t\n offer_id in (");
                 for (var i = 0; i < 1024; ++i)
                 {
                     if (i > 0)
@@ -268,9 +269,9 @@ namespace Tup.Cobar4Net.Route.Perf
                 }
             }
 
-            // PartitionKeyVisitor(schema.getTablesSpace());
-
             // PartitionKeyVisitor visitor = new
+
+            // PartitionKeyVisitor(schema.getTablesSpace());
             // insert.accept(visitor);
             // visitor.getColumnValue();
             // SQLLexer lexer = new SQLLexer(sql);
@@ -282,9 +283,8 @@ namespace Tup.Cobar4Net.Route.Perf
 
         private class InsertLongSQLGen : TestProvider
         {
-            private DmlInsertStatement insert;
-
             private readonly int sqlSize = 0;
+            private DmlInsertStatement insert;
 
             /// <exception cref="System.Exception" />
             public override string GetSql()

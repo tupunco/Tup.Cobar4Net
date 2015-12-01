@@ -21,7 +21,9 @@ using Tup.Cobar4Net.Parser.Visitor;
 
 namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 {
-    /// <author><a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a></author>
+    /// <author>
+    ///     <a href="mailto:shuo.qius@alibaba-inc.com">QIU Shuo</a>
+    /// </author>
     public class LogicalAndExpression : PolyadicOperatorExpression
     {
         public LogicalAndExpression()
@@ -36,9 +38,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Logical
 
         protected override object EvaluationInternal(IDictionary<object, object> parameters)
         {
-            foreach (IExpression operand in operands)
+            foreach (var operand in operands)
             {
-                object val = operand.Evaluation(parameters);
+                var val = operand.Evaluation(parameters);
                 if (val == null)
                 {
                     return null;

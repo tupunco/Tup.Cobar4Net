@@ -43,8 +43,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
     public class DdlCreateTableStatement : IDdlStatement
     {
         public DdlCreateTableStatement(bool temporary,
-            bool ifNotExists,
-            Identifier table)
+                                       bool ifNotExists,
+                                       Identifier table)
         {
             Table = table;
             IsTemporary = temporary;
@@ -89,7 +89,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 
         public virtual DdlCreateTableStatement SetTableOptions(TableOptions tableOptions)
         {
-            this.TableOptions = tableOptions;
+            TableOptions = tableOptions;
             return this;
         }
 
@@ -137,7 +137,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
 
         public virtual void SetSelect(CreateTableSelectOption option, DmlSelectStatement select)
         {
-            this.Select = new Pair<CreateTableSelectOption, DmlSelectStatement>(option, select);
+            Select = new Pair<CreateTableSelectOption, DmlSelectStatement>(option, select);
         }
     }
 }

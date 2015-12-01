@@ -49,7 +49,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
         private DmlSelectStatement.SelectOption SelectOption()
         {
             for (var option = new DmlSelectStatement.SelectOption();;
-                lexer.NextToken())
+                 lexer.NextToken())
             {
                 switch (lexer.Token())
                 {

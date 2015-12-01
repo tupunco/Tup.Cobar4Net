@@ -34,31 +34,31 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         public DmlDeleteStatement(bool lowPriority,
-            bool quick,
-            bool ignore,
-            Identifier tableName)
+                                  bool quick,
+                                  bool ignore,
+                                  Identifier tableName)
             : this(lowPriority, quick, ignore, tableName, null, null, null)
         {
         }
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         public DmlDeleteStatement(bool lowPriority,
-            bool quick,
-            bool ignore,
-            Identifier tableName,
-            IExpression where)
+                                  bool quick,
+                                  bool ignore,
+                                  Identifier tableName,
+                                  IExpression where)
             : this(lowPriority, quick, ignore, tableName, where, null, null)
         {
         }
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         public DmlDeleteStatement(bool lowPriority,
-            bool quick,
-            bool ignore,
-            Identifier tableName,
-            IExpression where,
-            OrderBy orderBy,
-            Limit limit)
+                                  bool quick,
+                                  bool ignore,
+                                  Identifier tableName,
+                                  IExpression where,
+                                  OrderBy orderBy,
+                                  Limit limit)
         {
             // ------- single-row delete------------
             IsLowPriority = lowPriority;
@@ -74,20 +74,20 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         public DmlDeleteStatement(bool lowPriority,
-            bool quick,
-            bool ignore,
-            IList<Identifier> tableNameList,
-            TableReferences tableRefs)
+                                  bool quick,
+                                  bool ignore,
+                                  IList<Identifier> tableNameList,
+                                  TableReferences tableRefs)
             : this(lowPriority, quick, ignore, tableNameList, tableRefs, null)
         {
         }
 
         /// <exception cref="System.SqlSyntaxErrorException" />
         public DmlDeleteStatement(bool lowPriority,
-            bool quick,
-            bool ignore,
-            IList<Identifier> tableNameList,
-            TableReferences tableRefs, IExpression whereCondition)
+                                  bool quick,
+                                  bool ignore,
+                                  IList<Identifier> tableNameList,
+                                  TableReferences tableRefs, IExpression whereCondition)
         {
             // ------- multi-row delete------------
             IsLowPriority = lowPriority;

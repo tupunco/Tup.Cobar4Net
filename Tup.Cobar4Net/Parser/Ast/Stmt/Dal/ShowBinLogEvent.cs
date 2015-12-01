@@ -26,8 +26,8 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     public class ShowBinLogEvent : DalShowStatement
     {
         public ShowBinLogEvent(string logName,
-            IExpression pos,
-            Limit limit)
+                               IExpression pos,
+                               Limit limit)
         {
             LogName = logName;
             Pos = pos;

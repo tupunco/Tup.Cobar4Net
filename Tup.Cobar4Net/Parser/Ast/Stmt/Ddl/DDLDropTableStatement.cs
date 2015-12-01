@@ -41,9 +41,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Ddl
         }
 
         public DdlDropTableStatement(IList<Identifier> tableNames,
-            bool temp,
-            bool ifExists,
-            DropTableMode dropTableMode)
+                                     bool temp,
+                                     bool ifExists,
+                                     DropTableMode dropTableMode)
         {
             if (tableNames == null || tableNames.IsEmpty())
             {

@@ -37,18 +37,18 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dml
     public class DmlReplaceStatement : DmlInsertReplaceStatement
     {
         public DmlReplaceStatement(ReplaceMode mode,
-            Identifier table,
-            IList<Identifier> columnNameList,
-            IList<RowExpression> rowList)
+                                   Identifier table,
+                                   IList<Identifier> columnNameList,
+                                   IList<RowExpression> rowList)
             : base(table, columnNameList, rowList)
         {
             Mode = mode;
         }
 
         public DmlReplaceStatement(ReplaceMode mode,
-            Identifier table,
-            IList<Identifier> columnNameList,
-            IQueryExpression select)
+                                   Identifier table,
+                                   IList<Identifier> columnNameList,
+                                   IQueryExpression select)
             : base(table, columnNameList, select)
         {
             Mode = mode;

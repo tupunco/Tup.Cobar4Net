@@ -42,8 +42,7 @@ namespace Tup.Cobar4Net.Parser.Util
                 var i = Convert.ToInt32(slice.Trim());
                 if (i >= 0)
                     return new Pair<int, int>(0, i);
-                else
-                    return new Pair<int, int>(i, 0);
+                return new Pair<int, int>(i, 0);
             }
             var left = Runtime.Substring(slice, 0, ind).Trim();
             var right = Runtime.Substring(slice, 1 + ind).Trim();

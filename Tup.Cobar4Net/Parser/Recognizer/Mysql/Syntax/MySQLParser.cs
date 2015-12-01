@@ -28,18 +28,6 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
     /// </author>
     public abstract class MySqlParser
     {
-        /// <summary>
-        /// MySqlParser SpecialIdentifier
-        /// </summary>
-        private enum SpecialIdentifier
-        {
-            None = 0,
-
-            Global,
-            Local,
-            Session
-        }
-
         public const string DefaultCharset = "utf-8";
 
         private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers
@@ -412,6 +400,18 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             var errmsg = new StringBuilder();
             errmsg.Append(msg).Append(". lexer state: ").Append(lexer);
             throw new SqlSyntaxErrorException(errmsg.ToString());
+        }
+
+        /// <summary>
+        ///     MySqlParser SpecialIdentifier
+        /// </summary>
+        private enum SpecialIdentifier
+        {
+            None = 0,
+
+            Global,
+            Local,
+            Session
         }
     }
 }

@@ -26,9 +26,9 @@ namespace Tup.Cobar4Net.Parser.Ast.Expression.Comparison
         private IExpression _replaceExpr;
 
         public BetweenAndExpression(bool not,
-            IExpression comparee,
-            IExpression notLessThan,
-            IExpression notGreaterThan)
+                                    IExpression comparee,
+                                    IExpression notLessThan,
+                                    IExpression notGreaterThan)
             : base(comparee, notLessThan, notGreaterThan)
         {
             IsNot = not;

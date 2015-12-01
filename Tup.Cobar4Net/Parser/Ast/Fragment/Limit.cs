@@ -105,7 +105,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
         /// </value>
         public virtual object Offset
         {
-            get { return offset == null ? offsetP : (object) (int) offset; }
+            get { return offset == null ? offsetP : (object)(int)offset; }
         }
 
         /// <value>
@@ -114,7 +114,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Fragment
         /// </value>
         public virtual object Size
         {
-            get { return size == null ? sizeP : (object) (int) size; }
+            get { return size == null ? sizeP : (object)(int)size; }
         }
 
         public virtual void Accept(ISqlAstVisitor visitor)

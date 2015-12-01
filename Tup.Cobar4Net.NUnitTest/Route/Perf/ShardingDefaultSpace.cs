@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright 1999-2012 Alibaba Group.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
@@ -29,7 +29,7 @@ namespace Tup.Cobar4Net.Route.Perf
 
         // schema =
         // CobarServer.getInstance().getConfig().getSchemas().get("cndb");
-        /// <summary>路由到defaultSpace的�?�能测试</summary>
+        /// <summary>路由到defaultSpace的�?�能测试</summary>
         /// <exception cref="System.Data.Sql.SQLNonTransientException" />
         public virtual void TestDefaultSpace()
         {

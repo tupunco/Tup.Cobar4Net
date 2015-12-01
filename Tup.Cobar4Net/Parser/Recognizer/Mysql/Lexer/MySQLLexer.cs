@@ -47,6 +47,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         /// </summary>
         protected internal readonly int eofIndex;
 
+        private readonly MySqlKeywords keywods = MySqlKeywords.DefaultKeywords;
+
         protected internal readonly char[] sql;
 
         /// <summary>
@@ -67,8 +69,6 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         protected bool inCStyleComment;
 
         protected bool inCStyleCommentIgnore;
-
-        private readonly MySqlKeywords keywods = MySqlKeywords.DefaultKeywords;
 
         protected int offsetCache;
 
@@ -123,6 +123,32 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         {
         }
 
+        public int CurrentIndex
+        {
+            get { return curIndex; }
+        }
+
+        public char[] Sql
+        {
+            get { return sql; }
+        }
+
+        public virtual int OffsetCache
+        {
+            get { return offsetCache; }
+        }
+
+        public virtual int SizeCache
+        {
+            get { return sizeCache; }
+        }
+
+        /// <value>start from 1. When there is no parameter yet, return 0.</value>
+        public virtual int ParamIndex
+        {
+            get { return paramIndex; }
+        }
+
         /// <returns>previous value</returns>
         public static int SetCStyleCommentVersion(int version)
         {
@@ -163,14 +189,14 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     }
                     break;
                 }
-                hash = 31 * hash + c;
+                hash = 31*hash + c;
             }
             if (lowerCase)
             {
                 for (var destIndex = srcIndex - srcOffset; destIndex < len; ++destIndex)
                 {
                     var c = src[srcIndex++];
-                    hash = 31 * hash + c;
+                    hash = 31*hash + c;
                     if (c >= 'a' && c <= 'z')
                     {
                         sbuf[destIndex] = (char)(c - 32);
@@ -229,32 +255,6 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             return token;
         }
 
-        public int CurrentIndex
-        {
-            get { return curIndex; }
-        }
-
-        public char[] Sql
-        {
-            get { return sql; }
-        }
-
-        public virtual int OffsetCache
-        {
-            get { return offsetCache; }
-        }
-
-        public virtual int SizeCache
-        {
-            get { return sizeCache; }
-        }
-
-        /// <value>start from 1. When there is no parameter yet, return 0.</value>
-        public virtual int ParamIndex
-        {
-            get { return paramIndex; }
-        }
-
         protected char ScanChar()
         {
             return ch = sql[++curIndex];
@@ -285,25 +285,25 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             switch (ch)
             {
                 case '0':
+                {
+                    switch (sql[curIndex + 1])
                     {
-                        switch (sql[curIndex + 1])
+                        case 'x':
                         {
-                            case 'x':
-                                {
-                                    ScanChar(2);
-                                    ScanHexaDecimal(false);
-                                    return token;
-                                }
-
-                            case 'b':
-                                {
-                                    ScanChar(2);
-                                    ScanBitField(false);
-                                    return token;
-                                }
+                            ScanChar(2);
+                            ScanHexaDecimal(false);
+                            return token;
                         }
-                        goto case '1';
+
+                        case 'b':
+                        {
+                            ScanChar(2);
+                            ScanBitField(false);
+                            return token;
+                        }
                     }
+                    goto case '1';
+                }
 
                 case '1':
                 case '2':
@@ -314,359 +314,359 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 case '7':
                 case '8':
                 case '9':
-                    {
-                        ScanNumber();
-                        return token;
-                    }
+                {
+                    ScanNumber();
+                    return token;
+                }
 
                 case '.':
+                {
+                    if (CharTypes.IsDigit(sql[curIndex + 1]))
                     {
-                        if (CharTypes.IsDigit(sql[curIndex + 1]))
-                        {
-                            ScanNumber();
-                        }
-                        else
-                        {
-                            ScanChar();
-                            token = MySqlToken.PuncDot;
-                        }
-                        return token;
+                        ScanNumber();
                     }
+                    else
+                    {
+                        ScanChar();
+                        token = MySqlToken.PuncDot;
+                    }
+                    return token;
+                }
 
                 case '\'':
                 case '"':
-                    {
-                        ScanString();
-                        return token;
-                    }
+                {
+                    ScanString();
+                    return token;
+                }
 
                 case 'n':
                 case 'N':
+                {
+                    if (sql[curIndex + 1] == '\'')
                     {
-                        if (sql[curIndex + 1] == '\'')
-                        {
-                            ScanChar();
-                            ScanString();
-                            token = MySqlToken.LiteralNchars;
-                            return token;
-                        }
-                        ScanIdentifier();
+                        ScanChar();
+                        ScanString();
+                        token = MySqlToken.LiteralNchars;
                         return token;
                     }
+                    ScanIdentifier();
+                    return token;
+                }
 
                 case 'x':
                 case 'X':
+                {
+                    if (sql[curIndex + 1] == '\'')
                     {
-                        if (sql[curIndex + 1] == '\'')
-                        {
-                            ScanChar(2);
-                            ScanHexaDecimal(true);
-                            return token;
-                        }
-                        ScanIdentifier();
+                        ScanChar(2);
+                        ScanHexaDecimal(true);
                         return token;
                     }
+                    ScanIdentifier();
+                    return token;
+                }
 
                 case 'b':
                 case 'B':
+                {
+                    if (sql[curIndex + 1] == '\'')
                     {
-                        if (sql[curIndex + 1] == '\'')
-                        {
-                            ScanChar(2);
-                            ScanBitField(true);
-                            return token;
-                        }
-                        ScanIdentifier();
+                        ScanChar(2);
+                        ScanBitField(true);
                         return token;
                     }
+                    ScanIdentifier();
+                    return token;
+                }
 
                 case '@':
+                {
+                    if (sql[curIndex + 1] == '@')
                     {
-                        if (sql[curIndex + 1] == '@')
-                        {
-                            ScanSystemVariable();
-                            return token;
-                        }
-                        ScanUserVariable();
+                        ScanSystemVariable();
                         return token;
                     }
+                    ScanUserVariable();
+                    return token;
+                }
 
                 case '?':
-                    {
-                        ScanChar();
-                        token = MySqlToken.QuestionMark;
-                        ++paramIndex;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.QuestionMark;
+                    ++paramIndex;
+                    return token;
+                }
 
                 case '(':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncLeftParen;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncLeftParen;
+                    return token;
+                }
 
                 case ')':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncRightParen;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncRightParen;
+                    return token;
+                }
 
                 case '[':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncLeftBracket;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncLeftBracket;
+                    return token;
+                }
 
                 case ']':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncRightBracket;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncRightBracket;
+                    return token;
+                }
 
                 case '{':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncLeftBrace;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncLeftBrace;
+                    return token;
+                }
 
                 case '}':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncRightBrace;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncRightBrace;
+                    return token;
+                }
 
                 case ',':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncComma;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncComma;
+                    return token;
+                }
 
                 case ';':
-                    {
-                        ScanChar();
-                        token = MySqlToken.PuncSemicolon;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.PuncSemicolon;
+                    return token;
+                }
 
                 case ':':
+                {
+                    if (sql[curIndex + 1] == '=')
                     {
-                        if (sql[curIndex + 1] == '=')
-                        {
-                            ScanChar(2);
-                            token = MySqlToken.OpAssign;
-                            return token;
-                        }
-                        ScanChar();
-                        token = MySqlToken.PuncColon;
+                        ScanChar(2);
+                        token = MySqlToken.OpAssign;
                         return token;
                     }
+                    ScanChar();
+                    token = MySqlToken.PuncColon;
+                    return token;
+                }
 
                 case '=':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpEquals;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpEquals;
+                    return token;
+                }
 
                 case '~':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpTilde;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpTilde;
+                    return token;
+                }
 
                 case '*':
+                {
+                    if (inCStyleComment && sql[curIndex + 1] == '/')
                     {
-                        if (inCStyleComment && sql[curIndex + 1] == '/')
-                        {
-                            inCStyleComment = false;
-                            inCStyleCommentIgnore = false;
-                            ScanChar(2);
-                            token = MySqlToken.PuncCStyleCommentEnd;
-                            return token;
-                        }
-                        ScanChar();
-                        token = MySqlToken.OpAsterisk;
+                        inCStyleComment = false;
+                        inCStyleCommentIgnore = false;
+                        ScanChar(2);
+                        token = MySqlToken.PuncCStyleCommentEnd;
                         return token;
                     }
+                    ScanChar();
+                    token = MySqlToken.OpAsterisk;
+                    return token;
+                }
 
                 case '-':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpMinus;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpMinus;
+                    return token;
+                }
 
                 case '+':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpPlus;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpPlus;
+                    return token;
+                }
 
                 case '^':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpCaret;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpCaret;
+                    return token;
+                }
 
                 case '/':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpSlash;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpSlash;
+                    return token;
+                }
 
                 case '%':
-                    {
-                        ScanChar();
-                        token = MySqlToken.OpPercent;
-                        return token;
-                    }
+                {
+                    ScanChar();
+                    token = MySqlToken.OpPercent;
+                    return token;
+                }
 
                 case '&':
+                {
+                    if (sql[curIndex + 1] == '&')
                     {
-                        if (sql[curIndex + 1] == '&')
-                        {
-                            ScanChar(2);
-                            token = MySqlToken.OpLogicalAnd;
-                            return token;
-                        }
-                        ScanChar();
-                        token = MySqlToken.OpAmpersand;
+                        ScanChar(2);
+                        token = MySqlToken.OpLogicalAnd;
                         return token;
                     }
+                    ScanChar();
+                    token = MySqlToken.OpAmpersand;
+                    return token;
+                }
 
                 case '|':
+                {
+                    if (sql[curIndex + 1] == '|')
                     {
-                        if (sql[curIndex + 1] == '|')
-                        {
-                            ScanChar(2);
-                            token = MySqlToken.OpLogicalOr;
-                            return token;
-                        }
-                        ScanChar();
-                        token = MySqlToken.OpVerticalBar;
+                        ScanChar(2);
+                        token = MySqlToken.OpLogicalOr;
                         return token;
                     }
+                    ScanChar();
+                    token = MySqlToken.OpVerticalBar;
+                    return token;
+                }
 
                 case '!':
+                {
+                    if (sql[curIndex + 1] == '=')
                     {
-                        if (sql[curIndex + 1] == '=')
-                        {
-                            ScanChar(2);
-                            token = MySqlToken.OpNotEquals;
-                            return token;
-                        }
-                        ScanChar();
-                        token = MySqlToken.OpExclamation;
+                        ScanChar(2);
+                        token = MySqlToken.OpNotEquals;
                         return token;
                     }
+                    ScanChar();
+                    token = MySqlToken.OpExclamation;
+                    return token;
+                }
 
                 case '>':
+                {
+                    switch (sql[curIndex + 1])
                     {
-                        switch (sql[curIndex + 1])
+                        case '=':
                         {
-                            case '=':
-                                {
-                                    ScanChar(2);
-                                    token = MySqlToken.OpGreaterOrEquals;
-                                    return token;
-                                }
-
-                            case '>':
-                                {
-                                    ScanChar(2);
-                                    token = MySqlToken.OpRightShift;
-                                    return token;
-                                }
-
-                            default:
-                                {
-                                    ScanChar();
-                                    token = MySqlToken.OpGreaterThan;
-                                    return token;
-                                }
+                            ScanChar(2);
+                            token = MySqlToken.OpGreaterOrEquals;
+                            return token;
                         }
-                        //goto case '<';
+
+                        case '>':
+                        {
+                            ScanChar(2);
+                            token = MySqlToken.OpRightShift;
+                            return token;
+                        }
+
+                        default:
+                        {
+                            ScanChar();
+                            token = MySqlToken.OpGreaterThan;
+                            return token;
+                        }
                     }
+                    //goto case '<';
+                }
 
                 case '<':
+                {
+                    switch (sql[curIndex + 1])
                     {
-                        switch (sql[curIndex + 1])
+                        case '=':
                         {
-                            case '=':
-                                {
-                                    if (sql[curIndex + 2] == '>')
-                                    {
-                                        ScanChar(3);
-                                        token = MySqlToken.OpNullSafeEquals;
-                                        return token;
-                                    }
-                                    ScanChar(2);
-                                    token = MySqlToken.OpLessOrEquals;
-                                    return token;
-                                }
-
-                            case '>':
-                                {
-                                    ScanChar(2);
-                                    token = MySqlToken.OpLessOrGreater;
-                                    return token;
-                                }
-
-                            case '<':
-                                {
-                                    ScanChar(2);
-                                    token = MySqlToken.OpLeftShift;
-                                    return token;
-                                }
-
-                            default:
-                                {
-                                    ScanChar();
-                                    token = MySqlToken.OpLessThan;
-                                    return token;
-                                }
+                            if (sql[curIndex + 2] == '>')
+                            {
+                                ScanChar(3);
+                                token = MySqlToken.OpNullSafeEquals;
+                                return token;
+                            }
+                            ScanChar(2);
+                            token = MySqlToken.OpLessOrEquals;
+                            return token;
                         }
-                        //goto case '`';
+
+                        case '>':
+                        {
+                            ScanChar(2);
+                            token = MySqlToken.OpLessOrGreater;
+                            return token;
+                        }
+
+                        case '<':
+                        {
+                            ScanChar(2);
+                            token = MySqlToken.OpLeftShift;
+                            return token;
+                        }
+
+                        default:
+                        {
+                            ScanChar();
+                            token = MySqlToken.OpLessThan;
+                            return token;
+                        }
                     }
+                    //goto case '`';
+                }
 
                 case '`':
-                    {
-                        ScanIdentifierWithAccent();
-                        return token;
-                    }
+                {
+                    ScanIdentifierWithAccent();
+                    return token;
+                }
 
                 default:
+                {
+                    if (CharTypes.IsIdentifierChar(ch))
                     {
-                        if (CharTypes.IsIdentifierChar(ch))
+                        ScanIdentifier();
+                    }
+                    else
+                    {
+                        if (Eof())
                         {
-                            ScanIdentifier();
+                            token = MySqlToken.Eof;
+                            curIndex = eofIndex;
                         }
                         else
                         {
-                            if (Eof())
-                            {
-                                token = MySqlToken.Eof;
-                                curIndex = eofIndex;
-                            }
-                            else
-                            {
-                                // tokenPos = curIndex;
-                                throw Err("unsupported character: " + ch);
-                            }
+                            // tokenPos = curIndex;
+                            throw Err("unsupported character: " + ch);
                         }
-                        return token;
                     }
+                    return token;
+                }
             }
         }
 
@@ -711,90 +711,90 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             switch (ScanChar())
             {
                 case '"':
-                    {
-                        dq = true;
-                        goto case '\'';
-                    }
+                {
+                    dq = true;
+                    goto case '\'';
+                }
 
                 case '\'':
+                {
+                    for (++sizeCache;; ++sizeCache)
                     {
-                        for (++sizeCache; ; ++sizeCache)
+                        switch (ScanChar())
                         {
-                            switch (ScanChar())
+                            case '\\':
                             {
-                                case '\\':
-                                    {
-                                        ++sizeCache;
-                                        ScanChar();
-                                        break;
-                                    }
-
-                                case '"':
-                                    {
-                                        if (dq)
-                                        {
-                                            ++sizeCache;
-                                            if (ScanChar() == '"')
-                                            {
-                                                break;
-                                            }
-                                            goto loop1_break;
-                                        }
-                                        break;
-                                    }
-
-                                case '\'':
-                                    {
-                                        if (!dq)
-                                        {
-                                            ++sizeCache;
-                                            if (ScanChar() == '\'')
-                                            {
-                                                break;
-                                            }
-                                            goto loop1_break;
-                                        }
-                                        break;
-                                    }
+                                ++sizeCache;
+                                ScanChar();
+                                break;
                             }
-                            //loop1_continue:;
+
+                            case '"':
+                            {
+                                if (dq)
+                                {
+                                    ++sizeCache;
+                                    if (ScanChar() == '"')
+                                    {
+                                        break;
+                                    }
+                                    goto loop1_break;
+                                }
+                                break;
+                            }
+
+                            case '\'':
+                            {
+                                if (!dq)
+                                {
+                                    ++sizeCache;
+                                    if (ScanChar() == '\'')
+                                    {
+                                        break;
+                                    }
+                                    goto loop1_break;
+                                }
+                                break;
+                            }
                         }
-                    loop1_break:
-                        ;
-                        break;
+                        //loop1_continue:;
                     }
+                    loop1_break:
+                    ;
+                    break;
+                }
 
                 case '`':
+                {
+                    for (++sizeCache;; ++sizeCache)
                     {
-                        for (++sizeCache; ; ++sizeCache)
+                        switch (ScanChar())
                         {
-                            switch (ScanChar())
+                            case '`':
                             {
-                                case '`':
-                                    {
-                                        ++sizeCache;
-                                        if (ScanChar() == '`')
-                                        {
-                                            break;
-                                        }
-                                        goto loop1_break;
-                                    }
+                                ++sizeCache;
+                                if (ScanChar() == '`')
+                                {
+                                    break;
+                                }
+                                goto loop1_break;
                             }
-                            //loop1_continue:;
                         }
-                    loop1_break:
-                        ;
-                        break;
+                        //loop1_continue:;
                     }
+                    loop1_break:
+                    ;
+                    break;
+                }
 
                 default:
+                {
+                    for (; CharTypes.IsIdentifierChar(ch) || ch == '.'; ++sizeCache)
                     {
-                        for (; CharTypes.IsIdentifierChar(ch) || ch == '.'; ++sizeCache)
-                        {
-                            ScanChar();
-                        }
-                        break;
+                        ScanChar();
                     }
+                    break;
+                }
             }
             stringValue = new string(sql, offsetCache, sizeCache);
             token = MySqlToken.UsrVar;
@@ -813,7 +813,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             ScanChar(2);
             if (ch == '`')
             {
-                for (++sizeCache; ; ++sizeCache)
+                for (++sizeCache;; ++sizeCache)
                 {
                     if (ScanChar() == '`')
                     {
@@ -864,45 +864,45 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     switch (ScanChar())
                     {
                         case '\'':
-                            {
-                                PutChar('\\', size++);
-                                PutChar('\'', size++);
-                                break;
-                            }
+                        {
+                            PutChar('\\', size++);
+                            PutChar('\'', size++);
+                            break;
+                        }
 
                         case '\\':
-                            {
-                                PutChar('\\', size++);
-                                PutChar(ScanChar(), size++);
-                                continue;
-                            }
+                        {
+                            PutChar('\\', size++);
+                            PutChar(ScanChar(), size++);
+                            continue;
+                        }
 
                         case '"':
+                        {
+                            if (sql[curIndex + 1] == '"')
                             {
-                                if (sql[curIndex + 1] == '"')
-                                {
-                                    PutChar('"', size++);
-                                    ScanChar();
-                                    continue;
-                                }
-                                PutChar('\'', size++);
+                                PutChar('"', size++);
                                 ScanChar();
-                                goto loop_break;
-                            }
-
-                        default:
-                            {
-                                if (Eof())
-                                {
-                                    throw Err("unclosed string");
-                                }
-                                PutChar(ch, size++);
                                 continue;
                             }
+                            PutChar('\'', size++);
+                            ScanChar();
+                            goto loop_break;
+                        }
+
+                        default:
+                        {
+                            if (Eof())
+                            {
+                                throw Err("unclosed string");
+                            }
+                            PutChar(ch, size++);
+                            continue;
+                        }
                     }
                     // loop_continue:;
                 }
-            loop_break:
+                loop_break:
                 ;
             }
             else
@@ -912,38 +912,38 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                     switch (ScanChar())
                     {
                         case '\\':
+                        {
+                            PutChar('\\', size++);
+                            PutChar(ScanChar(), size++);
+                            continue;
+                        }
+
+                        case '\'':
+                        {
+                            if (sql[curIndex + 1] == '\'')
                             {
                                 PutChar('\\', size++);
                                 PutChar(ScanChar(), size++);
                                 continue;
                             }
-
-                        case '\'':
-                            {
-                                if (sql[curIndex + 1] == '\'')
-                                {
-                                    PutChar('\\', size++);
-                                    PutChar(ScanChar(), size++);
-                                    continue;
-                                }
-                                PutChar('\'', size++);
-                                ScanChar();
-                                goto loop_break;
-                            }
+                            PutChar('\'', size++);
+                            ScanChar();
+                            goto loop_break;
+                        }
 
                         default:
+                        {
+                            if (Eof())
                             {
-                                if (Eof())
-                                {
-                                    throw Err("unclosed string");
-                                }
-                                PutChar(ch, size++);
-                                continue;
+                                throw Err("unclosed string");
                             }
+                            PutChar(ch, size++);
+                            continue;
+                        }
                     }
                     //loop_continue:;
                 }
-            loop_break:
+                loop_break:
                 ;
             }
             sizeCache = size;
@@ -956,7 +956,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         {
             if (index >= sbuf.Length)
             {
-                var newsbuf = new char[sbuf.Length * 2];
+                var newsbuf = new char[sbuf.Length*2];
                 Array.Copy(sbuf, 0, newsbuf, 0, sbuf.Length);
                 sbuf = newsbuf;
             }
@@ -1051,259 +1051,142 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 switch (state)
                 {
                     case 0:
+                    {
+                        if (CharTypes.IsDigit(ch))
                         {
-                            if (CharTypes.IsDigit(ch))
+                        }
+                        else
+                        {
+                            if (ch == '.')
                             {
+                                dot = true;
+                                state = 1;
                             }
                             else
                             {
-                                if (ch == '.')
+                                if (ch == 'e' || ch == 'E')
                                 {
-                                    dot = true;
-                                    state = 1;
+                                    state = 3;
                                 }
                                 else
                                 {
-                                    if (ch == 'e' || ch == 'E')
+                                    if (CharTypes.IsIdentifierChar(ch))
                                     {
-                                        state = 3;
-                                    }
-                                    else
-                                    {
-                                        if (CharTypes.IsIdentifierChar(ch))
-                                        {
-                                            ScanIdentifierFromNumber(offsetCache, sizeCache);
-                                            return;
-                                        }
-                                        token = MySqlToken.LiteralNumPureDigit;
+                                        ScanIdentifierFromNumber(offsetCache, sizeCache);
                                         return;
                                     }
+                                    token = MySqlToken.LiteralNumPureDigit;
+                                    return;
                                 }
                             }
-                            break;
                         }
+                        break;
+                    }
 
                     case 1:
+                    {
+                        if (CharTypes.IsDigit(ch))
                         {
-                            if (CharTypes.IsDigit(ch))
+                            state = 2;
+                        }
+                        else
+                        {
+                            if (ch == 'e' || ch == 'E')
                             {
-                                state = 2;
+                                state = 3;
                             }
                             else
                             {
-                                if (ch == 'e' || ch == 'E')
+                                if (CharTypes.IsIdentifierChar(ch) && fstDot)
                                 {
-                                    state = 3;
-                                }
-                                else
-                                {
-                                    if (CharTypes.IsIdentifierChar(ch) && fstDot)
-                                    {
-                                        sizeCache = 1;
-                                        ch = sql[curIndex = offsetCache + 1];
-                                        token = MySqlToken.PuncDot;
-                                        return;
-                                    }
-                                    token = MySqlToken.LiteralNumMixDigit;
+                                    sizeCache = 1;
+                                    ch = sql[curIndex = offsetCache + 1];
+                                    token = MySqlToken.PuncDot;
                                     return;
                                 }
+                                token = MySqlToken.LiteralNumMixDigit;
+                                return;
                             }
-                            break;
                         }
+                        break;
+                    }
 
                     case 2:
+                    {
+                        if (CharTypes.IsDigit(ch))
                         {
-                            if (CharTypes.IsDigit(ch))
+                        }
+                        else
+                        {
+                            if (ch == 'e' || ch == 'E')
                             {
+                                state = 3;
                             }
                             else
                             {
-                                if (ch == 'e' || ch == 'E')
+                                if (CharTypes.IsIdentifierChar(ch) && fstDot)
                                 {
-                                    state = 3;
-                                }
-                                else
-                                {
-                                    if (CharTypes.IsIdentifierChar(ch) && fstDot)
-                                    {
-                                        sizeCache = 1;
-                                        ch = sql[curIndex = offsetCache + 1];
-                                        token = MySqlToken.PuncDot;
-                                        return;
-                                    }
-                                    token = MySqlToken.LiteralNumMixDigit;
+                                    sizeCache = 1;
+                                    ch = sql[curIndex = offsetCache + 1];
+                                    token = MySqlToken.PuncDot;
                                     return;
                                 }
+                                token = MySqlToken.LiteralNumMixDigit;
+                                return;
                             }
-                            break;
                         }
+                        break;
+                    }
 
                     case 3:
+                    {
+                        if (CharTypes.IsDigit(ch))
                         {
-                            if (CharTypes.IsDigit(ch))
+                            state = 5;
+                        }
+                        else
+                        {
+                            if (ch == '+' || ch == '-')
                             {
-                                state = 5;
+                                sign = true;
+                                state = 4;
                             }
                             else
-                            {
-                                if (ch == '+' || ch == '-')
-                                {
-                                    sign = true;
-                                    state = 4;
-                                }
-                                else
-                                {
-                                    if (fstDot)
-                                    {
-                                        sizeCache = 1;
-                                        ch = sql[curIndex = offsetCache + 1];
-                                        token = MySqlToken.PuncDot;
-                                        return;
-                                    }
-                                    if (!dot)
-                                    {
-                                        if (CharTypes.IsIdentifierChar(ch))
-                                        {
-                                            ScanIdentifierFromNumber(offsetCache, sizeCache);
-                                        }
-                                        else
-                                        {
-                                            UpdateStringValue(sql, offsetCache, sizeCache);
-                                            var tok = keywods.GetKeyword(stringValueUppercase);
-                                            token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
-                                        }
-                                        return;
-                                    }
-                                    throw Err("invalid char after '.' and 'e' for as part of number: " + ch);
-                                }
-                            }
-                            break;
-                        }
-
-                    case 4:
-                        {
-                            if (CharTypes.IsDigit(ch))
-                            {
-                                state = 5;
-                                break;
-                            }
-                            if (fstDot)
-                            {
-                                sizeCache = 1;
-                                ch = sql[curIndex = offsetCache + 1];
-                                token = MySqlToken.PuncDot;
-                            }
-                            else
-                            {
-                                if (!dot)
-                                {
-                                    ch = sql[--curIndex];
-                                    --sizeCache;
-                                    UpdateStringValue(sql, offsetCache, sizeCache);
-                                    var tok = keywods.GetKeyword(stringValueUppercase);
-                                    token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
-                                }
-                                else
-                                {
-                                    throw Err("expect digit char after SIGN for 'e': " + ch);
-                                }
-                            }
-                            return;
-                        }
-
-                    case 5:
-                        {
-                            if (CharTypes.IsDigit(ch))
-                            {
-                                break;
-                            }
-                            if (CharTypes.IsIdentifierChar(ch))
                             {
                                 if (fstDot)
                                 {
                                     sizeCache = 1;
                                     ch = sql[curIndex = offsetCache + 1];
                                     token = MySqlToken.PuncDot;
+                                    return;
                                 }
-                                else
+                                if (!dot)
                                 {
-                                    if (!dot)
+                                    if (CharTypes.IsIdentifierChar(ch))
                                     {
-                                        if (sign)
-                                        {
-                                            ch = sql[curIndex = offsetCache];
-                                            ScanIdentifierFromNumber(curIndex, 0);
-                                        }
-                                        else
-                                        {
-                                            ScanIdentifierFromNumber(offsetCache, sizeCache);
-                                        }
+                                        ScanIdentifierFromNumber(offsetCache, sizeCache);
                                     }
                                     else
                                     {
-                                        token = MySqlToken.LiteralNumMixDigit;
+                                        UpdateStringValue(sql, offsetCache, sizeCache);
+                                        var tok = keywods.GetKeyword(stringValueUppercase);
+                                        token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
                                     }
+                                    return;
                                 }
+                                throw Err("invalid char after '.' and 'e' for as part of number: " + ch);
                             }
-                            else
-                            {
-                                token = MySqlToken.LiteralNumMixDigit;
-                            }
-                            return;
                         }
-                }
-            }
-            switch (state)
-            {
-                case 0:
-                    {
-                        token = MySqlToken.LiteralNumPureDigit;
-                        return;
+                        break;
                     }
 
-                case 1:
+                    case 4:
                     {
-                        if (fstDot)
+                        if (CharTypes.IsDigit(ch))
                         {
-                            token = MySqlToken.PuncDot;
-                            return;
+                            state = 5;
+                            break;
                         }
-                        goto case 2;
-                    }
-
-                case 2:
-                case 5:
-                    {
-                        token = MySqlToken.LiteralNumMixDigit;
-                        return;
-                    }
-
-                case 3:
-                    {
-                        if (fstDot)
-                        {
-                            sizeCache = 1;
-                            ch = sql[curIndex = offsetCache + 1];
-                            token = MySqlToken.PuncDot;
-                        }
-                        else
-                        {
-                            if (!dot)
-                            {
-                                UpdateStringValue(sql, offsetCache, sizeCache);
-                                var tok = keywods.GetKeyword(stringValueUppercase);
-                                token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
-                            }
-                            else
-                            {
-                                throw Err("expect digit char after SIGN for 'e': " + ch);
-                            }
-                        }
-                        return;
-                    }
-
-                case 4:
-                    {
                         if (fstDot)
                         {
                             sizeCache = 1;
@@ -1327,6 +1210,123 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                         }
                         return;
                     }
+
+                    case 5:
+                    {
+                        if (CharTypes.IsDigit(ch))
+                        {
+                            break;
+                        }
+                        if (CharTypes.IsIdentifierChar(ch))
+                        {
+                            if (fstDot)
+                            {
+                                sizeCache = 1;
+                                ch = sql[curIndex = offsetCache + 1];
+                                token = MySqlToken.PuncDot;
+                            }
+                            else
+                            {
+                                if (!dot)
+                                {
+                                    if (sign)
+                                    {
+                                        ch = sql[curIndex = offsetCache];
+                                        ScanIdentifierFromNumber(curIndex, 0);
+                                    }
+                                    else
+                                    {
+                                        ScanIdentifierFromNumber(offsetCache, sizeCache);
+                                    }
+                                }
+                                else
+                                {
+                                    token = MySqlToken.LiteralNumMixDigit;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            token = MySqlToken.LiteralNumMixDigit;
+                        }
+                        return;
+                    }
+                }
+            }
+            switch (state)
+            {
+                case 0:
+                {
+                    token = MySqlToken.LiteralNumPureDigit;
+                    return;
+                }
+
+                case 1:
+                {
+                    if (fstDot)
+                    {
+                        token = MySqlToken.PuncDot;
+                        return;
+                    }
+                    goto case 2;
+                }
+
+                case 2:
+                case 5:
+                {
+                    token = MySqlToken.LiteralNumMixDigit;
+                    return;
+                }
+
+                case 3:
+                {
+                    if (fstDot)
+                    {
+                        sizeCache = 1;
+                        ch = sql[curIndex = offsetCache + 1];
+                        token = MySqlToken.PuncDot;
+                    }
+                    else
+                    {
+                        if (!dot)
+                        {
+                            UpdateStringValue(sql, offsetCache, sizeCache);
+                            var tok = keywods.GetKeyword(stringValueUppercase);
+                            token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
+                        }
+                        else
+                        {
+                            throw Err("expect digit char after SIGN for 'e': " + ch);
+                        }
+                    }
+                    return;
+                }
+
+                case 4:
+                {
+                    if (fstDot)
+                    {
+                        sizeCache = 1;
+                        ch = sql[curIndex = offsetCache + 1];
+                        token = MySqlToken.PuncDot;
+                    }
+                    else
+                    {
+                        if (!dot)
+                        {
+                            ch = sql[--curIndex];
+                            --sizeCache;
+                            UpdateStringValue(sql, offsetCache, sizeCache);
+                            var tok = keywods.GetKeyword(stringValueUppercase);
+                            token = tok == MySqlToken.None ? MySqlToken.Identifier : tok;
+                        }
+                        else
+                        {
+                            throw Err("expect digit char after SIGN for 'e': " + ch);
+                        }
+                    }
+                    return;
+                }
             }
         }
 
@@ -1426,111 +1426,111 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
                 switch (ch)
                 {
                     case '#':
+                    {
+                        // MySql specified
+                        for (; ScanChar() != '\n';)
                         {
-                            // MySql specified
-                            for (; ScanChar() != '\n';)
+                            if (Eof())
                             {
-                                if (Eof())
-                                {
-                                    return;
-                                }
+                                return;
                             }
-                            ScanChar();
-                            continue;
                         }
+                        ScanChar();
+                        continue;
+                    }
 
                     case '/':
+                    {
+                        if (HasChars(2) && '*' == sql[curIndex + 1])
                         {
-                            if (HasChars(2) && '*' == sql[curIndex + 1])
-                            {
-                                bool commentSkip;
-                                if ('!' == sql[curIndex + 2])
-                                {
-                                    ScanChar(3);
-                                    inCStyleComment = true;
-                                    inCStyleCommentIgnore = false;
-                                    commentSkip = false;
-                                    // MySql use 5 digits to indicate version. 50508 means
-                                    // MySql 5.5.8
-                                    if (HasChars(5) && CharTypes.IsDigit(ch) && CharTypes.IsDigit(sql[curIndex + 1])
-                                        && CharTypes.IsDigit(sql[curIndex + 2]) && CharTypes.IsDigit(sql[curIndex + 3])
-                                        && CharTypes.IsDigit(sql[curIndex + 4]))
-                                    {
-                                        var version = ch - '0';
-                                        version *= 10;
-                                        version += sql[curIndex + 1] - '0';
-                                        version *= 10;
-                                        version += sql[curIndex + 2] - '0';
-                                        version *= 10;
-                                        version += sql[curIndex + 3] - '0';
-                                        version *= 10;
-                                        version += sql[curIndex + 4] - '0';
-                                        ScanChar(5);
-                                        if (version > CStyleCommentVersion)
-                                        {
-                                            inCStyleCommentIgnore = true;
-                                        }
-                                    }
-                                    SkipSeparator();
-                                }
-                                else
-                                {
-                                    ScanChar(2);
-                                    commentSkip = true;
-                                }
-                                if (commentSkip)
-                                {
-                                    for (var state = 0; !Eof(); ScanChar())
-                                    {
-                                        if (state == 0)
-                                        {
-                                            if ('*' == ch)
-                                            {
-                                                state = 1;
-                                            }
-                                        }
-                                        else
-                                        {
-                                            if ('/' == ch)
-                                            {
-                                                ScanChar();
-                                                break;
-                                            }
-                                            if ('*' != ch)
-                                            {
-                                                state = 0;
-                                            }
-                                        }
-                                    }
-                                    continue;
-                                }
-                            }
-                            return;
-                        }
-
-                    case '-':
-                        {
-                            if (HasChars(3) && '-' == sql[curIndex + 1] && CharTypes.IsWhitespace(sql[curIndex
-                                                                                                      + 2]))
+                            bool commentSkip;
+                            if ('!' == sql[curIndex + 2])
                             {
                                 ScanChar(3);
-                                for (; !Eof(); ScanChar())
+                                inCStyleComment = true;
+                                inCStyleCommentIgnore = false;
+                                commentSkip = false;
+                                // MySql use 5 digits to indicate version. 50508 means
+                                // MySql 5.5.8
+                                if (HasChars(5) && CharTypes.IsDigit(ch) && CharTypes.IsDigit(sql[curIndex + 1])
+                                    && CharTypes.IsDigit(sql[curIndex + 2]) && CharTypes.IsDigit(sql[curIndex + 3])
+                                    && CharTypes.IsDigit(sql[curIndex + 4]))
                                 {
-                                    if ('\n' == ch)
+                                    var version = ch - '0';
+                                    version *= 10;
+                                    version += sql[curIndex + 1] - '0';
+                                    version *= 10;
+                                    version += sql[curIndex + 2] - '0';
+                                    version *= 10;
+                                    version += sql[curIndex + 3] - '0';
+                                    version *= 10;
+                                    version += sql[curIndex + 4] - '0';
+                                    ScanChar(5);
+                                    if (version > CStyleCommentVersion)
                                     {
-                                        ScanChar();
-                                        break;
+                                        inCStyleCommentIgnore = true;
+                                    }
+                                }
+                                SkipSeparator();
+                            }
+                            else
+                            {
+                                ScanChar(2);
+                                commentSkip = true;
+                            }
+                            if (commentSkip)
+                            {
+                                for (var state = 0; !Eof(); ScanChar())
+                                {
+                                    if (state == 0)
+                                    {
+                                        if ('*' == ch)
+                                        {
+                                            state = 1;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if ('/' == ch)
+                                        {
+                                            ScanChar();
+                                            break;
+                                        }
+                                        if ('*' != ch)
+                                        {
+                                            state = 0;
+                                        }
                                     }
                                 }
                                 continue;
                             }
-                            goto default;
                         }
+                        return;
+                    }
+
+                    case '-':
+                    {
+                        if (HasChars(3) && '-' == sql[curIndex + 1] && CharTypes.IsWhitespace(sql[curIndex
+                                                                                                  + 2]))
+                        {
+                            ScanChar(3);
+                            for (; !Eof(); ScanChar())
+                            {
+                                if ('\n' == ch)
+                                {
+                                    ScanChar();
+                                    break;
+                                }
+                            }
+                            continue;
+                        }
+                        goto default;
+                    }
 
                     default:
-                        {
-                            return;
-                        }
+                    {
+                        return;
+                    }
                 }
             }
         }
@@ -1549,15 +1549,15 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
             sb.Append(GetType().Name).Append('@').Append(GetHashCode()).Append('{');
             var sqlLeft = new string(sql, curIndex, sql.Length - curIndex);
             sb.Append("curIndex=")
-                .Append(curIndex)
-                .Append(", ch=")
-                .Append(ch)
-                .Append(", token=")
-                .Append(token)
-                .Append(", sqlLeft=")
-                .Append(sqlLeft)
-                .Append(", sql=")
-                .Append(sql);
+              .Append(curIndex)
+              .Append(", ch=")
+              .Append(ch)
+              .Append(", token=")
+              .Append(token)
+              .Append(", sqlLeft=")
+              .Append(sqlLeft)
+              .Append(", sql=")
+              .Append(sql);
             sb.Append('}');
             return sb.ToString();
         }
@@ -1571,7 +1571,8 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Lexer
         {
             // 2147483647
             // 9223372036854775807
-            if (sizeCache < 10 || sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache] == '2' && sql[offsetCache + 1] == '0'))
+            if (sizeCache < 10 ||
+                sizeCache == 10 && (sql[offsetCache] < '2' || sql[offsetCache] == '2' && sql[offsetCache + 1] == '0'))
             {
                 var rst = 0;
                 var end = offsetCache + sizeCache;

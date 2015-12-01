@@ -66,24 +66,24 @@ namespace Tup.Cobar4Net.Config
         public const int ClientMultiStatements = 65536;
 
         public const int ClientMultiResults = 131072;
-        // 客户端的会话等待超时变量变为交互超时变量。
-        // 允许使用关闭连接之前的不活动交互超时的描述，而不是等待超时秒数。
-        // This is an interactive client
-        // New 4.1 protocol This is an interactive client
-        // 允许在函数名后使用空格。所有函数名可以预留字。
-        // Ignore spaces before '('
-        // Can use LOAD DATA LOCAL
-        // Odbc client
-        // 使用压缩协议
-        // Can use compression protocol
-        // 当使用这样的语法时解析器会产生一个错误，这对于一些ODBC的程序限制bug来说是有用的。
-        // 不允许“数据库名.表名.列名”这样的语法。这是对于ODBC的设置。
-        // Don't allow database.table.column
-        // One can specify db on connect
-        // Get all column flags
-        // 返回找到（匹配）的行数，而不是改变了的行数。
-        // Found instead of affected rows
         // new more secure passwords
+        // Found instead of affected rows
+        // 返回找到（匹配）的行数，而不是改变了的行数。
+        // Get all column flags
+        // One can specify db on connect
+        // Don't allow database.table.column
+        // 不允许“数据库名.表名.列名”这样的语法。这是对于ODBC的设置。
+        // 当使用这样的语法时解析器会产生一个错误，这对于一些ODBC的程序限制bug来说是有用的。
+        // Can use compression protocol
+        // 使用压缩协议
+        // Odbc client
+        // Can use LOAD DATA LOCAL
+        // Ignore spaces before '('
+        // 允许在函数名后使用空格。所有函数名可以预留字。
+        // New 4.1 protocol This is an interactive client
+        // This is an interactive client
+        // 允许使用关闭连接之前的不活动交互超时的描述，而不是等待超时秒数。
+        // 客户端的会话等待超时变量变为交互超时变量。
         // Switch to SSL after handshake
         // 使用SSL。这个设置不应该被应用程序设置，他应该是在客户端库内部是设置的。
         // 可以在调用mysql_real_connect()之前调用mysql_ssl_set()来代替设置。

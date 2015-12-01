@@ -35,7 +35,7 @@ namespace Tup.Cobar4Net.Parser.Ast.Stmt.Dal
     {
         public ShowEngine(EngineType type)
         {
-            this.EngineType = type;
+            EngineType = type;
         }
 
         public virtual EngineType EngineType { get; }

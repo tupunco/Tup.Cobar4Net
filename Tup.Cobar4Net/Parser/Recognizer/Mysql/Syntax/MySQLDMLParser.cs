@@ -93,7 +93,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                 }
             }
             for (groupBy = new GroupBy().AddOrderByItem(expr, order);
-                lexer.Token() == MySqlToken.PuncComma;)
+                 lexer.Token() == MySqlToken.PuncComma;)
             {
                 lexer.NextToken();
                 order = SortOrder.Asc;
@@ -415,13 +415,13 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                                 var condition = temp.RemoveLastConditionElement();
                                 if (condition is IExpression)
                                 {
-                                    @ref = new OuterJoin(isLeft, @ref, temp, (IExpression) condition);
+                                    @ref = new OuterJoin(isLeft, @ref, temp, (IExpression)condition);
                                 }
                                 else
                                 {
                                     if (condition is IList)
                                     {
-                                        @ref = new OuterJoin(isLeft, @ref, temp, (IList<string>) condition);
+                                        @ref = new OuterJoin(isLeft, @ref, temp, (IList<string>)condition);
                                     }
                                     else
                                     {
@@ -494,9 +494,9 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                     if (@ref is IQueryExpression)
                     {
                         alias = As();
-                        return new SubqueryFactor((IQueryExpression) @ref, alias);
+                        return new SubqueryFactor((IQueryExpression)@ref, alias);
                     }
-                    return (TableReferences) @ref;
+                    return (TableReferences)@ref;
                 }
 
                 case MySqlToken.Identifier:
@@ -571,7 +571,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                     {
                         if (@ref is DmlSelectStatement)
                         {
-                            IQueryExpression rst = BuildUnionSelect((DmlSelectStatement) @ref);
+                            IQueryExpression rst = BuildUnionSelect((DmlSelectStatement)@ref);
                             if (rst != @ref)
                             {
                                 return rst;
@@ -580,7 +580,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                         var alias = As();
                         if (alias != null)
                         {
-                            @ref = new SubqueryFactor((IQueryExpression) @ref, alias);
+                            @ref = new SubqueryFactor((IQueryExpression)@ref, alias);
                         }
                         else
                         {
@@ -588,7 +588,7 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                         }
                     }
                     // ---- build factor complete---------------
-                    @ref = BuildTableReference((TableReference) @ref);
+                    @ref = BuildTableReference((TableReference)@ref);
                     // ---- build ref complete---------------
                     break;
                 }
@@ -603,17 +603,17 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
             if (lexer.Token() == MySqlToken.PuncComma)
             {
                 list = new List<TableReference>();
-                list.Add((TableReference) @ref);
+                list.Add((TableReference)@ref);
                 for (; lexer.Token() == MySqlToken.PuncComma;)
                 {
                     lexer.NextToken();
                     @ref = TableReference();
-                    list.Add((TableReference) @ref);
+                    list.Add((TableReference)@ref);
                 }
                 return new TableReferences(list);
             }
             list = new List<TableReference>(1);
-            list.Add((TableReference) @ref);
+            list.Add((TableReference)@ref);
             return new TableReferences(list);
         }
 

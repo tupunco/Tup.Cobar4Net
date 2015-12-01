@@ -25,19 +25,6 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
     /// </author>
     public class MySqlMtsParser : MySqlParser
     {
-        /// <summary>
-        /// MySqlMtsParser SpecialIdentifier
-        /// </summary>
-        private enum SpecialIdentifier
-        {
-            None = 0,
-
-            Chain,
-            No,
-            Release,
-            Savepoint,
-            Work
-        }
         private static readonly IDictionary<string, SpecialIdentifier> specialIdentifiers =
             new Dictionary<string, SpecialIdentifier>();
 
@@ -156,6 +143,20 @@ namespace Tup.Cobar4Net.Parser.Recognizer.Mysql.Syntax
                     throw Err("unrecognized complete type: " + lexer.Token());
                 }
             }
+        }
+
+        /// <summary>
+        ///     MySqlMtsParser SpecialIdentifier
+        /// </summary>
+        private enum SpecialIdentifier
+        {
+            None = 0,
+
+            Chain,
+            No,
+            Release,
+            Savepoint,
+            Work
         }
     }
 }
